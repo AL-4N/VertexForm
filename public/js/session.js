@@ -392,7 +392,7 @@ export class Session {
     this.best = Math.max(this.best, score);
     if (score >= this.target) { this.goodReps++; this.streak++; } else this.streak = 0;
     // Everything the coach and results need about this rep.
-    const measures = Object.fromEntries(Object.entries(m).filter(([, v]) => typeof v === "number").map(([k, v]) => [k, Math.round(v * 1000) / 1000]));
+    const measures = numeric(m);
     const detail = { score, bars: graded.bars, stats: graded.stats, faults, duration, phases, measures, at: t };
     this.repDetails.push(detail);
     return { type: "rep", index: this.reps.length, ...detail, streak: this.streak, good: score >= this.target };
@@ -455,7 +455,7 @@ export class Session {
       h.segT = 0; h.segScores = [];
       this.reps.push(seg);
       this.best = Math.max(this.best, seg);
-      this.repDetails.push({ score: seg, bars: this.ex.grade(m, []).bars, faults: out.faults ?? [], duration: SEGMENT_S });
+      this.repDetails.push({ score: seg, bars: this.ex.grade(m, []).bars, faults: out.faults ?? [], duration: SEGMENT_S, measures: numeric(m) });
       out.events.push({ type: "segment", score: seg, index: this.reps.length, faults: out.faults ?? [] });
     }
 
@@ -465,7 +465,7 @@ export class Session {
       if (h.segScores.length > 10) {
         const seg = Math.round(h.segScores.reduce((a, b) => a + b, 0) / h.segScores.length);
         this.reps.push(seg); this.best = Math.max(this.best, seg);
-        this.repDetails.push({ score: seg, bars: this.ex.grade(m, []).bars, faults: out.faults ?? [], duration: h.segT });
+        this.repDetails.push({ score: seg, bars: this.ex.grade(m, []).bars, faults: out.faults ?? [], duration: h.segT, measures: numeric(m) });
         out.events.push({ type: "segment", score: seg, index: this.reps.length, faults: out.faults ?? [] });
       }
       this.done = true;
@@ -537,6 +537,11 @@ export function residuals(xs, ys) {
   const b = det3(s0, t0, s2, s1, t1, s3, s2, t2, s4) / D;
   const c = det3(s0, s1, t0, s1, s2, t1, s2, s3, t2) / D;
   return ys.map((y, i) => y - (a + b * X[i] + c * X[i] * X[i]));
+}
+
+/** The numeric measurements of a frame, rounded (for per-rep data). */
+function numeric(m) {
+  return Object.fromEntries(Object.entries(m).filter(([, v]) => typeof v === "number" && Number.isFinite(v)).map(([k, v]) => [k, Math.round(v * 1000) / 1000]));
 }
 
 /** Visibility for front-facing exercises: both sides matter. */

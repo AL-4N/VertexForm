@@ -18,6 +18,7 @@ const TORSO_TO_FRAME = 0.2;
 export default {
   name: "Jumping Jack",
   noIdeal: true,
+  noTempo: true,                     // too quick for a "down… 2… up" metronome
   frontFacing: true,
   repMetric: (m) => -m.armRaise,     // negated so "deep" = arms UP
   deepThreshold: -0.10,              // hands ~half a torso above the shoulders
@@ -28,6 +29,11 @@ export default {
   bottomBand: 0.05,
   attemptMin: 0.12,
   startTip: "Face the camera, arms by your sides",
+  fixes: {
+    extension: (m) => ({ ...m, armRaise: Math.max(m.armRaise, 0.2) }),
+    feet:      (m) => ({ ...m, legSpread: Math.max(m.legSpread, 1.7) }),
+  },
+  trend: { key: "armRaise", worse: -1, by: 0.05 },
 
   measure(lms) {
     const lsh = lms[LM.LEFT_SHOULDER], rsh = lms[LM.RIGHT_SHOULDER];

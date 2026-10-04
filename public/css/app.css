@@ -353,3 +353,29 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .celebrate { backdrop-filter: none; }
 .loading { backdrop-filter: none; }
 .live-clock { display: block; font-variant-numeric: tabular-nums; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ── Settings ────────────────────────────────────────── */
+.settings-wrap { display: grid; gap: 1rem; max-width: 760px; margin: 0 auto; }
+.settings-wrap .card { margin: 0; }
+.range { display: flex; align-items: center; gap: .7rem; }
+.range input { width: min(220px, 40vw); accent-color: var(--lime); }
+.range output { min-width: 3.5rem; text-align: right; font-variant-numeric: tabular-nums; color: var(--text-dim); font-size: .82rem; }
+.setting-note { font-size: .82rem; margin-top: .6rem; }
+.btn-inline { padding: .25rem .6rem; font-size: .8rem; }
+label { cursor: pointer; }
+
+/* ── Results: coach summary + rep table ──────────────── */
+.res-summary { display: grid; gap: .6rem; margin-bottom: .9rem; }
+.res-summary:empty { display: none; }
+.sum-row { display: grid; grid-template-columns: 6.2rem 1fr; gap: .7rem; align-items: start; font-size: .9rem; }
+.sum-row ul { margin: 0; padding-left: 1.1rem; }
+.sum-tag { font-size: .72rem; font-weight: 700; padding: .2rem .55rem; border-radius: var(--radius-pill); text-align: center; color: #07140e; }
+.sum-tag.good { background: var(--lime); }
+.sum-tag.fix { background: var(--amber); }
+.sum-tag.goal { background: var(--lime-dk); }
+.res-details-card { grid-column: 1 / -1; }
+.table-scroll { overflow-x: auto; }
+.rep-table { width: 100%; border-collapse: collapse; font-size: .85rem; font-variant-numeric: tabular-nums; }
+.rep-table th { text-align: left; color: var(--text-dim); font-weight: 600; padding: .35rem .5rem; border-bottom: 1px solid var(--border); }
+.rep-table td { padding: .4rem .5rem; border-bottom: 1px solid var(--border); }

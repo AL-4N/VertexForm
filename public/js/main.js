@@ -4,9 +4,9 @@
  * Flow:  menu → mode (+ setup options) → live session → results → menu
  */
 
-import { DEFAULTS, EXERCISE_META, DEMO_TIPS } from "./config.js";
-import { getSetting, setSetting, store } from "./storage.js";
-import { voice } from "./voice.js";
+import { EXERCISE_META, DEMO_TIPS } from "./config.js";
+import { speech } from "./voice.js";
+import { cfg as settingsCfg, wireSettings } from "./ui/settings.js";
 import { $, $$, showScreen, toast } from "./ui/components.js";
 import { renderMenu, addSessionEntry } from "./ui/menu.js";
 import { runLive, stopLive, switchCamera } from "./ui/live.js";
@@ -17,19 +17,8 @@ import { saveScoreCard } from "./ui/sharecard.js";
 import { mountLoop } from "./figures/loop.js";
 import { BY_NAME } from "./figures/pictos.js";
 
-/* ── Session config, seeded from saved settings ─────────── */
-const cfg = {
-  mode: "practice",
-  target:    getSetting("target",      DEFAULTS.target),
-  goal:      getSetting("goal",        DEFAULTS.goal),
-  countdown: getSetting("countdown",   DEFAULTS.countdown),
-  personality: getSetting("personality", DEFAULTS.personality),
-  voice:     getSetting("voice",       DEFAULTS.voice),
-  mirror:    getSetting("mirror",      DEFAULTS.mirror),
-  setReps:   getSetting("setReps",     DEFAULTS.setReps),
-  quality:   getSetting("quality",     DEFAULTS.quality),
-  startMode: getSetting("startMode",   DEFAULTS.startMode),
-};
+/* ── Settings (js/ui/settings.js keeps them and their controls in sync) ── */
+const cfg = settingsCfg;
 
 let currentExercise = null;
 let lastResults = null;
@@ -38,9 +27,8 @@ let stopDemo = () => {};
 /* ── Boot ───────────────────────────────────────────────── */
 
 function boot() {
-  voice.enabled = cfg.voice;
+  wireSettings();
   renderMenu(openMode);
-  wirePills();
   wireNav();
   wireStatsReset(() => renderMenu(openMode));
   wireCamera();
@@ -66,10 +54,12 @@ function wireNav() {
   });
 
   $("#btn-settings").addEventListener("click", () => {
-    // Settings live in the mode screen's setup panel — jump there.
-    if (!currentExercise) currentExercise = "Squat";
-    openMode(currentExercise);
-    toast("Session options are below");
+    refreshCameraPickers();
+    showScreen("settings");
+  });
+  $("#btn-test-voice").addEventListener("click", () => {
+    if (!cfg.voice) { toast("The voice is off"); return; }
+    speech.say("Ninety two. Nice depth, keep the chest up.", { interrupt: true, priority: 5 });
   });
 
   $("#mode-practice").addEventListener("click", () => startSession("practice"));
@@ -126,56 +116,6 @@ function openMode(exercise) {
   showScreen("mode");
 }
 
-/* ── Setup pills ────────────────────────────────────────── */
-
-function wirePills() {
-  const groups = {
-    "#opt-target":      { key: "target",      parse: Number },
-    "#opt-goal":        { key: "goal",        parse: Number },
-    "#opt-countdown":   { key: "countdown",   parse: Number },
-    "#opt-personality": { key: "personality", parse: String },
-    "#opt-setlen":      { key: "setReps",     parse: Number },
-    "#opt-start":       { key: "startMode",   parse: String },
-  };
-
-  Object.entries(groups).forEach(([sel, { key, parse }]) => {
-    const host = $(sel);
-    if (!host) return;
-
-    // Reflect the saved value on load.
-    $$("button", host).forEach((b) =>
-      b.classList.toggle("on", parse(b.dataset.val) === cfg[key]));
-
-    host.addEventListener("click", (e) => {
-      const btn = e.target.closest("button");
-      if (!btn) return;
-      $$("button", host).forEach((b) => b.classList.remove("on"));
-      btn.classList.add("on");
-      cfg[key] = parse(btn.dataset.val);
-      setSetting(key, cfg[key]);
-    });
-  });
-
-  // Toggle pills (voice / mirror)
-  const toggles = $("#opt-toggles");
-  $$("button", toggles).forEach((b) => {
-    const key = b.dataset.tog;
-    b.classList.toggle("on", !!cfg[key]);
-    b.textContent = `${cap(key)} ${cfg[key] ? "on" : "off"}`;
-  });
-
-  toggles.addEventListener("click", (e) => {
-    const btn = e.target.closest("button");
-    if (!btn) return;
-    const key = btn.dataset.tog;
-    cfg[key] = !cfg[key];
-    setSetting(key, cfg[key]);
-    btn.classList.toggle("on", cfg[key]);
-    btn.textContent = `${cap(key)} ${cfg[key] ? "on" : "off"}`;
-    if (key === "voice") voice.enabled = cfg[key];
-  });
-}
-
 /* ── Camera picker ──────────────────────────────────────── */
 
 function wireCamera() {
@@ -185,7 +125,6 @@ function wireCamera() {
   onCameraPicked((id) => switchCamera(id));
 }
 
-const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /* ── Session lifecycle ──────────────────────────────────── */
 

@@ -17,6 +17,12 @@ export default {
   bottomBand: 8,
   attemptMin: 12,
   startTip: "Get into the top of a push-up, side-on",
+  fixes: {
+    depth: (m) => ({ ...m, elbow: Math.min(m.elbow, 90) }),
+    sag:   (m) => ({ ...m, bodyLine: 0, sag: 0 }),
+    pike:  (m) => ({ ...m, bodyLine: 0, sag: 0 }),
+  },
+  trend: { key: "elbow", worse: +1, by: 8 },
 
   measure(lms, side) {
     return {

@@ -25,6 +25,14 @@ export default {
   bottomBand: 8,             // score frames within 8° of the deepest point
   attemptMin: 12,            // dipped this far without going deep = "too shallow"
   startTip: "Stand tall, side-on, to start",
+  // For the coach: the measurements as they'd be with one fault fixed (to
+  // estimate how many points fixing it is worth), and the depth signal to
+  // watch for fatigue (higher depthDeg = shallower).
+  fixes: {
+    depth: (m) => ({ ...m, depthDeg: Math.min(m.depthDeg, 0) }),
+    lean:  (m) => ({ ...m, lean: Math.min(m.lean, 25) }),
+  },
+  trend: { key: "depthDeg", worse: +1, by: 6 },
 
   measure(lms, side) {
     const hip = P(lms, side, "HIP");

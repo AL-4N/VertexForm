@@ -13,6 +13,10 @@ export default {
   /** Timer only runs while you're actually in a plank (body near horizontal). */
   inPosition: (m) => m.incline < 40,
   positionTip: "Get into your plank, side-on to the camera",
+  fixes: {
+    sag:  (m) => ({ ...m, sag: 0 }),
+    pike: (m) => ({ ...m, sag: 0 }),
+  },
   repMetric: () => 0,
   deepThreshold: 0,
   shallowThreshold: 0,

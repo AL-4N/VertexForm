@@ -240,3 +240,72 @@ export function repFeedback(exercise, score, target, faults, streak) {
   const top = faults[0];
   return top ? `${score}. ${faultPhrase(exercise, top.key)}` : `${score}.`;
 }
+
+/* ── Smarter-coach phrase banks (used by js/coach.js) ───────────────
+   CONCRETE: the physical cue for when the same fault keeps coming back.
+   FIXED:    what you did right when a fault disappears ("that one hit parallel").
+   FOCUS:    what to focus on, for the pre-set briefing and the summary.       */
+
+export const CONCRETE = {
+  "Squat": {
+    depth: ["Sit back like there's a chair behind you, and touch it with your hips",
+            "Push your knees out and drop your hips until your thighs are flat"],
+    lean: ["Pick a spot on the wall at eye level and keep looking at it all the way down",
+           "Brace like someone's about to poke your stomach, then sit straight down"],
+    kneeTravel: ["Send your hips back first, like closing a car door with your butt"],
+    bounce: ["Count one-thousand at the bottom before you stand up"],
+    tempo: ["Count two seconds on the way down: one-thousand, two-thousand"],
+    lockout: ["At the top, squeeze your glutes like you're cracking a walnut"],
+  },
+  "Push-up": {
+    depth: ["Lower until your chest is a fist's height from the floor"],
+    sag: ["Squeeze your glutes and pull your belly button to your spine"],
+    pike: ["Push your hips down until your body is one plank of wood"],
+    head: ["Look at a spot just ahead of your hands, not at your feet"],
+    tempo: ["Two seconds down, pause, then push the floor away"],
+  },
+  "Lunge": {
+    shallow: ["Drop the back knee straight down until it almost kisses the floor"],
+    tooDeep: ["Stop when the back knee is a few centimetres off the floor"],
+    lean: ["Stack your shoulders over your hips, like a string pulling your head up"],
+    kneeTravel: ["Take a longer step so the front shin stays upright"],
+  },
+  "Plank": {
+    sag: ["Squeeze your glutes hard and tuck your tailbone under"],
+    pike: ["Lower your hips until they line up with your shoulders and heels"],
+    head: ["Look at the floor just in front of your hands"],
+    drift: ["Freeze. Imagine a glass of water balanced on your back"],
+  },
+  "Jumping Jack": {
+    extension: ["Clap your hands right above your head on every jump"],
+    feet: ["Land with your feet wider than your shoulders, like a big X"],
+  },
+};
+
+export const FIXED = {
+  "Squat":   { depth: "that one hit parallel", lean: "your chest stayed up", kneeTravel: "hips went back first", bounce: "nice control at the bottom", tempo: "much better tempo", lockout: "full lockout" },
+  "Push-up": { depth: "your chest got low", sag: "hips stayed in line", pike: "nice straight line", head: "head stayed neutral", tempo: "good controlled tempo" },
+  "Lunge":   { shallow: "good depth on that one", tooDeep: "nice controlled depth", lean: "torso stayed tall", kneeTravel: "front shin stayed upright" },
+  "Plank":   { sag: "hips are back in line", pike: "hips came down, nice line", head: "head's neutral now", drift: "rock steady now" },
+  "Jumping Jack": { extension: "hands all the way up", feet: "feet nice and wide" },
+};
+
+export const FOCUS = {
+  "Squat":   { depth: "sitting lower, thighs to parallel", lean: "keeping your chest up", kneeTravel: "sending your hips back first", bounce: "pausing at the bottom", tempo: "a slower way down", lockout: "standing all the way up" },
+  "Push-up": { depth: "getting your chest lower", sag: "keeping your hips up", pike: "keeping your hips down", head: "keeping your head neutral", tempo: "slowing the reps down" },
+  "Lunge":   { shallow: "dropping the back knee lower", tooDeep: "controlling the depth", lean: "staying upright", kneeTravel: "a longer step" },
+  "Plank":   { sag: "keeping your hips up", pike: "keeping your hips level", head: "a neutral neck", drift: "holding still" },
+  "Jumping Jack": { extension: "getting your hands all the way up", feet: "jumping your feet wider" },
+};
+
+/** Personality-flavoured lines for the smarter coach. `{x}` is filled in. */
+export const COACH_LINES = {
+  reinforce: { Chill: ["Better, {x}.", "Nice, {x}."], Hype: ["YES! {x}!", "There it is, {x}!"], Coach: ["Good. {x}.", "Better. {x}. Again."] },
+  groove:    { Chill: ["Three clean reps in a row. That's your groove."], Hype: ["Three clean in a row! You're locked in!"], Coach: ["Three clean reps straight. That's the groove. Keep it."] },
+  fatigue:   { Chill: ["Depth is dropping, you're getting tired. Stay deep."], Hype: ["Don't let the depth slip now, dig in!"], Coach: ["Your depth is fading. Fatigue. Keep the standard."] },
+  rushing:   { Chill: ["Tempo's speeding up. Slow it back down."], Hype: ["Easy, slow it down, control wins!"], Coach: ["You're rushing. Control the tempo."] },
+  rest:      { Chill: ["Take a breath. Go when you're ready."], Hype: ["Shake it out, then let's go again!"], Coach: ["Rest. Clock's paused. Go when ready."] },
+  briefFix:  { Chill: ["Last time your most common issue was {x}. Focus on {y}."], Hype: ["Last time {x} held you back. Today, {y}!"], Coach: ["Last session: {x}. Today, focus on {y}."] },
+  briefGood: { Chill: ["Last time was clean. Same again."], Hype: ["Last time was clean, let's beat it!"], Coach: ["Last session was clean. Match it."] },
+  summaryFix:{ Chill: ["Next time, focus on {y}."], Hype: ["Next time: {y}, and you'll fly!"], Coach: ["Next session: {y}."] },
+};

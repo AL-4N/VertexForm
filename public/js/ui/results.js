@@ -29,6 +29,9 @@ export function renderResults(r) {
   renderBars($("#res-bars"), bars, "res-bar");
 
   drawRepChart($("#res-chart"), r.reps, r.target);
+  $("#res-chart").setAttribute("aria-label", `Rep scores: ${r.reps.join(", ")}. Target ${r.target}.`);
+  renderSummary(r);
+  renderDetails(r);
 
   // ── Coach notes: the most common fault across the session ──
   const counts = {};
@@ -57,4 +60,38 @@ export function renderResults(r) {
         <div class="dim">in ${n} of ${r.reps.length} ${r.isHold ? "stretches" : "reps"}</div>
       </div>
     </div>`).join("");
+}
+
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/** The coach's post-set summary: strengths, the one thing to fix, a target. */
+function renderSummary(r) {
+  const host = $("#res-summary");
+  const s = r.summary;
+  if (!s) { host.innerHTML = ""; return; }
+  host.innerHTML = `
+    <div class="sum-row"><span class="sum-tag good">Strengths</span><ul>${s.strengths.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>
+    ${s.fix ? `<div class="sum-row"><span class="sum-tag fix">Fix next</span><p><strong>${esc(s.fix.label)}</strong>: focus on ${esc(s.fix.focus)}.
+      <span class="dim">${esc(s.fix.cue)}.</span></p></div>` : ""}
+    <div class="sum-row"><span class="sum-tag goal">Target</span><p>${esc(s.target)}.</p></div>`;
+}
+
+/** Per-rep table: score, time down / at the bottom / up, and what was flagged. */
+function renderDetails(r) {
+  const host = $("#res-details");
+  const card = host.closest(".card");
+  const rows = r.details ?? [];
+  card.hidden = !rows.length;
+  if (!rows.length) return;
+  const f = (v) => (Number.isFinite(v) ? `${v.toFixed(1)} s` : "–");
+  const head = r.isHold
+    ? "<tr><th scope=col>#</th><th scope=col>Score</th><th scope=col>Length</th><th scope=col>Flagged</th></tr>"
+    : "<tr><th scope=col>Rep</th><th scope=col>Score</th><th scope=col>Down</th><th scope=col>Bottom</th><th scope=col>Up</th><th scope=col>Flagged</th></tr>";
+  host.innerHTML = `<thead>${head}</thead><tbody>${rows.map((d, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td><strong style="color:${gradeVar(d.score)}">${d.score}</strong> <span class="dim">${gradeLetter(d.score)}</span></td>
+      ${r.isHold ? `<td>${f(d.duration)}</td>` : `<td>${f(d.phases?.down)}</td><td>${f(d.phases?.bottom)}</td><td>${f(d.phases?.up)}</td>`}
+      <td>${d.faults?.length ? d.faults.map((k) => esc(faultLabel(r.exercise, k))).join(", ") : '<span class="dim">clean</span>'}</td>
+    </tr>`).join("")}</tbody>`;
 }

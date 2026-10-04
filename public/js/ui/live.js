@@ -25,9 +25,10 @@ import {
 import { savedCameraId, savedCameraLabel, refreshCameraPickers } from "./camera-picker.js";
 import { Session } from "../session.js";
 import { gradeLetter, gradeVar } from "../geometry.js";
-import { repFeedback, faultPhrase, milestone, noRepPhrase, praise, SETUP_CUES } from "../coaching.js";
-import { voice, beep } from "../voice.js";
-import { recordScore, countRep } from "../storage.js";
+import { SETUP_CUES } from "../coaching.js";
+import { Coach } from "../coach.js";
+import { voice, speech, beep } from "../voice.js";
+import { recordScore, recordSession, lastSession, countRep } from "../storage.js";
 import { checkRep, checkStreak, checkSession } from "../achievements.js";
 import { $, renderBars, toast } from "./components.js";
 import { sizeCanvas, drawFrame, drawSkeleton, drawIdealChain, drawBorder, drawFramingGuide } from "./overlay.js";
@@ -86,6 +87,12 @@ export async function runLive(exerciseName, cfg, onFinish) {
   // The session starts unarmed: frames during the countdown drive the
   // framing guide and calibration, but nothing is counted yet.
   const session = new Session(ex, { ...cfg, armed: false });
+  const coach = new Coach(ex, { personality: cfg.personality, chattiness: cfg.chattiness, target });
+  // Coaching waits for a good moment: never mid-rep (resting is fine).
+  speech.gate = () => !session.armed || session.phase !== "down" || session.resting;
+  ctl.cleanup.push(() => { speech.gate = () => true; });
+  const brief = coach.briefing(lastSession(exerciseName));
+  if (brief) speech.say(brief, { priority: 2, anytime: true, maxAgeMs: 9000, key: "brief" });
   let lastTs = 0, tint = null;
   let problem = null, problemSince = 0;          // setup problem being tracked for voice
   let lastScore = null;
@@ -201,7 +208,23 @@ export async function runLive(exerciseName, cfg, onFinish) {
           `${out.hold.label}: ${Math.min(out.hold.seconds, out.hold.goal).toFixed(1)}${Number.isFinite(out.hold.goal) ? " / " + out.hold.goal + " s" : " s"}`);
       }
     }
-    setText("#live-tip", tip);
+    setText("#live-tip", ctl.tipHold && ts < ctl.tipHold.until ? ctl.tipHold.text : tip);
+    tempoTick(ts);
+  }
+
+  /* ── Tempo coach: "down… 2… up" on a 4-beat cycle ─────────── */
+  let tempoBeat = -1, tempoStart = null;
+  function tempoTick(ts) {
+    const mode = cfg.tempo ?? "off";
+    if (mode === "off" || ex.isHold || ex.noTempo || !session.armed || session.resting) { tempoStart = null; tempoBeat = -1; return; }
+    tempoStart ??= ts;
+    const beat = Math.floor((ts - tempoStart) / 1000) % 4;
+    if (beat === tempoBeat) return;
+    tempoBeat = beat;
+    if (beat === 3) return;                                   // a breath at the top
+    const word = ["Down", "two", "Up"][beat];
+    if (mode === "beep") beep([520, 620, 880][beat], beat === 1 ? 70 : 120, 0.05);
+    else speech.say(word, { priority: 4, anytime: true, maxAgeMs: 350, key: "tempo" });
   }
 
   /** "Auto" quality: if the full model can't keep up, drop to the fast one (once). */
@@ -236,27 +259,32 @@ export async function runLive(exerciseName, cfg, onFinish) {
       countRep(e.score, target);
       checkRep(e.score);
       if (e.good) { checkStreak(e.streak); beep(880, 120, 0.05); } else beep(420, 100, 0.04);
-      addChip(e.score);
-      let line = repFeedback(exerciseName, e.score, target, e.faults, e.streak);
-      if (isSet && cfg.setReps >= 6 && e.index === Math.ceil(cfg.setReps / 2)) line += ` ${milestone("halfway")}`;
-      voice.say(line, { interrupt: true });
+      addChip(e.score, e.good);
+      announce(`Rep ${e.index}: ${e.score}${e.faults?.[0] ? `, ${e.faults[0].label}` : ""}`);
+      sayLines(coach.onRep(e));
       updateCounts();
     } else if (e.type === "shallow") {
       beep(300, 90, 0.04);
-      voice.say(noRepPhrase(exerciseName), { minGap: 2 });
+      sayLines(coach.onNoRep());
       flashTip("No rep: not deep enough");
+      announce("No rep: not deep enough");
     } else if (e.type === "segment") {
-      addChip(e.score);
+      addChip(e.score, e.score >= target);
       lastScore = e.score;
-      const secs = session.reps.length * 5;
-      const fix = e.faults?.[0];
-      voice.say(fix ? faultPhrase(exerciseName, fix.key) : `${secs} seconds. ${praise()}`, { minGap: 3 });
+      announce(`${session.reps.length * 5} seconds: ${e.score}`);
+      sayLines(coach.onRep({ ...e, measures: session.repDetails.at(-1)?.measures }));
       updateCounts();
     } else if (e.type === "done") {
       celebrate();
     } else if (e.type === "rest-start") {
       flashTip("Resting: the set clock is paused");
+      sayLines(coach.onRest());
     }
+  }
+
+  /** Queue the coach's lines: a newer rep line replaces one still waiting. */
+  function sayLines(lines) {
+    for (const l of lines) speech.say(l.text, { priority: l.priority, maxAgeMs: l.kind === "trend" ? 6000 : 3500, key: l.kind === "trend" ? "trend" : "rep" });
   }
 
   /** Set clock: active time only; says so while it's paused for a rest. */
@@ -274,34 +302,41 @@ export async function runLive(exerciseName, cfg, onFinish) {
       : `Reps: ${session.reps.length} · Good: ${session.goodReps}${cfg.goal ? "/" + cfg.goal : ""}`;
   }
 
-  function flashTip(text) {
+  /** Show a message on the tip line for a moment (frames would overwrite it otherwise). */
+  function flashTip(text, ms = 1500) {
     const tip = $("#live-tip");
+    ctl.tipHold = { text, until: performance.now() + ms };
     tip.textContent = text;
     tip.classList.add("flash");
-    later(() => tip.classList.remove("flash"), 900);
+    later(() => tip.classList.remove("flash"), ms);
   }
 
   function celebrate() {
+    const res = session.results();
+    const summary = coach.summary(res);
+    ctl.summary = summary;
     $("#celebrate h2").textContent = isSet ? "SET COMPLETE" : "TARGET REACHED";
     $("#celebrate-sub").textContent = ex.isHold ? `Best 5 s: ${session.best}` : `Best rep: ${session.best}`;
     $("#celebrate").hidden = false;
     beep(1046, 220, 0.07);
-    voice.say(isSet ? "Set complete. Here's your breakdown." : (milestone("improved") || "Target reached. Great work."), { interrupt: true });
+    speech.say(summary?.spoken ?? (isSet ? "Set complete." : "Target reached. Great work."), { interrupt: true, priority: 5, maxAgeMs: 10000 });
     later(() => { $("#celebrate").hidden = true; finish(); }, 1800);
   }
 
   function finish() {
     if (ctl.cancelled) return;
     const res = session.results();
-    stopLive();
+    stopLive({ keepTalking: true });     // let the summary finish
     if (!res) {
       toast("No complete reps detected — try again with your whole body in frame");
       onFinish(null);
       return;
     }
     const isBest = recordScore(exerciseName, res.best);
+    const full = { exercise: exerciseName, target, isBest, mode: cfg.mode, ...res, summary: ctl.summary ?? coach.summary(res) };
+    recordSession(full);
     checkSession();
-    onFinish({ exercise: exerciseName, target, isBest, mode: cfg.mode, ...res });
+    onFinish(full);
   }
 
   function later(fn, ms) {
@@ -311,7 +346,7 @@ export async function runLive(exerciseName, cfg, onFinish) {
 }
 
 /** Stop whatever is running: camera off, loop and timers cancelled, voice silenced. */
-export function stopLive() {
+export function stopLive({ keepTalking = false } = {}) {
   const ctl = active;
   if (!ctl) return;
   ctl.cancelled = true;
@@ -331,7 +366,7 @@ export function stopLive() {
   if (v) v.srcObject = null;
   $("#pose-camera") && ($("#pose-camera").hidden = true);
   $("#countdown") && ($("#countdown").hidden = true);
-  voice.stop();
+  if (!keepTalking) voice.stop();
   active = null;
 }
 
@@ -561,6 +596,12 @@ function ensureDebugBox() {
   return el;
 }
 
+/** Rep results for screen readers (an aria-live region). */
+function announce(text) {
+  const el = $("#live-announce");
+  if (el) el.textContent = text;
+}
+
 /** Set text only when it changed (no needless DOM work at 30 fps). */
 function setText(sel, text) {
   const el = $(sel);
@@ -573,11 +614,12 @@ function setBadge(score) {
   $("#grade-num").textContent = score == null ? "" : score;
 }
 
-function addChip(score) {
+function addChip(score, good) {
   const host = $("#rep-chips");
   const chip = document.createElement("span");
   chip.className = "chip";
-  chip.textContent = score;
+  chip.textContent = good ? `${score}✓` : score;      // not colour alone
+  chip.title = good ? "At or above your target" : "Below your target";
   chip.style.color = gradeVar(score);
   host.appendChild(chip);
   while (host.children.length > 8) host.removeChild(host.firstChild);

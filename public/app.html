@@ -94,7 +94,7 @@
 
         <div class="opt-row">
           <span>Target grade</span>
-          <div class="pills" id="opt-target">
+          <div class="pills" id="opt-target" data-setting="target" data-type="number" role="group" aria-label="Target grade">
             <button data-val="70">C 70</button>
             <button data-val="80">B 80</button>
             <button data-val="90" class="on">A 90</button>
@@ -104,7 +104,7 @@
 
         <div class="opt-row">
           <span>Pass condition</span>
-          <div class="pills" id="opt-goal">
+          <div class="pills" id="opt-goal" data-setting="goal" data-type="number" role="group" aria-label="Pass condition">
             <button data-val="1" class="on">1 good rep</button>
             <button data-val="3">3 good reps</button>
             <button data-val="0">Endless</button>
@@ -113,7 +113,7 @@
 
         <div class="opt-row">
           <span>Set length</span>
-          <div class="pills" id="opt-setlen">
+          <div class="pills" id="opt-setlen" data-setting="setReps" data-type="number" role="group" aria-label="Set length">
             <button data-val="5" class="on">5 reps</button>
             <button data-val="10">10 reps</button>
             <button data-val="15">15 reps</button>
@@ -122,7 +122,7 @@
 
         <div class="opt-row">
           <span>Start</span>
-          <div class="pills" id="opt-start">
+          <div class="pills" id="opt-start" data-setting="startMode" data-type="string" role="group" aria-label="Start">
             <button data-val="countdown" class="on">Countdown</button>
             <button data-val="auto">Auto-start when ready</button>
           </div>
@@ -130,7 +130,7 @@
 
         <div class="opt-row">
           <span>Setup time</span>
-          <div class="pills" id="opt-countdown">
+          <div class="pills" id="opt-countdown" data-setting="countdown" data-type="number" role="group" aria-label="Setup time">
             <button data-val="3" class="on">3 s</button>
             <button data-val="5">5 s</button>
             <button data-val="10">10 s</button>
@@ -139,7 +139,7 @@
 
         <div class="opt-row">
           <span>Coach voice</span>
-          <div class="pills" id="opt-personality">
+          <div class="pills" id="opt-personality" data-setting="personality" data-type="string" role="group" aria-label="Coach voice">
             <button data-val="Chill" class="on">Chill</button>
             <button data-val="Hype">Hype</button>
             <button data-val="Coach">Coach</button>
@@ -154,8 +154,8 @@
         <div class="opt-row">
           <span>Options</span>
           <div class="pills" id="opt-toggles">
-            <button data-tog="voice" class="on">Voice on</button>
-            <button data-tog="mirror" class="on">Mirror on</button>
+            <button data-toggle="voice" aria-pressed="true">Voice</button>
+            <button data-toggle="mirror" aria-pressed="true">Mirror</button>
           </div>
         </div>
       </div>
@@ -195,6 +195,7 @@
       </div>
 
       <p class="live-tip" id="live-tip">Get into frame, side-on</p>
+      <p class="sr-only" id="live-announce" aria-live="polite" aria-atomic="true"></p>
 
       <div class="countdown" id="countdown" hidden><span>3</span></div>
       <div class="celebrate" id="celebrate" hidden>
@@ -241,8 +242,109 @@
 
       <div class="card">
         <h3 class="label">Coach notes</h3>
+        <div id="res-summary" class="res-summary"></div>
         <p id="res-tip" class="tip-text"></p>
         <div id="res-faults"></div>
+      </div>
+
+      <div class="card res-details-card">
+        <h3 class="label">Rep details</h3>
+        <div class="table-scroll"><table class="rep-table" id="res-details"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SETTINGS ══ -->
+  <section id="screen-settings" class="screen">
+    <header class="app-header">
+      <button class="btn ghost" data-back="menu">&larr; Back</button>
+      <h1>Settings</h1>
+      <span></span>
+    </header>
+
+    <div class="settings-wrap">
+      <div class="card setup-panel">
+        <h2 class="label">Coach</h2>
+        <div class="opt-row">
+          <span>Voice</span>
+          <div class="pills"><button data-toggle="voice" aria-pressed="true">Voice</button></div>
+        </div>
+        <div class="opt-row">
+          <label for="set-rate">Voice speed</label>
+          <div class="range"><input type="range" id="set-rate" data-setting="voiceRate" data-type="number" min="0.8" max="1.4" step="0.05" /><output for="set-rate"></output></div>
+        </div>
+        <div class="opt-row">
+          <label for="set-volume">Volume</label>
+          <div class="range"><input type="range" id="set-volume" data-setting="volume" data-type="number" min="0" max="1" step="0.05" /><output for="set-volume"></output></div>
+        </div>
+        <div class="opt-row">
+          <span>How chatty</span>
+          <div class="pills" data-setting="chattiness" data-type="string" role="group" aria-label="How chatty">
+            <button data-val="quiet">Quiet: score only</button>
+            <button data-val="normal">Normal</button>
+            <button data-val="detailed">Detailed</button>
+          </div>
+        </div>
+        <div class="opt-row">
+          <span>Personality</span>
+          <div class="pills" data-setting="personality" data-type="string" role="group" aria-label="Personality">
+            <button data-val="Chill">Chill</button>
+            <button data-val="Hype">Hype</button>
+            <button data-val="Coach">Coach</button>
+          </div>
+        </div>
+        <div class="opt-row">
+          <span>Tempo coach</span>
+          <div class="pills" data-setting="tempo" data-type="string" role="group" aria-label="Tempo coach">
+            <button data-val="off">Off</button>
+            <button data-val="beep">Beeps</button>
+            <button data-val="voice">"Down… 2… up"</button>
+          </div>
+        </div>
+        <p class="dim setting-note">The coach speaks at the top of a rep or while you rest, never mid-rep. Test it:
+          <button class="btn ghost btn-inline" id="btn-test-voice">Say something</button></p>
+      </div>
+
+      <div class="card setup-panel">
+        <h2 class="label">Sessions</h2>
+        <div class="opt-row">
+          <span>Start</span>
+          <div class="pills" data-setting="startMode" data-type="string" role="group" aria-label="Start">
+            <button data-val="countdown">Countdown</button>
+            <button data-val="auto">Auto-start when ready</button>
+          </div>
+        </div>
+        <div class="opt-row">
+          <span>Setup time</span>
+          <div class="pills" data-setting="countdown" data-type="number" role="group" aria-label="Setup time">
+            <button data-val="3">3 s</button>
+            <button data-val="5">5 s</button>
+            <button data-val="10">10 s</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card setup-panel">
+        <h2 class="label">Camera and tracking</h2>
+        <div class="opt-row">
+          <span>Camera</span>
+          <select class="camera-select" aria-label="Camera"></select>
+        </div>
+        <div class="opt-row">
+          <span>Mirror the picture</span>
+          <div class="pills"><button data-toggle="mirror" aria-pressed="true">Mirror</button></div>
+        </div>
+        <div class="opt-row">
+          <span>Tracking model</span>
+          <div class="pills" data-setting="quality" data-type="string" role="group" aria-label="Tracking model">
+            <button data-val="auto">Auto</button>
+            <button data-val="lite">Fast</button>
+            <button data-val="full">Balanced</button>
+            <button data-val="heavy">Max accuracy</button>
+          </div>
+        </div>
+        <p class="dim setting-note">Auto starts on Balanced and switches to Fast if your device can't keep up.
+          Max accuracy downloads a 31 MB model and needs a decent graphics chip.</p>
       </div>
     </div>
   </section>

@@ -11,11 +11,11 @@ Ticked as each item lands. "Skipped" items say why.
 - [x] Live loop rebuilds the score bars with `innerHTML` every frame (layout thrash) → update in place
 - [x] overlay.js calls `getComputedStyle` up to 3× per frame → cache the colours
 - [x] Live loop detects new frames via `video.currentTime` → use requestVideoFrameCallback
-- [ ] "Settings" button just jumps to the setup screen → real Settings screen
+- [x] "Settings" button just jumps to the setup screen → real Settings screen
 - [ ] `gradeLetter` is defined twice (geometry.js and grade.js) → one source
 - [ ] Stats screen hard-codes "/5" exercises → use the registry size
-- [ ] History stores only one number per session, no dates → can't chart over time; needs a storage migration
-- [ ] Voice `say({interrupt})` cancels lines mid-sentence and drops others → one priority queue
+- [x] History stores only one number per session, no dates → can't chart over time; needs a storage migration
+- [x] Voice `say({interrupt})` cancels lines mid-sentence and drops others → one priority queue
 - [ ] Setup-screen demo loop keeps a rAF running while hidden → stop it when not visible
 - [ ] README says 3 test suites; there are 4 (camera). CLAUDE.md doesn't exist → create it
 - [ ] Target "A+ 95" but grade letters stop at A → show "A+" for 95+ in the badge
@@ -55,16 +55,16 @@ next, track `ended`, devicechange, switching mid-session.
 - [x] Per-rep data: depth, lean, down / bottom / up durations
 
 ## Phase 4 — Smarter coach
-- [ ] Prioritise by impact (score gain if fixed), not just severity
-- [ ] Trends: depth dropping (fatigue), tempo speeding up, clean-rep groove
-- [ ] Positive reinforcement when a fault gets fixed
-- [ ] Escalation: rephrase, then a concrete physical cue; never the identical sentence twice in a row
-- [ ] Speak only at the top of a rep / rest; one priority speech queue, no overlaps or pile-ups
-- [ ] Pre-set briefing from history
-- [ ] Post-set summary: strengths, #1 fix, a concrete target
-- [ ] Tempo coach (spoken or beeped "down… 2… up")
-- [ ] Settings: voice on/off, speed, volume, chattiness (Quiet / Normal / Detailed)
-- [ ] New lines for all three personalities
+- [x] Prioritise by impact (score gain if fixed), not just severity
+- [x] Trends: depth dropping (fatigue), tempo speeding up, clean-rep groove
+- [x] Positive reinforcement when a fault gets fixed
+- [x] Escalation: rephrase, then a concrete physical cue; never the identical sentence twice in a row
+- [x] Speak only at the top of a rep / rest; one priority speech queue, no overlaps or pile-ups
+- [x] Pre-set briefing from history
+- [x] Post-set summary: strengths, #1 fix, a concrete target
+- [x] Tempo coach (spoken or beeped "down… 2… up")
+- [x] Settings: voice on/off, speed, volume, chattiness (Quiet / Normal / Detailed)
+- [x] New lines for all three personalities
 
 ## Phase 5 — Quality of life
 - [ ] Live controls: gym mode (huge counter), mute, pause/resume, camera picker, mirror, fullscreen;

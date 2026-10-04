@@ -23,6 +23,12 @@ export default {
   bottomBand: 8,
   attemptMin: 12,
   startTip: "Stand tall, side-on, to start",
+  fixes: {
+    shallow: (m) => ({ ...m, knee: 92 }),
+    tooDeep: (m) => ({ ...m, knee: 92 }),
+    lean:    (m) => ({ ...m, lean: Math.min(m.lean, 10) }),
+  },
+  trend: { key: "knee", worse: +1, by: 8 },
 
   measure(lms, side) {
     return {
