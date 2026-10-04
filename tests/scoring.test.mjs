@@ -7,7 +7,8 @@
  */
 import { scoreSquat, scorePushup, scorePlank, scoreLunge, scoreControl, combine } from "../public/js/scoring.js";
 import { thighAngleDeg, leanFromVertical, median, bottomWindow } from "../public/js/geometry.js";
-import { gradeColor } from "../public/js/grade.js";
+import { gradeColor, gradeLetter } from "../public/js/grade.js";
+import { gradeLetter as appLetter } from "../public/js/geometry.js";
 
 let pass = 0, fail = 0;
 const t = (name, val, lo, hi) => {
@@ -54,6 +55,13 @@ t("Plank: sagging (sag .08)",       scorePlank(0.08),           50,  80);
 console.log("\nGrade colours");
 t("F is coral (red channel high)",  parseInt(gradeColor(10).slice(1, 3), 16), 240, 255);
 t("A is green (green channel high)",parseInt(gradeColor(98).slice(3, 5), 16), 220, 255);
+
+console.log("\nGrade letters");
+const letterCheck = (name, got, want) => { const ok = got === want; ok ? pass++ : fail++; console.log(`${ok ? "PASS" : "FAIL"}  ${name.padEnd(40)} ${got}`); };
+letterCheck("Site: 97 is an A", gradeLetter(97), "A");
+letterCheck("Trainer: 97 is an A+ (matches the A+ 95 target)", appLetter(97), "A+");
+letterCheck("Trainer: 94 is an A", appLetter(94), "A");
+letterCheck("69 is a D, 59 an F", gradeLetter(69) + gradeLetter(59), "DF");
 
 console.log(`\n${fail ? `${fail} FAILED` : "All scoring checks pass"} (${pass} passed)`);
 process.exit(fail ? 1 : 0);

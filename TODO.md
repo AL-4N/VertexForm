@@ -12,13 +12,13 @@ Ticked as each item lands. "Skipped" items say why.
 - [x] overlay.js calls `getComputedStyle` up to 3× per frame → cache the colours
 - [x] Live loop detects new frames via `video.currentTime` → use requestVideoFrameCallback
 - [x] "Settings" button just jumps to the setup screen → real Settings screen
-- [ ] `gradeLetter` is defined twice (geometry.js and grade.js) → one source
+- [x] `gradeLetter` is defined twice (geometry.js and grade.js) → one source
 - [x] Stats screen hard-codes "/5" exercises → use the registry size
 - [x] History stores only one number per session, no dates → can't chart over time; needs a storage migration
 - [x] Voice `say({interrupt})` cancels lines mid-sentence and drops others → one priority queue
 - [x] Setup-screen demo loop keeps a rAF running while hidden → stop it when not visible
-- [ ] README says 3 test suites; there are 4 (camera). CLAUDE.md doesn't exist → create it
-- [ ] Target "A+ 95" but grade letters stop at A → show "A+" for 95+ in the badge
+- [x] README says 3 test suites; there are 4 (camera). CLAUDE.md doesn't exist → create it
+- [x] Target "A+ 95" but grade letters stop at A → show "A+" for 95+ in the badge
 
 ## Phase 1 — Camera reliability
 Already in place: picker on setup + live screens, saved deviceId with `{exact}`, name fallback,
@@ -85,12 +85,12 @@ next, track `ended`, devicechange, switching mid-session.
       synthetic pattern when no videos exist
 
 ## Phase 7 — Test everything
-- [ ] Unit tests for every new module
-- [ ] New session scenarios (glitches, side flips, occlusion, resting, grinders, double bounce, walk-out, 10/15/30 fps)
-- [ ] Playwright e2e for every screen + site pages; no console errors; no horizontal overflow at 390/1280; Back stops the camera
-- [ ] Keyboard pass through every screen
-- [ ] Old localStorage data loads (migration test)
-- [ ] README, CLAUDE.md, in-app help, CHANGELOG.md
+- [x] Unit tests for every new module
+- [x] New session scenarios (glitches, side flips, occlusion, resting, grinders, double bounce, walk-out, 10/15/30 fps)
+- [x] Playwright e2e for every screen + site pages; no console errors; no horizontal overflow at 390/1280; Back stops the camera
+- [x] Keyboard pass through every screen
+- [x] Old localStorage data loads (migration test)
+- [x] README, CLAUDE.md, in-app help, CHANGELOG.md
 
 ## Decided not to do
 - **Upgrade MediaPipe tasks-vision 0.10.14 → 1.x.** A major version with possible API changes; 0.10.14 is
@@ -100,6 +100,11 @@ next, track `ended`, devicechange, switching mid-session.
 - **Service worker on the marketing site.** Registered from the trainer only: in Chrome, the first
   navigation from a page loaded before the worker existed to one it controls skips the cross-page
   transition (measured: 0/3 vs 3/3). The worker still precaches the site pages for offline use.
+- **Keyboard pass** is automated for the main path (Tab to an exercise, Enter, Tab to Practice, Space,
+  Esc, pills with Enter) plus an accessible-name audit of every screen. A full manual screen-reader
+  pass (VoiceOver) wasn't done.
+- **Scoring curves unchanged.** Smoothing moved simulated scores by at most ±1 (all bands hold), so
+  `tests/scoring.test.mjs` only gained grade-letter checks.
 - **Directional (vertical) blur in the page transition.** View-transition snapshots take CSS filters;
   an SVG directional blur there isn't reliable across browsers, so it's a strong blur + upward
   motion, which reads as motion blur. The in-page nav glide keeps the true vertical SVG blur.

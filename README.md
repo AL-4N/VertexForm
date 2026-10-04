@@ -6,7 +6,7 @@ VertexForm is a workout form coach that runs entirely in the browser. Point a
 webcam at yourself and it tracks 33 points on your body, measures the joint
 angles that matter for each exercise, grades every rep, and tells you out loud
 what to fix. There's no server, no account and no uploads: the pose model runs
-on your device.
+on your device, and it works offline after the first visit.
 
 ## Features
 
@@ -16,164 +16,226 @@ on your device.
 - **Practice mode:** live coaching, rep by rep, until you hit your target grade
   (C 70 → A+ 95), for 1 rep, 3 reps or endless.
 - **Analyze a set:** 5, 10 or 15 reps (plank: 30, 60 or 90 s), then a full
-  breakdown with the score for every rep, your average, a part-by-part score
-  (depth, posture, control…) and your most common fault.
-- **Voice coach:** says your score and the one fix that matters most after
-  every rep, in a Chill, Hype or Coach personality. Cues rotate so it never
-  nags with the same line.
-- **Judges like a coach:** dips that never get deep enough are called out as
-  "no rep" instead of counted. It also flags folding forward, sagging or piked
-  hips, knees drifting, rushed reps, bouncing out of the bottom, and drifting
-  in a plank.
-- **Setup help:** tells you (out loud, too) to step into the frame, step back,
-  or turn side-on, and won't grade you until it can see you properly.
-- **Ideal-form overlay:** a dashed green guide drawn on your own body, and your
-  skeleton colored by your live score.
-- **Progress:** personal bests, average, day streak, achievements and a
-  shareable score-card image. Everything is saved in your browser only.
+  breakdown: every rep's score, time down / at the bottom / up, your average,
+  a part-by-part score (depth, posture, control…), and the coach's summary
+  (strengths, the one thing to fix, a concrete target for next time).
+- **Workouts:** build a circuit (exercises + reps or seconds, rest between),
+  save up to 3 routines, and run them back to back hands-free.
+- **Rest timer** between sets (30 / 60 / 90 s) with a spoken countdown.
+- **A smarter voice coach:**
+  - It cues the fault that would add the most points, not just the "worst" one.
+  - It notices trends: depth fading as you tire, reps speeding up, a groove of
+    clean reps.
+  - It praises fixes ("Better, that one hit parallel").
+  - When a fault keeps coming back, it rephrases, then switches to a concrete
+    physical cue.
+  - It only speaks at the top of a rep or while you rest, never mid-rep.
+  - It gives a briefing from your last session and a summary after each set.
+  - There's an optional tempo coach ("down… 2… up").
+  - Three personalities (Chill, Hype, Coach) and three levels of chattiness.
+- **Accurate tracking:**
+  - Smoothing that steadies the angles without lag.
+  - Each frame is checked against your own bone lengths, so glitches are thrown out.
+  - A 2-second calibration that learns your real standing position.
+  - It doesn't flip between your left and right side.
+  - Joints hidden for a moment are bridged briefly.
+  - 3D world landmarks are blended in when you turn away from side-on.
+  - Three model sizes, with automatic fallback to the fast one.
+- **Robust rep counting:**
+  - Bounces at the bottom don't double count, and slow grinders still count.
+  - Twitches and walking out of the picture are ignored.
+  - Standing still mid-set pauses the set clock.
+  - Optional auto-start once you're in position.
+- **Camera that just works:**
+  - It picks your real camera (built-in first) and skips virtual ones.
+  - It notices a camera that's dead, frozen on a placeholder picture, or
+    unplugged, and moves on.
+  - You can switch cameras mid-session, or flip front/back on phones.
+- **Live screen:** framing guide ("move left", "step back"), lighting check,
+  pause, mute, mirror, gym mode (a rep counter readable across the room),
+  fullscreen, and keyboard shortcuts (Space, M, F, G, Esc).
+- **Progress:** score history charts, best and average per exercise, your most
+  common faults and whether they're getting rarer, CSV export, a day streak,
+  achievements and a shareable score card.
+- **Installable app (PWA)**, phone-friendly (portrait layout, keeps the screen
+  awake during a set), and accessible: keyboard navigation, focus rings,
+  screen-reader announcements, reduced motion, and colour is never the only
+  signal.
 
 **The website** (`index.html`): live stick-figure demo, the Form Lab (drag
 sliders and watch the real scoring engine grade a figure), and a "Spot the
-better rep" game.
+better rep" game. Moving between the website and the trainer uses a
+motion-blur page transition.
 
 ---
 
-## Open it in VS Code
+## Run it locally
 
-1. Unzip `vertexform.zip`, then in VS Code choose **File → Open Folder…** and
-   pick the `vertexform` folder.
-2. Install the **Live Server** extension (VS Code will suggest it, since it's
-   listed in `.vscode/extensions.json`).
-3. Click **Go Live** in the bottom-right corner. The site opens at
-   `http://127.0.0.1:5500`. Click **Start training** and allow the camera.
+From this folder:
 
-`.vscode/settings.json` points Live Server at the `public/` folder, so the
-right files are served automatically.
+```bash
+npm run dev          # serves public/ at http://localhost:8080
+```
 
-Don't double-click `index.html`. Browsers block this code when a page is
-opened as a file, and the page will show a warning if that happens.
-
-No VS Code? From this folder, run `python3 -m http.server 8080 --directory public`
-and open `http://localhost:8080`.
+Or in VS Code: install the **Live Server** extension (suggested by
+`.vscode/extensions.json`) and click **Go Live**. Don't double-click
+`index.html`: browsers block the code when a page is opened as a file.
 
 ## Put it on Cloudflare
 
 Everything that goes online is in **`public/`**. There's no build step.
 
-**Option A: drag and drop.** Go to dash.cloudflare.com, then **Workers & Pages
-→ Create → Pages → Upload assets**. Name the project, drag in the **`public`**
-folder, and click Deploy.
+1. Run **`npm run sw`** after changing anything in `public/`. It refreshes the
+   offline cache list in `public/sw.js` (`npm test` fails if you forget).
+2. Then deploy one of these ways:
+   - **Command line:** `npm run deploy` (runs `npm run sw` for you, then
+     `wrangler deploy` with `wrangler.jsonc`).
+   - **Drag and drop:** dash.cloudflare.com → Workers & Pages → Create →
+     upload the **`public`** folder.
+   - **From GitHub (auto-deploys):** connect the repo in Workers & Pages.
+     Build command: empty. Output directory: **`public`**.
 
-**Option B: from GitHub (updates automatically).** Push this folder to a GitHub
-repo, then go to **Workers & Pages → Create → Pages → Connect to Git**. Set the
-framework preset to *None*, leave the build command empty, and set the build
-output directory to **`public`**.
-
-**Option C: command line.** Run `npm run deploy`, which uses `wrangler.jsonc`
-and needs Node.js.
-
-Cloudflare serves the site over HTTPS, which the camera requires. `public/_headers`
-sets the camera permission and caching rules, and `public/404.html` is the
-not-found page.
+Cloudflare serves the site over HTTPS, which the camera requires.
+`public/_headers` sets the camera permission and caching rules.
 
 ---
 
 ## How the analyzer works
 
 ```
-webcam ─▶ MediaPipe Pose (in-browser) ─▶ 33 landmarks per frame
-       ─▶ session.js: aspect-correct → setup checks → measure → grade
-       ─▶ rep engine: smoothed rep metric, time-in-the-hole check,
-          score the frames near the bottom of the rep
-       ─▶ live.js: overlay, HUD, voice, results
+webcam ─▶ MediaPipe Pose (in-browser) ─▶ 33 landmarks + 3D world landmarks per frame
+       ─▶ session.js:
+            side (with hysteresis) → bridge short occlusions → One Euro smoothing
+            → bone-length glitch check → aspect-correct → setup checks
+            → measure (2D, blended with 3D as you turn) → calibrate → grade
+       ─▶ rep engine: velocity-aware phases, time-in-the-hole check, min/max rep
+          duration, rest detection; scores the frames near the bottom of the rep
+       ─▶ coach.js (what to say) → speech.js (when to say it) → live.js (HUD, voice)
 ```
 
 - **True angles.** MediaPipe reports x as a fraction of the frame width and y
   as a fraction of the height, which stretches angles on a 16:9 webcam. Every
   measurement is aspect-corrected first.
+- **Steady without lag.** A One Euro filter smooths hard when you're still and
+  lightly when you move. On the simulator it cuts angle jitter about 6× with
+  roughly 10 ms of lag. The rep-phase signal uses a lighter filter, so the top
+  and bottom of a rep are caught promptly.
+- **2D or 3D?** Side-on, 2D angles are exact and steadier. As you turn toward
+  the camera they read too straight (8° at 30° turned, for push-up elbows), so
+  the 3D world landmarks are blended in, up to 50/50. Run `npm run eval:angles`
+  to see the numbers, including on your own recordings.
 - **Fair scoring.** Each rep is scored on the frames near its deepest point,
   not the way down and up, and one glitchy frame can't create or ruin a rep.
-- **Size-independent.** Measurements are relative to your own body (angles,
-  torso lengths), so standing closer to or farther from the camera doesn't
-  change your score.
-- **Frame-rate independent.** A rep must spend real time in the bottom
-  position, so it works the same on a fast laptop and a slow one.
+- **Size- and frame-rate independent.** Measurements are relative to your own
+  body, and a rep must spend real time in the bottom position.
 
 ## Project structure
 
 ```
 vertexform/
-├── public/                 ← the website (this is what you deploy)
-│   ├── index.html          marketing site
-│   ├── app.html            the trainer
-│   ├── 404.html  favicon.svg  _headers
-│   ├── css/                fonts.css, site.css, theme.css, app.css
-│   ├── fonts/              Unbounded + Instrument Sans (self-hosted, OFL)
+├── public/                     ← the website (this is what you deploy)
+│   ├── index.html  app.html  404.html  manifest.webmanifest  sw.js  _headers
+│   ├── css/                    fonts, site, theme, app, transitions
+│   ├── icons/  fonts/  favicon.svg
 │   └── js/
-│       ├── session.js      ★ the analysis engine (pure logic, fully tested)
-│       ├── pose.js         MediaPipe + camera (GPU with CPU fallback)
-│       ├── scoring.js      calibrated scoring curves
-│       ├── geometry.js     angle / body-line math
-│       ├── coaching.js     fault phrases, personalities, no-rep calls
-│       ├── exercises/      one module per exercise: thresholds, measure, grade, faults
-│       ├── ui/             screens: menu, live, results, stats, overlay, score card
-│       ├── figures/        stick-figure rig (site demo, Form Lab, app demos)
-│       ├── site/           website-only scripts
-│       └── config.js  grade.js  storage.js  voice.js  achievements.js  main.js
-├── tests/                  run with: npm test
-│   ├── session.test.mjs    simulated people doing every exercise, good and bad
-│   ├── scoring.test.mjs    scoring calibration bands
-│   ├── rig.test.mjs        stick-figure rig stays rigid
-│   └── helpers/synth.mjs   turns stick-figure poses into MediaPipe landmarks
-├── .vscode/                Live Server root + recommended extension
-├── package.json            dev / test / deploy scripts
-└── wrangler.jsonc          Cloudflare config (for Option C)
+│       ├── session.js          ★ the analysis engine (pure logic, fully tested)
+│       ├── filters.js          One Euro landmark smoothing
+│       ├── tracking.js         calibration, glitches, side choice, occlusion, framing, 2D/3D
+│       ├── coach.js            ★ the smarter coach: what to say (pure)
+│       ├── speech.js           the speech queue: when to say it (pure)
+│       ├── coaching.js         phrase banks, personalities
+│       ├── circuit.js  history.js  rest.js  recording.js   (pure, tested)
+│       ├── pose.js             MediaPipe + camera (models, GPU/CPU, camera choice)
+│       ├── scoring.js  geometry.js  grade.js  storage.js (+ migration)  voice.js
+│       ├── exercises/          one module per exercise: thresholds, measure, grade, faults, fixes
+│       ├── ui/                 screens: menu, live, results, stats, settings, workouts, rest, onboarding…
+│       ├── figures/  site/     stick-figure rig, website scripts
+│       └── main.js             app entry point and screen router
+├── tests/                      npm test  (unit + engine)   ·   npm run test:e2e  (browser)
+│   ├── *.test.mjs              see "Tests" below
+│   ├── fixtures/               recordings replayed by replay.test.mjs
+│   ├── e2e/run.mjs             Playwright end-to-end suite
+│   ├── videos/                 your own test videos (git-ignored)
+│   └── helpers/synth.mjs       simulated people → MediaPipe-style landmarks
+├── tools/                      update-sw.mjs (npm run sw), make-synthetic-fixture.mjs
+├── RECORDING_GUIDE.md          which real clips to record for testing
+├── CHANGELOG.md  CLAUDE.md  TODO.md
+└── package.json  wrangler.jsonc
 ```
 
 ## Tests
 
-`npm test` (needs Node.js 18+) runs 3 suites:
+`npm test` (Node.js 18+) runs 11 suites, about 235 checks:
 
-- **Session (26 checks):** simulated people do sets of every exercise, with good
-  form and with common faults, at 12–30 fps, with camera jitter and dropped
-  frames. The checks confirm rep counts, scores, faults, "no rep" calls,
-  practice-mode stopping, plank timing, and the turn-side-on / step-back
-  checks.
-- **Scoring (14 checks):** the curves land in their calibration bands.
-- **Rig:** the stick figure's limbs stay rigid and its feet don't slide.
+| Suite | What it checks |
+|---|---|
+| `session` (48) | Simulated people do every exercise, with good form and common faults, at 10–30 fps with jitter and dropped frames. Also covers tracking glitches, side flips, occlusion, turning 30°, grinders, double bounces, resting, walking out, twitches and calibration. |
+| `tracking` (39) | One Euro filter, bone glitches, calibration, personal thresholds, side hysteresis, gap-filling, framing / lighting hints, 2D vs 3D |
+| `coach` (25) | Impact-first cues, escalation, reinforcement, trends, briefing, summary, targets |
+| `camera` (32) | Camera choice and order, error messages, dead / dark / frozen frame checks |
+| `circuit` (27) | Routines, the circuit runner, rest-timer cues, history and CSV export |
+| `scoring` (18) | Calibration bands (good ≈ 95–100, half squat ≈ 70–76, quarter ≈ 50–58), grade letters |
+| `speech` (15) | One line at a time, never mid-rep, priorities, no pile-ups |
+| `replay` (13) | Recordings in `tests/fixtures/` against their `.expect.json` |
+| `storage` (10) | Old saved data still loads (v1 → v2 migration) |
+| `pwa` (8) | The offline cache list is complete and current |
+| `rig` | The stick figure's limbs stay rigid |
+
+`npm run test:e2e` runs 18 browser tests with Chromium's fake camera:
+
+- every trainer screen and the website pages;
+- camera switching;
+- Back turning the camera off in every state;
+- a blocked camera;
+- keyboard-only use;
+- no horizontal overflow at 390 and 1280 px;
+- offline use;
+- any videos you put in `tests/videos/`.
+
+The first time, run `npx playwright install chromium`.
+
+**Real-data testing:** see [RECORDING_GUIDE.md](RECORDING_GUIDE.md). Record
+clips with `app.html?debug` → **● Record**, drop them in `tests/fixtures/`,
+and `npm test` replays them through the engine.
 
 ## Troubleshooting
 
 | Problem | Fix |
 |---|---|
-| Blank page or warning banner | You opened the file directly. Use **Go Live** or your Cloudflare link. |
+| Blank page or warning banner | You opened the file directly. Use `npm run dev`, **Go Live**, or your Cloudflare link. |
+| Black / frozen picture | Pick your real camera from the **Camera** list (setup panel, Settings or the live screen). The app also moves on by itself after a few seconds. |
 | "Camera access is blocked" | Click the camera icon in the address bar → Allow → **Try again**. |
-| "Your camera is busy" | Close FaceTime, Zoom or Photo Booth, then **Try again**. |
-| Reps aren't counting | Stand side-on (face the camera for jumping jacks) with your whole body in frame, and start from the top position. |
-| Slow or choppy | Add `?cpu` to the address (`…/app.html?cpu`) to skip the GPU, or close other tabs. |
-| Want to see what it's measuring | Add `?debug` to the address for a live readout of fps, rep phase and the measured angle. |
+| "Your camera is busy" | Another tab or app has it: close other tabs of this site, FaceTime / Zoom / Teams, and browser sidebar apps (Opera GX's sidebar messengers can hold the camera). |
+| Reps aren't counting | Stand side-on (face the camera for jumping jacks), whole body in the dashed box, start from the top and hold still a moment. |
+| "Resting" appears | You stood still at the top for 4 s; just start the next rep. |
+| Slow or choppy | Settings → Tracking model → **Fast**, or add `?cpu` to the address to skip the GPU. |
+| Want to see what it's measuring | Add `?debug` for fps, camera, resolution, model, calibration and glitch counts, plus the recorder. |
 
 ## Adding an exercise
 
-1. Create `public/js/exercises/<name>.js` (copy `squat.js`): set the rep
-   metric and thresholds, `measure()`, `grade()`, `detectFaults()` and
-   `drawIdeal()`. Then register it in `exercises/index.js`.
+1. Create `public/js/exercises/<name>.js` (copy `squat.js`). Set the rep metric
+   and thresholds, `repSeconds`, `measure()`, `grade()`, `detectFaults()`,
+   `fixes` (for the coach) and `drawIdeal()`. Then register it in
+   `exercises/index.js`.
 2. Add it to `EXERCISES`, `EXERCISE_META` and `DEMO_TIPS` in `config.js`, and
-   give it a fault bank in `coaching.js`.
-3. Optional, for the website: add keyframes in `figures/poses.js`, sliders in
+   give it fault, `CONCRETE`, `FIXED` and `FOCUS` lines in `coaching.js`.
+3. Optional, for the website: keyframes in `figures/poses.js`, sliders in
    `figures/lab.js`, and a card in `index.html`.
-4. Add a scenario to `tests/session.test.mjs` and run `npm test`.
+4. Add a scenario to `tests/session.test.mjs`, then run `npm run sw` and `npm test`.
 
 ## Limits
 
 - A side-on camera sees one plane, so knees caving inward isn't scored.
 - Bad lighting or a cut-off body hurts tracking. You'll get a prompt, not a
   fake score.
+- The engine is tuned on a simulator. Real clips (RECORDING_GUIDE.md) are
+  how it gets checked against real bodies and webcams.
 - Scores compare you to general coaching ranges. It's a training aid, not
   medical advice.
 
 ## Credits
 
 Pose tracking by [MediaPipe](https://developers.google.com/mediapipe)
-(Apache 2.0), loaded from jsDelivr and Google's model storage at runtime.
-Fonts: Unbounded and Instrument Sans (SIL Open Font License, see `public/fonts/`).
+(Apache 2.0), loaded from jsDelivr and Google's model storage at runtime, then
+cached for offline use. Fonts: Unbounded and Instrument Sans (SIL Open Font
+License, see `public/fonts/`).

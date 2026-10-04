@@ -1,6 +1,6 @@
 {
   "name": "vertexform",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "description": "VertexForm: real-time workout form analysis and voice coaching in the browser.",
   "type": "module",

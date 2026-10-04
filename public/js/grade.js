@@ -37,5 +37,9 @@ export function gradeColor(score) {
   return GRADE_STOPS[GRADE_STOPS.length - 1][1];
 }
 
-export const gradeLetter = (s) =>
-  s >= 90 ? "A" : s >= 80 ? "B" : s >= 70 ? "C" : s >= 60 ? "D" : "F";
+/**
+ * Letter grade. `plus: true` adds "A+" for 95 and up (the trainer's top
+ * target); the website keeps plain letters.
+ */
+export const gradeLetter = (s, { plus = false } = {}) =>
+  plus && s >= 95 ? "A+" : s >= 90 ? "A" : s >= 80 ? "B" : s >= 70 ? "C" : s >= 60 ? "D" : "F";

@@ -8,7 +8,7 @@
  */
 
 import { LM, VIS_THRESHOLD } from "./config.js";
-import { gradeColor } from "./grade.js";
+import { gradeColor, gradeLetter as letter } from "./grade.js";
 
 /** Angle at point B formed by A-B-C, in degrees (0..180). */
 export function angleBetween(a, b, c) {
@@ -165,8 +165,8 @@ export function smoothSeries(frames, win = 5) {
   });
 }
 
-export const gradeLetter = (s) =>
-  s >= 90 ? "A" : s >= 80 ? "B" : s >= 70 ? "C" : s >= 60 ? "D" : "F";
+/** Letter grade (one definition, in js/grade.js); the trainer shows A+ for 95+. */
+export const gradeLetter = (s) => letter(s, { plus: true });
 
 /** Colour for a score: its exact spot on the coral→green grade scale (js/grade.js). */
 export const gradeVar = (s) => gradeColor(s);
