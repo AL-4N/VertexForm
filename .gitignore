@@ -2,3 +2,9 @@
 node_modules/
 .wrangler/
 *.log
+
+# Personal test videos and their converted copies (see RECORDING_GUIDE.md)
+tests/videos/*
+!tests/videos/README.md
+tests/e2e/.cache/
+test-results/

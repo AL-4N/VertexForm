@@ -78,10 +78,10 @@ next, track `ended`, devicechange, switching mid-session.
 - [x] Accessibility: focus states, aria-live rep results, reduced motion, never colour-only
 
 ## Phase 6 — Real-data testing tools
-- [ ] ?debug landmark recorder (Record / Stop → JSON download, 4-decimal rounding)
-- [ ] tests/fixtures + tests/replay.test.mjs with `.expect.json` sidecars
-- [ ] RECORDING_GUIDE.md
-- [ ] Playwright e2e with Chromium fake camera; ffmpeg-static converts tests/videos/* to .y4m;
+- [x] ?debug landmark recorder (Record / Stop → JSON download, 4-decimal rounding)
+- [x] tests/fixtures + tests/replay.test.mjs with `.expect.json` sidecars
+- [x] RECORDING_GUIDE.md
+- [x] Playwright e2e with Chromium fake camera; ffmpeg-static converts tests/videos/* to .y4m;
       synthetic pattern when no videos exist
 
 ## Phase 7 — Test everything

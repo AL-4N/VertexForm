@@ -162,6 +162,8 @@ export function cameraErrorMessage(err) {
     return "This camera isn't sending video — pick another.";
   if (name === "StillImage")
     return "This camera is showing a still picture, not live video (probably a virtual camera whose app isn't running) — pick another.";
+  if (name === "NotSupportedError" || name === "TypeError")
+    return "This browser can't use the camera on this page. Open the site in Chrome, Edge, Opera, Firefox or Safari over https:// (or localhost).";
   if (name === "NoSecureContext")
     return "The camera only works on a secure page. Use Go Live in VS Code (localhost) or your https:// Cloudflare link.";
   // Unknown error: show its name so it can be looked up.

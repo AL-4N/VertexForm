@@ -33,6 +33,7 @@ import { checkRep, checkStreak, checkSession } from "../achievements.js";
 import { $, renderBars, toast } from "./components.js";
 import { sizeCanvas, drawFrame, drawSkeleton, drawIdealChain, drawBorder, drawFramingGuide } from "./overlay.js";
 import { framingCheck, lightingHint } from "../tracking.js";
+import { Recorder } from "../recording.js";
 
 const NEUTRAL = "#eef1fb";        // skeleton colour between reps
 const SETUP_SPEAK_AFTER = 2500;   // ms a setup problem must last before it's said out loud
@@ -105,6 +106,8 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
   const debug = new URLSearchParams(location.search).has("debug");
   let fps = 0, lastFrameAt = 0, slowSince = null;
   const dbgEl = debug ? ensureDebugBox() : null;
+  if (debug) mountRecorder(ctl, () => ({ exercise: exerciseName, aspect: (video.videoWidth || 16) / (video.videoHeight || 9),
+    camera: streamCameraName(ctl.stream), model: poseModel(), mode: cfg.mode }));
 
   /* ── Frame loop ────────────────────────────────────────── */
   // requestVideoFrameCallback runs once per camera frame, with the frame's
@@ -151,6 +154,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
 
     const det = detect(video, ts);
     const lms = det?.landmarks ?? null;
+    ctl.recorder?.add(ts, lms, det?.world ?? null);
     const out = session.update(lms, w / h, ts, det?.world ?? null);
     if (lastFrameAt) fps = fps ? fps * 0.9 + (1000 / Math.max(1, ts - lastFrameAt)) * 0.1 : 1000 / Math.max(1, ts - lastFrameAt);
     lastFrameAt = ts;
@@ -659,6 +663,47 @@ function showCameraBox(text, { picker = false, retry = false } = {}) {
 
 /* ── HUD helpers ──────────────────────────────────────────── */
 
+/**
+ * ?debug: Record / Stop buttons that save the raw landmark stream as a JSON
+ * file (js/recording.js). Drop it in tests/fixtures/ with an .expect.json
+ * next to it and `npm test` replays it (see RECORDING_GUIDE.md).
+ */
+function mountRecorder(ctl, meta) {
+  let bar = document.getElementById("vf-rec");
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.id = "vf-rec";
+    bar.className = "rec-bar";
+    bar.innerHTML = `<button class="btn" id="vf-rec-btn">● Record</button><span id="vf-rec-info" class="dim"></span>`;
+    document.querySelector("#screen-live .stage").appendChild(bar);
+  }
+  const btn = bar.querySelector("#vf-rec-btn"), info = bar.querySelector("#vf-rec-info");
+  btn.textContent = "● Record";
+  info.textContent = "";
+  let tick = 0;
+  btn.onclick = () => {
+    if (!ctl.recorder) {
+      ctl.recorder = new Recorder(meta());
+      btn.textContent = "■ Stop";
+      tick = setInterval(() => { info.textContent = `${ctl.recorder?.seconds.toFixed(1) ?? 0} s · ${ctl.recorder?.frames.length ?? 0} frames`; }, 250);
+      ctl.cleanup.push(() => clearInterval(tick));
+      return;
+    }
+    clearInterval(tick);
+    const rec = ctl.recorder;
+    ctl.recorder = null;
+    btn.textContent = "● Record";
+    const name = `${rec.meta.exercise.toLowerCase().replace(/\W+/g, "-")}-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.json`;
+    const blob = new Blob([JSON.stringify(rec.toJSON())], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    info.textContent = `Saved ${name} (${rec.frames.length} frames, ${Math.round(blob.size / 1024)} KB)`;
+  };
+}
+
 /** Small on-screen readout shown when the page URL has ?debug. */
 function ensureDebugBox() {
   let el = document.getElementById("vf-debug");
@@ -708,6 +753,7 @@ function goalText(ex, cfg) {
 }
 
 function countdown(ctl, seconds) {
+  if (!(seconds > 0)) return Promise.resolve();
   return new Promise((resolve) => {
     const el = $("#countdown");
     const span = el.querySelector("span");

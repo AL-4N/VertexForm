@@ -1,0 +1,7 @@
+{
+  "reps": 5,
+  "maxScore": 80,
+  "faults": [
+    "depth"
+  ]
+}

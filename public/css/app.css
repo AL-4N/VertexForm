@@ -509,3 +509,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 }
 h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .stage.gym:not(.armed) .gym-counter { display: none; }
+
+/* ?debug recorder */
+.rec-bar { position: absolute; left: 1rem; bottom: calc(var(--safe-bottom) + 7.5rem); z-index: 26; display: flex; align-items: center; gap: .6rem; font-size: .78rem; }
+.rec-bar .btn { background: #3a0f1a; border-color: var(--coral); color: #ffd0da; }
