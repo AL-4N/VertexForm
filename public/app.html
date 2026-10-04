@@ -152,7 +152,18 @@
 
         <div class="opt-row">
           <span>Camera</span>
-          <select class="camera-select" id="opt-camera" aria-label="Camera"></select>
+          <div class="cam-row">
+            <select class="camera-select" id="opt-camera" aria-label="Camera"></select>
+            <button class="btn" id="cam-test">Test camera</button>
+          </div>
+        </div>
+        <div class="cam-preview" id="cam-preview" hidden>
+          <video id="cam-preview-video" playsinline muted aria-label="Camera preview"></video>
+          <div class="cam-preview-side">
+            <p id="cam-preview-status" role="status">Starting camera…</p>
+            <p class="dim" id="cam-preview-info"></p>
+            <button class="btn" id="cam-test-stop">Stop preview</button>
+          </div>
         </div>
 
         <div class="opt-row">
@@ -245,6 +256,7 @@
           <p id="pose-msg">Loading the pose model…</p>
           <select class="camera-select" id="pose-camera" aria-label="Camera" hidden></select>
           <button class="btn primary" id="pose-retry" hidden>Try again</button>
+          <pre class="cam-diag" id="cam-diag" hidden></pre>
         </div>
       </div>
     </div>

@@ -533,3 +533,11 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 
 /* Screens slide in from the side: never show a horizontal scrollbar while they do. */
 #app { overflow-x: clip; }
+.cam-diag { max-width: min(92vw, 44rem); max-height: 30vh; overflow: auto; margin: 0; padding: .6rem .8rem; border-radius: 8px; background: rgba(255,255,255,.06); color: #c6ef4e; font: 11px/1.45 var(--mono); text-align: left; white-space: pre-wrap; word-break: break-all; user-select: text; }
+
+/* Setup screen: camera test preview */
+.cam-row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: flex-end; }
+.cam-preview { display: grid; grid-template-columns: minmax(0, 260px) 1fr; gap: 1rem; align-items: center; padding: .8rem 0 .4rem; border-top: 1px solid var(--border); }
+.cam-preview video { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px; background: #000; }
+.cam-preview-side { display: grid; gap: .4rem; justify-items: start; font-size: .87rem; }
+@media (max-width: 560px) { .cam-preview { grid-template-columns: 1fr; } }

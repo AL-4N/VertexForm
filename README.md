@@ -203,7 +203,8 @@ and `npm test` replays them through the engine.
 | Problem | Fix |
 |---|---|
 | Blank page or warning banner | You opened the file directly. Use `npm run dev`, **Go Live**, or your Cloudflare link. |
-| Black / frozen picture | Pick your real camera from the **Camera** list (setup panel, Settings or the live screen). The app also moves on by itself after a few seconds. |
+| Black / frozen picture | Pick your real camera from the **Camera** list and press **Test camera** on the setup screen. A USB webcam can take a few seconds to start. "Black picture" usually means a closed privacy cover. A camera you picked is never swapped for another. |
+| Camera still won't start | Open `app.html?debug`, try again, and copy the green camera log under the message (it's in the browser console too). It shows each attempt, the error, and what the camera reported. |
 | "Camera access is blocked" | Click the camera icon in the address bar → Allow → **Try again**. |
 | "Your camera is busy" | Another tab or app has it: close other tabs of this site, FaceTime / Zoom / Teams, and browser sidebar apps (Opera GX's sidebar messengers can hold the camera). |
 | Reps aren't counting | Stand side-on (face the camera for jumping jacks), whole body in the dashed box, start from the top and hold still a moment. |

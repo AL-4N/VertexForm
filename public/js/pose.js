@@ -159,7 +159,9 @@ export function cameraErrorMessage(err) {
   if (name === "AbortError")
     return "Your camera didn't respond in time. Close other apps that use it, or unplug it and plug it back in, then try again.";
   if (name === "NoVideo")
-    return "This camera isn't sending video — pick another.";
+    return "This camera isn't sending any video. Check it's plugged in and not in use by another app, then Try again, or pick another camera.";
+  if (name === "BlackPicture")
+    return "Camera shows a black picture. If it has a privacy cover, slide it open.";
   if (name === "StillImage")
     return "This camera is showing a still picture, not live video (probably a virtual camera whose app isn't running) — pick another.";
   if (name === "NotSupportedError" || name === "TypeError")
@@ -177,7 +179,8 @@ export const isPermissionError = (err) =>
 /* Which camera to try first. Pure functions, so they're unit-tested. */
 
 // Software cameras: they show nothing (or a logo) unless their app is running.
-const VIRTUAL = /\b(obs|virtual|snap camera|camo|mmhmm|manycam|xsplit|ndi|camtwist|ecamm|vcam|droidcam|epoccam|iriun|logi capture|nvidia broadcast|streamlabs|elgato|screen ?capture|avatarify|vtube|veadotube|chromacam|xsplit vcam|youcam|cyberlink|splitcam|sparkocam|webcamoid|e2esoft)\b/i;
+// Only software cameras by name: a real USB webcam (Anker, Logitech, Elgato Facecam, Razer…) never matches.
+const VIRTUAL = /\b(obs|virtual|snap camera|camo|mmhmm|manycam|xsplit|ndi|camtwist|ecamm|vcam|droidcam|epoccam|iriun|logi capture|nvidia broadcast|streamlabs|screen ?capture|avatarify|vtube|veadotube|chromacam|youcam|cyberlink|splitcam|sparkocam|webcamoid|e2esoft)\b/i;
 const BUILT_IN = /facetime|built-?in|integrated/i;
 // Continuity Camera (an iPhone/iPad used as a webcam): real, but only works when the phone is nearby.
 const PHONE = /iphone|ipad|continuity|desk view/i;
@@ -191,6 +194,9 @@ export function cameraKind(label = "") {
 }
 
 const KIND_RANK = { builtin: 0, external: 1, phone: 2, virtual: 3 };
+// Never picked automatically (only when you choose them): software cameras,
+// and Continuity / iPhone cameras, which show nothing unless the phone is ready.
+const AUTO_SKIP = new Set(["virtual", "phone"]);
 
 /**
  * The order to try cameras in: the one you chose (if any), then real cameras,
@@ -203,10 +209,24 @@ export function cameraOrder(cams, preferredId = null, skip = null) {
     .sort((a, b) => KIND_RANK[a.kind] - KIND_RANK[b.kind] || a.i - b.i)
     .map(({ i, ...c }) => c);
   const chosen = ranked.find((c) => c.id === preferredId);
-  let order = ranked.filter((c) => c.kind !== "virtual" && c !== chosen);
+  let order = ranked.filter((c) => !AUTO_SKIP.has(c.kind) && c !== chosen);
   if (chosen) order.unshift(chosen);
   if (!order.length) order = ranked;
   return [...order.filter((c) => c.id !== skip), ...order.filter((c) => c.id === skip)];
+}
+
+/**
+ * Which cameras to try, in order. A camera you picked (now, or saved from
+ * before) is the ONLY one tried: if it fails you get a message and the
+ * camera list, never a silent switch to a different camera. With no pick,
+ * real cameras are tried in cameraOrder() order.
+ * @returns { order: [{id, label, kind}], explicit: bool }
+ */
+export function camerasToTry(cams, { pickedId = null, savedId = null, skip = null } = {}) {
+  const want = pickedId ?? savedId;
+  const chosen = want && cams.find((c) => c.id === want);
+  if (chosen) return { order: [{ ...chosen, kind: cameraKind(chosen.label) }], explicit: true };
+  return { order: cameraOrder(cams, null, skip), explicit: false };
 }
 
 /**
@@ -250,6 +270,66 @@ export async function listCamerasWithNames() {
 /** What we ask every camera for: 720p at 30 fps, or the best it can do. */
 export const CAMERA_SIZE = { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } };
 
+/**
+ * getUserMedia constraints to try, most to least specific. Only the device
+ * id is ever `exact`; size and frame rate are always `ideal`, so a camera is
+ * never refused for not supporting a mode.
+ */
+export function constraintLadder(deviceId, facing = "user") {
+  const who = deviceId ? { deviceId: { exact: deviceId } } : { facingMode: facing };
+  return [
+    { ...who, width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } },
+    { ...who, width: { ideal: 640 }, height: { ideal: 480 } },
+    { ...who },
+  ];
+}
+
+const RETRY_WITH_LESS = new Set(["OverconstrainedError", "NotReadableError", "TrackStartError", "AbortError"]);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * Open a camera, stepping down the constraint ladder when the camera can't
+ * do what was asked (OverconstrainedError) or is still being released by a
+ * previous stream (NotReadableError: wait a moment, then try again).
+ * @param gum  getUserMedia (injectable for tests)
+ * @param log  called with each attempt's outcome (diagnostics)
+ */
+export async function getCameraStream(deviceId, { facing = "user", signal, log = () => {}, gum } = {}) {
+  gum ??= (c) => navigator.mediaDevices.getUserMedia(c);
+  let lastErr = null;
+  const ladder = constraintLadder(deviceId, facing);
+  for (let step = 0; step < ladder.length; step++) {
+    if (signal?.aborted) throw aborted();
+    try {
+      const stream = await gum({ video: ladder[step], audio: false });
+      log({ step, ok: true, constraints: ladder[step] });
+      return stream;
+    } catch (err) {
+      lastErr = err;
+      log({ step, ok: false, constraints: ladder[step], error: `${err?.name}: ${err?.message}` });
+      if (!RETRY_WITH_LESS.has(err?.name)) throw err;
+      if (err.name !== "OverconstrainedError") await sleep(400);
+    }
+  }
+  throw lastErr;
+}
+
+/** Everything useful about a camera track, for ?debug and bug reports. */
+export function cameraInfo(stream, err = null) {
+  const t = stream?.getVideoTracks?.()[0];
+  const s = t?.getSettings?.() ?? {};
+  let c = null;
+  try { c = t?.getCapabilities?.() ?? null; } catch { /* not supported */ }
+  return {
+    label: t?.label ?? null,
+    readyState: t?.readyState ?? null,
+    muted: t?.muted ?? null,
+    settings: t ? { width: s.width, height: s.height, frameRate: s.frameRate && Math.round(s.frameRate * 10) / 10, deviceId: s.deviceId?.slice(0, 12) } : null,
+    capabilities: c ? { width: c.width, height: c.height, frameRate: c.frameRate, resizeMode: c.resizeMode } : null,
+    error: err ? `${err.name}: ${err.message}` : null,
+  };
+}
+
 /** Device id of the camera a stream is using. */
 export const streamCameraId = (stream) => stream?.getVideoTracks()[0]?.getSettings?.().deviceId ?? null;
 export const streamCameraName = (stream) => stream?.getVideoTracks()[0]?.label || null;
@@ -262,29 +342,36 @@ const aborted = () => { const e = new Error("aborted"); e.name = "Aborted"; retu
  * nothing (or only black) within `timeoutMs`, and stops it. An AbortSignal
  * cancels the attempt (Back pressed, or another camera picked meanwhile).
  */
-export async function openCamera(videoEl, deviceId, { signal, timeoutMs = 3000, facing = "user", stream = null } = {}) {
+/**
+ * @returns { stream, picture: "ok" | "black" }. "black" = the camera sends
+ *   frames but they're pure black (usually a closed privacy cover): it works,
+ *   so it's used, and the caller tells you to open the cover.
+ * Waits up to `timeoutMs` (6 s) for the first frame: USB webcams often take
+ * 2–5 s to warm up and start "muted". Only a camera that sends NOTHING in
+ * that time is a "NoVideo" error.
+ */
+export async function openCamera(videoEl, deviceId, { signal, timeoutMs = 6000, facing = "user", stream = null, log = () => {} } = {}) {
   if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
     const e = new Error("insecure"); e.name = "NoSecureContext"; throw e;
   }
-  stream ??= await navigator.mediaDevices.getUserMedia({
-    video: deviceId ? { deviceId: { exact: deviceId }, ...CAMERA_SIZE } : { facingMode: facing, ...CAMERA_SIZE },
-    audio: false,
-  });
+  stream ??= await getCameraStream(deviceId, { facing, signal, log });
   if (signal?.aborted) { stopCamera(stream); throw aborted(); }
+  log({ opened: cameraInfo(stream) });
 
   videoEl.srcObject = stream;
   const verdict = await waitForVideo(videoEl, stream, timeoutMs, signal);
-  if (verdict === "ok") {
+  if (verdict === "ok" || verdict === "black") {
     // Playing for sure before the caller starts reading frames (it already
     // shows frames, so this can't hang the way it can on a dead camera).
     await Promise.race([videoEl.play().catch(() => {}), new Promise((r) => setTimeout(r, 500))]);
-    return stream;
+    return { stream, picture: verdict };
   }
 
+  log({ failed: verdict, info: cameraInfo(stream) });
   stopCamera(stream);
   if (videoEl.srcObject === stream) videoEl.srcObject = null;
   if (verdict === "aborted") throw aborted();
-  const e = new Error(verdict === "black" ? "only black frames" : "no frames");
+  const e = new Error(`no frames in ${Math.round(timeoutMs / 1000)} s${stream.getVideoTracks()[0]?.muted ? " (track stayed muted)" : ""}`);
   e.name = "NoVideo";
   throw e;
 }
@@ -330,6 +417,8 @@ function waitForVideo(video, stream, ms, signal) {
       if (n !== seen && video.readyState >= 2 && video.videoWidth) {
         seen = n;
         frames++;
+        // Black frames are normal while a webcam warms up: keep waiting for a
+        // real picture, up to the timeout.
         if (!isBlack(video, pctx)) return done("ok");
       }
       if (performance.now() - start > ms) return done(frames ? "black" : "no-frames");
@@ -362,15 +451,18 @@ export function sample(video, pctx) {
  *   hash:  a cheap fingerprint, to spot a camera stuck on one still picture
  */
 export function frameStats(px) {
-  let black = true, sum = 0, hash = 0;
+  let max = 0, sum = 0, hash = 0;
   const n = px.length / 4;
   for (let i = 0; i < px.length; i += 4) {
     const r = px[i], g = px[i + 1], b = px[i + 2];
-    if (r + g + b > 24) black = false;
+    if (r + g + b > max) max = r + g + b;
     sum += 0.299 * r + 0.587 * g + 0.114 * b;
     hash = (hash * 31 + r + (g << 8) + (b << 16)) >>> 0;
   }
-  return { black, luma: n ? sum / n : 0, hash };
+  const luma = n ? sum / n : 0;
+  // "Black" means essentially zero everywhere (a closed cover, a dead
+  // sensor). A dim room still has some signal: that's low light, not black.
+  return { black: max <= 12 && luma < 2.5, luma, hash };
 }
 
 /** Stop every track of a stream (turns the camera light off). */

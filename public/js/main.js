@@ -17,6 +17,7 @@ import { renderStats, wireStatsReset } from "./ui/stats.js";
 import { wireWorkouts, renderWorkouts } from "./ui/workouts.js";
 import { showRest, stopRest } from "./ui/rest-screen.js";
 import { showOnboarding } from "./ui/onboarding.js";
+import { startPreview, stopPreview, previewRunning } from "./ui/camera-preview.js";
 import { CircuitRunner, stepSession, describeStep } from "./circuit.js";
 import { gradeVar } from "./geometry.js";
 import { registerServiceWorker } from "./pwa.js";
@@ -65,10 +66,12 @@ function wireNav() {
   $$("[data-back]").forEach((btn) =>
     btn.addEventListener("click", () => {
       const to = btn.dataset.back;
+      stopPreview();
       if (to === "menu") { stopDemo(); renderMenu(openMode); }
       showScreen(to, { dir: "back" });
     }));
 
+  document.addEventListener("visibilitychange", () => { if (document.hidden) stopPreview(); });
   $("#btn-workouts").addEventListener("click", () => {
     renderWorkouts();
     showScreen("workouts");
@@ -197,15 +200,18 @@ function openMode(exercise) {
 
 function wireCamera() {
   refreshCameraPickers();
-  // A session is running: switch to the picked camera in place.
-  // Otherwise the choice is saved and used next time.
-  onCameraPicked((id) => switchCamera(id));
+  // A session is running: switch to the picked camera in place. The camera
+  // test is running: show the picked camera. Otherwise it's saved for next time.
+  onCameraPicked((id) => { if (!switchCamera(id) && previewRunning()) startPreview(id, { mirror: cfg.mirror }); });
+  $("#cam-test").addEventListener("click", () => startPreview(null, { mirror: cfg.mirror }));
+  $("#cam-test-stop").addEventListener("click", stopPreview);
 }
 
 
 /* ── Workouts (circuits) ────────────────────────────────── */
 
 function startCircuit(routine) {
+  stopPreview();
   stopDemo();
   circuit = new CircuitRunner(routine);
   speech.say(`${routine.name}. ${routine.steps.length} exercises. First, ${describeStep(circuit.current).replace("×", "")}.`, { anytime: true, priority: 2 });
@@ -253,6 +259,10 @@ function endCircuit() {
 async function startSession(mode) {
   if (!currentExercise) return;
   cfg.mode = mode;
+  if (previewRunning()) {           // the test preview must let go of the webcam first
+    stopPreview();
+    await new Promise((r) => setTimeout(r, 200));
+  }
   stopDemo();
   stopRest();
   showScreen("live");

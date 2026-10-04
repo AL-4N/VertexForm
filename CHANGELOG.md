@@ -1,5 +1,32 @@
 # Changelog
 
+## 2.0.1 — 2026-10-04
+
+### External USB webcams (e.g. Anker PowerConf C200)
+- Fixed: a USB webcam that takes a few seconds to send its first frame, or
+  starts with black / muted frames, was declared dead after 3 s and
+  replaced by another camera. The app now waits up to 6 s ("Starting
+  camera…"), and a muted track is waited out.
+- Fixed: a camera you pick (or picked before) is the only one tried. If it
+  fails you get the reason, the camera list and Try again, never a silent
+  switch.
+- Constraint ladder: 1280×720 @ 30 → 640×480 → device only. Only the device
+  id is ever `exact`. It retries on OverconstrainedError / NotReadableError.
+- The old camera (and the permission-check stream) is fully stopped before
+  another opens, so the same webcam is never held twice.
+- All-black frames mean "Camera shows a black picture. If it has a privacy
+  cover, slide it open". The camera is kept, not swapped. Very dark is low
+  light, not dead.
+- "Elgato" no longer counts as a virtual camera (the Facecam is real).
+  Continuity / iPhone cameras are skipped unless you pick them.
+- ?debug: getUserMedia attempts and errors, track settings, capabilities,
+  readyState and muted, on screen and in the console.
+- Setup screen: Test camera, with a live preview.
+- The motion-blur slide is now on every transition (screens, onboarding
+  carousel, dialogs, toasts, overlays, the website's Form Lab, game and
+  hero).
+- Offline mode works on Cloudflare (it redirects app.html to /app).
+
 ## 2.0.0 — 2026-10-04
 
 The big upgrade: accuracy, a smarter coach, quality of life, and tests for

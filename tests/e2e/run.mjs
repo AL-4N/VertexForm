@@ -318,6 +318,80 @@ await test("Camera blocked: clear message + Try again, nothing left on", async (
   await assertCameraOff(page, "after a blocked camera");
 });
 
+/** Replace the camera with a canvas stream that behaves like a given USB webcam. */
+async function fakeWebcam(page, { firstFrameMs = 0, black = false } = {}) {
+  await page.addInitScript(({ firstFrameMs, black }) => {
+    const real = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    navigator.mediaDevices.getUserMedia = async (c) => {
+      const s0 = await real(c);                      // keeps the permission + device list realistic
+      s0.getTracks().forEach((t) => t.stop());
+      const cv = Object.assign(document.createElement("canvas"), { width: 640, height: 360 });
+      const g = cv.getContext("2d");
+      const stream = cv.captureStream(30);           // frames only flow once we start drawing
+      const t0 = performance.now();
+      const draw = () => {
+        if (stream.getVideoTracks()[0].readyState === "ended") return;
+        if (performance.now() - t0 >= firstFrameMs) {
+          if (black) { g.fillStyle = "#000"; g.fillRect(0, 0, 640, 360); }
+          else { const v = 60 + Math.random() * 60; g.fillStyle = `rgb(${v},${v + 10},${v})`; g.fillRect(0, 0, 640, 360); g.fillStyle = "#fff"; g.fillRect(Math.random() * 600, 100, 40, 40); }
+        }
+        requestAnimationFrame(draw);
+      };
+      draw();
+      window.__streams.push(stream);
+      return stream;
+    };
+  }, { firstFrameMs, black });
+}
+
+await test("USB webcam that takes 3.5 s to send its first frame is waited for", async (make) => {
+  const page = await make();
+  await fakeWebcam(page, { firstFrameMs: 3500 });
+  await page.goto(`${BASE}/app.html?debug`);
+  await openExercise(page);
+  await page.click("#mode-practice");
+  await page.waitForTimeout(2500);
+  assert(/Starting/i.test(await page.textContent("#pose-msg")), `during warm-up the message should say Starting…, got: ${await page.textContent("#pose-msg")}`);
+  await waitLive(page, 30_000);
+  assert((await page.evaluate(() => window.__vfDebug.camError)) == null, "a camera error was recorded");
+  await page.click("#live-back");
+  await assertCameraOff(page, "after the slow webcam");
+});
+
+await test("Camera sending only black frames: kept, with the privacy-cover hint", async (make) => {
+  const page = await make();
+  await fakeWebcam(page, { black: true });
+  await page.goto(`${BASE}/app.html?debug`);
+  await page.evaluate(() => { window.__vf.cfg.countdown = 0; });
+  await openExercise(page);
+  await page.click("#mode-practice");
+  await waitLive(page, 30_000);
+  await page.waitForTimeout(1500);
+  assert(/privacy cover/.test(await page.textContent("#live-tip")), `tip: ${await page.textContent("#live-tip")}`);
+  assert(await page.isHidden("#pose-loading"), "it gave up on the camera instead of using it");
+  await page.click("#live-back");
+  await assertCameraOff(page, "after the black camera");
+});
+
+await test("Setup screen: Test camera shows a live preview, stops before a set", async (make) => {
+  const page = await make();
+  await page.goto(`${BASE}/app.html?debug`);
+  await openExercise(page);
+  await page.click("#cam-test");
+  await page.waitForFunction(() => /works/.test(document.querySelector("#cam-preview-status").textContent), null, { timeout: 20_000 });
+  assert(/\d+×\d+ at/.test(await page.textContent("#cam-preview-info")), "resolution/fps not shown");
+  assert((await liveTracks(page)) === 1, "preview should hold exactly one camera");
+  await page.click("#mode-practice");
+  await waitLive(page);
+  assert((await liveTracks(page)) === 1, "the preview's camera wasn't released before the set");
+  await page.click("#live-back");
+  await assertCameraOff(page, "after the set");
+  await page.click("#cam-test");
+  await page.waitForFunction(() => /works/.test(document.querySelector("#cam-preview-status").textContent), null, { timeout: 20_000 });
+  await page.click('#screen-mode [data-back="menu"]');
+  await assertCameraOff(page, "leaving the setup screen with the preview on");
+});
+
 await test("Results: summary, rep table, score card, rest timer → next set", async (make) => {
   const page = await make();
   await page.goto(`${BASE}/app.html?debug`);

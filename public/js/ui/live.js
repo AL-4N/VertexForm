@@ -19,8 +19,8 @@
 import { getExercise } from "../exercises/index.js";
 import {
   initPose, detect, poseDelegate, poseModel, MODEL_NAMES,
-  openCamera, stopCamera, listCameras, listCamerasWithNames, cameraOrder, countFrames,
-  cameraErrorMessage, isPermissionError, streamCameraId, streamCameraName, sample, frameStats,
+  openCamera, stopCamera, listCameras, listCamerasWithNames, camerasToTry, countFrames,
+  cameraErrorMessage, isPermissionError, streamCameraId, streamCameraName, sample, frameStats, cameraInfo,
 } from "../pose.js";
 import { savedCameraId, savedCameraLabel, refreshCameraPickers } from "./camera-picker.js";
 import { Session } from "../session.js";
@@ -44,6 +44,7 @@ const AUTO_LITE_FPS = 15;         // "Auto" model quality: below this for a whil
 const AUTO_LITE_AFTER_MS = 5000;
 
 let active = null;                // the running session's control object
+const DEBUG = typeof location !== "undefined" && new URLSearchParams(location.search).has("debug");
 
 /**
  * @param exerciseName  which exercise
@@ -172,6 +173,10 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
       glitches: session.glitches, gapFills: session.gaps.filledFrames, sideSwitches: session.sides.switches,
       reps: session.reps.length, facing: session.facing != null ? +session.facing.toFixed(2) : null,
       light: ctl.luma != null ? Math.round(ctl.luma) : null,
+      track: ctl.camInfo ? `${ctl.stream?.getVideoTracks()[0]?.readyState ?? "?"}${ctl.stream?.getVideoTracks()[0]?.muted ? " (muted)" : ""}` : null,
+      camSettings: ctl.camInfo?.settings ? `${ctl.camInfo.settings.width}×${ctl.camInfo.settings.height} @ ${ctl.camInfo.settings.frameRate} fps, id ${ctl.camInfo.settings.deviceId}…` : null,
+      camCaps: ctl.camInfo?.capabilities ? `≤${ctl.camInfo.capabilities.width?.max}×${ctl.camInfo.capabilities.height?.max}, ${ctl.camInfo.capabilities.frameRate?.min ?? "?"}–${ctl.camInfo.capabilities.frameRate?.max ?? "?"} fps` : null,
+      camError: ctl.camError ?? null,
     };
     if (dbgEl) dbgEl.textContent = Object.entries(window.__vfDebug).map(([k, v]) => `${k}: ${v}`).join("\n");
 
@@ -192,7 +197,8 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
     if (out.live && session.armed) renderBars($("#live-bars"), out.live.bars);
 
     // Tip line: lighting first, then framing, then whatever the engine says.
-    const dark = lightingHint(ctl.luma);
+    const dark = ctl.blackPicture ? "Camera shows a black picture. If it has a privacy cover, slide it open."
+               : ctl.trackMuted ? "Starting camera…" : lightingHint(ctl.luma);
     const frameHint = !framing.ok && (!session.armed || ["none", "partial"].includes(out.state)) ? framing.hint : null;
     const tip = dark ?? frameHint ?? out.tip ?? "";
 
@@ -501,39 +507,49 @@ async function useCamera(ctl, video, { pickedId = null, reason = null, skip = nu
   const ac = (ctl.camAbort = new AbortController());
   const stale = () => ctl.cancelled || ac.signal.aborted;
   ctl.opening = true;
-  dropStream(ctl, video);
-  showCameraBox(reason ?? "Starting your camera…", { picker: problem });
+  // Stop every track of the old camera BEFORE opening the next one: some UVC
+  // webcams refuse to open (NotReadableError) while a previous stream is live.
+  const hadStream = dropStream(ctl, video);
+  showCameraBox(reason ?? "Starting camera…", { picker: problem });
+  if (hadStream) await new Promise((r) => setTimeout(r, 150));
 
   let probe = null;                 // stream opened for the permission check, reused if it's the pick
   try {
     let cams;
     ({ cams, probe } = await listCamerasWithNames());
     if (stale()) return false;
-    const preferred = pickedId ?? await savedCameraId(cams);
-    if (!pickedId && !preferred && savedCameraLabel()) {
+    const savedId = pickedId ? null : await savedCameraId(cams);
+    if (!pickedId && !savedId && savedCameraLabel()) {
       toast(`${savedCameraLabel()} isn't connected, so another camera was picked`, 4000);
     }
     // Phones: "front" / "back" by facing mode, since device ids change between visits.
-    const order = facing && !pickedId ? [{ id: null, label: facing === "environment" ? "the back camera" : "the front camera" }]
-                                      : cameraOrder(cams, preferred, skip);
-    if (!order.length) order.push({ id: null, label: "" });   // no list available: browser default
+    let { order, explicit } = facing && !pickedId
+      ? { order: [{ id: null, label: facing === "environment" ? "the back camera" : "the front camera" }], explicit: true }
+      : camerasToTry(cams, { pickedId, savedId, skip });
+    if (!order.length) order = [{ id: null, label: "" }];   // no list available: browser default
+    ctl.explicit = explicit;
+
+    // The permission-check stream is reused only if it IS the camera we want;
+    // otherwise it's closed first, so the same webcam is never opened twice.
+    if (probe && !(order[0].id && streamCameraId(probe) === order[0].id)) { stopCamera(probe); probe = null; await new Promise((r) => setTimeout(r, 150)); }
 
     let lastErr = null;
     for (const cam of order) {
-      if (lastErr) {
-        showCameraBox(`${cameraErrorMessage(lastErr)} Trying ${cam.label || "the next camera"}…`, { picker: true });
-      }
+      if (lastErr) showCameraBox(`${cameraErrorMessage(lastErr)} Trying ${cam.label || "the next camera"}…`, { picker: true });
+      else showCameraBox(reason ?? `Starting ${cam.label || "camera"}…`, { picker: problem });
       try {
         const reuse = probe && cam.id && streamCameraId(probe) === cam.id ? probe : null;
         if (reuse) probe = null;
-        const stream = await openCamera(video, cam.id, { signal: ac.signal, stream: reuse, facing: facing ?? "user" });
+        const { stream, picture } = await openCamera(video, cam.id, {
+          signal: ac.signal, stream: reuse, facing: facing ?? "user", log: (d) => logCamera(ctl, cam.label, d),
+        });
         if (stale()) { stopCamera(stream); return false; }
-        attachStream(ctl, video, stream);
+        attachStream(ctl, video, stream, picture);
         if (lastErr || reason) toast(`Camera: ${streamCameraName(stream) ?? "switched"}`);
         return true;
       } catch (err) {
         if (stale()) return false;
-        console.warn("[camera]", cam.label || "default camera", err);
+        logCamera(ctl, cam.label, { error: `${err.name}: ${err.message}` });
         lastErr = err;
         if (isPermissionError(err)) break;    // no camera works until access is allowed
       }
@@ -545,7 +561,9 @@ async function useCamera(ctl, video, { pickedId = null, reason = null, skip = nu
     throw lastErr;
   } catch (err) {
     if (stale()) return false;
-    console.error(err);
+    console.error("[camera]", err);
+    // A camera you picked that won't start: say so, offer the list and Try
+    // again, and don't swap in a different camera behind your back.
     showCameraBox(cameraErrorMessage(err), { picker: !isPermissionError(err), retry: true });
     return false;
   } finally {
@@ -555,37 +573,70 @@ async function useCamera(ctl, video, { pickedId = null, reason = null, skip = nu
   }
 }
 
+/**
+ * Camera diagnostics: kept for the ?debug readout and logged to the console
+ * (copy them into a bug report). `d` is an attempt, an opened camera's
+ * settings/capabilities, or an error.
+ */
+function logCamera(ctl, label, d) {
+  ctl.camLog = [...(ctl.camLog ?? []), { at: Math.round(performance.now()), camera: label || "default", ...d }].slice(-12);
+  if (d.opened) ctl.camInfo = d.opened;
+  if (d.error) ctl.camError = `${label || "camera"}: ${d.error}`;
+  console.info("[camera]", label || "default", JSON.stringify(d));
+  // ?debug: the same log under the camera message, readable even if the camera never starts.
+  if (DEBUG) {
+    const pre = $("#cam-diag");
+    pre.hidden = false;
+    pre.textContent = ctl.camLog.map((e) => JSON.stringify(e)).join("\n");
+  }
+}
+
 /** Make a verified stream the session's camera. */
-function attachStream(ctl, video, stream) {
+function attachStream(ctl, video, stream, picture = "ok") {
   ctl.stream = stream;
   ctl.frameReset = true;
+  ctl.blackPicture = picture === "black";
+  ctl.camError = null;
+  ctl.camInfo = cameraInfo(stream);
+  console.info("[camera] using", JSON.stringify(ctl.camInfo));
   sizeCanvas($("#overlay"), video);   // new camera, maybe a new resolution
   ctl.restartLoop?.();
   const track = stream.getVideoTracks()[0];
   track?.addEventListener("ended", () => {
     // Fires when the camera is unplugged or the system takes it away (not when we stop it).
     if (ctl.stream !== stream || ctl.cancelled) return;
+    logCamera(ctl, track.label, { event: "ended" });
     useCamera(ctl, video, {
       reason: "Your camera was disconnected. Looking for another one…",
       skip: streamCameraId(stream), problem: true,
     });
   });
+  // A webcam can pause itself (muted) while warming up or when the system
+  // needs it: wait it out, don't call it dead.
+  track?.addEventListener("mute", () => { if (ctl.stream === stream) { ctl.trackMuted = true; logCamera(ctl, track.label, { event: "muted" }); } });
+  track?.addEventListener("unmute", () => { if (ctl.stream === stream) { ctl.trackMuted = false; logCamera(ctl, track.label, { event: "unmuted" }); } });
+  ctl.trackMuted = !!track?.muted;
   $("#pose-loading").hidden = true;
   $("#pose-camera").hidden = true;
   ctl.markCameraReady();
 }
 
-/** Stop every track of the current camera and detach it from the <video>. */
+/** Stop every track of the current camera and detach it from the <video>. @returns whether one was running */
 function dropStream(ctl, video) {
+  const had = !!ctl.stream;
   stopCamera(ctl.stream);
   ctl.stream = null;
   video.srcObject = null;
+  return had;
 }
 
 /**
- * Notice a camera that stops sending frames, or that only ever shows one
- * still picture (a virtual camera whose app isn't running), and move on to
- * the next one. Also keeps `ctl.luma` (mean brightness) for the lighting check.
+ * Watch the running camera. If it stops sending frames, or only ever shows
+ * one still picture (a virtual camera whose app isn't running):
+ *   - a camera the app chose itself → move on to the next one;
+ *   - a camera YOU picked → say what's wrong and offer the list; never swap.
+ * A muted track (warming up, or paused by the system) is waited out.
+ * Also keeps `ctl.luma` (brightness) and `ctl.blackPicture` for the tip line.
  */
 function watchCamera(ctl, video) {
   const frames = countFrames(video);
@@ -596,10 +647,15 @@ function watchCamera(ctl, video) {
   let seen = -1, since = performance.now();
   let lastHash = null, stillSince = performance.now();
 
-  const moveOn = (reason) => {
+  const problem = (autoReason, pickedMsg) => {
     since = stillSince = performance.now();
     lastHash = null;
-    useCamera(ctl, video, { reason, skip: streamCameraId(ctl.stream), problem: true });
+    if (ctl.explicit) {
+      logCamera(ctl, streamCameraName(ctl.stream), { problem: pickedMsg, info: cameraInfo(ctl.stream) });
+      showCameraBox(pickedMsg, { picker: true, retry: true });
+    } else {
+      useCamera(ctl, video, { reason: autoReason, skip: streamCameraId(ctl.stream), problem: true });
+    }
   };
 
   ctl.watchdog = setInterval(() => {
@@ -610,20 +666,30 @@ function watchCamera(ctl, video) {
     const now = performance.now();
     const n = frames.get();
     if (n === seen) {
-      if (now - since > STALL_MS) moveOn("This camera isn't sending video — pick another. Trying the next one…");
+      if (ctl.trackMuted) { since = now; return; }           // paused by the camera/system: wait
+      if (now - since > STALL_MS) {
+        problem("This camera stopped sending video. Trying the next one…",
+          "This camera stopped sending video. Check the cable or close other apps using it, then Try again, or pick another camera.");
+      }
       return;
     }
     seen = n; since = now;
+    if (!$("#pose-loading").hidden && ctl.explicit && !ctl.opening && $("#pose-retry").hidden === false) {
+      $("#pose-loading").hidden = true;                       // it came back by itself
+    }
 
     const px = sample(video, pctx);
     if (!px) return;
     const st = frameStats(px);
     ctl.luma = ctl.luma == null ? st.luma : ctl.luma * 0.6 + st.luma * 0.4;
+    ctl.blackPicture = st.black;
     // Real sensors always add some noise, so frames are never pixel-identical
-    // for seconds on end. A virtual camera's placeholder image is.
-    if (st.hash !== lastHash) { lastHash = st.hash; stillSince = now; }
+    // for seconds on end. A virtual camera's placeholder image is. (A pure
+    // black frame is the privacy-cover case instead, handled on the tip line.)
+    if (st.black || st.hash !== lastHash) { lastHash = st.hash; stillSince = now; }
     else if (now - stillSince > STILL_MS) {
-      moveOn("This camera is showing a still picture, not live video — pick another. Trying the next one…");
+      problem("This camera is showing a still picture, not live video. Trying the next one…",
+        "This camera is showing a still picture, not live video (a virtual camera whose app isn't running?). Pick another camera.");
     }
   }, 500);
 }
