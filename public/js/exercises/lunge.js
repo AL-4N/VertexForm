@@ -19,6 +19,7 @@ export default {
   deepThreshold: 125,
   shallowThreshold: 155,
   minDeepTime: 0.3,
+  repSeconds: [0.5, 12],
   bottomBand: 8,
   attemptMin: 12,
   startTip: "Stand tall, side-on, to start",

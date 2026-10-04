@@ -76,6 +76,7 @@ export async function runLive(exerciseName, cfg, onFinish) {
   $("#live-tip").textContent = ex.startTip ?? "Get into position";
   $("#celebrate").hidden = true;
   $("#live-best").textContent = "Best: –";
+  $("#live-clock").textContent = "0:00";
   $("#live-reps").textContent = ex.isHold ? "Hold: 0 s" : `Reps: 0${isSet ? "/" + cfg.setReps : ""}`;
 
   /* ── Model + camera ────────────────────────────────────── */
@@ -186,7 +187,9 @@ export async function runLive(exerciseName, cfg, onFinish) {
     } else problem = null;
 
     ctl.lastOut = out;
+    if (!session.armed && ctl.gate && out.ready) { const go = ctl.gate; ctl.gate = null; go(); }
     for (const e of out.events) handleEvent(e);
+    if (session.armed) setClock(out);
 
     // Border + HUD
     if (session.armed) {
@@ -213,9 +216,16 @@ export async function runLive(exerciseName, cfg, onFinish) {
       .catch((err) => console.warn("[pose] couldn't switch to the fast model", err));
   }
 
-  await countdown(ctl, cfg.countdown);
+  // Start: a countdown, or (auto-start) as soon as you're in position and still.
+  if (cfg.startMode === "auto") {
+    voice.say(ex.isHold ? "Get into position and hold still to start" : "Get into your starting position and hold still", { interrupt: true });
+    await new Promise((resolve) => { ctl.gate = resolve; });
+  } else {
+    await countdown(ctl, cfg.countdown);
+  }
   if (ctl.cancelled) return;
   session.arm();
+  beep(990, 160, 0.06);
   voice.say("Go!", { interrupt: true });
 
   /* ── Events from the engine ────────────────────────────── */
@@ -244,7 +254,16 @@ export async function runLive(exerciseName, cfg, onFinish) {
       updateCounts();
     } else if (e.type === "done") {
       celebrate();
+    } else if (e.type === "rest-start") {
+      flashTip("Resting: the set clock is paused");
     }
+  }
+
+  /** Set clock: active time only; says so while it's paused for a rest. */
+  function setClock(out) {
+    const secs = Math.floor(out.clock ?? 0);
+    const text = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}${out.resting ? " · resting" : ""}`;
+    setText("#live-clock", text);
   }
 
   function updateCounts() {
@@ -305,6 +324,7 @@ export function stopLive() {
   ctl.camAbort?.abort();            // a camera still opening closes itself
   ctl.cleanup.forEach((fn) => fn());
   ctl.markCameraReady();            // lets a waiting runLive() see it was cancelled
+  ctl.gate?.();                     // ...and a waiting auto-start
   stopCamera(ctl.stream);
   ctl.stream = null;
   const v = $("#video");

@@ -24,6 +24,7 @@ export default {
   shallowThreshold: 0.05,            // hands back below the shoulders
   startMargin: 0.03,
   minDeepTime: 0.08,                 // jacks are quick
+  repSeconds: [0.2, 4],
   bottomBand: 0.05,
   attemptMin: 0.12,
   startTip: "Face the camera, arms by your sides",

@@ -35,7 +35,9 @@ const SEGMENT_S = 5;                       // plank scoring segment length
 const FACING_SIDE_MAX = 0.40;              // shoulder width / torso above this = facing the camera (measured: side-on ≈ 0.1, front-on ≈ 0.5)
 const FACING_FRONT_MIN = 0.30;             // ...below this = side-on (bad for jumping jacks)
 const LOST_RESET_MS = 1500;                // tracking lost this long mid-rep: abandon the rep
-const REP_TIMEOUT_MS = 12000;              // stuck "in a rep" this long: abandon it
+const ABSENT_RESET_MS = 2500;              // gone this long (walked off): start again from the top
+const REST_AFTER_S = 4;                    // still at the top this long mid-set = resting
+const DEFAULT_REP_S = [0.4, 12];           // a rep shorter / longer than this isn't a rep
 const GLITCH_ACCEPT_MS = 600;              // a "glitch" that lasts this long is real: re-learn the bones
 const DEFAULT_KEY_JOINTS = ["SHOULDER", "HIP", "KNEE", "ANKLE"];
 
@@ -95,6 +97,15 @@ export class Session {
     this.buf = [];
     this.lastT = null;
     this.lastSeenT = null;
+    this.vel = 0;            // rep metric velocity (units/s), smoothed
+    this.prevMetric = null;
+    this.motion = "still";   // descending | bottom | ascending | top | still (for timing speech)
+
+    // set clock: active time only (paused while resting or away)
+    this.activeS = 0;
+    this.resting = false;
+    this.topStill = 0;       // seconds spent still at the top since the last rep
+    this.restS = 0;          // total rest time
 
     // facing check (smoothed)
     this.facing = null;
@@ -116,6 +127,7 @@ export class Session {
     // Not armed (countdown / waiting for auto-start): track, calibrate and
     // report readiness, but don't count anything yet.
     this.armed = opts.armed ?? true;
+    this.restAfterS = opts.restAfterS ?? REST_AFTER_S;
 
     // hold state
     this.hold = { inPos: 0, good: 0, segT: 0, segScores: [], live: null, hipTrack: [] };
@@ -248,6 +260,9 @@ export class Session {
     if (ex.isHold) this.#holdStep(m, graded.score, faults, dt, out);
     else this.#repStep(m, metric, graded.score, t, dt, out);
     out.inRep = this.phase === "down";
+    if (!this.resting) this.activeS += dt; else this.restS += dt;
+    out.resting = this.resting;
+    out.clock = this.activeS;
     return out;
   }
 
@@ -261,21 +276,50 @@ export class Session {
     const metric = median(this.metricWin);
     this.lastMetric = metric;
 
+    // Velocity of the rep metric, and which way you're moving. "Still" is
+    // relative to the exercise's range of motion (degrees for most, torso
+    // fractions for jumping jacks).
+    const range = ex.shallowThreshold - ex.deepThreshold;
+    const stillVel = ex.stillVel ?? range * 0.5;
+    if (this.prevMetric != null && dt > 0) {
+      const v = (metric - this.prevMetric) / dt;
+      this.vel += (v - this.vel) * Math.min(1, dt * 12);
+    }
+    this.prevMetric = metric;
+    const moving = Math.abs(this.vel) > stillVel;
+    this.motion = this.phase === "down"
+      ? (!moving ? "bottom" : this.vel < 0 ? "descending" : "ascending")
+      : moving ? (this.vel < 0 ? "descending" : "ascending") : "top";
+    out.motion = this.motion;
+
     if (this.phase === "wait") {
       // Only start counting once we've seen you at the top of the movement.
-      if (metric > this.shallow) this.phase = "top";
+      if (metric > this.shallow) { this.phase = "top"; this.topStill = 0; }
       out.tip = this.phase === "wait" ? (ex.startTip ?? "Start from the top position") : out.tip;
       return;
     }
 
     if (this.phase === "top") {
+      // Resting: standing still at the top for a while, mid-set. The set
+      // clock pauses and nothing counts until you start the next rep.
+      // Still = staying within a small band of where you stopped (velocity
+      // alone is too jumpy here: a straight knee's angle is noisy near 180°).
+      if (this.topAnchor == null || Math.abs(metric - this.topAnchor) > range * 0.2) { this.topAnchor = metric; this.topStill = 0; }
+      else this.topStill += dt;
+      if (!this.resting && this.reps.length && this.topStill >= (this.restAfterS ?? REST_AFTER_S)) {
+        this.resting = true;
+        out.events.push({ type: "rest-start" });
+      }
       if (metric < this.shallow - (ex.startMargin ?? 3)) {
+        if (this.resting) { this.resting = false; out.events.push({ type: "rest-end", seconds: this.topStill }); }
         this.phase = "down";
         this.buf = [];
         this.repStart = t;
         this.minMetric = Infinity;
         this.deepTime = 0;
         this.deepFrames = 0;
+        this.topStill = 0;
+        this.topAnchor = null;
       } else {
         return;
       }
@@ -286,15 +330,27 @@ export class Session {
     this.minMetric = Math.min(this.minMetric, metric);
     if (metric < ex.deepThreshold) { this.deepFrames++; this.deepTime += dt; }
 
-    if (t - this.repStart > REP_TIMEOUT_MS) { this.phase = "top"; this.buf = []; return; }
+    const [minS, maxS] = ex.repSeconds ?? DEFAULT_REP_S;
+    if (t - this.repStart > maxS * 1000) {
+      // Far too long for one rep (sat down, wandered off): drop it quietly,
+      // and wait to see you back at the top before counting again.
+      this.phase = "wait"; this.buf = []; this.topStill = 0;
+      out.events.push({ type: "abandoned" });
+      return;
+    }
 
     if (metric > this.shallow) {
       this.phase = "top";
+      this.topStill = 0;
+      this.topAnchor = null;
+      const duration = (t - this.repStart) / 1000;
       const valid = this.deepFrames >= 2 && this.deepTime >= (ex.minDeepTime ?? 0.2);
-      if (valid) {
+      if (duration < minS) {
+        // Faster than a human rep: a tracking twitch, not a rep or a no-rep.
+      } else if (valid) {
         out.events.push(this.#finishRep(t));
       } else if (this.shallow - this.minMetric >= (ex.attemptMin ?? 12)) {
-        out.events.push({ type: "shallow" });
+        out.events.push({ type: "shallow", depth: this.shallow - this.minMetric });
       }
       this.buf = [];
       if (this.#goalReached()) { this.done = true; out.events.push({ type: "done", reason: "goal" }); }
@@ -318,6 +374,16 @@ export class Session {
     const bounce = dwell < (ex.minDwell ?? 0.18) ? 1 : 0;
     const duration = (t - this.repStart) / 1000;
 
+    // Phases of the rep: down (start → first frame at the bottom), bottom
+    // (time near the deepest point), up (last bottom frame → back at the top).
+    const bottomStart = window.length ? window[0].t : t;
+    const bottomEnd = window.length ? window[window.length - 1].t : t;
+    const phases = {
+      down: (bottomStart - this.repStart) / 1000,
+      bottom: (bottomEnd - bottomStart) / 1000,
+      up: (t - bottomEnd) / 1000,
+    };
+
     const graded = ex.grade(m, wobble);
     const faults = ex.detectFaults({ ...m, bounce, duration, dwell });
     const score = Math.round(graded.score);
@@ -325,15 +391,26 @@ export class Session {
     this.reps.push(score);
     this.best = Math.max(this.best, score);
     if (score >= this.target) { this.goodReps++; this.streak++; } else this.streak = 0;
-    const detail = { score, bars: graded.bars, stats: graded.stats, faults, duration };
+    // Everything the coach and results need about this rep.
+    const measures = Object.fromEntries(Object.entries(m).filter(([, v]) => typeof v === "number").map(([k, v]) => [k, Math.round(v * 1000) / 1000]));
+    const detail = { score, bars: graded.bars, stats: graded.stats, faults, duration, phases, measures, at: t };
     this.repDetails.push(detail);
     return { type: "rep", index: this.reps.length, ...detail, streak: this.streak, good: score >= this.target };
   }
 
   #lost(t) {
-    if (this.phase === "down" && this.lastSeenT != null && t - this.lastSeenT > LOST_RESET_MS) {
+    if (this.lastSeenT == null) return;
+    const gone = t - this.lastSeenT;
+    if (this.phase === "down" && gone > LOST_RESET_MS) {
       this.phase = "top";
       this.buf = [];
+    }
+    if (gone > ABSENT_RESET_MS && this.phase !== "wait") {
+      // Walked out of the frame: when you come back, start again from the top,
+      // so stepping back into position can't look like a rep.
+      this.phase = "wait";
+      this.buf = [];
+      this.metricWin = [];
     }
   }
 
@@ -427,6 +504,10 @@ export class Session {
       reps, best: this.best, average, bars, faults,
       repCount: reps.length, isHold: !!this.ex.isHold,
       durations: this.repDetails.map((d) => d.duration),
+      details: this.repDetails.map(({ score, faults: f, duration, phases, measures }) => ({
+        score, duration, phases, measures, faults: (f ?? []).map((x) => x.key),
+      })),
+      activeSeconds: Math.round(this.activeS), restSeconds: Math.round(this.restS),
     };
   }
 }

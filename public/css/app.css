@@ -352,3 +352,4 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .countdown { backdrop-filter: none; background: rgba(0,0,0,.28); }
 .celebrate { backdrop-filter: none; }
 .loading { backdrop-filter: none; }
+.live-clock { display: block; font-variant-numeric: tabular-nums; }

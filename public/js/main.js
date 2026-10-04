@@ -28,6 +28,7 @@ const cfg = {
   mirror:    getSetting("mirror",      DEFAULTS.mirror),
   setReps:   getSetting("setReps",     DEFAULTS.setReps),
   quality:   getSetting("quality",     DEFAULTS.quality),
+  startMode: getSetting("startMode",   DEFAULTS.startMode),
 };
 
 let currentExercise = null;
@@ -134,6 +135,7 @@ function wirePills() {
     "#opt-countdown":   { key: "countdown",   parse: Number },
     "#opt-personality": { key: "personality", parse: String },
     "#opt-setlen":      { key: "setReps",     parse: Number },
+    "#opt-start":       { key: "startMode",   parse: String },
   };
 
   Object.entries(groups).forEach(([sel, { key, parse }]) => {

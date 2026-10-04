@@ -66,4 +66,5 @@ export const DEFAULTS = {
   mirror: true,
   setReps: 5,       // "Analyze a set" length: reps (plank: × 6 seconds)
   quality: "auto",  // pose model: auto | lite | full | heavy (js/pose.js)
+  startMode: "countdown",  // countdown | auto (start once you hold the start position still)
 };

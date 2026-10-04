@@ -121,6 +121,14 @@
         </div>
 
         <div class="opt-row">
+          <span>Start</span>
+          <div class="pills" id="opt-start">
+            <button data-val="countdown" class="on">Countdown</button>
+            <button data-val="auto">Auto-start when ready</button>
+          </div>
+        </div>
+
+        <div class="opt-row">
           <span>Setup time</span>
           <div class="pills" id="opt-countdown">
             <button data-val="3" class="on">3 s</button>
@@ -182,6 +190,7 @@
       <div class="live-stats card">
         <strong id="live-best">Best: 0</strong>
         <span class="dim" id="live-reps">Reps: 0</span>
+        <span class="dim live-clock" title="Set time (pauses while you rest)">⏱ <span id="live-clock">0:00</span></span>
         <div class="chips" id="rep-chips"></div>
       </div>
 

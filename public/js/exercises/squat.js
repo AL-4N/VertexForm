@@ -20,7 +20,8 @@ export default {
   repMetric: (m) => m.knee,
   deepThreshold: 130,        // knee angle below this = in the bottom of the rep
   shallowThreshold: 152,     // back above this = rep finished (no full lockout needed)
-  minDeepTime: 0.25,         // seconds that must be spent below deepThreshold
+  minDeepTime: 0.25,
+  repSeconds: [0.5, 12],    // shorter = a twitch, longer = not one rep (grinders still fit)         // seconds that must be spent below deepThreshold
   bottomBand: 8,             // score frames within 8° of the deepest point
   attemptMin: 12,            // dipped this far without going deep = "too shallow"
   startTip: "Stand tall, side-on, to start",

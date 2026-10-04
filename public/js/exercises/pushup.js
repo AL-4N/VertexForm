@@ -13,6 +13,7 @@ export default {
   deepThreshold: 110,
   shallowThreshold: 150,
   minDeepTime: 0.15,
+  repSeconds: [0.4, 10],
   bottomBand: 8,
   attemptMin: 12,
   startTip: "Get into the top of a push-up, side-on",

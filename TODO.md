@@ -48,11 +48,11 @@ next, track `ended`, devicechange, switching mid-session.
 - [x] Real fps in ?debug
 
 ## Phase 3 — Rep detection robustness
-- [ ] Velocity / phase awareness (descending / bottom / ascending): bounces at the bottom don't double count, slow grinders count
-- [ ] Min / max rep duration per exercise; ignore walking out of frame
-- [ ] Resting: still at the top > N s mid-set → pause the set clock, count nothing, resume automatically
-- [ ] Auto-start option (hold the start position still for 1 s) vs countdown
-- [ ] Per-rep data: depth, lean, down / bottom / up durations
+- [x] Velocity / phase awareness (descending / bottom / ascending): bounces at the bottom don't double count, slow grinders count
+- [x] Min / max rep duration per exercise; ignore walking out of frame
+- [x] Resting: still at the top > N s mid-set → pause the set clock, count nothing, resume automatically
+- [x] Auto-start option (hold the start position still for 1 s) vs countdown
+- [x] Per-rep data: depth, lean, down / bottom / up durations
 
 ## Phase 4 — Smarter coach
 - [ ] Prioritise by impact (score gain if fixed), not just severity
