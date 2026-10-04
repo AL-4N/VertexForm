@@ -18,7 +18,7 @@
 
 import { getExercise } from "../exercises/index.js";
 import {
-  initPose, detect, poseDelegate,
+  initPose, detect, poseDelegate, poseModel, MODEL_NAMES,
   openCamera, stopCamera, listCameras, listCamerasWithNames, cameraOrder, countFrames,
   cameraErrorMessage, isPermissionError, streamCameraId, streamCameraName, sample, frameStats,
 } from "../pose.js";
@@ -30,12 +30,15 @@ import { voice, beep } from "../voice.js";
 import { recordScore, countRep } from "../storage.js";
 import { checkRep, checkStreak, checkSession } from "../achievements.js";
 import { $, renderBars, toast } from "./components.js";
-import { sizeCanvas, drawFrame, drawSkeleton, drawIdealChain, drawBorder } from "./overlay.js";
+import { sizeCanvas, drawFrame, drawSkeleton, drawIdealChain, drawBorder, drawFramingGuide } from "./overlay.js";
+import { framingCheck, lightingHint } from "../tracking.js";
 
 const NEUTRAL = "#eef1fb";        // skeleton colour between reps
 const SETUP_SPEAK_AFTER = 2500;   // ms a setup problem must last before it's said out loud
 const STALL_MS = 3000;            // no new video frames for this long = the camera has stopped
 const STILL_MS = 4000;            // the exact same picture for this long = a placeholder, not a camera
+const AUTO_LITE_FPS = 15;         // "Auto" model quality: below this for a while, switch to the Fast model
+const AUTO_LITE_AFTER_MS = 5000;
 
 let active = null;                // the running session's control object
 
@@ -47,9 +50,9 @@ let active = null;                // the running session's control object
 export async function runLive(exerciseName, cfg, onFinish) {
   stopLive();
   const ctl = {
-    cancelled: false, stream: null, raf: 0, timers: new Set(),
+    cancelled: false, stream: null, raf: 0, vfc: 0, timers: new Set(),
     modelReady: false, opening: false, camAbort: null, frameReset: false,
-    watchdog: 0, cleanup: [],
+    watchdog: 0, cleanup: [], luma: null, restartLoop: null,
   };
   ctl.cameraReady = new Promise((resolve) => { ctl.markCameraReady = resolve; });
   active = ctl;
@@ -76,88 +79,144 @@ export async function runLive(exerciseName, cfg, onFinish) {
   $("#live-reps").textContent = ex.isHold ? "Hold: 0 s" : `Reps: 0${isSet ? "/" + cfg.setReps : ""}`;
 
   /* ── Model + camera ────────────────────────────────────── */
-  const loadingOk = await loadEverything(ctl, video);
+  const loadingOk = await loadEverything(ctl, video, cfg.quality ?? "auto");
   if (!loadingOk || ctl.cancelled) return;
 
-  await countdown(ctl, cfg.countdown);
-  if (ctl.cancelled) return;
-  voice.say("Go!", { interrupt: true });
-
-  const session = new Session(ex, cfg);
-  let lastVideoTime = -1, lastTs = 0, tint = null;
+  // The session starts unarmed: frames during the countdown drive the
+  // framing guide and calibration, but nothing is counted yet.
+  const session = new Session(ex, { ...cfg, armed: false });
+  let lastTs = 0, tint = null;
   let problem = null, problemSince = 0;          // setup problem being tracked for voice
   let lastScore = null;
   const debug = new URLSearchParams(location.search).has("debug");
-  let fps = 0, lastFrameAt = 0;
+  let fps = 0, lastFrameAt = 0, slowSince = null;
   const dbgEl = debug ? ensureDebugBox() : null;
 
   /* ── Frame loop ────────────────────────────────────────── */
-  const loop = () => {
+  // requestVideoFrameCallback runs once per camera frame, with the frame's
+  // capture time, so every frame is analysed exactly once. Older browsers
+  // fall back to requestAnimationFrame + a "has the frame changed" check.
+  const hasVfc = "requestVideoFrameCallback" in HTMLVideoElement.prototype;
+  let lastVideoTime = -1;
+  const onVideoFrame = (now, meta) => {
     if (ctl.cancelled) return;
-    ctl.raf = requestAnimationFrame(loop);
+    ctl.vfc = video.requestVideoFrameCallback(onVideoFrame);
+    processFrame(meta?.captureTime || meta?.expectedDisplayTime || now);
+  };
+  const onAnimationFrame = () => {
+    if (ctl.cancelled) return;
+    ctl.raf = requestAnimationFrame(onAnimationFrame);
+    if (video.currentTime === lastVideoTime) return;            // no new frame yet
+    lastVideoTime = video.currentTime;
+    processFrame(performance.now());
+  };
+  ctl.restartLoop = () => {               // new camera: re-attach to the <video>
+    if (hasVfc) { video.cancelVideoFrameCallback?.(ctl.vfc); ctl.vfc = video.requestVideoFrameCallback(onVideoFrame); }
+    else { cancelAnimationFrame(ctl.raf); lastVideoTime = -1; ctl.raf = requestAnimationFrame(onAnimationFrame); }
+  };
+  ctl.restartLoop();
+
+  function processFrame(frameTime) {
     if (ctl.frameReset) {             // new camera: forget the old one's frame clock
       ctl.frameReset = false;
-      lastVideoTime = -1; lastFrameAt = 0; fps = 0;
+      lastFrameAt = 0; fps = 0; slowSince = null;
       session.lastT = null;           // first frame from the new camera counts as dt = 0
     }
-    // MediaPipe timestamps (ts below) are NOT reset: they must keep increasing.
-    if (!ctl.stream || video.readyState < 2 || video.currentTime === lastVideoTime) return;   // no new frame yet
-    lastVideoTime = video.currentTime;
+    if (!ctl.stream || video.readyState < 2 || !video.videoWidth) return;
 
-    const ts = Math.max(performance.now(), lastTs + 1);                        // strictly increasing
+    // MediaPipe timestamps must strictly increase, across camera switches too.
+    const ts = Math.max(frameTime, lastTs + 1);
     lastTs = ts;
     const { w, h } = sizeCanvas(canvas, video);
     drawFrame(ctx, video, w, h, cfg.mirror);
 
-    const lms = detect(video, ts);
-    const out = session.update(lms, (video.videoWidth || 16) / (video.videoHeight || 9), ts);
-    if (lastFrameAt) fps = fps * 0.9 + (1000 / Math.max(1, ts - lastFrameAt)) * 0.1;
+    const det = detect(video, ts);
+    const lms = det?.landmarks ?? null;
+    const out = session.update(lms, w / h, ts, det?.world ?? null);
+    if (lastFrameAt) fps = fps ? fps * 0.9 + (1000 / Math.max(1, ts - lastFrameAt)) * 0.1 : 1000 / Math.max(1, ts - lastFrameAt);
     lastFrameAt = ts;
+    autoQuality(ts);
+
     // Always-on, cheap snapshot for troubleshooting (and the automated tests).
     window.__vfDebug = {
-      fps: Math.round(fps), state: out.state, phase: session.phase, delegate: poseDelegate(),
+      fps: Math.round(fps), camera: streamCameraName(ctl.stream), res: `${video.videoWidth}×${video.videoHeight}`,
+      model: MODEL_NAMES[poseModel()] ?? poseModel(), delegate: poseDelegate(),
+      state: out.state, armed: session.armed, phase: session.phase,
       metric: session.lastMetric != null ? Math.round(session.lastMetric * 100) / 100 : null,
+      side: out.live?.side ?? null, w3d: +session.w3.toFixed(2),
+      calib: session.calib ? "done" : `${Math.round((out.calibration ?? 0) * 100)}%`,
+      glitches: session.glitches, gapFills: session.gaps.filledFrames, sideSwitches: session.sides.switches,
       reps: session.reps.length, facing: session.facing != null ? +session.facing.toFixed(2) : null,
-      camera: streamCameraName(ctl.stream),
+      light: ctl.luma != null ? Math.round(ctl.luma) : null,
     };
     if (dbgEl) dbgEl.textContent = Object.entries(window.__vfDebug).map(([k, v]) => `${k}: ${v}`).join("\n");
 
-    // Skeleton: coloured by form while you're mid-rep (or holding), neutral otherwise.
-    if (lms) {
-      const scoring = out.state === "ok" && (out.inRep || ex.isHold) && out.live;
+    // Framing guide until you're set up and counting, or whenever you leave the frame.
+    const framing = framingCheck(lms, { mirror: cfg.mirror });
+    if (!session.armed || ["none", "partial"].includes(out.state)) drawFramingGuide(ctx, w, h, framing);
+
+    // Skeleton (smoothed): coloured by form while you're mid-rep (or holding), neutral otherwise.
+    const shownLms = out.display ?? lms;
+    if (shownLms) {
+      const scoring = session.armed && out.state === "ok" && (out.inRep || ex.isHold) && out.live;
       if (scoring) tint = tint == null ? out.live.score : tint + (out.live.score - tint) * 0.25;
-      drawSkeleton(ctx, lms, w, h, cfg.mirror, scoring ? gradeVar(tint) : NEUTRAL);
-      if (out.state === "ok" && !ex.noIdeal) {
-        drawIdealChain(ctx, ex.drawIdeal(ctx, lms, out.live.side, w, h), w, cfg.mirror);
+      drawSkeleton(ctx, shownLms, w, h, cfg.mirror, scoring ? gradeVar(tint) : NEUTRAL);
+      if (session.armed && out.state === "ok" && !ex.noIdeal) {
+        drawIdealChain(ctx, ex.drawIdeal(ctx, shownLms, out.live.side, w, h), w, cfg.mirror);
       }
     }
-    if (out.live) renderBars($("#live-bars"), out.live.bars);
+    if (out.live && session.armed) renderBars($("#live-bars"), out.live.bars);
+
+    // Tip line: lighting first, then framing, then whatever the engine says.
+    const dark = lightingHint(ctl.luma);
+    const frameHint = !framing.ok && (!session.armed || ["none", "partial"].includes(out.state)) ? framing.hint : null;
+    const tip = dark ?? frameHint ?? out.tip ?? "";
 
     // Speak setup problems that last more than a moment.
-    const isProblem = ["none", "partial", "turn", "position"].includes(out.state);
-    if (isProblem) {
-      if (problem !== out.state) { problem = out.state; problemSince = ts; }
+    const issue = dark ? "dark" : frameHint ? "framing" : ["none", "partial", "turn", "position"].includes(out.state) ? out.state : null;
+    if (issue) {
+      if (problem !== issue) { problem = issue; problemSince = ts; }
       else if (ts - problemSince > SETUP_SPEAK_AFTER) {
-        const cue = out.state === "turn" && ex.frontFacing ? SETUP_CUES.turnFront
-                  : out.state === "position" ? (ex.positionTip ?? SETUP_CUES.position)
-                  : SETUP_CUES[out.state];
+        const cue = issue === "dark" || issue === "framing" ? tip
+                  : issue === "turn" && ex.frontFacing ? SETUP_CUES.turnFront
+                  : issue === "position" ? (ex.positionTip ?? SETUP_CUES.position)
+                  : SETUP_CUES[issue];
         voice.say(cue, { minGap: 7 });
       }
     } else problem = null;
 
+    ctl.lastOut = out;
     for (const e of out.events) handleEvent(e);
 
     // Border + HUD
-    const shown = ex.isHold ? out.hold?.score ?? null : lastScore;
-    drawBorder(ctx, w, h, shown ?? 0, target);
-    if (ex.isHold && out.hold) {
-      setBadge(out.hold.score == null ? null : Math.round(out.hold.score));
-      $("#live-reps").textContent =
-        `${out.hold.label}: ${Math.min(out.hold.seconds, out.hold.goal).toFixed(1)}${Number.isFinite(out.hold.goal) ? " / " + out.hold.goal + " s" : " s"}`;
+    if (session.armed) {
+      const shown = ex.isHold ? out.hold?.score ?? null : lastScore;
+      drawBorder(ctx, w, h, shown ?? 0, target);
+      if (ex.isHold && out.hold) {
+        setBadge(out.hold.score == null ? null : Math.round(out.hold.score));
+        setText("#live-reps",
+          `${out.hold.label}: ${Math.min(out.hold.seconds, out.hold.goal).toFixed(1)}${Number.isFinite(out.hold.goal) ? " / " + out.hold.goal + " s" : " s"}`);
+      }
     }
-    $("#live-tip").textContent = out.tip || "";
-  };
-  ctl.raf = requestAnimationFrame(loop);
+    setText("#live-tip", tip);
+  }
+
+  /** "Auto" quality: if the full model can't keep up, drop to the fast one (once). */
+  function autoQuality(ts) {
+    if ((cfg.quality ?? "auto") !== "auto" || poseModel() !== "full" || !fps) return;
+    if (fps >= AUTO_LITE_FPS) { slowSince = null; return; }
+    slowSince ??= ts;
+    if (ts - slowSince < AUTO_LITE_AFTER_MS) return;
+    slowSince = Infinity;               // don't try again this session
+    initPose(() => {}, "lite")
+      .then(() => { if (!ctl.cancelled) toast(`Switched to the Fast model to keep up (${Math.round(fps)} fps)`, 4000); })
+      .catch((err) => console.warn("[pose] couldn't switch to the fast model", err));
+  }
+
+  await countdown(ctl, cfg.countdown);
+  if (ctl.cancelled) return;
+  session.arm();
+  voice.say("Go!", { interrupt: true });
 
   /* ── Events from the engine ────────────────────────────── */
   function handleEvent(e) {
@@ -238,6 +297,7 @@ export function stopLive() {
   if (!ctl) return;
   ctl.cancelled = true;
   cancelAnimationFrame(ctl.raf);
+  $("#video")?.cancelVideoFrameCallback?.(ctl.vfc);
   ctl.timers.forEach(clearTimeout);
   ctl.timers.clear();
   clearInterval(ctl.countdownTimer);
@@ -257,10 +317,10 @@ export function stopLive() {
 
 /* ── Loading: model, then camera, with friendly errors ─────── */
 
-async function loadEverything(ctl, video) {
+async function loadEverything(ctl, video, quality) {
   showCameraBox("Loading the pose model…");
   try {
-    await initPose((m) => { $("#pose-msg").textContent = m; });
+    await initPose((m) => { $("#pose-msg").textContent = m; }, quality);
   } catch (err) {
     console.error(err);
     if (ctl.cancelled) return false;
@@ -361,6 +421,7 @@ function attachStream(ctl, video, stream) {
   ctl.stream = stream;
   ctl.frameReset = true;
   sizeCanvas($("#overlay"), video);   // new camera, maybe a new resolution
+  ctl.restartLoop?.();
   const track = stream.getVideoTracks()[0];
   track?.addEventListener("ended", () => {
     // Fires when the camera is unplugged or the system takes it away (not when we stop it).
@@ -474,10 +535,16 @@ function ensureDebugBox() {
   if (!el) {
     el = document.createElement("pre");
     el.id = "vf-debug";
-    el.style.cssText = "position:absolute;left:12px;bottom:12px;z-index:20;margin:0;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,.65);color:#c6ef4e;font:12px/1.4 ui-monospace,monospace;pointer-events:none";
+    el.style.cssText = "position:absolute;right:12px;bottom:12px;z-index:20;margin:0;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,.65);color:#c6ef4e;font:12px/1.4 ui-monospace,monospace;pointer-events:none";
     document.querySelector("#screen-live .stage").appendChild(el);
   }
   return el;
+}
+
+/** Set text only when it changed (no needless DOM work at 30 fps). */
+function setText(sel, text) {
+  const el = $(sel);
+  if (el && el.textContent !== text) el.textContent = text;
 }
 
 function setBadge(score) {

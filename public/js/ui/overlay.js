@@ -5,8 +5,12 @@
 
 import { POSE_EDGES } from "../config.js";
 
-const css = (name) =>
-  getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+// Theme colours, read once (getComputedStyle every frame forces style work).
+const cssCache = new Map();
+const css = (name) => {
+  if (!cssCache.has(name)) cssCache.set(name, getComputedStyle(document.documentElement).getPropertyValue(name).trim());
+  return cssCache.get(name);
+};
 
 /** Fit the canvas bitmap to the video's real size (and the CSS box). */
 export function sizeCanvas(canvas, video) {
@@ -104,5 +108,38 @@ export function drawBorder(ctx, w, h, score, target) {
   ctx.lineWidth = Math.max(8, w / 90);
   ctx.strokeRect(ctx.lineWidth / 2, ctx.lineWidth / 2,
                  w - ctx.lineWidth, h - ctx.lineWidth);
+  ctx.restore();
+}
+
+/**
+ * Framing guide: a dashed target box (where your whole body should be) and
+ * corner brackets around where you are now. Green when you're inside it.
+ * `check` comes from tracking.framingCheck(), in display (mirrored) coords.
+ */
+export function drawFramingGuide(ctx, w, h, check, margin = 0.03) {
+  const ok = check?.ok;
+  const colour = ok ? (css("--lime") || "#2ee59d") : (css("--amber") || "#ffbe3d");
+  ctx.save();
+  ctx.lineWidth = Math.max(2, w / 400);
+  ctx.strokeStyle = colour;
+  ctx.globalAlpha = ok ? 0.55 : 0.8;
+  ctx.setLineDash([Math.max(10, w / 70), Math.max(8, w / 90)]);
+  const x = w * margin, y = h * margin;
+  if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, w - 2 * x, h - 2 * y, 18); ctx.stroke(); }
+  else ctx.strokeRect(x, y, w - 2 * x, h - 2 * y);
+
+  const b = check?.box;
+  if (b) {
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 0.9;
+    ctx.lineWidth = Math.max(3, w / 300);
+    const x0 = b.x0 * w, x1 = b.x1 * w, y0 = Math.max(0, b.y0) * h, y1 = Math.min(1, b.y1) * h;
+    const k = Math.min(28, (x1 - x0) / 3, (y1 - y0) / 3);
+    ctx.beginPath();
+    for (const [cx, cy, dx, dy] of [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]]) {
+      ctx.moveTo(cx + dx * k, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy + dy * k);
+    }
+    ctx.stroke();
+  }
   ctx.restore();
 }

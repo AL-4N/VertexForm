@@ -27,6 +27,7 @@ const cfg = {
   voice:     getSetting("voice",       DEFAULTS.voice),
   mirror:    getSetting("mirror",      DEFAULTS.mirror),
   setReps:   getSetting("setReps",     DEFAULTS.setReps),
+  quality:   getSetting("quality",     DEFAULTS.quality),
 };
 
 let currentExercise = null;

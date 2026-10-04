@@ -339,3 +339,16 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .camera-select option { background: var(--panel); color: var(--text); }
 .live-actions { display: flex; align-items: center; gap: .5rem; flex: none; }
 .live-top .camera-select { background-color: rgba(18,26,50,.85); }
+
+/* Live score bars only show once there's something to show. */
+.live-bars:empty { display: none; }
+
+/* ── Live screen performance ──────────────────────────
+   The canvas behind these panels repaints every camera frame, so a
+   backdrop-filter blur would be recomputed 30× a second. Solid translucent
+   panels look nearly the same and cost nothing. */
+.live-bars, .live-stats { backdrop-filter: none; background: rgba(13,19,38,.82); }
+.live-tip { backdrop-filter: none; background: rgba(0,0,0,.72); z-index: 25; }
+.countdown { backdrop-filter: none; background: rgba(0,0,0,.28); }
+.celebrate { backdrop-filter: none; }
+.loading { backdrop-filter: none; }

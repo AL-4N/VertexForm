@@ -14,9 +14,25 @@
  */
 
 const TASKS_VERSION = "0.10.14";
-const CDN = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${TASKS_VERSION}`;
-export const MODEL_URL =
-  "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task";
+export const CDN = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${TASKS_VERSION}`;
+const MODEL_BASE = "https://storage.googleapis.com/mediapipe-models/pose_landmarker";
+
+/**
+ * Model quality. Bigger models track better (especially knees and wrists
+ * that are partly hidden) but cost more per frame.
+ *   lite  ≈ 5.8 MB   fastest — older laptops, phones
+ *   full  ≈ 9.4 MB   the default: clearly steadier than lite
+ *   heavy ≈ 31 MB    most accurate; wants a decent GPU
+ * "auto" starts on full and drops to lite if the frame rate can't keep up.
+ */
+export const MODELS = {
+  lite:  `${MODEL_BASE}/pose_landmarker_lite/float16/1/pose_landmarker_lite.task`,
+  full:  `${MODEL_BASE}/pose_landmarker_full/float16/1/pose_landmarker_full.task`,
+  heavy: `${MODEL_BASE}/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task`,
+};
+export const MODEL_NAMES = { lite: "Fast", full: "Balanced", heavy: "Max accuracy" };
+/** The model to load for a quality setting ("auto" → full). */
+export const modelFor = (quality) => (MODELS[quality] ? quality : "full");
 
 const OPTIONS = {
   runningMode: "VIDEO",
@@ -28,53 +44,72 @@ const OPTIONS = {
 
 let landmarker = null;
 let delegate = null;
+let model = null;              // "lite" | "full" | "heavy" currently loaded
 let fileset = null;
 let PoseLandmarkerClass = null;
-let loading = null;
+let loading = null, loadingModel = null;
 let switching = false;
 
-async function create(which) {
+async function create(which, name) {
   return PoseLandmarkerClass.createFromOptions(fileset, {
-    baseOptions: { modelAssetPath: MODEL_URL, delegate: which },
+    baseOptions: { modelAssetPath: MODELS[name], delegate: which },
     ...OPTIONS,
   });
 }
 
-/** Load the library + model once. Later calls reuse them. */
-export function initPose(onStatus = () => {}) {
-  if (landmarker) return Promise.resolve(landmarker);
-  if (loading) return loading;
+/**
+ * Load the library + a model. Later calls reuse them; asking for a different
+ * model swaps it in (detection pauses for the moment that takes).
+ * @param quality "auto" | "lite" | "full" | "heavy"
+ */
+export function initPose(onStatus = () => {}, quality = "auto") {
+  const name = modelFor(quality);
+  if (landmarker && model === name) return Promise.resolve(landmarker);
+  if (loading && loadingModel === name) return loading;
 
-  loading = (async () => {
-    onStatus("Loading the pose engine…");
-    const vision = await import(`${CDN}/vision_bundle.mjs`);
-    PoseLandmarkerClass = vision.PoseLandmarker;
-    fileset = await vision.FilesetResolver.forVisionTasks(`${CDN}/wasm`);
+  loadingModel = name;
+  const job = (async () => {
+    if (loading) await loading.catch(() => {});      // one load at a time
+    if (landmarker && model === name) return landmarker;
+    if (!PoseLandmarkerClass) {
+      onStatus("Loading the pose engine…");
+      const vision = await import(`${CDN}/vision_bundle.mjs`);
+      PoseLandmarkerClass = vision.PoseLandmarker;
+      fileset = await vision.FilesetResolver.forVisionTasks(`${CDN}/wasm`);
+    }
 
-    onStatus("Loading the pose model…");
+    onStatus(`Loading the pose model (${MODEL_NAMES[name]})…`);
+    const old = landmarker;
+    let next = null, nextDelegate = null;
     try {
       // ?cpu in the page URL forces the CPU path (useful for troubleshooting).
       if (new URLSearchParams(location.search).has("cpu")) throw new Error("CPU requested");
-      landmarker = await create("GPU");
-      delegate = "GPU";
+      next = await create(delegate === "CPU" ? "CPU" : "GPU", name);
+      nextDelegate = delegate === "CPU" ? "CPU" : "GPU";
     } catch (err) {
-      console.warn("[pose] GPU unavailable, using CPU:", err);
-      landmarker = await create("CPU");
-      delegate = "CPU";
+      if (delegate !== "CPU") console.warn("[pose] GPU unavailable, using CPU:", err);
+      next = await create("CPU", name);
+      nextDelegate = "CPU";
     }
+    landmarker = next; delegate = nextDelegate; model = name;
+    if (old && old !== next) old.close?.();
     return landmarker;
   })();
+  loading = job;
 
   // If loading fails, allow a retry later instead of caching the failure.
-  loading.catch(() => {}).finally(() => { loading = null; });
-  return loading;
+  job.catch(() => {}).finally(() => { if (loading === job) { loading = null; loadingModel = null; } });
+  return job;
 }
 
 export const poseDelegate = () => delegate;
+export const poseModel = () => model;
 
 /**
  * Detect on one video frame.
- * @returns 33 landmarks {x, y, z, visibility} (x/y normalised 0..1), or null.
+ * @returns { landmarks, world } or null. landmarks: 33 × {x, y, z, visibility}
+ *   with x/y normalised 0..1; world: the same 33 points in metres, centred
+ *   on the hips (MediaPipe's worldLandmarks), or null if not provided.
  */
 export function detect(video, timestampMs) {
   if (!landmarker || switching) return null;
@@ -89,7 +124,9 @@ export function detect(video, timestampMs) {
   }
   const lms = res?.landmarks?.[0];
   if (!lms) return null;
-  return lms.map((p) => ({ x: p.x, y: p.y, z: p.z ?? 0, visibility: p.visibility ?? 1 }));
+  const pt = (p) => ({ x: p.x, y: p.y, z: p.z ?? 0, visibility: p.visibility ?? 1 });
+  const world = res.worldLandmarks?.[0];
+  return { landmarks: lms.map(pt), world: world ? world.map(pt) : null };
 }
 
 async function fallBackToCpu() {
@@ -97,7 +134,7 @@ async function fallBackToCpu() {
   switching = true;
   try {
     landmarker?.close?.();
-    landmarker = await create("CPU");
+    landmarker = await create("CPU", model ?? "full");
     delegate = "CPU";
   } catch (err) {
     console.error("[pose] CPU fallback failed:", err);

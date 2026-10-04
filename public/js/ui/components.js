@@ -38,10 +38,30 @@ export function barHTML({ label, value }, cls = "bar-row") {
     </div>`;
 }
 
-/** Update an existing set of bars in place (cheap enough for every frame). */
+/**
+ * Show a set of bars. Rebuilds the markup only when the set of labels
+ * changes; otherwise just updates numbers and widths in place, which keeps
+ * the live screen cheap at 30 fps (no layout-thrashing innerHTML per frame).
+ */
 export function renderBars(host, bars, cls = "bar-row") {
   if (!host) return;
-  host.innerHTML = bars.map((b) => barHTML(b, cls)).join("");
+  const key = cls + "|" + bars.map((b) => b.label).join("|");
+  if (host.dataset.bars !== key) {
+    host.innerHTML = bars.map((b) => barHTML(b, cls)).join("");
+    host.dataset.bars = key;
+    return;
+  }
+  const rows = host.children;
+  bars.forEach((b, i) => {
+    const v = Math.round(b.value);
+    const row = rows[i];
+    if (!row || row.dataset.v === String(v)) return;
+    row.dataset.v = v;
+    row.querySelector(".bar-label span:last-child").textContent = v;
+    const fill = row.querySelector(".bar-fill");
+    fill.style.width = `${v}%`;
+    fill.style.background = gradeVar(v);
+  });
 }
 
 /** Simple confirm dialog built on the native one — honest and accessible. */

@@ -23,13 +23,21 @@
  */
 
 import { LM, VIS_THRESHOLD } from "./config.js";
-import { detectSide, trackingQuality, median, stdev } from "./geometry.js";
+import { trackingQuality, median, stdev } from "./geometry.js";
+import { LandmarkSmoother, SMOOTHING } from "./filters.js";
+import {
+  Calibrator, SideTracker, GapFiller, visibilityScore, keyJointIds,
+  boneLengths, boneGlitch, medianBones, personalShallow,
+  worldAngles, worldWeight, fuseAngles,
+} from "./tracking.js";
 
 const SEGMENT_S = 5;                       // plank scoring segment length
 const FACING_SIDE_MAX = 0.40;              // shoulder width / torso above this = facing the camera (measured: side-on ≈ 0.1, front-on ≈ 0.5)
 const FACING_FRONT_MIN = 0.30;             // ...below this = side-on (bad for jumping jacks)
 const LOST_RESET_MS = 1500;                // tracking lost this long mid-rep: abandon the rep
 const REP_TIMEOUT_MS = 12000;              // stuck "in a rep" this long: abandon it
+const GLITCH_ACCEPT_MS = 600;              // a "glitch" that lasts this long is real: re-learn the bones
+const DEFAULT_KEY_JOINTS = ["SHOULDER", "HIP", "KNEE", "ANKLE"];
 
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
@@ -91,6 +99,24 @@ export class Session {
     // facing check (smoothed)
     this.facing = null;
 
+    // Tracking clean-up (js/filters.js, js/tracking.js)
+    this.smooth = new LandmarkSmoother(SMOOTHING.measure);     // measurement + display
+    this.smoothPhase = new LandmarkSmoother(SMOOTHING.phase);  // rep-phase signal: lighter
+    this.smoothWorld = new LandmarkSmoother(SMOOTHING.measure); // 3D world landmarks (metres; similar scale)
+    this.sides = new SideTracker({ margin: ex.sideMargin ?? 0.15 });
+    this.gaps = new GapFiller();
+    this.calibrator = new Calibrator();
+    this.calib = null;                 // { bones, topMetric } once calibrated
+    this.shallow = ex.shallowThreshold;
+    this.boneHistory = [];             // recent good frames' bones (reference until calibrated)
+    this.glitchSince = null;
+    this.glitches = 0;
+    this.w3 = 0;                       // current weight of the 3D angles
+
+    // Not armed (countdown / waiting for auto-start): track, calibrate and
+    // report readiness, but don't count anything yet.
+    this.armed = opts.armed ?? true;
+
     // hold state
     this.hold = { inPos: 0, good: 0, segT: 0, segScores: [], live: null, hipTrack: [] };
   }
@@ -100,10 +126,19 @@ export class Session {
    * @param aspect  video width / height
    * @param t       timestamp in ms
    */
-  update(rawLms, aspect, t) {
+  /** Start counting (after the countdown, or once auto-start sees you ready). */
+  arm() { this.armed = true; }
+
+  /**
+   * @param rawLms  33 MediaPipe landmarks (normalised) or null
+   * @param aspect  video width / height
+   * @param t       timestamp in ms
+   * @param world   MediaPipe worldLandmarks (metres), optional
+   */
+  update(rawLms, aspect, t, world = null) {
     const dt = this.lastT == null ? 0 : Math.min(0.25, Math.max(0, (t - this.lastT) / 1000));
     this.lastT = t;
-    const out = { state: "none", tip: "", live: null, inRep: this.phase === "down", events: [], hold: null };
+    const out = { state: "none", tip: "", live: null, inRep: this.phase === "down", events: [], hold: null, display: null };
     if (this.done) { out.state = "done"; return out; }
 
     if (!rawLms) {
@@ -111,19 +146,60 @@ export class Session {
       this.#lost(t);
       return out;
     }
-    const lms = aspectCorrect(rawLms, aspect);
     const ex = this.ex;
-    const side = ex.pickSide ? ex.pickSide(lms) : detectSide(lms);
+
+    // ── Which side to measure (with hysteresis) ──────────
+    const corrected = aspectCorrect(rawLms, aspect);
+    const side = this.sides.update({
+      LEFT:  ex.sideScore ? ex.sideScore(corrected, "LEFT")  : visibilityScore(corrected, "LEFT"),
+      RIGHT: ex.sideScore ? ex.sideScore(corrected, "RIGHT") : visibilityScore(corrected, "RIGHT"),
+    }, t);
+    const boneSide = ex.frontFacing ? "BOTH" : side;
 
     // ── Setup checks ─────────────────────────────────────
-    const quality = ex.frontFacing ? frontQuality(lms) : trackingQuality(lms, side);
+    const quality = ex.frontFacing ? frontQuality(corrected) : trackingQuality(corrected, side);
     if (quality < VIS_THRESHOLD) {
       out.state = "partial";
       out.tip = "Step back so your whole body is in frame";
       this.#lost(t);
       return out;
     }
+
+    // ── Occlusion: bridge a key joint hidden ≤ 200 ms, else drop the frame ──
+    const gap = this.gaps.apply(rawLms, keyJointIds(ex.keyJoints ?? DEFAULT_KEY_JOINTS, boneSide), t);
+    if (gap.dropped) {
+      out.state = "occluded";
+      out.tip = "Keep your whole body in view";
+      this.#lost(t);
+      return out;
+    }
     this.lastSeenT = t;
+
+    // ── Smooth (One Euro): steady angles without lag ─────
+    const smoothed = this.smooth.apply(gap.lms, t);
+    out.display = smoothed;
+    const lms = aspectCorrect(smoothed, aspect);
+    const lmsPhase = aspectCorrect(this.smoothPhase.apply(gap.lms, t), aspect);
+
+    // ── Tracking glitch: a bone suddenly a different length ──
+    const bones = boneLengths(lms, boneSide);
+    const ref = this.calib?.bones ?? (this.boneHistory.length >= 15 ? medianBones(this.boneHistory) : null);
+    const g = ref ? boneGlitch(bones, ref) : { glitch: false };
+    if (g.glitch) {
+      this.glitchSince ??= t;
+      if (t - this.glitchSince < GLITCH_ACCEPT_MS) {
+        this.glitches++;
+        out.state = "glitch";
+        out.tip = "";
+        return out;
+      }
+      // It's lasted: the reference was wrong (or you changed position). Re-learn.
+      this.boneHistory = [];
+      if (this.calib) this.calib = { ...this.calib, bones: null };
+    }
+    this.glitchSince = null;
+    this.boneHistory.push(bones);
+    if (this.boneHistory.length > 45) this.boneHistory.shift();
 
     const ratio = facingRatio(lms);
     this.facing = this.facing == null ? ratio : this.facing + (ratio - this.facing) * 0.15;
@@ -138,8 +214,23 @@ export class Session {
       return out;
     }
 
-    // ── Measure + grade this frame ───────────────────────
-    const m = ex.measure(lms, side);
+    // ── Measure (2D, blended with 3D as you turn away) ───
+    const w3 = !ex.frontFacing && world ? worldAngles(this.smoothWorld.apply(world, t), side) : null;
+    this.w3 = w3 ? worldWeight(this.facing) : 0;
+    const m = fuseAngles(ex.measure(lms, side), w3, this.w3);
+    const metric = ex.repMetric(fuseAngles(ex.measure(lmsPhase, side), w3, this.w3));
+
+    // ── Calibration: your bones and your real top position ──
+    const atTop = ex.isHold ? (ex.inPosition ? ex.inPosition(m) : true) : metric > this.shallow;
+    if (atTop && this.phase !== "down") {
+      const res = this.calibrator.update(lms, boneSide, metric, t);
+      if (res && !this.calib) {
+        this.calib = res;
+        if (!ex.isHold) this.shallow = personalShallow(ex, res.topMetric);
+      }
+    }
+    out.calibration = this.calibrator.progress;
+
     const graded = ex.grade(m, []);
     out.state = "ok";
     out.live = { ...graded, m, side };
@@ -147,31 +238,38 @@ export class Session {
     out.tip = faults.length ? faults[0].label : "Looking good";
     out.faults = faults;
 
+    if (!this.armed) {
+      // Ready = in the start position and holding still for a second.
+      out.ready = atTop && this.calibrator.stillFor >= 1;
+      out.tip = atTop ? (this.calib ? "Ready" : "Hold still a moment…") : (ex.isHold ? ex.positionTip : ex.startTip) ?? "Get into position";
+      return out;
+    }
+
     if (ex.isHold) this.#holdStep(m, graded.score, faults, dt, out);
-    else this.#repStep(m, graded.score, t, dt, out);
+    else this.#repStep(m, metric, graded.score, t, dt, out);
     out.inRep = this.phase === "down";
     return out;
   }
 
   /* ── Reps ─────────────────────────────────────────────── */
 
-  #repStep(m, liveScore, t, dt, out) {
+  #repStep(m, rawMetric, liveScore, t, dt, out) {
     const ex = this.ex;
     // Median of the last 3 readings: one glitchy frame can't flip the phase.
-    this.metricWin.push(ex.repMetric(m));
+    this.metricWin.push(rawMetric);
     if (this.metricWin.length > 3) this.metricWin.shift();
     const metric = median(this.metricWin);
     this.lastMetric = metric;
 
     if (this.phase === "wait") {
       // Only start counting once we've seen you at the top of the movement.
-      if (metric > ex.shallowThreshold) this.phase = "top";
+      if (metric > this.shallow) this.phase = "top";
       out.tip = this.phase === "wait" ? (ex.startTip ?? "Start from the top position") : out.tip;
       return;
     }
 
     if (this.phase === "top") {
-      if (metric < ex.shallowThreshold - (ex.startMargin ?? 3)) {
+      if (metric < this.shallow - (ex.startMargin ?? 3)) {
         this.phase = "down";
         this.buf = [];
         this.repStart = t;
@@ -190,12 +288,12 @@ export class Session {
 
     if (t - this.repStart > REP_TIMEOUT_MS) { this.phase = "top"; this.buf = []; return; }
 
-    if (metric > ex.shallowThreshold) {
+    if (metric > this.shallow) {
       this.phase = "top";
       const valid = this.deepFrames >= 2 && this.deepTime >= (ex.minDeepTime ?? 0.2);
       if (valid) {
         out.events.push(this.#finishRep(t));
-      } else if (ex.shallowThreshold - this.minMetric >= (ex.attemptMin ?? 12)) {
+      } else if (this.shallow - this.minMetric >= (ex.attemptMin ?? 12)) {
         out.events.push({ type: "shallow" });
       }
       this.buf = [];

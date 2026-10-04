@@ -8,9 +8,9 @@ Ticked as each item lands. "Skipped" items say why.
 - [ ] Smoother, lighter interactions everywhere (screen transitions, hover, live loop cost)
 
 ### Found while reading
-- [ ] Live loop rebuilds the score bars with `innerHTML` every frame (layout thrash) → update in place
-- [ ] overlay.js calls `getComputedStyle` up to 3× per frame → cache the colours
-- [ ] Live loop detects new frames via `video.currentTime` → use requestVideoFrameCallback
+- [x] Live loop rebuilds the score bars with `innerHTML` every frame (layout thrash) → update in place
+- [x] overlay.js calls `getComputedStyle` up to 3× per frame → cache the colours
+- [x] Live loop detects new frames via `video.currentTime` → use requestVideoFrameCallback
 - [ ] "Settings" button just jumps to the setup screen → real Settings screen
 - [ ] `gradeLetter` is defined twice (geometry.js and grade.js) → one source
 - [ ] Stats screen hard-codes "/5" exercises → use the registry size
@@ -24,28 +24,28 @@ Ticked as each item lands. "Skipped" items say why.
 Already in place: picker on setup + live screens, saved deviceId with `{exact}`, name fallback,
 built-in first, virtual cameras skipped, dead-camera detection (no frames / black), auto-try
 next, track `ended`, devicechange, switching mid-session.
-- [ ] Camera busy (NotReadableError): mention other tabs of this site and browser sidebar apps (Opera GX)
-- [ ] Permission probe opens the browser's *default* camera (may be virtual) → ask for the preferred camera instead
-- [ ] Switching: await `play()` and resize the canvas before resuming detection; reset frame timing
-- [ ] "Frozen" detection also when frames arrive but are all black after start (camera covered / shutter)
-- [ ] Ask for 30 fps @ 1280×720; show real fps + camera name + resolution in ?debug
-- [ ] Unit tests: error messages (busy wording), order with Opera-style labels
+- [x] Camera busy (NotReadableError): mention other tabs of this site and browser sidebar apps (Opera GX)
+- [x] Permission probe opens the browser's *default* camera (may be virtual) → ask for the preferred camera instead
+- [x] Switching: await `play()` and resize the canvas before resuming detection; reset frame timing
+- [x] "Frozen" detection also when frames arrive but are all black after start (camera covered / shutter)
+- [x] Ask for 30 fps @ 1280×720; show real fps + camera name + resolution in ?debug
+- [x] Unit tests: error messages (busy wording), order with Opera-style labels
 
 ## Phase 2 — Detection & tracking accuracy
-- [ ] One Euro filter (per landmark, per axis), one config object; smooth display + measurement,
+- [x] One Euro filter (per landmark, per axis), one config object; smooth display + measurement,
       rep metric uses a lighter-smoothed signal so phase detection stays responsive
-- [ ] Model quality: Fast (lite) / Balanced (full) / Max (heavy) / Auto (full → lite if fps < 15, says so)
-- [ ] worldLandmarks: compute knee / elbow / lean / hip-line from 2D (aspect-corrected) AND 3D;
+- [x] Model quality: Fast (lite) / Balanced (full) / Max (heavy) / Auto (full → lite if fps < 15, says so)
+- [x] worldLandmarks: compute knee / elbow / lean / hip-line from 2D (aspect-corrected) AND 3D;
       evaluate stability; use the better or a confidence-weighted blend; document in code
-- [ ] Body calibration (2 s stand still; plank/push-up use the top position): segment lengths + standing knee angle
-- [ ] Reject frames where a bone length jumps > 25% from calibration
-- [ ] Personalised thresholds (top ≈ the user's real standing angle)
-- [ ] Side selection with hysteresis (switch only after ~0.5 s clearly better)
-- [ ] Occlusion: interpolate key joints for ≤ 200 ms, else drop the frame
-- [ ] Framing guide: dashed silhouette box + hints (move left/right, step back, camera too low/high)
-- [ ] Lighting check (too dark → say so)
-- [ ] requestVideoFrameCallback loop with real frame timestamps
-- [ ] Real fps in ?debug
+- [x] Body calibration (2 s stand still; plank/push-up use the top position): segment lengths + standing knee angle
+- [x] Reject frames where a bone length jumps > 25% from calibration
+- [x] Personalised thresholds (top ≈ the user's real standing angle)
+- [x] Side selection with hysteresis (switch only after ~0.5 s clearly better)
+- [x] Occlusion: interpolate key joints for ≤ 200 ms, else drop the frame
+- [x] Framing guide: dashed silhouette box + hints (move left/right, step back, camera too low/high)
+- [x] Lighting check (too dark → say so)
+- [x] requestVideoFrameCallback loop with real frame timestamps
+- [x] Real fps in ?debug
 
 ## Phase 3 — Rep detection robustness
 - [ ] Velocity / phase awareness (descending / bottom / ascending): bounces at the bottom don't double count, slow grinders count
@@ -93,4 +93,8 @@ next, track `ended`, devicechange, switching mid-session.
 - [ ] README, CLAUDE.md, in-app help, CHANGELOG.md
 
 ## Decided not to do
-(filled in as decisions are made)
+- **Upgrade MediaPipe tasks-vision 0.10.14 → 1.x.** A major version with possible API changes; 0.10.14 is
+  known to work here and the upgrade can't be verified without a real webcam. Revisit separately.
+- **Static-picture camera check at startup.** Spotting a frozen placeholder needs ~4 s of identical
+  frames; doing it before the session starts would delay every start. It runs in the watchdog instead.
+- **Model quality UI** lands with the Settings screen (Phase 4/5); the engine side is done in Phase 2.

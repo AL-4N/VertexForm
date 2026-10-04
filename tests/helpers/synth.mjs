@@ -28,16 +28,36 @@ function gauss(r) {
  * Skeleton → 33 MediaPipe-style landmarks.
  * opts: noisePx, rand, view ("side" | "front" | "frontForSide"), farVis
  */
-export function toLandmarks(s, { noisePx = 0, rand = Math.random, farVis = 0.7 } = {}) {
+export function toLandmarks(s, { noisePx = 0, rand = Math.random, farVis = 0.7, rotate = 0, world = null } = {}) {
   const lm = Array.from({ length: 33 }, () => ({ x: 0, y: 0, z: 0, visibility: 0.9 }));
+  // Side view, optionally turned `rotate`° toward the camera: points get a
+  // lateral offset (near side −, far side +) and the forward axis shrinks.
+  const th = (rotate * Math.PI) / 180, cos = Math.cos(th), sin = Math.sin(th);
+  const pivot = s.hip?.[0] ?? 0;
+  const turn = (p, lat) => ({ x: pivot + (p[0] - pivot) * cos + lat * sin, y: p[1], z: -(p[0] - pivot) * sin + lat * cos });
+  let lat = 0;
   const put = (i, p, vis = 0.95) => {
-    const [px, py] = toPx(p);
+    const q = rotate || world ? turn(p, lat) : { x: p[0], y: p[1], z: 0 };
+    const [px, py] = toPx([q.x, q.y]);
     lm[i] = {
       x: (px + gauss(rand) * noisePx) / W,
       y: (py + gauss(rand) * noisePx) / H,
       z: 0, visibility: vis,
     };
+    if (world) {
+      // MediaPipe world landmarks: metres, centred on the hips, y down.
+      // The model infers depth, so z is much noisier than x and y.
+      const M = 0.004, [hx, hy] = [pivot, s.hip?.[1] ?? 0];
+      world[i] = {
+        x: (q.x - hx) * M + gauss(rand) * world.noiseXY,
+        y: (q.y - hy) * M + gauss(rand) * world.noiseXY,
+        z: q.z * M + gauss(rand) * world.noiseZ,
+        visibility: vis,
+      };
+    }
   };
+  // Human half-widths (rig units): shoulders, hips/legs.
+  const SH = 45, HP = 33;
 
   if (s.front) {
     // Facing the camera: the figure's right side is on screen-left (unmirrored).
@@ -64,16 +84,11 @@ export function toLandmarks(s, { noisePx = 0, rand = Math.random, farVis = 0.7 }
     put(9, [h[0] + 6, h[1] + 9]); put(10, [h[0] - 6, h[1] + 9]);
   } else {
     // Side-on, facing +x. Near side = LEFT (well seen), far side = RIGHT (occluded).
-    put(11, s.neck); put(12, s.neck, farVis);
-    put(13, s.elbN); put(14, s.elbF, farVis);
-    put(15, s.wriN); put(16, s.wriF, farVis);
-    [17, 19, 21].forEach((i) => put(i, s.wriN));
-    [18, 20, 22].forEach((i) => put(i, s.wriF, farVis));
-    put(23, s.hip); put(24, s.hip, farVis);
-    put(25, s.kneeN); put(26, s.kneeF, farVis);
-    put(27, s.ankN); put(28, s.ankF, farVis);
-    put(29, s.ankN); put(30, s.ankF, farVis);
-    put(31, s.toeN); put(32, s.toeF, farVis);
+    lat = -SH; put(11, s.neck); put(13, s.elbN); put(15, s.wriN); [17, 19, 21].forEach((i) => put(i, s.wriN));
+    lat = SH;  put(12, s.neck, farVis); put(14, s.elbF, farVis); put(16, s.wriF, farVis); [18, 20, 22].forEach((i) => put(i, s.wriF, farVis));
+    lat = -HP; put(23, s.hip); put(25, s.kneeN); put(27, s.ankN); put(29, s.ankN); put(31, s.toeN);
+    lat = HP;  put(24, s.hip, farVis); put(26, s.kneeF, farVis); put(28, s.ankF, farVis); put(30, s.ankF, farVis); put(32, s.toeF, farVis);
+    lat = 0;
     const h = s.head, dir = s.neck[0] <= s.head[0] ? 1 : 1;
     put(0, [h[0] + 14 * dir, h[1] + 2]);
     [1, 2, 3, 4, 5, 6].forEach((i) => put(i, [h[0] + 9 * dir, h[1] - 4], i > 3 ? farVis : 0.95));
@@ -90,31 +105,49 @@ const ease = (x) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
  * settings of a Form Lab exercise (top ↔ bottom), like a person doing reps.
  *   timing: [down, hold, up, rest] seconds
  */
+/**
+ * opts beyond the basics:
+ *   rotate   degrees turned from a perfect side view
+ *   world    { noiseXY, noiseZ } metres: also yield MediaPipe-style world landmarks
+ *   mutate   (frame, rand) => frame: inject glitches, occlusions, side flips…
+ *   jitterMs random spread of frame times (real webcams aren't perfectly regular)
+ *   rests    { afterRep: n, seconds }: stand still at the top mid-set
+ */
 export function* repStream(id, top, bottom, {
   reps = 5, timing = [1.0, 0.4, 1.0, 0.6], fps = 30, noisePx = 2, dropRate = 0,
-  seed = 7, startBottom = false, lead = 0.8, view,
+  seed = 7, startBottom = false, lead = 0.8, view, rotate = 0, world = null,
+  mutate = null, jitterMs = 0, rests = null, profile = null,
 } = {}) {
   const rand = rng(seed);
   const lab = LAB[id];
   const [dn, hold, up, rest] = timing;
   const cycle = dn + hold + up + rest;
-  const total = lead + reps * cycle + 1.0;
+  const restAt = rests ? lead + rests.afterRep * cycle : Infinity;   // a long pause at the top
+  const restS = rests?.seconds ?? 0;
+  const total = lead + reps * cycle + restS + 1.0;
   const dtMs = 1000 / fps;
-  for (let t = 0; t <= total * 1000; t += dtMs) {
-    const sec = t / 1000;
+  let i = 0;
+  for (let t0 = 0; t0 <= total * 1000; t0 += dtMs, i++) {
+    let sec = t0 / 1000;
+    if (sec >= restAt) sec = sec < restAt + restS ? restAt : sec - restS;
     let k;                                     // 0 = top, 1 = bottom
     if (sec < lead) k = startBottom ? 1 : 0;
     else {
       const c = (sec - lead) % cycle, n = Math.floor((sec - lead) / cycle);
       if (n >= reps) k = 0;
+      else if (profile) k = profile(c, n);
       else k = c < dn ? ease(c / dn) : c < dn + hold ? 1 : c < dn + hold + up ? 1 - ease((c - dn - hold) / up) : 0;
     }
     const v = {};
     for (const key of Object.keys(top)) v[key] = top[key] + (bottom[key] - top[key]) * k;
     const s = build(lab.pose(v));
     if (view === "front" && !s.front) s.front = false;
-    const lms = rand() < dropRate ? null : toLandmarks(s, { noisePx, rand });
-    yield { t, lms };
+    const w = world ? Object.assign([], { noiseXY: world.noiseXY ?? 0.01, noiseZ: world.noiseZ ?? 0.03 }) : null;
+    const lms = rand() < dropRate ? null : toLandmarks(s, { noisePx, rand, rotate, world: w });
+    const t = t0 + (jitterMs ? (rand() - 0.5) * jitterMs : 0);
+    let frame = { t, lms, world: lms && w ? w.map((p) => ({ ...p })) : null, k, i };
+    if (mutate && lms) frame = mutate(frame, rand) ?? frame;
+    yield frame;
   }
 }
 

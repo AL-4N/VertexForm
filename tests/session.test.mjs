@@ -20,7 +20,7 @@ function run(exName, stream, opts = {}, mapLms = (x) => x) {
   const s = new Session(getExercise(exName), { mode: "set", target: 90, goal: 1, setReps: 5, ...opts });
   const events = [], states = new Set();
   for (const f of stream) {
-    const out = s.update(f.lms ? mapLms(f.lms) : null, ASPECT, f.t);
+    const out = s.update(f.lms ? mapLms(f.lms) : null, ASPECT, f.t, f.world ?? null);
     states.add(out.state);
     events.push(...out.events);
     if (s.done) break;
@@ -128,6 +128,70 @@ check("Plank: sagging hold scores low, flagged sag", r.done && r.max < 70 && r.f
 
 r = run("Plank", holdStream("plank", { hips: 0 }, { seconds: 15 }), { mode: "practice", goal: 1 });
 check("Plank practice: 10 s at target finishes", r.done, fmt(r));
+
+/* ── Tracking glitches, side flips, occlusion, turning ── */
+const GOOD_SQUAT = [STAND, { depth: 100, lean: 25 }];
+{
+  // Every ~1.3 s the ankle jumps 25% of the frame for two frames (a classic MediaPipe swap).
+  const glitch = (f) => {
+    if (f.i % 40 < 2 && f.i > 30) f.lms[27] = { ...f.lms[27], x: f.lms[27].x + 0.25, y: f.lms[27].y - 0.15 };
+    return f;
+  };
+  r = run("Squat", repStream("squat", ...GOOD_SQUAT, { mutate: glitch }));
+  check("Glitches: bone-length spikes are rejected", r.reps.length === 5 && r.min >= 90 && r.session.glitches > 0,
+        `${fmt(r)} glitches=${r.session.glitches}`);
+
+  // The far side looks better for 100 ms bursts: the measured side must not flip.
+  const flip = (f) => {
+    if (f.i % 20 < 3 && f.i > 20) f.lms = f.lms.map((p, j) => ({ ...p, visibility: j % 2 === 1 && j >= 11 ? 0.55 : j >= 11 ? 0.99 : p.visibility }));
+    return f;
+  };
+  r = run("Squat", repStream("squat", ...GOOD_SQUAT, { mutate: flip }));
+  check("Side flips: brief flickers don't switch legs", r.reps.length === 5 && r.min >= 90 && r.session.sides.switches === 0,
+        `${fmt(r)} switches=${r.session.sides.switches}`);
+
+  // The knee is hidden for 4 frames (133 ms) every 25 frames: bridged, reps unaffected.
+  const hideKnee = (f) => {
+    if (f.i % 25 < 4 && f.i > 25) f.lms[25] = { ...f.lms[25], visibility: 0.1 };
+    return f;
+  };
+  r = run("Squat", repStream("squat", ...GOOD_SQUAT, { mutate: hideKnee }));
+  check("Occlusion: short gaps bridged", r.reps.length === 5 && r.min >= 90 && r.session.gaps.filledFrames > 0,
+        `${fmt(r)} filled=${r.session.gaps.filledFrames}`);
+
+  // Hidden for 1 s mid-set: frames dropped, no garbage reps, the set still completes.
+  const longHide = (f) => {
+    if (f.t > 3500 && f.t < 4500) f.lms[25] = { ...f.lms[25], visibility: 0.1 };
+    return f;
+  };
+  r = run("Squat", repStream("squat", ...GOOD_SQUAT, { reps: 6, mutate: longHide }));
+  check("Occlusion: long gap drops frames, no fake reps", r.states.has("occluded") && r.reps.length === 5 && r.min >= 88, fmt(r));
+
+  // Turned 30° from side-on, with 3D world landmarks: still counted and graded fairly.
+  r = run("Squat", repStream("squat", ...GOOD_SQUAT, { rotate: 30, world: { noiseXY: 0.01, noiseZ: 0.03 } }));
+  check("Turned 30° with 3D data: squats still A", r.reps.length === 5 && r.min >= 90 && r.session.w3 > 0, `${fmt(r)} w3=${r.session.w3.toFixed(2)}`);
+  r = run("Push-up", repStream("pushup", { depth: 0, hips: 0 }, { depth: 100, hips: 0 }, { rotate: 30, world: { noiseXY: 0.01, noiseZ: 0.03 } }));
+  check("Turned 30° with 3D data: push-ups still A", r.reps.length === 5 && r.min >= 90, fmt(r));
+}
+
+/* ── Calibration inside a session ──────────────────────── */
+{
+  const s = new Session(getExercise("Squat"), { mode: "set", target: 90, goal: 1, setReps: 5, armed: false });
+  let ready = false;
+  for (const f of repStream("squat", ...GOOD_SQUAT, { reps: 0, lead: 3 })) {
+    const out = s.update(f.lms, ASPECT, f.t);
+    ready ||= !!out.ready;
+  }
+  check("Unarmed: standing still calibrates and reports ready", !!s.calib && ready && s.reps.length === 0,
+        `topKnee=${s.calib?.topMetric.toFixed(1)} shallow=${s.shallow}`);
+  let last = s.lastT;
+  const feed = (stream) => { const base = last + 33; for (const f of stream) { s.update(f.lms, ASPECT, base + f.t); last = base + f.t; } };
+  feed(repStream("squat", ...GOOD_SQUAT, { reps: 3 }));
+  check("Unarmed: reps are not counted until armed", s.reps.length === 0);
+  s.arm();
+  feed(repStream("squat", ...GOOD_SQUAT, { reps: 3 }));
+  check("Armed: reps count", s.reps.length === 3, `reps=[${s.reps.join(",")}]`);
+}
 
 /* ── Results summary ───────────────────────────────────── */
 {
