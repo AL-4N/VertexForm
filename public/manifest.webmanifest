@@ -1,0 +1,16 @@
+{
+  "name": "VertexForm — workout form coach",
+  "short_name": "VertexForm",
+  "description": "Real-time workout form analysis and voice coaching. Runs on your device.",
+  "start_url": "app.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090d1c",
+  "theme_color": "#090d1c",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

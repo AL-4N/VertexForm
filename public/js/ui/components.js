@@ -5,10 +5,37 @@ import { gradeVar } from "../geometry.js";
 export const $  = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-/** Switch the visible screen. */
-export function showScreen(id) {
-  $$(".screen").forEach((s) => s.classList.toggle("active", s.id === `screen-${id}`));
-  window.scrollTo(0, 0);
+/**
+ * Switch the visible screen, with a quick blur-fade (View Transitions where
+ * supported; css/transitions.css). `focus` = a selector to focus once the
+ * new screen is showing (else its heading), for keyboard and screen-reader users.
+ */
+export function showScreen(id, { focus = null } = {}) {
+  const next = document.getElementById(`screen-${id}`);
+  const swap = () => {
+    $$(".screen").forEach((s) => s.classList.toggle("active", s === next));
+    window.scrollTo(0, 0);
+    const target = (focus && $(focus)) || next?.querySelector("h1, h2");
+    if (target) {
+      if (!target.matches("button, a, input, select, textarea, [tabindex]")) target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+    }
+  };
+  const current = $(".screen.active");
+  const animate = current && current !== next && document.startViewTransition && !document.hidden &&
+    !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!animate) { swap(); return; }
+  const root = document.documentElement;
+  root.classList.add("vt-screen");
+  try {
+    const t = document.startViewTransition(swap);
+    // A transition can be skipped (tab hidden, navigation): that's fine, the swap still happens.
+    t.ready.catch(() => {});
+    t.finished.catch(() => {}).finally(() => root.classList.remove("vt-screen"));
+  } catch {
+    root.classList.remove("vt-screen");
+    swap();
+  }
 }
 
 /** Transient notification at the top of the window. */

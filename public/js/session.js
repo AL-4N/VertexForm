@@ -82,7 +82,7 @@ export class Session {
     // Holds: practice = keep your target grade for N continuous seconds;
     // set = hold for a fixed time and get graded on the whole thing.
     this.holdGoalS = { 0: Infinity, 1: 10, 3: 30 }[this.goal] ?? 10;
-    this.setHoldS = this.setReps * 6;              // 5 → 30 s, 10 → 60 s, 15 → 90 s
+    this.setHoldS = opts.holdSeconds ?? this.setReps * 6;   // 5 → 30 s, 10 → 60 s, 15 → 90 s (circuits: any length)
 
     this.reps = [];          // finished rep (or hold segment) scores
     this.repDetails = [];    // { score, bars, faults, duration }

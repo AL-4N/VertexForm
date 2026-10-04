@@ -39,6 +39,7 @@ export function renderResults(r) {
   const ranked = Object.entries(counts).sort((a, b) => b[1] - a[1]);
 
   if (!ranked.length) {
+    $("#res-tip").hidden = false;
     $("#res-tip").textContent =
       "Clean session — no repeated form faults detected. Keep that standard.";
     $("#res-faults").innerHTML = "";
@@ -46,6 +47,8 @@ export function renderResults(r) {
   }
 
   const [topKey, topCount] = ranked[0];
+  // With a coach summary, its "Fix next" already says this.
+  $("#res-tip").hidden = !!r.summary?.fix;
   const unit = r.isHold ? "5-second stretches" : "reps";
   $("#res-tip").textContent =
     `Your most common issue was ${faultLabel(r.exercise, topKey).toLowerCase()} ` +

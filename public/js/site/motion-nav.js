@@ -2,9 +2,11 @@
  * motion-nav.js — in-page links (header nav, "See how it works") glide to
  * their section with a vertical motion blur that follows the scroll speed.
  *
- * The blur is the #motion-blur SVG filter in index.html, applied to <main>
- * only while a glide runs, so the sticky header stays sharp. Reduced-motion
- * users get the browser's normal jump.
+ * The blur is the #motion-blur SVG filter in index.html, applied only while
+ * a glide runs, and only to the sections actually on screen (filtering the
+ * whole page would make the browser blur thousands of off-screen pixels
+ * every frame). The sticky header stays sharp. Reduced-motion users get the
+ * browser's normal jump.
  */
 
 const DURATION = 750;     // ms for a full glide
@@ -18,13 +20,22 @@ export function mountMotionNav() {
   const main = document.querySelector("main");
   const blur = document.querySelector("#motion-blur feGaussianBlur");
   if (!main || !blur) return;
+  const sections = [...main.children];
 
   const reduce = matchMedia("(prefers-reduced-motion: reduce)");
   let frame = 0;
+  const blurred = new Set();
 
   const setBlur = (px) => {
     blur.setAttribute("stdDeviation", `0 ${px.toFixed(1)}`);
-    main.style.filter = px > 0.3 ? "url(#motion-blur)" : "";
+    const on = px > 0.3;
+    const h = innerHeight;
+    for (const el of sections) {
+      const r = on ? el.getBoundingClientRect() : null;
+      const visible = on && r.bottom > -40 && r.top < h + 40;
+      if (visible && !blurred.has(el)) { el.style.filter = "url(#motion-blur)"; blurred.add(el); }
+      else if (!visible && blurred.has(el)) { el.style.filter = ""; blurred.delete(el); }
+    }
   };
 
   const stop = () => {

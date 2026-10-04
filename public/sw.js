@@ -1,0 +1,156 @@
+/**
+ * sw.js — offline support (service worker).
+ *
+ * App files: network first, so you always get the newest version when
+ * online; the cached copy is used when offline. Every app file is cached on
+ * install, so the trainer works offline after one visit.
+ *
+ * MediaPipe (library, wasm, pose models): cache first. Their URLs include a
+ * version number, so a cached copy never goes stale; they're kept across
+ * app updates and fetched again only if the URL changes.
+ *
+ * VERSION and PRECACHE are written by `npm run sw` (tools/update-sw.mjs):
+ * VERSION is a hash of the app's files, so any change produces a new cache
+ * and old ones are deleted on activate. Updates are never stuck.
+ */
+
+const VERSION = "c0fd9277927b";
+const PRECACHE = [
+  "./",
+  "404.html",
+  "app.html",
+  "css/app.css",
+  "css/fonts.css",
+  "css/site.css",
+  "css/theme.css",
+  "css/transitions.css",
+  "favicon.svg",
+  "fonts/instrument-sans-latin-400-normal.woff2",
+  "fonts/instrument-sans-latin-500-normal.woff2",
+  "fonts/instrument-sans-latin-600-normal.woff2",
+  "fonts/instrument-sans-latin-700-normal.woff2",
+  "fonts/unbounded-latin-500-normal.woff2",
+  "fonts/unbounded-latin-600-normal.woff2",
+  "fonts/unbounded-latin-700-normal.woff2",
+  "fonts/unbounded-latin-800-normal.woff2",
+  "icons/apple-touch-icon.png",
+  "icons/icon-192.png",
+  "icons/icon-512.png",
+  "icons/maskable-512.png",
+  "index.html",
+  "js/achievements.js",
+  "js/circuit.js",
+  "js/coach.js",
+  "js/coaching.js",
+  "js/config.js",
+  "js/exercises/index.js",
+  "js/exercises/jumpingjack.js",
+  "js/exercises/lunge.js",
+  "js/exercises/plank.js",
+  "js/exercises/pushup.js",
+  "js/exercises/squat.js",
+  "js/figures/draw.js",
+  "js/figures/lab.js",
+  "js/figures/loop.js",
+  "js/figures/pictos.js",
+  "js/figures/poses.js",
+  "js/figures/rig.js",
+  "js/filters.js",
+  "js/geometry.js",
+  "js/grade.js",
+  "js/history.js",
+  "js/main.js",
+  "js/page-transition.js",
+  "js/pose.js",
+  "js/pwa.js",
+  "js/rest.js",
+  "js/scoring.js",
+  "js/session.js",
+  "js/site/coach.js",
+  "js/site/game.js",
+  "js/site/how.js",
+  "js/site/lab.js",
+  "js/site/main.js",
+  "js/site/motion-nav.js",
+  "js/site/stage.js",
+  "js/speech.js",
+  "js/storage.js",
+  "js/tracking.js",
+  "js/ui/camera-picker.js",
+  "js/ui/components.js",
+  "js/ui/live.js",
+  "js/ui/menu.js",
+  "js/ui/onboarding.js",
+  "js/ui/overlay.js",
+  "js/ui/rest-screen.js",
+  "js/ui/results.js",
+  "js/ui/settings.js",
+  "js/ui/sharecard.js",
+  "js/ui/stats.js",
+  "js/ui/workouts.js",
+  "js/voice.js",
+  "manifest.webmanifest",
+];
+
+const SHELL = `vf-shell-${VERSION}`;
+const LIBS = "vf-libs-v1";
+const LIB_HOSTS = ["cdn.jsdelivr.net", "storage.googleapis.com"];
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(SHELL)
+      .then((c) => c.addAll(PRECACHE.map((p) => new Request(p, { cache: "reload" }))))
+      .then(() => self.skipWaiting()),
+  );
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== SHELL && k !== LIBS).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim()),
+  );
+});
+
+self.addEventListener("fetch", (event) => {
+  const req = event.request;
+  if (req.method !== "GET") return;
+  const url = new URL(req.url);
+
+  if (LIB_HOSTS.includes(url.hostname) && /mediapipe/.test(url.pathname)) {
+    event.respondWith(cacheFirst(req));
+  } else if (url.origin === self.location.origin) {
+    event.respondWith(networkFirst(req));
+  }
+});
+
+async function cacheFirst(req) {
+  const cache = await caches.open(LIBS);
+  const hit = await cache.match(req);
+  if (hit) return hit;
+  const res = await fetch(req);
+  if (res.ok || res.type === "opaque") cache.put(req, res.clone()).catch(() => {});
+  return res;
+}
+
+async function networkFirst(req) {
+  const cache = await caches.open(SHELL);
+  try {
+    const res = await fetch(req);
+    if (res.ok) cache.put(stripQuery(req), res.clone()).catch(() => {});
+    return res;
+  } catch (err) {
+    const hit = (await cache.match(stripQuery(req))) ?? (await cache.match(req));
+    if (hit) return hit;
+    if (req.mode === "navigate") return (await cache.match("app.html")) ?? Response.error();
+    throw err;
+  }
+}
+
+/** app.html?debug and app.html share one cached copy. */
+function stripQuery(req) {
+  const url = new URL(req.url);
+  if (!url.search) return req;
+  url.search = "";
+  return new Request(url.toString());
+}

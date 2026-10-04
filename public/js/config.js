@@ -71,4 +71,8 @@ export const DEFAULTS = {
   tempo: "off",            // off | beep | voice ("down… 2… up")
   voiceRate: 1.05,         // speech speed
   volume: 1,               // voice + beeps, 0..1
+  gymMode: false,          // huge rep counter on the live screen
+  facing: null,            // phones: "user" (front) | "environment" (back); null = pick a camera by name
+  restSeconds: 60,         // rest timer between sets: 30 | 60 | 90
+  onboarded: false,        // first-run setup tips seen
 };

@@ -92,9 +92,17 @@ export const speech = new SpeechQueue(voice);
 speech.gate = () => true;
 if (typeof window !== "undefined") setInterval(() => speech.tick(speech.gate()), 150);
 
+/** Mute everything (voice and beeps) for now, without changing the saved Voice setting. */
+export function setMuted(muted) {
+  voice.muted = muted;
+  speech.enabled = voice.enabled && !muted;
+  if (muted) speech.clear();
+}
+export const isMuted = () => !!voice.muted;
+
 /** Apply the voice settings. */
 export function configureVoice({ enabled, rate, volume } = {}) {
-  if (enabled != null) { voice.enabled = enabled; speech.enabled = enabled; if (!enabled) speech.clear(); }
+  if (enabled != null) { voice.enabled = enabled; speech.enabled = enabled && !voice.muted; if (!enabled) speech.clear(); }
   if (rate != null) voice.rate = rate;
   if (volume != null) voice.volume = volume;
 }
@@ -103,7 +111,7 @@ export function configureVoice({ enabled, rate, volume } = {}) {
 let audioCtx = null;
 export function beep(freq = 660, ms = 110, gain = 0.05) {
   try {
-    if (voice.volume <= 0) return;
+    if (voice.volume <= 0 || voice.muted) return;
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     const osc = audioCtx.createOscillator();
     const g = audioCtx.createGain();

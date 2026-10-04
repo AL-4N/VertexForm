@@ -50,10 +50,14 @@ export function mountLoop(host, id) {
   let raf = 0;
   const frame = (now) => {
     raf = requestAnimationFrame(frame);
-    if (!host.isConnected || host.offsetParent === null) return;   // screen hidden
     const p = (now - start) % total;
     draw(p < dn ? ease(p / dn) : p < dn + hold ? 1 : p < dn + hold + up ? 1 - ease((p - dn - hold) / up) : 0);
   };
-  raf = requestAnimationFrame(frame);
-  return () => cancelAnimationFrame(raf);
+  // Animate only while visible (the setup screen hidden or scrolled away = no work at all).
+  const io = new IntersectionObserver(([e]) => {
+    cancelAnimationFrame(raf);
+    raf = e.isIntersecting ? requestAnimationFrame(frame) : 0;
+  });
+  io.observe(host);
+  return () => { cancelAnimationFrame(raf); io.disconnect(); };
 }

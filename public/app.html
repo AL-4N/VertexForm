@@ -8,7 +8,10 @@
 <link rel="stylesheet" href="css/fonts.css" />
 <link rel="stylesheet" href="css/theme.css" />
 <link rel="stylesheet" href="css/app.css" />
+<link rel="stylesheet" href="css/transitions.css" />
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 <meta name="theme-color" content="#090d1c" />
 </head>
 <body>
@@ -29,11 +32,12 @@
         </svg>
         <div><h1>Vertex<em>Form</em></h1><p class="sub">Pick an exercise to train</p></div>
       </a>
-      <div class="header-actions">
+      <nav class="header-actions" aria-label="App">
         <a class="btn ghost" href="index.html">Home</a>
-        <button class="btn ghost" id="btn-stats">Stats</button>
+        <button class="btn ghost" id="btn-workouts">Workouts</button>
+        <button class="btn ghost" id="btn-stats">History</button>
         <button class="btn ghost" id="btn-settings">Settings</button>
-      </div>
+      </nav>
     </header>
 
     <div class="menu-grid">
@@ -175,7 +179,40 @@
         </div>
         <div class="live-actions">
           <select class="camera-select" id="live-camera" aria-label="Camera" title="Camera"></select>
-          <button class="btn ghost" id="live-back">&larr; Back</button>
+          <div class="live-tools" role="toolbar" aria-label="Session controls">
+            <button class="icon-btn" id="live-pause" aria-pressed="false" title="Pause (Space)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-pause" d="M8 5v14M16 5v14"/><path class="i-play" d="M7 5l12 7-12 7z"/></svg>
+              <span class="icon-label">Pause</span></button>
+            <button class="icon-btn" id="live-mute" aria-pressed="false" title="Mute (M)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="i-sound" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="i-muted" d="M17 9l5 6M22 9l-5 6"/></svg>
+              <span class="icon-label">Mute</span></button>
+            <button class="icon-btn" id="live-mirror" data-toggle-icon="mirror" aria-pressed="true" title="Mirror the picture">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M9 7L4 17h5zM15 7l5 10h-5z"/></svg>
+              <span class="icon-label">Mirror</span></button>
+            <button class="icon-btn" id="live-flip" title="Switch front / back camera" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><path d="M9 13a3 3 0 0 1 5-2l1 1M15 13a3 3 0 0 1-5 2l-1-1"/></svg>
+              <span class="icon-label">Flip</span></button>
+            <button class="icon-btn" id="live-gym" aria-pressed="false" title="Gym mode: huge rep counter (G)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12"/></svg>
+              <span class="icon-label">Gym</span></button>
+            <button class="icon-btn" id="live-full" title="Fullscreen (F)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+              <span class="icon-label">Full</span></button>
+          </div>
+          <button class="btn ghost" id="live-back" title="Back (Esc): stops the camera">&larr; Back</button>
+        </div>
+      </div>
+
+      <div class="gym-counter" id="gym-counter" aria-hidden="true">
+        <span class="gym-reps" id="gym-reps">0</span>
+        <span class="gym-sub" id="gym-sub">reps</span>
+      </div>
+
+      <div class="paused" id="paused" hidden>
+        <div class="paused-box">
+          <h2>Paused</h2>
+          <p class="dim">The camera stays on, nothing is counted.</p>
+          <button class="btn primary" id="paused-resume">Resume (Space)</button>
         </div>
       </div>
 
@@ -233,6 +270,16 @@
           <button class="btn share-btn" id="btn-share">Save score card</button>
         </div>
         <div id="res-bars"></div>
+        <div class="next-set" id="next-set">
+          <span>Next set after</span>
+          <div class="pills" data-setting="restSeconds" data-type="number" role="group" aria-label="Rest length">
+            <button data-val="30">30 s</button>
+            <button data-val="60">60 s</button>
+            <button data-val="90">90 s</button>
+          </div>
+          <span>rest</span>
+          <button class="btn primary" id="btn-rest">Start rest</button>
+        </div>
       </div>
 
       <div class="card">
@@ -251,6 +298,78 @@
         <h3 class="label">Rep details</h3>
         <div class="table-scroll"><table class="rep-table" id="res-details"></table></div>
       </div>
+    </div>
+  </section>
+
+  <!-- ══ REST TIMER ══ -->
+  <section id="screen-rest" class="screen">
+    <div class="rest-wrap">
+      <p class="label" id="rest-kicker">Rest</p>
+      <div class="rest-ring" role="timer" aria-label="Rest time left">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="rest-track" cx="60" cy="60" r="52" />
+          <circle class="rest-prog" id="rest-prog" cx="60" cy="60" r="52" pathLength="100" />
+        </svg>
+        <span id="rest-time">1:00</span>
+      </div>
+      <p class="rest-next" id="rest-next">Next: Squat × 5</p>
+      <div class="rest-actions">
+        <button class="btn primary" id="rest-go">Next set</button>
+        <button class="btn" id="rest-add">+15 s</button>
+        <button class="btn ghost" id="rest-end">End</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ WORKOUTS (circuit builder) ══ -->
+  <section id="screen-workouts" class="screen">
+    <header class="app-header">
+      <button class="btn ghost" data-back="menu">&larr; Back</button>
+      <h1>Workouts</h1>
+      <span></span>
+    </header>
+    <div class="workouts-wrap">
+      <div class="card">
+        <h2 class="label">Saved routines <span class="dim" id="routine-count"></span></h2>
+        <div id="routine-list" class="routine-list"></div>
+      </div>
+
+      <form class="card builder" id="builder" novalidate>
+        <h2 class="label">Build a routine</h2>
+        <div class="opt-row">
+          <label for="routine-name">Name</label>
+          <input id="routine-name" class="text-input" maxlength="40" placeholder="e.g. Morning legs" autocomplete="off" />
+        </div>
+        <ol class="step-list" id="step-list"></ol>
+        <button type="button" class="btn" id="add-step">+ Add exercise</button>
+        <div class="opt-row">
+          <span>Rest between</span>
+          <div class="pills" id="routine-rest" role="group" aria-label="Rest between exercises">
+            <button type="button" data-val="0">None</button>
+            <button type="button" data-val="30">30 s</button>
+            <button type="button" data-val="60">60 s</button>
+            <button type="button" data-val="90">90 s</button>
+            <button type="button" data-val="120">2 min</button>
+          </div>
+        </div>
+        <p class="form-error" id="builder-error" role="alert"></p>
+        <div class="builder-actions">
+          <button type="button" class="btn primary" id="routine-start">Start workout</button>
+          <button type="button" class="btn" id="routine-save">Save routine</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ══ WORKOUT DONE ══ -->
+  <section id="screen-circuit-done" class="screen">
+    <header class="app-header">
+      <button class="btn ghost" data-back="menu">&larr; Menu</button>
+      <h1 id="circuit-title">Workout complete</h1>
+      <span></span>
+    </header>
+    <div class="card">
+      <div class="table-scroll"><table class="rep-table" id="circuit-table"></table></div>
     </div>
   </section>
 
@@ -322,6 +441,22 @@
             <button data-val="10">10 s</button>
           </div>
         </div>
+        <div class="opt-row">
+          <span>Rest between sets</span>
+          <div class="pills" data-setting="restSeconds" data-type="number" role="group" aria-label="Rest between sets">
+            <button data-val="30">30 s</button>
+            <button data-val="60">60 s</button>
+            <button data-val="90">90 s</button>
+          </div>
+        </div>
+        <div class="opt-row">
+          <span>Live screen</span>
+          <div class="pills"><button data-toggle="gymMode" aria-pressed="false">Gym mode</button></div>
+        </div>
+        <div class="opt-row">
+          <span>Camera setup tips</span>
+          <button class="btn" id="btn-onboarding">Show again</button>
+        </div>
       </div>
 
       <div class="card setup-panel">
@@ -353,15 +488,61 @@
   <section id="screen-stats" class="screen">
     <header class="app-header">
       <button class="btn ghost" data-back="menu">&larr; Back</button>
-      <h1>Your stats</h1>
-      <button class="btn danger" id="btn-reset-all">Reset all</button>
+      <h1>Your progress</h1>
+      <div class="header-actions">
+        <button class="btn" id="btn-export">Export CSV</button>
+        <button class="btn danger" id="btn-reset-all">Reset all</button>
+      </div>
     </header>
     <div class="stats-wrap" id="stats-wrap"></div>
   </section>
 
 </div>
 
-<div id="toasts"></div>
+<dialog class="onboarding" id="onboarding" aria-labelledby="onb-title">
+  <div class="onb-cards">
+    <article class="onb-card">
+      <svg viewBox="0 0 220 120" aria-hidden="true">
+        <line x1="10" y1="108" x2="210" y2="108" class="onb-floor"/>
+        <rect x="18" y="62" width="26" height="18" rx="4" class="onb-cam"/><circle cx="31" cy="71" r="5" class="onb-lens"/>
+        <line x1="31" y1="80" x2="31" y2="108" class="onb-floor"/>
+        <path d="M44 71 L160 40 M44 71 L160 104" class="onb-ray"/>
+        <circle cx="160" cy="28" r="9" class="onb-body"/><path d="M160 37 v34 l-12 37 M160 71 l12 37 M160 46 l16 14" class="onb-body"/>
+      </svg>
+      <h2 id="onb-title">1. Camera side-on, at hip height</h2>
+      <p>Put your laptop or phone level with your hips and stand side-on to it. For jumping jacks, face it instead.</p>
+    </article>
+    <article class="onb-card" hidden>
+      <svg viewBox="0 0 220 120" aria-hidden="true">
+        <line x1="10" y1="108" x2="210" y2="108" class="onb-floor"/>
+        <rect x="18" y="62" width="26" height="18" rx="4" class="onb-cam"/><circle cx="31" cy="71" r="5" class="onb-lens"/>
+        <path d="M50 96 H150" class="onb-ray"/><path d="M50 96 l8 -5 M50 96 l8 5 M150 96 l-8 -5 M150 96 l-8 5" class="onb-ray"/>
+        <text x="100" y="88" text-anchor="middle" class="onb-text">2–3 m</text>
+        <circle cx="175" cy="28" r="9" class="onb-body"/><path d="M175 37 v34 l-10 37 M175 71 l10 37" class="onb-body"/>
+      </svg>
+      <h2>2. Step back 2–3 metres</h2>
+      <p>Your whole body, head to toe, needs to be in the picture with a little space around it. The app shows a guide box and tells you which way to move.</p>
+    </article>
+    <article class="onb-card" hidden>
+      <svg viewBox="0 0 220 120" aria-hidden="true">
+        <circle cx="60" cy="34" r="16" class="onb-sun"/>
+        <path d="M60 8v-4M60 64v-4M34 34h-4M90 34h-4M42 16l-3-3M78 52l3 3M78 16l3-3M42 52l-3 3" class="onb-sun"/>
+        <circle cx="160" cy="34" r="9" class="onb-body"/><path d="M160 43 v34 l-10 31 M160 77 l10 31" class="onb-body"/>
+        <line x1="10" y1="108" x2="210" y2="108" class="onb-floor"/>
+      </svg>
+      <h2>3. Light in front of you</h2>
+      <p>Face a window or lamp, not away from it. A bright window behind you turns you into a silhouette and makes tracking guess.</p>
+    </article>
+  </div>
+  <div class="onb-dots" aria-hidden="true"><span class="on"></span><span></span><span></span></div>
+  <div class="onb-actions">
+    <button class="btn ghost" id="onb-skip">Skip</button>
+    <button class="btn" id="onb-back" hidden>Back</button>
+    <button class="btn primary" id="onb-next">Next</button>
+  </div>
+</dialog>
+
+<div id="toasts" role="status" aria-live="polite"></div>
 
 <div class="file-warn" id="file-warn" role="alert" hidden>
   <strong>This page is opened as a file, so your browser is blocking its code.</strong>

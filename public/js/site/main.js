@@ -10,6 +10,7 @@ import { mountLab } from "./lab.js";
 import { mountGame } from "./game.js";
 import { renderHow } from "./how.js";
 import { mountMotionNav } from "./motion-nav.js";
+import { mountPageTransitions } from "../page-transition.js";
 
 function colourScores() {
   // Any element with data-score gets its exact colour on the grade scale.
@@ -28,6 +29,7 @@ function stickyNav() {
 document.addEventListener("DOMContentLoaded", () => {
   stickyNav();
   mountMotionNav();
+  mountPageTransitions();
   colourScores();
   renderPictos();
   mountCoach(document.querySelector("[data-coach]"));
@@ -39,3 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const game = document.querySelector("[data-game]");
   if (game) mountGame(game);
 });
+// The service worker is registered by the trainer (js/main.js), not here: in
+// Chrome, the first navigation from a page loaded before the worker existed to
+// one it controls skips the page transition, and home → trainer is the one
+// that matters. The worker still caches these pages for offline use.

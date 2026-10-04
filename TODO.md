@@ -4,8 +4,8 @@ Ticked as each item lands. "Skipped" items say why.
 
 ## Phase 0 — Plan + polish request
 - [x] Read the whole codebase; write this list
-- [ ] Home page → trainer: motion-blur page transition ("Start training", "Open the trainer")
-- [ ] Smoother, lighter interactions everywhere (screen transitions, hover, live loop cost)
+- [x] Home page → trainer: motion-blur page transition ("Start training", "Open the trainer")
+- [x] Smoother, lighter interactions everywhere (screen transitions, hover, live loop cost)
 
 ### Found while reading
 - [x] Live loop rebuilds the score bars with `innerHTML` every frame (layout thrash) → update in place
@@ -13,10 +13,10 @@ Ticked as each item lands. "Skipped" items say why.
 - [x] Live loop detects new frames via `video.currentTime` → use requestVideoFrameCallback
 - [x] "Settings" button just jumps to the setup screen → real Settings screen
 - [ ] `gradeLetter` is defined twice (geometry.js and grade.js) → one source
-- [ ] Stats screen hard-codes "/5" exercises → use the registry size
+- [x] Stats screen hard-codes "/5" exercises → use the registry size
 - [x] History stores only one number per session, no dates → can't chart over time; needs a storage migration
 - [x] Voice `say({interrupt})` cancels lines mid-sentence and drops others → one priority queue
-- [ ] Setup-screen demo loop keeps a rAF running while hidden → stop it when not visible
+- [x] Setup-screen demo loop keeps a rAF running while hidden → stop it when not visible
 - [ ] README says 3 test suites; there are 4 (camera). CLAUDE.md doesn't exist → create it
 - [ ] Target "A+ 95" but grade letters stop at A → show "A+" for 95+ in the badge
 
@@ -67,15 +67,15 @@ next, track `ended`, devicechange, switching mid-session.
 - [x] New lines for all three personalities
 
 ## Phase 5 — Quality of life
-- [ ] Live controls: gym mode (huge counter), mute, pause/resume, camera picker, mirror, fullscreen;
+- [x] Live controls: gym mode (huge counter), mute, pause/resume, camera picker, mirror, fullscreen;
       shortcuts Space / M / F / Esc as extras
-- [ ] Rest timer between sets (30/60/90 s) with voice countdown, "Next set" button
-- [ ] Workout builder / circuit: exercises + reps/seconds, back to back with rest; save up to 3 routines
-- [ ] History page: per-exercise chart over time, best/avg, common faults over time, CSV export
-- [ ] First-run onboarding (3 cards), skippable, re-openable from Settings
-- [ ] PWA: manifest + versioned service worker caching the shell and MediaPipe lib/wasm/model
-- [ ] Phone: front/rear toggle, portrait layout, Wake Lock during a set
-- [ ] Accessibility: focus states, aria-live rep results, reduced motion, never colour-only
+- [x] Rest timer between sets (30/60/90 s) with voice countdown, "Next set" button
+- [x] Workout builder / circuit: exercises + reps/seconds, back to back with rest; save up to 3 routines
+- [x] History page: per-exercise chart over time, best/avg, common faults over time, CSV export
+- [x] First-run onboarding (3 cards), skippable, re-openable from Settings
+- [x] PWA: manifest + versioned service worker caching the shell and MediaPipe lib/wasm/model
+- [x] Phone: front/rear toggle, portrait layout, Wake Lock during a set
+- [x] Accessibility: focus states, aria-live rep results, reduced motion, never colour-only
 
 ## Phase 6 — Real-data testing tools
 - [ ] ?debug landmark recorder (Record / Stop → JSON download, 4-decimal rounding)
@@ -97,4 +97,9 @@ next, track `ended`, devicechange, switching mid-session.
   known to work here and the upgrade can't be verified without a real webcam. Revisit separately.
 - **Static-picture camera check at startup.** Spotting a frozen placeholder needs ~4 s of identical
   frames; doing it before the session starts would delay every start. It runs in the watchdog instead.
-- **Model quality UI** lands with the Settings screen (Phase 4/5); the engine side is done in Phase 2.
+- **Service worker on the marketing site.** Registered from the trainer only: in Chrome, the first
+  navigation from a page loaded before the worker existed to one it controls skips the cross-page
+  transition (measured: 0/3 vs 3/3). The worker still precaches the site pages for offline use.
+- **Directional (vertical) blur in the page transition.** View-transition snapshots take CSS filters;
+  an SVG directional blur there isn't reliable across browsers, so it's a strong blur + upward
+  motion, which reads as motion blur. The in-page nav glide keeps the true vertical SVG blur.

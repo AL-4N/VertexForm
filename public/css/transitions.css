@@ -1,0 +1,40 @@
+/* ===========================================================
+   transitions.css — moving between pages and screens.
+   Shared by the site and the trainer.
+
+   Home → trainer (and back): the old page streaks upward with a motion
+   blur while the new one settles in. Browsers with cross-document View
+   Transitions do it natively; others get the same animation from
+   js/page-transition.js. Inside the trainer, screen changes are a quicker,
+   lighter blur-fade. Everything here is GPU-only (opacity, transform,
+   filter) and switched off for reduced motion.
+   =========================================================== */
+
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) { animation: vf-leave .3s cubic-bezier(.55, 0, .8, .2) both; }
+::view-transition-new(root) { animation: vf-arrive .42s cubic-bezier(.16, .84, .3, 1) both; }
+
+@keyframes vf-leave {
+  to { opacity: 0; transform: translateY(-7vh) scale(1.02); filter: blur(18px) saturate(1.25); }
+}
+@keyframes vf-arrive {
+  from { opacity: 0; transform: translateY(6vh) scale(.985); filter: blur(14px); }
+}
+
+/* In-app screen changes: quicker and lighter. */
+html.vt-screen::view-transition-old(root) { animation: vf-screen-out .16s ease-in both; }
+html.vt-screen::view-transition-new(root) { animation: vf-screen-in .26s cubic-bezier(.22, .61, .36, 1) both; }
+html.vt-screen .screen.active { animation: none; }
+@keyframes vf-screen-out { to { opacity: 0; filter: blur(6px); } }
+@keyframes vf-screen-in { from { opacity: 0; transform: translateY(10px); filter: blur(5px); } }
+
+/* Fallback for browsers without cross-document view transitions. */
+body.vf-leaving { animation: vf-leave .26s cubic-bezier(.55, 0, .8, .2) both; pointer-events: none; }
+body.vf-arriving { animation: vf-arrive .4s cubic-bezier(.16, .84, .3, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+  body.vf-leaving, body.vf-arriving { animation: none; }
+}

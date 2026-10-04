@@ -27,7 +27,7 @@ import { Session } from "../session.js";
 import { gradeLetter, gradeVar } from "../geometry.js";
 import { SETUP_CUES } from "../coaching.js";
 import { Coach } from "../coach.js";
-import { voice, speech, beep } from "../voice.js";
+import { voice, speech, beep, setMuted, isMuted } from "../voice.js";
 import { recordScore, recordSession, lastSession, countRep } from "../storage.js";
 import { checkRep, checkStreak, checkSession } from "../achievements.js";
 import { $, renderBars, toast } from "./components.js";
@@ -48,12 +48,13 @@ let active = null;                // the running session's control object
  * @param cfg  { mode, target, goal, countdown, mirror, setReps }
  * @param onFinish  called with a results object, or null if nothing to show
  */
-export async function runLive(exerciseName, cfg, onFinish) {
+export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}) {
   stopLive();
   const ctl = {
     cancelled: false, stream: null, raf: 0, vfc: 0, timers: new Set(),
     modelReady: false, opening: false, camAbort: null, frameReset: false,
     watchdog: 0, cleanup: [], luma: null, restartLoop: null,
+    paused: false, facing: cfg.facing ?? null, wakeLock: null,
   };
   ctl.cameraReady = new Promise((resolve) => { ctl.markCameraReady = resolve; });
   active = ctl;
@@ -66,7 +67,7 @@ export async function runLive(exerciseName, cfg, onFinish) {
   const isSet = cfg.mode === "set";
 
   /* ── HUD setup ─────────────────────────────────────────── */
-  $("#live-title").textContent = `${isSet ? "Set" : "Practice"} — ${exerciseName}`;
+  $("#live-title").textContent = label ? `${label} — ${exerciseName}` : `${isSet ? "Set" : "Practice"} — ${exerciseName}`;
   $("#live-goal").textContent = goalText(ex, cfg);
   $("#grade-target").textContent = `target ${target}`;
   $("#grade-letter").textContent = "–";
@@ -78,6 +79,11 @@ export async function runLive(exerciseName, cfg, onFinish) {
   $("#celebrate").hidden = true;
   $("#live-best").textContent = "Best: –";
   $("#live-clock").textContent = "0:00";
+  $("#gym-reps").textContent = "0";
+  $("#gym-sub").textContent = ex.isHold ? "seconds" : isSet ? `of ${cfg.setReps} reps` : "reps";
+  $("#paused").hidden = true;
+  $("#live-pause").setAttribute("aria-pressed", "false");
+  $("#screen-live .stage").classList.remove("armed");
   $("#live-reps").textContent = ex.isHold ? "Hold: 0 s" : `Reps: 0${isSet ? "/" + cfg.setReps : ""}`;
 
   /* ── Model + camera ────────────────────────────────────── */
@@ -137,6 +143,11 @@ export async function runLive(exerciseName, cfg, onFinish) {
     lastTs = ts;
     const { w, h } = sizeCanvas(canvas, video);
     drawFrame(ctx, video, w, h, cfg.mirror);
+
+    if (ctl.paused) {                 // camera on, nothing measured or counted
+      ctl.frameReset = true;          // resume with a fresh clock (no time jump)
+      return;
+    }
 
     const det = detect(video, ts);
     const lms = det?.landmarks ?? null;
@@ -203,6 +214,7 @@ export async function runLive(exerciseName, cfg, onFinish) {
       const shown = ex.isHold ? out.hold?.score ?? null : lastScore;
       drawBorder(ctx, w, h, shown ?? 0, target);
       if (ex.isHold && out.hold) {
+        setText("#gym-reps", String(Math.floor(Math.min(out.hold.seconds, out.hold.goal))));
         setBadge(out.hold.score == null ? null : Math.round(out.hold.score));
         setText("#live-reps",
           `${out.hold.label}: ${Math.min(out.hold.seconds, out.hold.goal).toFixed(1)}${Number.isFinite(out.hold.goal) ? " / " + out.hold.goal + " s" : " s"}`);
@@ -248,6 +260,7 @@ export async function runLive(exerciseName, cfg, onFinish) {
   }
   if (ctl.cancelled) return;
   session.arm();
+  $("#screen-live .stage").classList.add("armed");
   beep(990, 160, 0.06);
   voice.say("Go!", { interrupt: true });
 
@@ -296,6 +309,8 @@ export async function runLive(exerciseName, cfg, onFinish) {
 
   function updateCounts() {
     $("#live-best").textContent = `Best: ${session.best}`;
+    setText("#gym-reps", String(ex.isHold ? Math.floor(session.hold.inPos) : session.reps.length));
+    setText("#gym-sub", ex.isHold ? "seconds" : `${isSet ? `of ${cfg.setReps} reps` : "reps"} · best ${session.best}`);
     if (ex.isHold) return;
     $("#live-reps").textContent = isSet
       ? `Reps: ${session.reps.length}/${cfg.setReps}`
@@ -345,6 +360,40 @@ export async function runLive(exerciseName, cfg, onFinish) {
   }
 }
 
+/* ── Session controls (buttons + keyboard shortcuts) ─────────── */
+
+/** Pause / resume counting. The camera stays on so you can see yourself. */
+export function togglePause(force) {
+  const ctl = active;
+  if (!ctl) return;
+  ctl.paused = force ?? !ctl.paused;
+  $("#paused").hidden = !ctl.paused;
+  $("#live-pause").setAttribute("aria-pressed", String(ctl.paused));
+  $("#live-pause .icon-label").textContent = ctl.paused ? "Resume" : "Pause";
+  if (ctl.paused) speech.clear();
+  announce(ctl.paused ? "Paused" : "Resumed");
+}
+
+export function toggleMute() {
+  setMuted(!isMuted());
+  $("#live-mute").setAttribute("aria-pressed", String(isMuted()));
+  $("#live-mute .icon-label").textContent = isMuted() ? "Muted" : "Mute";
+}
+
+export function toggleFullscreen() {
+  const el = $("#screen-live");
+  if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+  else el.requestFullscreen?.().catch(() => toast("Fullscreen isn't available here"));
+}
+
+/** Switch between the front and back camera (phones). */
+export function flipCamera(facing) {
+  const ctl = active;
+  if (!ctl?.modelReady || ctl.cancelled) return;
+  ctl.facing = facing;
+  useCamera(ctl, $("#video"), { facing, reason: `Switching to the ${facing === "environment" ? "back" : "front"} camera…` });
+}
+
 /** Stop whatever is running: camera off, loop and timers cancelled, voice silenced. */
 export function stopLive({ keepTalking = false } = {}) {
   const ctl = active;
@@ -367,6 +416,8 @@ export function stopLive({ keepTalking = false } = {}) {
   $("#pose-camera") && ($("#pose-camera").hidden = true);
   $("#countdown") && ($("#countdown").hidden = true);
   if (!keepTalking) voice.stop();
+  $("#paused") && ($("#paused").hidden = true);
+  if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
   active = null;
 }
 
@@ -387,9 +438,31 @@ async function loadEverything(ctl, video, quality) {
 
   watchCamera(ctl, video);
   watchDevices(ctl, video);
-  useCamera(ctl, video);
+  useCamera(ctl, video, { facing: ctl.facing });
   await ctl.cameraReady;            // resolves once any camera works (or Back is pressed)
+  if (!ctl.cancelled) keepAwake(ctl);
+  showFlipIfUseful();
   return !ctl.cancelled;
+}
+
+/** Keep the screen on during a session (Wake Lock API, where available). */
+async function keepAwake(ctl) {
+  if (!navigator.wakeLock?.request) return;
+  const grab = async () => {
+    if (ctl.cancelled || document.hidden) return;
+    try { ctl.wakeLock = await navigator.wakeLock.request("screen"); } catch { /* not allowed: fine */ }
+  };
+  // The lock is dropped whenever the tab is hidden; take it again on return.
+  const onVis = () => { if (!document.hidden) grab(); };
+  document.addEventListener("visibilitychange", onVis);
+  ctl.cleanup.push(() => { document.removeEventListener("visibilitychange", onVis); ctl.wakeLock?.release?.().catch(() => {}); });
+  grab();
+}
+
+/** The front/back camera button: only on touch devices with more than one camera. */
+async function showFlipIfUseful() {
+  const cams = await listCameras();
+  $("#live-flip").hidden = !(cams.length > 1 && matchMedia("(pointer: coarse)").matches);
 }
 
 /* ── Camera: choose, open, watch, switch ─────────────────────── */
@@ -414,7 +487,7 @@ export function switchCamera(deviceId) {
  * @param skip      a camera that just failed: tried last
  * @param problem   show the camera dropdown with the message
  */
-async function useCamera(ctl, video, { pickedId = null, reason = null, skip = null, problem = false } = {}) {
+async function useCamera(ctl, video, { pickedId = null, reason = null, skip = null, problem = false, facing = null } = {}) {
   ctl.camAbort?.abort();
   const ac = (ctl.camAbort = new AbortController());
   const stale = () => ctl.cancelled || ac.signal.aborted;
@@ -431,7 +504,9 @@ async function useCamera(ctl, video, { pickedId = null, reason = null, skip = nu
     if (!pickedId && !preferred && savedCameraLabel()) {
       toast(`${savedCameraLabel()} isn't connected, so another camera was picked`, 4000);
     }
-    const order = cameraOrder(cams, preferred, skip);
+    // Phones: "front" / "back" by facing mode, since device ids change between visits.
+    const order = facing && !pickedId ? [{ id: null, label: facing === "environment" ? "the back camera" : "the front camera" }]
+                                      : cameraOrder(cams, preferred, skip);
     if (!order.length) order.push({ id: null, label: "" });   // no list available: browser default
 
     let lastErr = null;
@@ -442,7 +517,7 @@ async function useCamera(ctl, video, { pickedId = null, reason = null, skip = nu
       try {
         const reuse = probe && cam.id && streamCameraId(probe) === cam.id ? probe : null;
         if (reuse) probe = null;
-        const stream = await openCamera(video, cam.id, { signal: ac.signal, stream: reuse });
+        const stream = await openCamera(video, cam.id, { signal: ac.signal, stream: reuse, facing: facing ?? "user" });
         if (stale()) { stopCamera(stream); return false; }
         attachStream(ctl, video, stream);
         if (lastErr || reason) toast(`Camera: ${streamCameraName(stream) ?? "switched"}`);
@@ -626,7 +701,7 @@ function addChip(score, good) {
 }
 
 function goalText(ex, cfg) {
-  if (cfg.mode === "set") return ex.isHold ? `${cfg.setReps * 6}-second hold, then results` : `${cfg.setReps} reps, then results`;
+  if (cfg.mode === "set") return ex.isHold ? `${cfg.holdSeconds ?? cfg.setReps * 6}-second hold, then results` : `${cfg.setReps} reps, then results`;
   if (cfg.goal === 0) return "Endless: press Back when you're done";
   if (ex.isHold) return `Hold ${gradeLetter(cfg.target)} (${cfg.target}+) for ${cfg.goal === 3 ? 30 : 10} s`;
   return `${cfg.goal} rep${cfg.goal > 1 ? "s" : ""} at ${gradeLetter(cfg.target)} (${cfg.target}+)`;
