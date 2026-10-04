@@ -1,0 +1,7 @@
+{
+  // "Go Live" serves the deployable site, not the whole repo.
+  "liveServer.settings.root": "/public",
+  "liveServer.settings.port": 5500,
+  "files.exclude": { "**/.DS_Store": true },
+  "editor.tabSize": 2
+}

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>VertexForm — form feedback for every rep</title>
+<meta name="description" content="VertexForm watches your workouts through your webcam, measures your joint angles, grades every rep and coaches you out loud. Runs in your browser; nothing is uploaded." />
+<meta name="theme-color" content="#090d1c" />
+<meta property="og:title" content="VertexForm — form feedback for every rep" />
+<meta property="og:description" content="Your coach can't watch every rep. VertexForm can." />
+
+<link rel="preload" href="fonts/unbounded-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/instrument-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="css/fonts.css" />
+<link rel="stylesheet" href="css/site.css" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- Shared SVG symbol for the VertexForm mark: an angle and the arc that measures it. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="brand-grad" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff4d6d"/><stop offset=".45" stop-color="#ffbe3d"/>
+      <stop offset=".75" stop-color="#c6ef4e"/><stop offset="1" stop-color="#2ee59d"/>
+    </linearGradient>
+  </defs>
+  <symbol id="mark" viewBox="0 0 32 32">
+    <path d="M5 26 H28 M5 26 L19 5" fill="none" stroke="url(#brand-grad)" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M14.5 26 A9.5 9.5 0 0 0 10.3 18.1" fill="none" stroke="url(#brand-grad)" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="5" cy="26" r="3.6" fill="#fff"/>
+  </symbol>
+</svg>
+
+<header class="nav">
+  <div class="wrap nav-row">
+    <a class="logo" href="index.html" aria-label="VertexForm home">
+      <svg class="logo-mark" aria-hidden="true"><use href="#mark"/></svg>
+      <span>Vertex<em>Form</em></span>
+    </a>
+    <nav aria-label="Primary">
+      <a href="#exercises">Exercises</a>
+      <a href="#lab">Form Lab</a>
+      <a href="#how">How it works</a>
+      <a href="#coach">Coaching</a>
+      <a href="#game">Rep game</a>
+    </nav>
+    <a class="btn btn-grad btn-sm" href="app.html">Start training</a>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ═════════════ HERO ═════════════ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <h1>Your coach can't watch every rep. VertexForm can.</h1>
+        <p class="lede">
+          Point your webcam at yourself and VertexForm tracks 33 points on your body,
+          measures the angles that matter for each exercise, and grades every rep as
+          you do it. Then it tells you, out loud, the one thing to fix.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-grad" href="app.html">Start training</a>
+          <a class="btn btn-ghost" href="#how">See how it works</a>
+        </div>
+        <ul class="facts">
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg>Free, no account</li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg>Runs in your browser</li>
+          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg>Video never leaves your device</li>
+        </ul>
+      </div>
+
+      <div class="stage" data-stage>
+        <div class="stage-frame">
+          <svg class="stage-svg" viewBox="0 18 600 482" role="img"
+               aria-label="A figure demonstrating each exercise. It changes colour from coral to green as its form score rises."><line x1="30" y1="470" x2="570" y2="470" stroke="#2e3a63" stroke-width="2"/><g class="stage-fallback"><g opacity="0.38"><polyline points="215.6,373.5 327.4,367.4 294.0,468.0 322.0,468.0" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><polyline points="281.6,259.2 337.9,245.2 391.4,237.6" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g><polyline points="215.6,373.5 281.6,259.2" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><polyline points="215.6,373.5 327.4,367.6 300.0,470.0 328.0,470.0" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><polyline points="281.6,259.2 339.0,251.1 392.9,247.3" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="299.1" cy="223.2" r="19" fill="#0d1326" stroke="#4ce78d" stroke-width="6.02"/><path d="M297.5 369.2 A30 30 0 0 0 319.7 396.6" fill="none" stroke="#fff" stroke-width="2.5" opacity=".85"/></g></svg>
+
+          <div class="readout" aria-hidden="true">
+            <div class="readout-top">
+              <span class="readout-name" data-r="name">Squat</span>
+              <span class="readout-live">live</span>
+            </div>
+            <div class="readout-score">
+              <span class="score-num" data-r="score">97</span>
+              <span class="score-letter" data-r="letter">A</span>
+            </div>
+            <dl class="readout-rows" data-r="rows"><div><dt>Knee angle</dt><dd>72°</dd></div><div><dt>Depth</dt><dd>3° below parallel</dd></div></dl>
+            <div class="scale" aria-hidden="true">
+              <div class="scale-bar"><span class="scale-marker" data-r="marker" style="left:97%"></span></div>
+              <div class="scale-labels"><span style="left:30%">F</span><span style="left:65%">D</span><span style="left:75%">C</span><span style="left:85%">B</span><span style="left:95%">A</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Choose an exercise to demo">
+          <button role="tab" data-ex="squat"  aria-selected="true">Squat</button>
+          <button role="tab" data-ex="pushup" aria-selected="false">Push-up</button>
+          <button role="tab" data-ex="plank"  aria-selected="false">Plank</button>
+          <button role="tab" data-ex="lunge"  aria-selected="false">Lunge</button>
+          <button role="tab" data-ex="jack"   aria-selected="false">Jumping jack</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ EXERCISES ═════════════ -->
+  <section id="exercises" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Every exercise, judged on its own terms.</h2>
+        <p>There's no generic "good form" checker here. Every exercise has its own
+           measurements, its own list of faults, and its own picture of a correct rep. More workouts are on the way.</p>
+      </div>
+
+      <div class="ex-grid">
+        <article class="ex-card ex-wide">
+          <div class="picto" data-picto="squat"></div>
+          <div class="ex-body">
+            <div class="ex-title"><h3>Squat</h3><span class="tag">Side-on</span></div>
+            <p class="ex-measures">Thigh angle to the ground, torso lean, how steady you hold the bottom.</p>
+            <p class="ex-flags"><strong>Flags:</strong> cutting depth, folding forward, knees drifting, bouncing.</p>
+          </div>
+        </article>
+        <article class="ex-card ex-wide">
+          <div class="picto" data-picto="pushup"></div>
+          <div class="ex-body">
+            <div class="ex-title"><h3>Push-up</h3><span class="tag">Side-on</span></div>
+            <p class="ex-measures">Elbow angle at the bottom and the line from shoulders to ankles.</p>
+            <p class="ex-flags"><strong>Flags:</strong> half reps, sagging hips, piking, dropping the head.</p>
+          </div>
+        </article>
+        <article class="ex-card">
+          <div class="picto" data-picto="plank"></div>
+          <div class="ex-body">
+            <div class="ex-title"><h3>Plank</h3><span class="tag">Hold</span></div>
+            <p class="ex-measures">How far your hips drift off a straight body line.</p>
+            <p class="ex-flags"><strong>Flags:</strong> sagging, piking, swaying.</p>
+          </div>
+        </article>
+        <article class="ex-card">
+          <div class="picto" data-picto="lunge"></div>
+          <div class="ex-body">
+            <div class="ex-title"><h3>Lunge</h3><span class="tag">Side-on</span></div>
+            <p class="ex-measures">Front-knee angle and how upright you stay.</p>
+            <p class="ex-flags"><strong>Flags:</strong> shallow depth, leaning over the front leg.</p>
+          </div>
+        </article>
+        <article class="ex-card">
+          <div class="picto" data-picto="jack"></div>
+          <div class="ex-body">
+            <div class="ex-title"><h3>Jumping jack</h3><span class="tag">Front-on</span></div>
+            <p class="ex-measures">How high your hands get and how wide your feet go.</p>
+            <p class="ex-flags"><strong>Flags:</strong> short arms, lazy feet.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═════════════ FORM LAB ═════════════ -->
+  <section id="lab" class="section section-alt">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="tag tag-live">Try it now. No camera needed.</span>
+        <h2>The Form Lab: grade a rep yourself.</h2>
+        <p>Drag the sliders to change the figure's form. Every position is scored by the
+           exact engine the trainer uses, so you can see what costs points before you
+           ever turn your camera on.</p>
+      </div>
+
+      <div class="lab" data-lab>
+        <div class="lab-stage">
+          <svg class="lab-svg" viewBox="0 20 600 470" role="img" aria-label="Adjustable stick figure"></svg>
+          <div class="lab-score">
+            <span class="lab-num" data-l="score">0</span>
+            <span class="lab-letter" data-l="letter">F</span>
+          </div>
+        </div>
+
+        <div class="lab-panel">
+          <div class="lab-tabs" role="tablist" aria-label="Exercise">
+            <button role="tab" data-lab-ex="squat" aria-selected="true">Squat</button>
+            <button role="tab" data-lab-ex="pushup" aria-selected="false" tabindex="-1">Push-up</button>
+            <button role="tab" data-lab-ex="plank" aria-selected="false" tabindex="-1">Plank</button>
+            <button role="tab" data-lab-ex="lunge" aria-selected="false" tabindex="-1">Lunge</button>
+            <button role="tab" data-lab-ex="jack" aria-selected="false" tabindex="-1">Jumping jack</button>
+          </div>
+
+          <div class="lab-sliders" data-l="sliders"></div>
+
+          <div class="lab-presets-wrap">
+            <span class="lab-mini">Common mistakes</span>
+            <div class="lab-presets" data-l="presets"></div>
+          </div>
+
+          <div class="lab-breakdown">
+            <div class="lab-parts" data-l="parts"></div>
+            <dl class="lab-rows" data-l="rows"></dl>
+          </div>
+
+          <div class="lab-cue">
+            <button type="button" class="cue-play" data-l="speak" aria-label="Hear the coach say this"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4l10 6-10 6z"/></svg></button>
+            <p><span class="lab-mini">Coach says</span><span data-l="cue" aria-live="polite"></span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ HOW IT WORKS (a real sequence) ═════════════ -->
+  <section id="how" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>From camera to coaching in four steps.</h2>
+        <p>All of it happens on your device, about thirty times a second.</p>
+      </div>
+      <ol class="steps">
+        <li>
+          <span class="step-n">1</span>
+          <div class="step-fig" data-howfig="1"></div>
+          <h3>It finds you</h3>
+          <p>A pose model running in your browser places 33 points on your body in
+             every frame of the webcam feed.</p>
+        </li>
+        <li>
+          <span class="step-n">2</span>
+          <div class="step-fig" data-howfig="2"></div>
+          <h3>It measures angles</h3>
+          <p>Points become joint angles. An angle is the same whether you're tall or
+             short, close to the camera or far away.</p>
+        </li>
+        <li>
+          <span class="step-n">3</span>
+          <div class="step-fig" data-howfig="3"></div>
+          <h3>It grades the rep</h3>
+          <p>When a rep finishes, it's scored across the whole bottom of the movement,
+             split into parts like depth and posture.</p>
+        </li>
+        <li>
+          <span class="step-n">4</span>
+          <div class="step-fig" data-howfig="4"></div>
+          <h3>It tells you</h3>
+          <p>You hear the score and the single most important fix, then go again.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═════════════ TRUST / THE SCALE ═════════════ -->
+  <section class="section section-alt">
+    <div class="wrap trust-grid">
+      <div>
+        <div class="section-head">
+          <h2>A score that means something.</h2>
+          <p>Every grade sits on one scale, from coral to green. The engine was tested on
+             exact synthetic movements to make sure good form scores high and shortcuts
+             don't.</p>
+        </div>
+        <ul class="principles">
+          <li><strong>One bad frame can't ruin a rep.</strong> Scores use the median
+              across every frame at the bottom, not a single snapshot.</li>
+          <li><strong>It won't guess.</strong> Frames where your joints are hidden or
+              out of shot are thrown out, and you're told to adjust the camera.</li>
+          <li><strong>Parallel means parallel.</strong> Depth is the thigh's angle to the
+              floor, the definition a coach would use.</li>
+        </ul>
+      </div>
+
+      <div class="calibration">
+        <div class="cal-scale">
+          <div class="cal-bar"></div>
+          <div class="cal-ticks"><span style="left:30%">F</span><span style="left:65%">D</span><span style="left:75%">C</span><span style="left:85%">B</span><span style="left:95%">A</span></div>
+        </div>
+        <p class="cal-caption">Test results from the scoring engine</p>
+        <ul class="cal-rows">
+          <li data-score="99"><span>Squat to parallel, normal lean</span><b>99</b></li>
+          <li data-score="99"><span>Squat below parallel</span><b>99</b></li>
+          <li data-score="83"><span>Parallel, but folded forward</span><b>83</b></li>
+          <li data-score="76"><span>Half squat</span><b>76</b></li>
+          <li data-score="54"><span>Quarter squat</span><b>54</b></li>
+          <li data-score="45"><span>Standing up straight in a lunge</span><b>45</b></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ VOICE COACH ═════════════ -->
+  <section id="coach" class="section">
+    <div class="wrap coach-grid" data-coach>
+      <div class="section-head">
+        <h2>It talks, so you don't have to read mid&#8209;rep.</h2>
+        <p>After every rep you hear your score and the one fix that matters most. The
+           wording rotates so it never nags with the same line, and you choose the
+           voice it coaches in.</p>
+        <div class="voices" role="group" aria-label="Coach personality">
+          <button data-voice="Chill" aria-pressed="true">Chill</button>
+          <button data-voice="Hype" aria-pressed="false">Hype</button>
+          <button data-voice="Coach" aria-pressed="false">Coach</button>
+        </div>
+      </div>
+
+      <ul class="cues" aria-live="polite">
+        <li class="cue" data-cue><span class="cue-score"></span><span class="cue-text"></span>
+          <button class="cue-play" aria-label="Play this cue"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4l10 6-10 6z"/></svg></button></li>
+        <li class="cue" data-cue><span class="cue-score"></span><span class="cue-text"></span>
+          <button class="cue-play" aria-label="Play this cue"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4l10 6-10 6z"/></svg></button></li>
+        <li class="cue" data-cue><span class="cue-score"></span><span class="cue-text"></span>
+          <button class="cue-play" aria-label="Play this cue"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4l10 6-10 6z"/></svg></button></li>
+      </ul>
+    </div>
+  </section>
+
+
+  <!-- ═════════════ GAME ═════════════ -->
+  <section id="game" class="section section-alt">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Spot the better rep.</h2>
+        <p>Two reps, one engine. Tap the one you think scores higher, then see what a
+           coach would say about the other one. It's the fastest way to train your eye.</p>
+      </div>
+
+      <div class="game" data-game>
+        <div class="game-bar">
+          <span class="game-ex" data-g="ex">Squat</span>
+          <span class="game-tally">Streak <b data-g="streak">0</b><span aria-hidden="true">·</span>Best <b data-g="best">0</b></span>
+        </div>
+        <div class="game-pair">
+          <button class="game-card" data-pick="0" aria-label="Rep A">
+            <span class="game-fig"></span>
+            <span class="game-foot"><span class="game-label">Rep A</span><span class="game-score"></span></span>
+          </button>
+          <button class="game-card" data-pick="1" aria-label="Rep B">
+            <span class="game-fig"></span>
+            <span class="game-foot"><span class="game-label">Rep B</span><span class="game-score"></span></span>
+          </button>
+        </div>
+        <div class="game-bottom">
+          <p class="game-msg" data-g="msg" aria-live="polite"></p>
+          <button class="btn btn-grad btn-sm" data-g="next" hidden>Next pair</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ MODES + PROGRESS ═════════════ -->
+  <section id="progress" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Two ways to train, and progress that sticks.</h2>
+      </div>
+
+      <div class="modes">
+        <article class="mode">
+          <h3>Practice</h3>
+          <p>Pick a target grade and keep going until you hit it — one clean rep, three,
+             or as many as you like.</p>
+          <div class="mock">
+            <div class="mock-pills"><span>C 70</span><span>B 80</span><span class="on">A 90</span><span>A+ 95</span></div>
+            <div class="mock-chips">
+              <span data-score="72">72</span><span data-score="81">81</span>
+              <span data-score="86">86</span><span data-score="93">93</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="mode">
+          <h3>Analyze a set</h3>
+          <p>Do a fixed number of reps, then get a breakdown: every rep's score and the
+             fault that showed up most.</p>
+          <div class="mock mock-chart" aria-hidden="true">
+            <span data-score="78" style="--h:45%"><i>78</i></span><span data-score="84" style="--h:60%"><i>84</i></span>
+            <span data-score="91" style="--h:78%"><i>91</i></span><span data-score="88" style="--h:70%"><i>88</i></span>
+            <span data-score="95" style="--h:88%"><i>95</i></span>
+          </div>
+        </article>
+
+        <article class="mode">
+          <h3>Progress</h3>
+          <p>Personal bests per exercise, a running average, score history, and
+             achievements to unlock along the way.</p>
+          <div class="mock mock-progress">
+            <div class="pb"><span>Best squat</span><b data-score="97">97</b></div>
+            <div class="pb"><span>Average</span><b data-score="84">84</b></div>
+            <div class="badges"><span>Hot Streak</span><span>A-Player</span><span class="locked">Perfection</span></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ PRIVACY + LIMITS ═════════════ -->
+  <section class="section section-alt">
+    <div class="wrap two-col">
+      <div class="panel">
+        <h2>Private by design.</h2>
+        <ul class="checks">
+          <li>The pose model runs on your device. No video is uploaded, ever.</li>
+          <li>No account and no sign-up.</li>
+          <li>Scores and bests are saved in your browser, and only there.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h2>Honest about its limits.</h2>
+        <ul class="checks checks-warn">
+          <li>A side-on camera can't see knees caving inward or weight shifting side to side.</li>
+          <li>Cut-off feet or a dark room hurt tracking. You'll get a warning, not a fake score.</li>
+          <li>It compares you to general coaching ranges. It isn't a physio.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ CLOSE ═════════════ -->
+  <section class="cta-band">
+    <div class="wrap">
+      <h2>Your next set, graded.</h2>
+      <p>Allow the camera once, step back until you fit in the frame, and go.</p>
+      <a class="btn btn-dark btn-lg" href="app.html">Start training</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-row">
+    <a class="logo logo-sm" href="index.html">
+      <svg class="logo-mark" aria-hidden="true"><use href="#mark"/></svg><span>Vertex<em>Form</em></span>
+    </a>
+    <p>Pose tracking by MediaPipe. Hosted on Cloudflare Pages.</p>
+    <a href="app.html">Open the trainer</a>
+  </div>
+</footer>
+
+<div class="file-warn" id="file-warn" role="alert" hidden>
+  <strong>This page is opened as a file, so your browser is blocking its code.</strong>
+  <span>The animations, Form Lab and trainer won't run like this. In VS Code, click
+  <b>Go Live</b> in the bottom-right corner (Live Server extension), or open the site
+  you published on Cloudflare.</span>
+</div>
+<script>
+  if (location.protocol === "file:") document.getElementById("file-warn").hidden = false;
+</script>
+<script type="module" src="js/site/main.js"></script>
+</body>
+</html>

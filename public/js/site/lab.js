@@ -1,0 +1,124 @@
+/**
+ * lab.js (site) — the Form Lab.
+ *
+ * Pick an exercise, drag the sliders, and the figure re-poses and is scored
+ * live by the app's own scoring engine. Presets jump to common faults, and the
+ * cue line shows (and can speak) what the coach would say about that rep.
+ */
+
+import { LAB, evaluate } from "../figures/lab.js";
+import { BY_ID } from "../figures/poses.js";
+import { figureMarkup } from "../figures/draw.js";
+import { gradeColor, gradeLetter } from "../grade.js";
+
+const same = (a, b) => Object.keys(a).every((k) => Math.round(a[k]) === Math.round(b[k]));
+
+export function mountLab(root) {
+  const svg = root.querySelector(".lab-svg");
+  const tabs = [...root.querySelectorAll("[data-lab-ex]")];
+  const q = (k) => root.querySelector(`[data-l="${k}"]`);
+  const ui = {
+    score: q("score"), letter: q("letter"), rows: q("rows"),
+    sliders: q("sliders"), presets: q("presets"), parts: q("parts"),
+    cue: q("cue"), speak: q("speak"),
+  };
+
+  let id = "squat";
+  let v = {};
+
+  function select(next, focus = false) {
+    id = next;
+    v = { ...LAB[id].presets[0].v };
+    tabs.forEach((t) => {
+      const on = t.dataset.labEx === id;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    controls();
+    render();
+  }
+
+  function controls() {
+    const lab = LAB[id];
+    ui.sliders.innerHTML = lab.sliders.map((sl) => `
+      <label class="lab-slider">
+        <span class="lab-slider-name">${sl.label}</span>
+        <input type="range" min="${sl.min}" max="${sl.max}" step="1" value="${v[sl.key]}" data-key="${sl.key}">
+        <span class="lab-ends"><span>${sl.lo}</span><span>${sl.hi}</span></span>
+      </label>`).join("");
+    ui.presets.innerHTML = lab.presets.map((p, i) =>
+      `<button type="button" data-preset="${i}">${p.name}</button>`).join("");
+  }
+
+  function syncInputs() {
+    ui.sliders.querySelectorAll("input").forEach((inp) => { inp.value = v[inp.dataset.key]; });
+  }
+
+  function render() {
+    const lab = LAB[id];
+    const { s, m, cue } = evaluate(id, v);
+    const score = Math.round(m.score);
+    const c = gradeColor(score);
+    root.style.setProperty("--lab", c);
+
+    // Floor exercises are long and low, so zoom in on them (same aspect ratio).
+    svg.setAttribute("viewBox", id === "pushup" || id === "plank" ? "40 164 520 408" : "0 20 600 470");
+    svg.innerHTML = `
+      <defs><radialGradient id="lab-glow"><stop offset="0" stop-color="${c}" stop-opacity=".32"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs>
+      <ellipse cx="300" cy="330" rx="260" ry="190" fill="url(#lab-glow)"/>
+      ${figureMarkup(s, {
+        color: c, floor: { x0: 24, x1: 576 },
+        arc: lab.arc?.(s), guide: lab.guide?.(s), guideColor: "#eef1fb",
+      })}`;
+
+    ui.score.textContent = score;
+    ui.letter.textContent = gradeLetter(score);
+    ui.rows.innerHTML = m.rows.map(([k, val]) => `<div><dt>${k}</dt><dd>${val}</dd></div>`).join("");
+    ui.parts.innerHTML = m.parts.map(([k, val]) => {
+      const n = Math.round(val);
+      return `<div class="lab-part"><span>${k}</span><span class="lab-track"><i style="width:${n}%;background:${gradeColor(n)}"></i></span><b style="color:${gradeColor(n)}">${n}</b></div>`;
+    }).join("");
+    ui.cue.textContent = cue;
+
+    ui.presets.querySelectorAll("button").forEach((b) =>
+      b.setAttribute("aria-pressed", String(same(lab.presets[+b.dataset.preset].v, v))));
+    svg.setAttribute("aria-label",
+      `${BY_ID[id].name}, scored ${score} out of 100 (${gradeLetter(score)}). ${cue}`);
+  }
+
+  /* ── Events ─────────────────────────────────────────── */
+  tabs.forEach((t) => t.addEventListener("click", () => select(t.dataset.labEx)));
+  root.querySelector("[role=tablist]").addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    const i = tabs.findIndex((t) => t.dataset.labEx === id);
+    const n = (i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+    select(tabs[n].dataset.labEx, true);
+    e.preventDefault();
+  });
+
+  ui.sliders.addEventListener("input", (e) => {
+    const inp = e.target.closest("input");
+    if (!inp) return;
+    v[inp.dataset.key] = Number(inp.value);
+    render();
+  });
+
+  ui.presets.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-preset]");
+    if (!b) return;
+    v = { ...LAB[id].presets[+b.dataset.preset].v };
+    syncInputs();
+    render();
+  });
+
+  ui.speak?.addEventListener("click", () => {
+    if (!("speechSynthesis" in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(`${ui.score.textContent}. ${ui.cue.textContent}`);
+    u.rate = 1.02;
+    speechSynthesis.speak(u);
+  });
+
+  select("squat");
+}

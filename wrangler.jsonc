@@ -1,0 +1,11 @@
+{
+  // Cloudflare config, used by `npm run deploy` (npx wrangler deploy).
+  // Not needed if you deploy from the Cloudflare dashboard instead.
+  "name": "vertexform",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./public",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

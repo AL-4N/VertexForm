@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Train — VertexForm</title>
+<meta name="description" content="Real-time workout form analysis and coaching in your browser." />
+<link rel="stylesheet" href="css/fonts.css" />
+<link rel="stylesheet" href="css/theme.css" />
+<link rel="stylesheet" href="css/app.css" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<meta name="theme-color" content="#090d1c" />
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══ MENU ══ -->
+  <section id="screen-menu" class="screen active">
+    <header class="app-header">
+      <a class="brand" href="index.html" aria-label="VertexForm home">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <defs><linearGradient id="app-mark" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#ff4d6d"/><stop offset=".45" stop-color="#ffbe3d"/>
+            <stop offset=".75" stop-color="#c6ef4e"/><stop offset="1" stop-color="#2ee59d"/></linearGradient></defs>
+          <path d="M5 26 H28 M5 26 L19 5" fill="none" stroke="url(#app-mark)" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M14.5 26 A9.5 9.5 0 0 0 10.3 18.1" fill="none" stroke="url(#app-mark)" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="5" cy="26" r="3.6" fill="#fff"/>
+        </svg>
+        <div><h1>Vertex<em>Form</em></h1><p class="sub">Pick an exercise to train</p></div>
+      </a>
+      <div class="header-actions">
+        <a class="btn ghost" href="index.html">Home</a>
+        <button class="btn ghost" id="btn-stats">Stats</button>
+        <button class="btn ghost" id="btn-settings">Settings</button>
+      </div>
+    </header>
+
+    <div class="menu-grid">
+      <div class="exercise-list" id="exercise-list"><!-- built by menu.js --></div>
+
+      <aside class="sidebar">
+        <h2 class="label">This session</h2>
+        <div class="card session-card" id="session-list">
+          <p class="dim">No attempts yet.<br />Your scores show up here.</p>
+        </div>
+
+        <div class="card stat-card">
+          <span class="label">Global average</span>
+          <span class="big-stat" id="global-avg">--</span>
+        </div>
+
+        <div class="card stat-card">
+          <span class="label">Day streak</span>
+          <span class="big-stat" id="day-streak">0</span>
+        </div>
+
+        <div class="card stat-card">
+          <span class="label">Total reps</span>
+          <span class="big-stat" id="total-reps">0</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ══ MODE PICKER ══ -->
+  <section id="screen-mode" class="screen">
+    <header class="app-header">
+      <button class="btn ghost" data-back="menu">&larr; Back</button>
+      <h1 id="mode-title">Squat</h1>
+      <span></span>
+    </header>
+
+    <div class="mode-wrap">
+      <div class="card demo-card">
+        <div class="demo-fig" id="mode-demo"></div>
+        <div class="demo-text">
+          <span class="label">What a good rep looks like</span>
+          <ul class="demo-tips" id="demo-tips"></ul>
+          <p class="dim demo-note">The figure turns green when its form would score an A.</p>
+        </div>
+      </div>
+      <button class="mode-card" id="mode-practice">
+        <h3>Practice</h3>
+        <p id="mode-practice-text">Live coaching, rep by rep, until you hit your target grade.</p>
+      </button>
+      <button class="mode-card" id="mode-set">
+        <h3 id="mode-set-title">Analyze a set</h3>
+        <p id="mode-set-text">Do a fixed number of reps, then get a full graded breakdown.</p>
+      </button>
+
+      <div class="setup-panel card">
+        <h3 class="label">Session setup</h3>
+
+        <div class="opt-row">
+          <span>Target grade</span>
+          <div class="pills" id="opt-target">
+            <button data-val="70">C 70</button>
+            <button data-val="80">B 80</button>
+            <button data-val="90" class="on">A 90</button>
+            <button data-val="95">A+ 95</button>
+          </div>
+        </div>
+
+        <div class="opt-row">
+          <span>Pass condition</span>
+          <div class="pills" id="opt-goal">
+            <button data-val="1" class="on">1 good rep</button>
+            <button data-val="3">3 good reps</button>
+            <button data-val="0">Endless</button>
+          </div>
+        </div>
+
+        <div class="opt-row">
+          <span>Set length</span>
+          <div class="pills" id="opt-setlen">
+            <button data-val="5" class="on">5 reps</button>
+            <button data-val="10">10 reps</button>
+            <button data-val="15">15 reps</button>
+          </div>
+        </div>
+
+        <div class="opt-row">
+          <span>Setup time</span>
+          <div class="pills" id="opt-countdown">
+            <button data-val="3" class="on">3 s</button>
+            <button data-val="5">5 s</button>
+            <button data-val="10">10 s</button>
+          </div>
+        </div>
+
+        <div class="opt-row">
+          <span>Coach voice</span>
+          <div class="pills" id="opt-personality">
+            <button data-val="Chill" class="on">Chill</button>
+            <button data-val="Hype">Hype</button>
+            <button data-val="Coach">Coach</button>
+          </div>
+        </div>
+
+        <div class="opt-row">
+          <span>Camera</span>
+          <select class="camera-select" id="opt-camera" aria-label="Camera"></select>
+        </div>
+
+        <div class="opt-row">
+          <span>Options</span>
+          <div class="pills" id="opt-toggles">
+            <button data-tog="voice" class="on">Voice on</button>
+            <button data-tog="mirror" class="on">Mirror on</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LIVE (practice / set) ══ -->
+  <section id="screen-live" class="screen live">
+    <div class="stage">
+      <video id="video" playsinline muted></video>
+      <canvas id="overlay"></canvas>
+
+      <div class="live-top">
+        <div>
+          <strong id="live-title">Practice — Squat</strong>
+          <span class="dim" id="live-goal"></span>
+        </div>
+        <div class="live-actions">
+          <select class="camera-select" id="live-camera" aria-label="Camera" title="Camera"></select>
+          <button class="btn ghost" id="live-back">&larr; Back</button>
+        </div>
+      </div>
+
+      <div class="live-bars card" id="live-bars"></div>
+
+      <div class="grade-badge" id="grade-badge">
+        <span class="letter" id="grade-letter">–</span>
+        <span class="num" id="grade-num">0</span>
+        <span class="dim" id="grade-target">target 90</span>
+      </div>
+
+      <div class="live-stats card">
+        <strong id="live-best">Best: 0</strong>
+        <span class="dim" id="live-reps">Reps: 0</span>
+        <div class="chips" id="rep-chips"></div>
+      </div>
+
+      <p class="live-tip" id="live-tip">Get into frame, side-on</p>
+
+      <div class="countdown" id="countdown" hidden><span>3</span></div>
+      <div class="celebrate" id="celebrate" hidden>
+        <h2>TARGET REACHED</h2>
+        <p id="celebrate-sub"></p>
+      </div>
+      <div class="loading" id="pose-loading" role="status">
+        <div class="loading-box">
+          <span class="spinner" aria-hidden="true"></span>
+          <p id="pose-msg">Loading the pose model…</p>
+          <select class="camera-select" id="pose-camera" aria-label="Camera" hidden></select>
+          <button class="btn primary" id="pose-retry" hidden>Try again</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ RESULTS ══ -->
+  <section id="screen-results" class="screen">
+    <header class="app-header">
+      <button class="btn ghost" data-back="menu">&larr; Menu</button>
+      <h1 id="results-title">Squat — results</h1>
+      <button class="btn primary" id="btn-again">Go again</button>
+    </header>
+
+    <div class="results-wrap">
+      <div class="card">
+        <div class="grade-row">
+          <span class="grade-big" id="res-letter">A</span>
+          <div>
+            <span class="score-big" id="res-score">94</span><span class="dim">/100</span>
+            <p class="dim" id="res-sub">Best rep of 5</p>
+          </div>
+          <span class="badge" id="res-best-badge" hidden>New best!</span>
+          <button class="btn share-btn" id="btn-share">Save score card</button>
+        </div>
+        <div id="res-bars"></div>
+      </div>
+
+      <div class="card">
+        <h3 class="label">Rep by rep</h3>
+        <canvas id="res-chart" width="520" height="170"></canvas>
+      </div>
+
+      <div class="card">
+        <h3 class="label">Coach notes</h3>
+        <p id="res-tip" class="tip-text"></p>
+        <div id="res-faults"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ STATS ══ -->
+  <section id="screen-stats" class="screen">
+    <header class="app-header">
+      <button class="btn ghost" data-back="menu">&larr; Back</button>
+      <h1>Your stats</h1>
+      <button class="btn danger" id="btn-reset-all">Reset all</button>
+    </header>
+    <div class="stats-wrap" id="stats-wrap"></div>
+  </section>
+
+</div>
+
+<div id="toasts"></div>
+
+<div class="file-warn" id="file-warn" role="alert" hidden>
+  <strong>This page is opened as a file, so your browser is blocking its code.</strong>
+  <span>The trainer can't run like this. In VS Code, click <b>Go Live</b> in the
+  bottom-right corner (Live Server extension), or use your Cloudflare link.</span>
+</div>
+<script>
+  if (location.protocol === "file:") document.getElementById("file-warn").hidden = false;
+</script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

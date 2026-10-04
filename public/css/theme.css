@@ -1,0 +1,47 @@
+/* ===========================================================
+   theme.css — design tokens only. VertexForm palette, matching the site.
+   Change these values to restyle the entire app.
+   =========================================================== */
+:root {
+  /* Surfaces */
+  --bg:          #090d1c;
+  --panel:       #121a32;
+  --panel-hi:    #18223f;
+  --panel-hi2:   #222c4e;
+  --border:      #222c4e;
+
+  /* Brand + status */
+  --lime:        #2ee59d;   /* A — top of the grade scale */
+  --lime-dk:     #c6ef4e;   /* B */
+  --amber:       #ffbe3d;   /* C */
+  --coral:       #ff4d6d;   /* F */
+  --gold:        #c6ef4e;
+
+  /* Form-overlay colours */
+  --you:         #c6ef4e;   /* fallback; live skeleton is tinted by score */
+  --ideal:       #2ee59d;   /* ideal form: dashed green */
+
+  /* Text */
+  --text:        #eef1fb;
+  --text-dim:    #a6aecb;
+
+  /* Shape + motion */
+  --radius:      14px;
+  --radius-sm:   10px;
+  --radius-pill: 999px;
+  --shadow:      0 10px 30px rgba(0,0,0,.35);
+  --ease:        cubic-bezier(.22,.61,.36,1);
+
+  /* Type */
+  --font: "Instrument Sans", ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --display: "Unbounded", system-ui, sans-serif;
+
+  /* The VertexForm grade scale, F → A (keep in sync with js/grade.js) */
+  --grade-gradient: linear-gradient(90deg, #ff4d6d 0%, #ff7a45 55%, #ffbe3d 70%, #c6ef4e 85%, #2ee59d 100%);
+  --go-gradient:    linear-gradient(100deg, #ffbe3d 0%, #c6ef4e 45%, #2ee59d 100%);
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  /* Safe areas (phones draw under system bars) */
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
