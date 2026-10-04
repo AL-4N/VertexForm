@@ -44,6 +44,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+/* Sections take focus after a nav glide (motion-nav.js); no ring for that. */
+main section[tabindex="-1"]:focus { outline: none; }
 
 body {
   margin: 0; background: var(--ink); color: var(--text);

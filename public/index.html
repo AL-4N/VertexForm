@@ -26,6 +26,10 @@
       <stop offset="0" stop-color="#ff4d6d"/><stop offset=".45" stop-color="#ffbe3d"/>
       <stop offset=".75" stop-color="#c6ef4e"/><stop offset="1" stop-color="#2ee59d"/>
     </linearGradient>
+    <!-- Vertical motion blur for in-page link scrolls; js/site/motion-nav.js drives it. -->
+    <filter id="motion-blur" x="0" y="-5%" width="100%" height="110%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="0 0"/>
+    </filter>
   </defs>
   <symbol id="mark" viewBox="0 0 32 32">
     <path d="M5 26 H28 M5 26 L19 5" fill="none" stroke="url(#brand-grad)" stroke-width="3.2" stroke-linecap="round"/>

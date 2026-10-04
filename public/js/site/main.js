@@ -9,6 +9,7 @@ import { gradeColor } from "../grade.js";
 import { mountLab } from "./lab.js";
 import { mountGame } from "./game.js";
 import { renderHow } from "./how.js";
+import { mountMotionNav } from "./motion-nav.js";
 
 function colourScores() {
   // Any element with data-score gets its exact colour on the grade scale.
@@ -26,6 +27,7 @@ function stickyNav() {
 
 document.addEventListener("DOMContentLoaded", () => {
   stickyNav();
+  mountMotionNav();
   colourScores();
   renderPictos();
   mountCoach(document.querySelector("[data-coach]"));
