@@ -20,7 +20,7 @@ import { getExercise } from "../exercises/index.js";
 import {
   initPose, detect, poseDelegate,
   openCamera, stopCamera, listCameras, listCamerasWithNames, cameraOrder, countFrames,
-  cameraErrorMessage, isPermissionError, streamCameraId, streamCameraName,
+  cameraErrorMessage, isPermissionError, streamCameraId, streamCameraName, sample, frameStats,
 } from "../pose.js";
 import { savedCameraId, savedCameraLabel, refreshCameraPickers } from "./camera-picker.js";
 import { Session } from "../session.js";
@@ -35,6 +35,7 @@ import { sizeCanvas, drawFrame, drawSkeleton, drawIdealChain, drawBorder } from 
 const NEUTRAL = "#eef1fb";        // skeleton colour between reps
 const SETUP_SPEAK_AFTER = 2500;   // ms a setup problem must last before it's said out loud
 const STALL_MS = 3000;            // no new video frames for this long = the camera has stopped
+const STILL_MS = 4000;            // the exact same picture for this long = a placeholder, not a camera
 
 let active = null;                // the running session's control object
 
@@ -306,8 +307,10 @@ async function useCamera(ctl, video, { pickedId = null, reason = null, skip = nu
   dropStream(ctl, video);
   showCameraBox(reason ?? "Starting your camera…", { picker: problem });
 
+  let probe = null;                 // stream opened for the permission check, reused if it's the pick
   try {
-    const cams = await listCamerasWithNames();
+    let cams;
+    ({ cams, probe } = await listCamerasWithNames());
     if (stale()) return false;
     const preferred = pickedId ?? await savedCameraId(cams);
     if (!pickedId && !preferred && savedCameraLabel()) {
@@ -322,7 +325,9 @@ async function useCamera(ctl, video, { pickedId = null, reason = null, skip = nu
         showCameraBox(`${cameraErrorMessage(lastErr)} Trying ${cam.label || "the next camera"}…`, { picker: true });
       }
       try {
-        const stream = await openCamera(video, cam.id, { signal: ac.signal });
+        const reuse = probe && cam.id && streamCameraId(probe) === cam.id ? probe : null;
+        if (reuse) probe = null;
+        const stream = await openCamera(video, cam.id, { signal: ac.signal, stream: reuse });
         if (stale()) { stopCamera(stream); return false; }
         attachStream(ctl, video, stream);
         if (lastErr || reason) toast(`Camera: ${streamCameraName(stream) ?? "switched"}`);
@@ -345,6 +350,7 @@ async function useCamera(ctl, video, { pickedId = null, reason = null, skip = nu
     showCameraBox(cameraErrorMessage(err), { picker: !isPermissionError(err), retry: true });
     return false;
   } finally {
+    stopCamera(probe);
     if (ctl.camAbort === ac) ctl.opening = false;
     if (!stale()) refreshCameraPickers(streamCameraId(ctl.stream));
   }
@@ -376,24 +382,48 @@ function dropStream(ctl, video) {
   video.srcObject = null;
 }
 
-/** Notice a camera that stops sending frames, and move on to the next one. */
+/**
+ * Notice a camera that stops sending frames, or that only ever shows one
+ * still picture (a virtual camera whose app isn't running), and move on to
+ * the next one. Also keeps `ctl.luma` (mean brightness) for the lighting check.
+ */
 function watchCamera(ctl, video) {
   const frames = countFrames(video);
   ctl.cleanup.push(() => frames.stop());
+  const probe = document.createElement("canvas");
+  probe.width = 32; probe.height = 18;
+  const pctx = probe.getContext("2d", { willReadFrequently: true });
   let seen = -1, since = performance.now();
+  let lastHash = null, stillSince = performance.now();
+
+  const moveOn = (reason) => {
+    since = stillSince = performance.now();
+    lastHash = null;
+    useCamera(ctl, video, { reason, skip: streamCameraId(ctl.stream), problem: true });
+  };
+
   ctl.watchdog = setInterval(() => {
     if (ctl.cancelled || ctl.opening || !ctl.stream || document.hidden) {
-      seen = -1; since = performance.now();
+      seen = -1; since = stillSince = performance.now(); lastHash = null;
       return;
     }
+    const now = performance.now();
     const n = frames.get();
-    if (n !== seen) { seen = n; since = performance.now(); return; }
-    if (performance.now() - since > STALL_MS) {
-      since = performance.now();
-      useCamera(ctl, video, {
-        reason: "This camera isn't sending video. Pick another camera. Trying the next one…",
-        skip: streamCameraId(ctl.stream), problem: true,
-      });
+    if (n === seen) {
+      if (now - since > STALL_MS) moveOn("This camera isn't sending video — pick another. Trying the next one…");
+      return;
+    }
+    seen = n; since = now;
+
+    const px = sample(video, pctx);
+    if (!px) return;
+    const st = frameStats(px);
+    ctl.luma = ctl.luma == null ? st.luma : ctl.luma * 0.6 + st.luma * 0.4;
+    // Real sensors always add some noise, so frames are never pixel-identical
+    // for seconds on end. A virtual camera's placeholder image is.
+    if (st.hash !== lastHash) { lastHash = st.hash; stillSince = now; }
+    else if (now - stillSince > STILL_MS) {
+      moveOn("This camera is showing a still picture, not live video — pick another. Trying the next one…");
     }
   }, 500);
 }
