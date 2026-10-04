@@ -11,6 +11,7 @@ import { LAB, LAB_ORDER, evaluate } from "../figures/lab.js";
 import { BY_ID } from "../figures/poses.js";
 import { figureSVG, bounds } from "../figures/draw.js";
 import { gradeColor, gradeLetter } from "../grade.js";
+import { slide, EASE } from "../ui/motion.js";
 
 const KEY = "vertexform:game-best";
 const NEUTRAL = "#a6aecb";
@@ -57,6 +58,7 @@ export function mountGame(root) {
   }
 
   function newRound() {
+    const first = !pair;
     pair = makePair(pair?.id);
     answered = false;
     ui.ex.textContent = BY_ID[pair.id].name;
@@ -69,7 +71,10 @@ export function mountGame(root) {
       card.querySelector(".game-score").textContent = "";
       card.style.removeProperty("--c");
       draw(i, false);
+      // Next round: the two new reps slide in, one after the other.
+      if (!first) setTimeout(() => slide(card.querySelector(".game-fig"), { from: [70, 0], to: [0, 0], opacity: [0, 1], duration: 420, ease: EASE.outBack, strength: 1 }), i * 90);
     });
+    if (!first) slide(ui.msg, { from: [0, 16], to: [0, 0], opacity: [0, 1], duration: 340, ease: EASE.out });
   }
 
   function answer(i) {
@@ -98,6 +103,7 @@ export function mountGame(root) {
     ui.msg.textContent = `${right ? "Right!" : "Not quite."} Rep ${W} scores ${scores[win]}, Rep ${L} scores ${scores[lose]}. ` +
       `Coach on Rep ${L}: “${pair.reps[lose].cue}”`;
     ui.next.hidden = false;
+    slide(ui.msg, { from: [0, 18], to: [0, 0], opacity: [0, 1], duration: 360, ease: EASE.outBack });
     ui.next.focus({ preventScroll: true });
   }
 

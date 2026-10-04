@@ -31,6 +31,7 @@ import { voice, speech, beep, setMuted, isMuted } from "../voice.js";
 import { recordScore, recordSession, lastSession, countRep } from "../storage.js";
 import { checkRep, checkStreak, checkSession } from "../achievements.js";
 import { $, renderBars, toast } from "./components.js";
+import { slide, EASE } from "./motion.js";
 import { sizeCanvas, drawFrame, drawSkeleton, drawIdealChain, drawBorder, drawFramingGuide } from "./overlay.js";
 import { framingCheck, lightingHint } from "../tracking.js";
 import { Recorder } from "../recording.js";
@@ -273,6 +274,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
     if (e.type === "rep") {
       lastScore = e.score;
       setBadge(e.score);
+      dropBadge();
       countRep(e.score, target);
       checkRep(e.score);
       if (e.good) { checkStreak(e.streak); beep(880, 120, 0.05); } else beep(420, 100, 0.04);
@@ -337,6 +339,8 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
     $("#celebrate h2").textContent = isSet ? "SET COMPLETE" : "TARGET REACHED";
     $("#celebrate-sub").textContent = ex.isHold ? `Best 5 s: ${session.best}` : `Best rep: ${session.best}`;
     $("#celebrate").hidden = false;
+    slide($("#celebrate h2"), { from: [0, 70], to: [0, 0], opacity: [0, 1], duration: 480, ease: EASE.outBack, strength: 1.1, maxBlur: 28 });
+    slide($("#celebrate-sub"), { from: [0, 40], to: [0, 0], opacity: [0, 1], duration: 560, ease: EASE.out });
     beep(1046, 220, 0.07);
     speech.say(summary?.spoken ?? (isSet ? "Set complete." : "Target reached. Great work."), { interrupt: true, priority: 5, maxAgeMs: 10000 });
     later(() => { $("#celebrate").hidden = true; finish(); }, 1800);
@@ -372,6 +376,7 @@ export function togglePause(force) {
   if (!ctl) return;
   ctl.paused = force ?? !ctl.paused;
   $("#paused").hidden = !ctl.paused;
+  if (ctl.paused) slide($(".paused-box"), { from: [0, 46], to: [0, 0], opacity: [0, 1], duration: 380, ease: EASE.outBack });
   $("#live-pause").setAttribute("aria-pressed", String(ctl.paused));
   $("#live-pause .icon-label").textContent = ctl.paused ? "Resume" : "Pause";
   if (ctl.paused) speech.clear();
@@ -655,7 +660,9 @@ function watchDevices(ctl, video) {
 
 /** The message box over the stage: text, plus optional camera dropdown and Try again. */
 function showCameraBox(text, { picker = false, retry = false } = {}) {
+  const wasHidden = $("#pose-loading").hidden;
   $("#pose-loading").hidden = false;
+  if (wasHidden || retry) slide($(".loading-box"), { from: [0, 30], to: [0, 0], opacity: [0, 1], duration: 380, ease: EASE.out });
   $("#pose-msg").textContent = text;
   $("#pose-camera").hidden = !picker;
   $("#pose-retry").hidden = !retry;
@@ -728,6 +735,11 @@ function setText(sel, text) {
   if (el && el.textContent !== text) el.textContent = text;
 }
 
+/** The badge after a finished rep: the new grade drops in. */
+function dropBadge() {
+  slide($("#grade-badge"), { from: [0, -28], to: [0, 0], duration: 360, ease: EASE.outBack, strength: 1.1 });
+}
+
 function setBadge(score) {
   $("#grade-letter").textContent = score == null ? "–" : gradeLetter(score);
   $("#grade-letter").style.color = score == null ? "" : gradeVar(score);
@@ -742,6 +754,7 @@ function addChip(score, good) {
   chip.title = good ? "At or above your target" : "Below your target";
   chip.style.color = gradeVar(score);
   host.appendChild(chip);
+  slide(chip, { from: [36, 0], to: [0, 0], opacity: [0, 1], duration: 340, ease: EASE.outBack, strength: 1 });
   while (host.children.length > 8) host.removeChild(host.firstChild);
 }
 
@@ -759,7 +772,9 @@ function countdown(ctl, seconds) {
     const span = el.querySelector("span");
     let n = seconds;
     el.hidden = false;
-    span.textContent = n;
+    // Each number drops in with a vertical motion blur.
+    const show = () => { span.textContent = n; slide(span, { from: [0, -90], to: [0, 0], opacity: [0, 1], duration: 420, ease: EASE.outBack, strength: 1.2, maxBlur: 30 }); };
+    show();
     beep(660, 90, 0.05);
     ctl.countdownTimer = setInterval(() => {
       if (ctl.cancelled) { clearInterval(ctl.countdownTimer); el.hidden = true; resolve(); return; }
@@ -771,7 +786,7 @@ function countdown(ctl, seconds) {
         resolve();
         return;
       }
-      span.textContent = n;
+      show();
       beep(660, 90, 0.05);
     }, 1000);
   });

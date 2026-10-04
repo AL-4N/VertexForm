@@ -14,7 +14,7 @@
  * and old ones are deleted on activate. Updates are never stuck.
  */
 
-const VERSION = "aeaa98c1680c";
+const VERSION = "66bb21e77966";
 const PRECACHE = [
   "./",
   "404.html",
@@ -81,6 +81,7 @@ const PRECACHE = [
   "js/ui/components.js",
   "js/ui/live.js",
   "js/ui/menu.js",
+  "js/ui/motion.js",
   "js/ui/onboarding.js",
   "js/ui/overlay.js",
   "js/ui/rest-screen.js",
@@ -98,11 +99,15 @@ const LIBS = "vf-libs-v1";
 const LIB_HOSTS = ["cdn.jsdelivr.net", "storage.googleapis.com"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(SHELL)
-      .then((c) => c.addAll(PRECACHE.map((p) => new Request(p, { cache: "reload" }))))
-      .then(() => self.skipWaiting()),
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(SHELL);
+    await Promise.all(PRECACHE.map(async (p) => {
+      const res = await fetch(new Request(p, { cache: "reload" }));
+      if (!res.ok) throw new Error(`precache ${p}: ${res.status}`);
+      await cache.put(p, await unredirect(res));
+    }));
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", (event) => {
@@ -138,14 +143,31 @@ async function networkFirst(req) {
   const cache = await caches.open(SHELL);
   try {
     const res = await fetch(req);
-    if (res.ok) cache.put(stripQuery(req), res.clone()).catch(() => {});
+    if (res.ok) unredirect(res.clone()).then((r) => cache.put(stripQuery(req), r)).catch(() => {});
     return res;
   } catch (err) {
-    const hit = (await cache.match(stripQuery(req))) ?? (await cache.match(req));
+    const hit = (await cache.match(stripQuery(req))) ?? (await cache.match(req)) ?? (await cache.match(asHtml(req)));
     if (hit) return hit;
     if (req.mode === "navigate") return (await cache.match("app.html")) ?? Response.error();
     throw err;
   }
+}
+
+/**
+ * Cloudflare serves app.html by redirecting to /app. A redirected response
+ * can't be handed to a page load, so store a clean copy of it instead.
+ */
+async function unredirect(res) {
+  if (!res.redirected) return res;
+  return new Response(await res.blob(), { status: res.status, statusText: res.statusText, headers: res.headers });
+}
+
+/** /app (Cloudflare's address for app.html) → app.html; / → index.html. */
+function asHtml(req) {
+  const url = new URL(req.url);
+  url.search = "";
+  url.pathname = url.pathname.endsWith("/") ? `${url.pathname}index.html` : `${url.pathname}.html`;
+  return url.toString();
 }
 
 /** app.html?debug and app.html share one cached copy. */

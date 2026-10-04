@@ -520,3 +520,16 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .help-list dd { margin: 0; color: var(--text-dim); }
 @media (max-width: 560px) { .help-list { grid-template-columns: 1fr; } .help-list dd { margin-bottom: .4rem; } }
 kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; border: 1px solid var(--border); background: var(--panel-hi); color: var(--text); }
+
+/* ── Motion: sliding with motion blur (js/ui/motion.js) replaces the old fades ── */
+.screen.active { animation: none; }
+.toast { animation: none; }
+.onboarding[open] { animation: none; }
+.onb-cards { display: grid; overflow: hidden; touch-action: pan-y; cursor: grab; border-radius: 12px; }
+.onb-cards:active { cursor: grabbing; }
+.onb-card { grid-area: 1 / 1; user-select: none; -webkit-user-select: none; }
+.onb-card svg { pointer-events: none; }
+.onb-dots span { transition: width .3s var(--ease), background .3s var(--ease); }
+
+/* Screens slide in from the side: never show a horizontal scrollbar while they do. */
+#app { overflow-x: clip; }

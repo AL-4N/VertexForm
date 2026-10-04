@@ -66,7 +66,7 @@ function wireNav() {
     btn.addEventListener("click", () => {
       const to = btn.dataset.back;
       if (to === "menu") { stopDemo(); renderMenu(openMode); }
-      showScreen(to);
+      showScreen(to, { dir: "back" });
     }));
 
   $("#btn-workouts").addEventListener("click", () => {
@@ -79,7 +79,7 @@ function wireNav() {
     const ex = lastResults.exercise;
     showRest({
       seconds: cfg.restSeconds, next: lastResults.isHold ? `${ex}, ${cfg.setReps * 6} s` : `${ex} × ${lastResults.repCount}`,
-      onGo: () => startSession(cfg.mode), onEnd: () => showScreen("results"),
+      onGo: () => startSession(cfg.mode), onEnd: () => showScreen("results", { dir: "back" }),
     });
   });
 
@@ -120,7 +120,7 @@ function wireNav() {
 function goBackFromLive() {
   stopLive();
   if (circuit) { endCircuit(); return; }
-  showScreen("mode");
+  showScreen("mode", { dir: "back" });
 }
 
 /* ── Live screen controls ───────────────────────────────── */
@@ -259,7 +259,7 @@ async function startSession(mode) {
 
   await runLive(currentExercise, cfg, (results) => {
     if (!results) {                 // backed out or no reps
-      showScreen("menu");
+      showScreen("menu", { dir: "back" });
       renderMenu(openMode);
       return;
     }

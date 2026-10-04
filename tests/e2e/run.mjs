@@ -1,6 +1,7 @@
 /**
  * run.mjs — end-to-end tests in a real browser (Playwright + Chromium):
  *     npm run test:e2e          (first time: npx playwright install chromium)
+ *     E2E_BASE=https://your-site.workers.dev npm run test:e2e   (test the deployed site)
  *
  * The camera is Chromium's fake one: a synthetic test pattern by default
  * (two fake cameras, so switching can be tested), or your own clips from
@@ -38,7 +39,8 @@ const server = http.createServer((req, res) => {
   fs.createReadStream(file).pipe(res);
 });
 await new Promise((r) => server.listen(0, "127.0.0.1", r));
-const BASE = `http://localhost:${server.address().port}`;
+// E2E_BASE=https://… runs the suite against a deployed copy instead of public/.
+const BASE = (process.env.E2E_BASE ?? `http://localhost:${server.address().port}`).replace(/\/$/, "");
 
 /* ── Fake camera material ─────────────────────────────────── */
 function y4m(name, args) {

@@ -9,6 +9,7 @@ import {
   MAX_ROUTINES, MAX_STEPS, unitFor, normalizeStep, saveRoutine, deleteRoutine, validateRoutine, describeStep,
 } from "../circuit.js";
 import { $, $$, toast, confirmAction } from "./components.js";
+import { slide, EASE } from "./motion.js";
 
 const DEFAULT_STEPS = [
   { exercise: "Squat", amount: 10 },
@@ -29,6 +30,7 @@ export function wireWorkouts(start) {
     if (draft.steps.length >= MAX_STEPS) { showError(`A routine can have up to ${MAX_STEPS} exercises.`); return; }
     draft.steps.push(normalizeStep({ exercise: "Squat", amount: 10 }));
     renderSteps();
+    slide($$("#step-list .step").at(-1), { from: [-40, 0], to: [0, 0], opacity: [0, 1], duration: 360, ease: EASE.outBack });
     $$("#step-list select").at(-1)?.focus();
   });
   $("#routine-rest").addEventListener("click", (e) => {
@@ -56,6 +58,8 @@ export function wireWorkouts(start) {
     showError("");
     toast(`Saved "${draft.name.trim()}"`);
     renderRoutines();
+    const saved = $$("#routine-list .routine").find((r) => r.querySelector("strong")?.textContent === draft.name.trim());
+    slide(saved, { from: [-50, 0], to: [0, 0], opacity: [0, 1], duration: 420, ease: EASE.outBack });
   });
   $("#routine-start").addEventListener("click", () => {
     readForm();

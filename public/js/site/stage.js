@@ -13,6 +13,7 @@
 import { build, blend } from "../figures/rig.js";
 import { EXERCISES, GROUND } from "../figures/poses.js";
 import { gradeColor, gradeLetter } from "../grade.js";
+import { slide, EASE } from "../ui/motion.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const CYCLES = { squat: 2, pushup: 2, plank: 1, lunge: 2, jack: 5 };
@@ -73,7 +74,14 @@ export function mountStage(root) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function select(i, byUser) {
+    const prev = idx;
     idx = (i + EXERCISES.length) % EXERCISES.length;
+    // Next exercise: the figure slides in with a horizontal motion blur.
+    if (idx !== prev) {
+      const dir = idx > prev || (prev === EXERCISES.length - 1 && idx === 0) ? 1 : -1;
+      slide(svg, { from: [dir * 80, 0], to: [0, 0], opacity: [0.2, 1], duration: 460, ease: EASE.out, strength: 1 });
+      slide(card.name, { from: [dir * 30, 0], to: [0, 0], opacity: [0, 1], duration: 380, ease: EASE.out });
+    }
     start = performance.now(); cycles = 0;
     if (byUser) pinned = true;
     tabs.forEach((t, k) => t.setAttribute("aria-selected", String(k === idx)));

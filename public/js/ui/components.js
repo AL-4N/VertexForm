@@ -1,40 +1,30 @@
 /** components.js — small shared UI helpers. */
 
 import { gradeVar } from "../geometry.js";
+import { slide, EASE } from "./motion.js";
 
 export const $  = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
 /**
- * Switch the visible screen, with a quick blur-fade (View Transitions where
- * supported; css/transitions.css). `focus` = a selector to focus once the
- * new screen is showing (else its heading), for keyboard and screen-reader users.
+ * Switch the visible screen. The new screen slides in with a horizontal
+ * motion blur: from the right going forward, from the left going back
+ * (js/ui/motion.js). `focus` = a selector to focus once it's showing (else
+ * its heading), for keyboard and screen-reader users.
  */
-export function showScreen(id, { focus = null } = {}) {
+export function showScreen(id, { focus = null, dir = "forward" } = {}) {
   const next = document.getElementById(`screen-${id}`);
-  const swap = () => {
-    $$(".screen").forEach((s) => s.classList.toggle("active", s === next));
-    window.scrollTo(0, 0);
-    const target = (focus && $(focus)) || next?.querySelector("h1, h2");
-    if (target) {
-      if (!target.matches("button, a, input, select, textarea, [tabindex]")) target.setAttribute("tabindex", "-1");
-      target.focus({ preventScroll: true });
-    }
-  };
   const current = $(".screen.active");
-  const animate = current && current !== next && document.startViewTransition && !document.hidden &&
-    !matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!animate) { swap(); return; }
-  const root = document.documentElement;
-  root.classList.add("vt-screen");
-  try {
-    const t = document.startViewTransition(swap);
-    // A transition can be skipped (tab hidden, navigation): that's fine, the swap still happens.
-    t.ready.catch(() => {});
-    t.finished.catch(() => {}).finally(() => root.classList.remove("vt-screen"));
-  } catch {
-    root.classList.remove("vt-screen");
-    swap();
+  $$(".screen").forEach((s) => s.classList.toggle("active", s === next));
+  window.scrollTo(0, 0);
+  const target = (focus && $(focus)) || next?.querySelector("h1, h2");
+  if (target) {
+    if (!target.matches("button, a, input, select, textarea, [tabindex]")) target.setAttribute("tabindex", "-1");
+    target.focus({ preventScroll: true });
+  }
+  if (next && current && current !== next) {
+    const dx = dir === "back" ? -64 : 64;
+    slide(next, { from: [dx, 0], to: [0, 0], opacity: [0, 1], duration: 380, ease: EASE.out, strength: 1.1 });
   }
 }
 
@@ -46,10 +36,10 @@ export function toast(message, ms = 2800) {
   el.className = "toast";
   el.textContent = message;
   host.appendChild(el);
+  // Drops in from the top, and flies back up when it's done.
+  slide(el, { from: [0, -34], to: [0, 0], opacity: [0, 1], duration: 360, ease: EASE.outBack });
   setTimeout(() => {
-    el.style.transition = "opacity .3s";
-    el.style.opacity = "0";
-    setTimeout(() => el.remove(), 320);
+    slide(el, { from: [0, 0], to: [0, -34], opacity: [1, 0], duration: 260, ease: EASE.in, keep: true }).then(() => el.remove());
   }, ms);
 }
 

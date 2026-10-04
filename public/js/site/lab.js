@@ -10,6 +10,7 @@ import { LAB, evaluate } from "../figures/lab.js";
 import { BY_ID } from "../figures/poses.js";
 import { figureMarkup } from "../figures/draw.js";
 import { gradeColor, gradeLetter } from "../grade.js";
+import { slide, EASE } from "../ui/motion.js";
 
 const same = (a, b) => Object.keys(a).every((k) => Math.round(a[k]) === Math.round(b[k]));
 
@@ -27,6 +28,10 @@ export function mountLab(root) {
   let v = {};
 
   function select(next, focus = false) {
+    // Switching exercise: the new figure and its controls slide in from the
+    // side the tab is on, with a horizontal motion blur.
+    const from = tabs.findIndex((t) => t.dataset.labEx === id), to = tabs.findIndex((t) => t.dataset.labEx === next);
+    const dir = to === from ? 0 : to > from ? 1 : -1;
     id = next;
     v = { ...LAB[id].presets[0].v };
     tabs.forEach((t) => {
@@ -37,6 +42,11 @@ export function mountLab(root) {
     });
     controls();
     render();
+    if (dir) {
+      slide(svg, { from: [dir * 90, 0], to: [0, 0], opacity: [0, 1], duration: 420, ease: EASE.out, strength: 1 });
+      slide(ui.sliders, { from: [dir * 50, 0], to: [0, 0], opacity: [0, 1], duration: 380, ease: EASE.out });
+      slide(ui.presets, { from: [dir * 50, 0], to: [0, 0], opacity: [0, 1], duration: 440, ease: EASE.out });
+    }
   }
 
   function controls() {

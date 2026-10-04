@@ -4,6 +4,7 @@ import { $, renderBars, drawRepChart } from "./components.js";
 import { gradeLetter, gradeVar } from "../geometry.js";
 import { faultLabel, faultPhrase } from "../coaching.js";
 import { getExercise } from "../exercises/index.js";
+import { slide, EASE } from "./motion.js";
 
 export function renderResults(r) {
   if (!r) return;
@@ -97,4 +98,14 @@ function renderDetails(r) {
       ${r.isHold ? `<td>${f(d.duration)}</td>` : `<td>${f(d.phases?.down)}</td><td>${f(d.phases?.bottom)}</td><td>${f(d.phases?.up)}</td>`}
       <td>${d.faults?.length ? d.faults.map((k) => esc(faultLabel(r.exercise, k))).join(", ") : '<span class="dim">clean</span>'}</td>
     </tr>`).join("")}</tbody>`;
+  // Rows slide in one after another, each with a little motion blur.
+  [...host.querySelectorAll("tbody tr")].forEach((tr, k) => {
+    tr.style.opacity = "0";
+    setTimeout(() => slide(tr, { from: [40, 0], to: [0, 0], opacity: [0, 1], duration: 360, ease: EASE.out }), 120 + k * 55);
+  });
+  // The summary lines too.
+  [...$("#res-summary").children].forEach((row, k) => {
+    row.style.opacity = "0";
+    setTimeout(() => slide(row, { from: [0, 22], to: [0, 0], opacity: [0, 1], duration: 380, ease: EASE.out }), 80 + k * 90);
+  });
 }
