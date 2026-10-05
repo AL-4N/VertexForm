@@ -16,6 +16,7 @@ Browser-based workout form coach. Read README.md for features and layout.
 - `npm test` — all unit/engine suites (must pass before every commit)
 - `npm run test:e2e` — Playwright browser suite (first time: `npx playwright install chromium`); pass a regex to run a subset: `node tests/e2e/run.mjs "camera"`
 - `npm run sw` — **run after changing any file in `public/`**: refreshes the precache list + content-hash version in `public/sw.js` (`tests/pwa.test.mjs` fails otherwise; a missing file there breaks offline loading)
+- `npm run voice` — render new/changed coach phrases with Kokoro (incremental; first run downloads ~90 MB model). **Any new spoken text must be added to `coaching.js` (and so to `js/phrases.js`) and rendered**, or `tests/voice.test.mjs` fails. Then `npm run sw`.
 - `npm run eval:angles` — 2D vs 3D angle accuracy on the simulator and on `tests/fixtures/*`
 - `npm run deploy` — `npm run sw` + `wrangler deploy`
 
@@ -26,6 +27,11 @@ Browser-based workout form coach. Read README.md for features and layout.
 - Storage: one localStorage key (`workout-analyzer:v1`, name kept for old data), versioned (`VERSION` + `migrate()` in `storage.js`). Add fields with a migration + `tests/storage.test.mjs` case.
 - Screens switch with `showScreen(id)` (View Transitions blur-fade; focus moves to the new screen's heading).
 - The service worker is registered only by the trainer (see the note in `js/site/main.js`).
+
+## Overlay + voice
+- `Session.update` returns `confidence`, `overlay` ("none" | "ready" | "rep"), `facing` ({dir, confidence, locked}) and `progress`. Frames below 0.45 confidence are never graded or counted. live.js fades skeleton/guide alphas toward the state.
+- Guide geometry is pure (`js/guide.js`, raw image pixels); `mirrorGuide()` for the mirrored view; drawing in `ui/overlay.js drawGuide`.
+- Speech: coach lines are PARTS (`[92, "phrase"]`); `voice.js` plays one clip per part on the Web Audio clock with `speech.js planLine` pauses; any missing clip → the whole line via Web Speech.
 
 ## Tests
 - Simulated people: `tests/helpers/synth.mjs` (`repStream` supports rotation, 3D world landmarks, mutations, rests, custom motion profiles, irregular frame times).

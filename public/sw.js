@@ -5,6 +5,8 @@
  * online; the cached copy is used when offline. Every app file is cached on
  * install, so the trainer works offline after one visit.
  *
+ * Voice clips (audio/<voice>/<hash>.mp3): cache first, cached as they play.
+ *
  * MediaPipe (library, wasm, pose models): cache first. Their URLs include a
  * version number, so a cached copy never goes stale; they're kept across
  * app updates and fetched again only if the URL changes.
@@ -14,11 +16,15 @@
  * and old ones are deleted on activate. Updates are never stuck.
  */
 
-const VERSION = "d30d5941f2a2";
+const VERSION = "5ff70508a884";
 const PRECACHE = [
   "./",
   "404.html",
   "app.html",
+  "audio/af_bella/manifest.json",
+  "audio/af_heart/manifest.json",
+  "audio/am_michael/manifest.json",
+  "audio/voices.json",
   "css/app.css",
   "css/fonts.css",
   "css/site.css",
@@ -58,9 +64,11 @@ const PRECACHE = [
   "js/filters.js",
   "js/geometry.js",
   "js/grade.js",
+  "js/guide.js",
   "js/history.js",
   "js/main.js",
   "js/page-transition.js",
+  "js/phrases.js",
   "js/pose.js",
   "js/pwa.js",
   "js/recording.js",
@@ -92,6 +100,7 @@ const PRECACHE = [
   "js/ui/stats.js",
   "js/ui/workouts.js",
   "js/voice.js",
+  "js/voices.js",
   "manifest.webmanifest",
 ];
 
@@ -125,6 +134,9 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
 
   if (LIB_HOSTS.includes(url.hostname) && /mediapipe/.test(url.pathname)) {
+    event.respondWith(cacheFirst(req));
+  } else if (url.origin === self.location.origin && /\/audio\/.+\.mp3$/.test(url.pathname)) {
+    // Voice clips: file names are content hashes, so a cached copy never goes stale.
     event.respondWith(cacheFirst(req));
   } else if (url.origin === self.location.origin) {
     event.respondWith(networkFirst(req));

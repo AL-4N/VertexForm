@@ -29,6 +29,8 @@ export default {
     lean:    (m) => ({ ...m, lean: Math.min(m.lean, 10) }),
   },
   trend: { key: "knee", worse: +1, by: 8 },
+  posture: (m) => Math.max(0, Math.min(1, (62 - m.lean) / 15)),
+  guide: "lunge",
 
   measure(lms, side) {
     return {
@@ -62,28 +64,5 @@ export default {
     if (m.lean > 24)       found.push(["lean", 2]);
     if (m.kneeTravel > 0.60) found.push(["kneeTravel", 2]);
     return rankFaults("Lunge", found);
-  },
-
-  /** Ideal: vertical front shin, thigh ~horizontal, upright torso. */
-  drawIdeal(ctx, lms, side, w, h) {
-    const px = (p) => ({ x: p.x * w, y: p.y * h });
-    const hip = px(P(lms, side, "HIP"));
-    const knee = px(P(lms, side, "KNEE"));
-    const ankle = px(P(lms, side, "ANKLE"));
-    const sh = px(P(lms, side, "SHOULDER"));
-
-    const thigh = Math.hypot(hip.x - knee.x, hip.y - knee.y);
-    const shin  = Math.hypot(knee.x - ankle.x, knee.y - ankle.y);
-    const torso = Math.hypot(sh.x - hip.x, sh.y - hip.y);
-    const facing = sh.x >= hip.x ? 1 : -1;
-    const r10 = 10 * Math.PI / 180;
-
-    const iAnkle = { ...ankle };
-    const iKnee  = { x: iAnkle.x, y: iAnkle.y - shin };          // vertical shin
-    const iHip   = { x: iKnee.x - facing * thigh * 0.9,
-                     y: iKnee.y - thigh * 0.1 };
-    const iSh    = { x: iHip.x + facing * torso * Math.sin(r10),
-                     y: iHip.y - torso * Math.cos(r10) };
-    return [iAnkle, iKnee, iHip, iSh];
   },
 };

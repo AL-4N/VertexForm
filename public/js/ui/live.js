@@ -25,14 +25,15 @@ import {
 import { savedCameraId, savedCameraLabel, refreshCameraPickers } from "./camera-picker.js";
 import { Session } from "../session.js";
 import { gradeLetter, gradeVar } from "../geometry.js";
-import { SETUP_CUES } from "../coaching.js";
+import { SETUP_CUES, SYSTEM, PRAISE, NEAR_MISS, NO_REP, FAULTS, CONCRETE, FRAMING } from "../coaching.js";
 import { Coach } from "../coach.js";
 import { voice, speech, beep, setMuted, isMuted } from "../voice.js";
 import { recordScore, recordSession, lastSession, countRep } from "../storage.js";
 import { checkRep, checkStreak, checkSession } from "../achievements.js";
 import { $, renderBars, toast } from "./components.js";
 import { slide, EASE } from "./motion.js";
-import { sizeCanvas, drawFrame, drawSkeleton, drawIdealChain, drawBorder, drawFramingGuide } from "./overlay.js";
+import { sizeCanvas, drawFrame, drawSkeleton, drawGuide, drawBorder, drawFramingGuide } from "./overlay.js";
+import { buildGuide, mirrorGuide, guideAlpha } from "../guide.js";
 import { framingCheck, lightingHint } from "../tracking.js";
 import { Recorder } from "../recording.js";
 
@@ -102,6 +103,13 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
   ctl.cleanup.push(() => { speech.gate = () => true; });
   const brief = coach.briefing(lastSession(exerciseName));
   if (brief) speech.say(brief, { priority: 2, anytime: true, maxAgeMs: 9000, key: "brief" });
+  // Load this session's likely lines now, so the voice never waits on the network.
+  voice.preload([
+    ...Array.from({ length: 101 }, (_, n) => n), ...Object.values(SYSTEM).filter((v) => typeof v === "string"), ...SYSTEM.tempo,
+    ...(PRAISE[cfg.personality] ?? []), ...(NEAR_MISS[cfg.personality] ?? []), ...(NO_REP[cfg.personality] ?? []),
+    ...Object.values(FAULTS[exerciseName] ?? {}).flatMap(([, , bank]) => bank), ...Object.values(CONCRETE[exerciseName] ?? {}).flat(),
+    ...Object.values(SETUP_CUES), ...Object.values(FRAMING), ...(brief ? [brief] : []),
+  ]);
   let lastTs = 0, tint = null;
   let problem = null, problemSince = 0;          // setup problem being tracked for voice
   let lastScore = null;
@@ -177,23 +185,45 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
       camSettings: ctl.camInfo?.settings ? `${ctl.camInfo.settings.width}×${ctl.camInfo.settings.height} @ ${ctl.camInfo.settings.frameRate} fps, id ${ctl.camInfo.settings.deviceId}…` : null,
       camCaps: ctl.camInfo?.capabilities ? `≤${ctl.camInfo.capabilities.width?.max}×${ctl.camInfo.capabilities.height?.max}, ${ctl.camInfo.capabilities.frameRate?.min ?? "?"}–${ctl.camInfo.capabilities.frameRate?.max ?? "?"} fps` : null,
       camError: ctl.camError ?? null,
+      overlay: out.overlay ?? "none", confidence: out.confidence != null ? +out.confidence.toFixed(2) : null,
+      facingDir: out.facing ? `${out.facing.dir > 0 ? "→" : out.facing.dir < 0 ? "←" : "?"} ${out.facing.confidence.toFixed(2)}${out.facing.locked ? " locked" : ""}` : null,
     };
     if (dbgEl) dbgEl.textContent = Object.entries(window.__vfDebug).map(([k, v]) => `${k}: ${v}`).join("\n");
 
     // Framing guide until you're set up and counting, or whenever you leave the frame.
     const framing = framingCheck(lms, { mirror: cfg.mirror });
-    if (!session.armed || ["none", "partial"].includes(out.state)) drawFramingGuide(ctx, w, h, framing);
+    if (!session.armed || ["none", "partial"].includes(out.state) || out.overlay === "none") drawFramingGuide(ctx, w, h, framing);
 
-    // Skeleton (smoothed): coloured by form while you're mid-rep (or holding), neutral otherwise.
-    const shownLms = out.display ?? lms;
-    if (shownLms) {
-      const scoring = session.armed && out.state === "ok" && (out.inRep || ex.isHold) && out.live;
-      if (scoring) tint = tint == null ? out.live.score : tint + (out.live.score - tint) * 0.25;
-      drawSkeleton(ctx, shownLms, w, h, cfg.mirror, scoring ? gradeVar(tint) : NEUTRAL);
-      if (session.armed && out.state === "ok" && !ex.noIdeal) {
-        drawIdealChain(ctx, ex.drawIdeal(ctx, shownLms, out.live.side, w, h), w, cfg.mirror);
-      }
+    // Overlay, by the session's confidence gate:
+    //   none  → nothing (the tip says what's wrong)
+    //   ready → your skeleton, faint and neutral, no guide
+    //   rep   → full skeleton coloured by the live score + the ideal guide
+    // Alphas ease toward their targets (~200 ms) so nothing pops or flickers.
+    const shownLms = out.display ?? (out.overlay === "none" ? null : lms);
+    if (shownLms) ctl.lastLms = shownLms;
+    const ease = 1 - Math.exp(-Math.max(1, ts - (ctl.lastDraw ?? ts)) / 70);
+    ctl.lastDraw = ts;
+    const rep = out.overlay === "rep" && out.live;
+    const skTarget = out.overlay === "rep" ? 1 : out.overlay === "ready" ? 0.35 : 0;
+    ctl.skAlpha = (ctl.skAlpha ?? 0) + (skTarget - (ctl.skAlpha ?? 0)) * ease;
+    if (rep) tint = tint == null ? out.live.score : tint + (out.live.score - tint) * 0.25;
+    ctl.repMix = (ctl.repMix ?? 0) + ((rep ? 1 : 0) - (ctl.repMix ?? 0)) * ease;
+    const skLms = shownLms ?? ctl.lastLms;
+    if (skLms) drawSkeleton(ctx, skLms, w, h, cfg.mirror, ctl.repMix > 0.5 && tint != null ? gradeVar(tint) : NEUTRAL, ctl.skAlpha);
+
+    // The guide: only mid-rep, only when we're sure which way you face.
+    let guide = null;
+    if (rep && skLms && ex.guide) {
+      guide = buildGuide(ex.guide, skLms, {
+        side: out.live.side, facing: out.facing?.dir, facingConfidence: out.facing?.confidence ?? 0,
+        w, h, bones: session.calib?.bones ?? null,
+      });
+      if (guide) ctl.lastGuide = cfg.mirror ? mirrorGuide(guide, w) : guide;
     }
+    const gTarget = guide ? (ex.isHold ? 1 : guideAlpha(out.progress ?? 0)) : 0;
+    ctl.guideAlpha = (ctl.guideAlpha ?? 0) + (gTarget - (ctl.guideAlpha ?? 0)) * ease;
+    if (ctl.lastGuide) drawGuide(ctx, ctl.lastGuide, w, h, ctl.guideAlpha);
+    if (ctl.guideAlpha < 0.01 && !guide) ctl.lastGuide = null;
     if (out.live && session.armed) renderBars($("#live-bars"), out.live.bars);
 
     // Tip line: lighting first, then framing, then whatever the engine says.
@@ -215,6 +245,9 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
       }
     } else problem = null;
 
+    // A new rep has started: the previous rep's feedback (if still waiting) is stale.
+    if (session.phase === "down" && ctl.prevPhase !== "down") speech.drop("rep");
+    ctl.prevPhase = session.phase;
     ctl.lastOut = out;
     if (!session.armed && ctl.gate && out.ready) { const go = ctl.gate; ctl.gate = null; go(); }
     for (const e of out.events) handleEvent(e);
@@ -245,9 +278,8 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
     if (beat === tempoBeat) return;
     tempoBeat = beat;
     if (beat === 3) return;                                   // a breath at the top
-    const word = ["Down", "two", "Up"][beat];
     if (mode === "beep") beep([520, 620, 880][beat], beat === 1 ? 70 : 120, 0.05);
-    else speech.say(word, { priority: 4, anytime: true, maxAgeMs: 350, key: "tempo" });
+    else speech.say(SYSTEM.tempo[beat], { priority: 4, anytime: true, maxAgeMs: 350, key: "tempo" });
   }
 
   /** "Auto" quality: if the full model can't keep up, drop to the fast one (once). */
@@ -264,7 +296,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
 
   // Start: a countdown, or (auto-start) as soon as you're in position and still.
   if (cfg.startMode === "auto") {
-    voice.say(ex.isHold ? "Get into position and hold still to start" : "Get into your starting position and hold still", { interrupt: true });
+    voice.say(ex.isHold ? SYSTEM.startHold : SYSTEM.startRep, { interrupt: true });
     await new Promise((resolve) => { ctl.gate = resolve; });
   } else {
     await countdown(ctl, cfg.countdown);
@@ -273,7 +305,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
   session.arm();
   $("#screen-live .stage").classList.add("armed");
   beep(990, 160, 0.06);
-  voice.say("Go!", { interrupt: true });
+  voice.say(SYSTEM.go, { interrupt: true });
 
   /* ── Events from the engine ────────────────────────────── */
   function handleEvent(e) {
@@ -286,7 +318,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
       if (e.good) { checkStreak(e.streak); beep(880, 120, 0.05); } else beep(420, 100, 0.04);
       addChip(e.score, e.good);
       announce(`Rep ${e.index}: ${e.score}${e.faults?.[0] ? `, ${e.faults[0].label}` : ""}`);
-      sayLines(coach.onRep(e));
+      sayLines(coach.onRep(e, { setReps: isSet ? cfg.setReps : 0 }));
       updateCounts();
     } else if (e.type === "shallow") {
       beep(300, 90, 0.04);
@@ -309,7 +341,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
 
   /** Queue the coach's lines: a newer rep line replaces one still waiting. */
   function sayLines(lines) {
-    for (const l of lines) speech.say(l.text, { priority: l.priority, maxAgeMs: l.kind === "trend" ? 6000 : 3500, key: l.kind === "trend" ? "trend" : "rep" });
+    for (const l of lines) speech.say(l.parts, { priority: l.priority, maxAgeMs: l.kind === "trend" ? 6000 : 3500, key: l.kind === "trend" ? "trend" : "rep" });
   }
 
   /** Set clock: active time only; says so while it's paused for a rest. */
@@ -348,7 +380,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
     slide($("#celebrate h2"), { from: [0, 70], to: [0, 0], opacity: [0, 1], duration: 480, ease: EASE.outBack, strength: 1.1, maxBlur: 28 });
     slide($("#celebrate-sub"), { from: [0, 40], to: [0, 0], opacity: [0, 1], duration: 560, ease: EASE.out });
     beep(1046, 220, 0.07);
-    speech.say(summary?.spoken ?? (isSet ? "Set complete." : "Target reached. Great work."), { interrupt: true, priority: 5, maxAgeMs: 10000 });
+    speech.say(summary?.parts ?? [isSet ? SYSTEM.setComplete : SYSTEM.targetReached], { interrupt: true, priority: 5, maxAgeMs: 10000 });
     later(() => { $("#celebrate").hidden = true; finish(); }, 1800);
   }
 
@@ -839,7 +871,11 @@ function countdown(ctl, seconds) {
     let n = seconds;
     el.hidden = false;
     // Each number drops in with a vertical motion blur.
-    const show = () => { span.textContent = n; slide(span, { from: [0, -90], to: [0, 0], opacity: [0, 1], duration: 420, ease: EASE.outBack, strength: 1.2, maxBlur: 30 }); };
+    const show = () => {
+      span.textContent = n;
+      slide(span, { from: [0, -90], to: [0, 0], opacity: [0, 1], duration: 420, ease: EASE.outBack, strength: 1.2, maxBlur: 30 });
+      if (n <= 3) speech.say([n], { anytime: true, priority: 4, maxAgeMs: 800, key: "count" });
+    };
     show();
     beep(660, 90, 0.05);
     ctl.countdownTimer = setInterval(() => {

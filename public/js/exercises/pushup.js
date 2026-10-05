@@ -1,7 +1,7 @@
 /** pushup.js — push-up measurement, scoring, faults, ideal overlay. */
 
 import { LM } from "../config.js";
-import { angleBetween, relativeSag, headDrop } from "../geometry.js";
+import { angleBetween, relativeSag, headDrop, lineFromHorizontal } from "../geometry.js";
 import { scorePushup, combine } from "../scoring.js";
 import { rankFaults } from "../coaching.js";
 
@@ -23,6 +23,10 @@ export default {
     pike:  (m) => ({ ...m, bodyLine: 0, sag: 0 }),
   },
   trend: { key: "elbow", worse: +1, by: 8 },
+  /** A push-up is roughly horizontal. */
+  posture: (m) => Math.max(0, Math.min(1, (55 - m.incline) / 15)),
+  floor: true,
+  guide: "line",
 
   measure(lms, side) {
     return {
@@ -33,6 +37,7 @@ export default {
       sag: relativeSag(lms, side),
       head: headDrop(lms, side),
       hipY: P(lms, side, "HIP").y,
+      incline: lineFromHorizontal(P(lms, side, "SHOULDER"), P(lms, side, "ANKLE")),
     };
   },
 
@@ -60,17 +65,5 @@ export default {
     if (m.head > 0.10)   found.push(["head", 1]);
     if (m.duration && m.duration < 0.9) found.push(["tempo", 1]);
     return rankFaults("Push-up", found);
-  },
-
-  /** Ideal: a perfectly straight shoulder→hip→ankle line. */
-  drawIdeal(ctx, lms, side, w, h) {
-    const px = (p) => ({ x: p.x * w, y: p.y * h });
-    const sh = px(P(lms, side, "SHOULDER"));
-    const hip = px(P(lms, side, "HIP"));
-    const ank = px(P(lms, side, "ANKLE"));
-    const ax = ank.x - sh.x, ay = ank.y - sh.y;
-    const t = ((hip.x - sh.x) * ax + (hip.y - sh.y) * ay) / (ax * ax + ay * ay + 1e-6);
-    const idealHip = { x: sh.x + t * ax, y: sh.y + t * ay };
-    return [sh, idealHip, ank];
   },
 };

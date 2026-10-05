@@ -3,7 +3,7 @@
  * only at a good moment, priorities, no pile-ups. Uses a fake voice and a
  * fake clock. Run with:  npm test
  */
-import { SpeechQueue } from "../public/js/speech.js";
+import { SpeechQueue, planLine, PAUSE, partKey } from "../public/js/speech.js";
 
 let pass = 0, fail = 0;
 const check = (name, ok, detail = "") => {
@@ -14,7 +14,7 @@ const check = (name, ok, detail = "") => {
 function setup() {
   let now = 0;
   const said = [];
-  const voice = { busy: false, speak(t) { said.push(t); this.busy = true; }, cancel() { this.busy = false; said.push("<cancel>"); }, speaking() { return this.busy; } };
+  const voice = { busy: false, speak(item) { said.push(item.text); this.parts = item.parts; this.busy = true; }, cancel() { this.busy = false; said.push("<cancel>"); }, speaking() { return this.busy; } };
   const q = new SpeechQueue(voice, { now: () => now });
   return { q, voice, said, advance: (ms) => { now += ms; }, done: () => { voice.busy = false; } };
 }
@@ -85,6 +85,38 @@ function setup() {
   const { q, said } = setup();
   q.enabled = false; q.say("hello"); q.tick(true);
   check("Voice off: nothing queued or said", said.length === 0 && q.pending.length === 0);
+}
+
+{
+  const { q, said, voice } = setup();
+  q.say([92, "Nice."], { priority: 2 }); q.tick(true);
+  check("Parts: a score and a phrase go out as one line", said[0] === "92. Nice." && voice.parts[0] === 92);
+}
+{
+  const { q, said, done } = setup();
+  q.say("Rep 1: go lower", { key: "rep" }); q.say("Trend", { key: "trend" });
+  q.drop("rep");                                    // rep 2 has started: rep 1's cue is stale
+  q.tick(true); done(); q.tick(true);
+  check("Stale rep feedback is dropped when a new rep starts", said.join() === "Trend", said.join());
+}
+
+{
+  const { q, said, done, advance } = setup();
+  q.say("Test", { interrupt: true, priority: 5 }); done(); advance(500);
+  q.say("Test", { interrupt: true, priority: 5 });
+  check("An interrupting line is said again even if just said", said.filter((x) => x === "Test").length === 2, said.join());
+}
+
+console.log("\nPause timing");
+{
+  const { starts, total } = planLine([92, "Better, that one hit parallel.", "Go lower"], [600, 1500, 900]);
+  check(`~${PAUSE.afterNumber} ms after the score`, starts[1] - 600 === PAUSE.afterNumber, JSON.stringify(starts));
+  check(`~${PAUSE.betweenSentences} ms between sentences`, starts[2] - (starts[1] + 1500) === PAUSE.betweenSentences);
+  check("Total length adds up", total === 600 + 250 + 1500 + 400 + 900);
+  const avg = planLine(["Set complete.", "Average", 87], [900, 500, 600]);
+  check(`A label before a number: a short ${PAUSE.beforeNumber} ms`, avg.starts[2] - (avg.starts[1] + 500) === PAUSE.beforeNumber);
+  check("Faster pace shortens the pauses, not the words", planLine([1, "a"], [100, 100], 2).starts[1] === 100 + PAUSE.afterNumber / 2);
+  check("Numbers map to their recording keys", partKey(92) === "#92" && partKey("Nice.") === "Nice.");
 }
 
 console.log(`\n${fail ? `${fail} speech check(s) FAILED` : "All speech checks pass"} (${pass} passed)`);

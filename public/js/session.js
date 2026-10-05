@@ -29,7 +29,9 @@ import {
   Calibrator, SideTracker, GapFiller, visibilityScore, keyJointIds,
   boneLengths, boneGlitch, medianBones, personalShallow,
   worldAngles, worldWeight, fuseAngles,
+  frameConfidence, ConfidenceGate, facingCues, facingVote, FacingTracker, DriftMeter,
 } from "./tracking.js";
+import { FRAMING, SETUP_CUES } from "./coaching.js";
 
 const SEGMENT_S = 5;                       // plank scoring segment length
 const FACING_SIDE_MAX = 0.40;              // shoulder width / torso above this = facing the camera (measured: side-on ≈ 0.1, front-on ≈ 0.5)
@@ -40,6 +42,7 @@ const REST_AFTER_S = 4;                    // still at the top this long mid-set
 const DEFAULT_REP_S = [0.4, 12];           // a rep shorter / longer than this isn't a rep
 const GLITCH_ACCEPT_MS = 600;              // a "glitch" that lasts this long is real: re-learn the bones
 const DEFAULT_KEY_JOINTS = ["SHOULDER", "HIP", "KNEE", "ANKLE"];
+const FRAME_MIN_CONFIDENCE = 0.45;         // below this a frame is never graded or counted
 
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
@@ -123,6 +126,12 @@ export class Session {
     this.glitchSince = null;
     this.glitches = 0;
     this.w3 = 0;                       // current weight of the 3D angles
+    this.gate = new ConfidenceGate();  // overlay on/off, with hysteresis
+    this.facingTracker = new FacingTracker();
+    this.drift = new DriftMeter();
+    this.confidence = 0;
+    this.overlay = "none";             // none | ready | rep
+    this.facingDir = { dir: 0, confidence: 0, locked: false };
 
     // Not armed (countdown / waiting for auto-start): track, calibrate and
     // report readiness, but don't count anything yet.
@@ -154,9 +163,9 @@ export class Session {
     if (this.done) { out.state = "done"; return out; }
 
     if (!rawLms) {
-      out.tip = "Step into the frame";
+      out.tip = FRAMING.enter;
       this.#lost(t);
-      return out;
+      return this.#keepOverlay(out, t);
     }
     const ex = this.ex;
 
@@ -174,18 +183,17 @@ export class Session {
       out.state = "partial";
       out.tip = "Step back so your whole body is in frame";
       this.#lost(t);
-      return out;
+      return this.#keepOverlay(out, t);
     }
 
     // ── Occlusion: bridge a key joint hidden ≤ 200 ms, else drop the frame ──
     const gap = this.gaps.apply(rawLms, keyJointIds(ex.keyJoints ?? DEFAULT_KEY_JOINTS, boneSide), t);
     if (gap.dropped) {
       out.state = "occluded";
-      out.tip = "Keep your whole body in view";
+      out.tip = FRAMING.wholeBody;
       this.#lost(t);
-      return out;
+      return this.#keepOverlay(out, t);
     }
-    this.lastSeenT = t;
 
     // ── Smooth (One Euro): steady angles without lag ─────
     const smoothed = this.smooth.apply(gap.lms, t);
@@ -203,7 +211,7 @@ export class Session {
         this.glitches++;
         out.state = "glitch";
         out.tip = "";
-        return out;
+        return this.#keepOverlay(out, t);
       }
       // It's lasted: the reference was wrong (or you changed position). Re-learn.
       this.boneHistory = [];
@@ -217,13 +225,13 @@ export class Session {
     this.facing = this.facing == null ? ratio : this.facing + (ratio - this.facing) * 0.15;
     if (!ex.frontFacing && this.facing > FACING_SIDE_MAX) {
       out.state = "turn";
-      out.tip = "Turn side-on to the camera";
-      return out;
+      out.tip = SETUP_CUES.turn;
+      return this.#keepOverlay(out, t);
     }
     if (ex.frontFacing && this.facing < FACING_FRONT_MIN) {
       out.state = "turn";
-      out.tip = "Face the camera";
-      return out;
+      out.tip = SETUP_CUES.turnFront;
+      return this.#keepOverlay(out, t);
     }
 
     // ── Measure (2D, blended with 3D as you turn away) ───
@@ -231,6 +239,39 @@ export class Session {
     this.w3 = w3 ? worldWeight(this.facing) : 0;
     const m = fuseAngles(ex.measure(lms, side), w3, this.w3);
     const metric = ex.repMetric(fuseAngles(ex.measure(lmsPhase, side), w3, this.w3));
+
+    // ── Confidence: is this really you doing the exercise, tracked well? ──
+    const ids = keyJointIds(ex.keyJoints ?? DEFAULT_KEY_JOINTS, boneSide);
+    const visibility = ids.reduce((a, i) => a + (rawLms[i]?.visibility ?? 0), 0) / ids.length;
+    const hipX = (lms[LM.LEFT_HIP].x + lms[LM.RIGHT_HIP].x) / 2;
+    const conf = frameConfidence({
+      visibility, boneRatio: g.ratio ?? 1, facingRatio: this.facing, frontFacing: !!ex.frontFacing,
+      posture: ex.posture ? ex.posture(m) : 1, drift: this.drift.update(hipX, bones.torso, t),
+      sideSwitching: this.sides.since != null,
+    });
+    this.confidence = conf.value;
+    out.confidence = conf.value;
+    const shown = this.gate.update(conf.value, t);
+
+    // Which way you face (for the ideal-form guide): locked while a rep is under way.
+    if (!ex.frontFacing) {
+      this.facingDir = this.facingTracker.update(facingVote(facingCues(lms, side, { floor: !!ex.floor })), t, { lock: this.phase === "down" });
+    }
+    out.facing = this.facingDir;
+
+    if (conf.value < FRAME_MIN_CONFIDENCE) {
+      // Not graded, not counted, not calibrated: say what's wrong instead.
+      out.state = "unsure";
+      out.tip = {
+        visibility: FRAMING.wholeBody, bones: "", still: FRAMING.still,
+        facing: ex.frontFacing ? SETUP_CUES.turnFront : SETUP_CUES.turn,
+        posture: (ex.isHold ? ex.positionTip : ex.startTip) ?? SETUP_CUES.position,
+      }[conf.weakest] ?? "";
+      out.weakest = conf.weakest;
+      this.#lost(t);
+      return this.#keepOverlay(out, t, shown);
+    }
+    this.lastSeenT = t;
 
     // ── Calibration: your bones and your real top position ──
     const atTop = ex.isHold ? (ex.inPosition ? ex.inPosition(m) : true) : metric > this.shallow;
@@ -250,19 +291,34 @@ export class Session {
     out.tip = faults.length ? faults[0].label : "Looking good";
     out.faults = faults;
 
+    // How far into the rep (0 at the top, 1 at full depth): fades the guide in and out.
+    out.progress = ex.isHold ? 1 : Math.max(0, Math.min(1, (this.shallow - metric) / Math.max(1e-6, this.shallow - ex.deepThreshold)));
+
     if (!this.armed) {
       // Ready = in the start position and holding still for a second.
       out.ready = atTop && this.calibrator.stillFor >= 1;
       out.tip = atTop ? (this.calib ? "Ready" : "Hold still a moment…") : (ex.isHold ? ex.positionTip : ex.startTip) ?? "Get into position";
+      this.overlay = out.overlay = shown ? "ready" : "none";
       return out;
     }
 
     if (ex.isHold) this.#holdStep(m, graded.score, faults, dt, out);
     else this.#repStep(m, metric, graded.score, t, dt, out);
     out.inRep = this.phase === "down";
+    // Overlay: nothing unless confident; the full overlay only mid-rep (or holding).
+    const doing = ex.isHold ? out.state === "ok" : out.inRep;
+    this.overlay = out.overlay = !shown ? "none" : doing ? "rep" : "ready";
     if (!this.resting) this.activeS += dt; else this.restS += dt;
     out.resting = this.resting;
     out.clock = this.activeS;
+    return out;
+  }
+
+  /** A frame that isn't used: the overlay keeps its state until the gate closes. */
+  #keepOverlay(out, t, shown = this.gate.update(0, t)) {
+    this.overlay = out.overlay = !shown ? "none" : this.overlay === "none" ? "ready" : this.overlay;
+    out.facing = this.facingDir;
+    out.confidence = this.confidence = Math.min(this.confidence, 0.3);
     return out;
   }
 

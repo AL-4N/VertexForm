@@ -1,5 +1,35 @@
 # Changelog
 
+## 2.1.0 — 2026-10-04
+
+### Overlay only when it's really you exercising
+- Per-frame confidence: key-joint visibility, bone lengths vs calibration,
+  side/facing, posture matching the exercise, and not walking around.
+- Overlay states with hysteresis (on after 0.3 s, off after 0.5 s) and fades:
+  nothing plus a hint, a faint skeleton when ready, and the full skeleton
+  plus guide mid-rep. Low-confidence frames are never graded or counted.
+
+### Ideal-form guide
+- Facing from a weighted, smoothed vote (toes, nose vs ears, knee bend,
+  head end on the floor), locked during a rep. No confident facing, no guide.
+  This fixes guides drawn backwards.
+- New guide geometry (js/guide.js) built from your calibrated limb lengths:
+  target bottom pose, a "parallel" line, a torso-lean zone, a push-up/plank
+  tolerance band and jumping-jack arm markers. It flips with the mirror,
+  never covers the face, fades in on the way down and out on the way up.
+
+### Coach voice
+- Natural neural voice pre-rendered with Kokoro-82M (Apache-2.0):
+  `npm run voice` → public/audio/. Calm Heart for Chill, energetic Bella for
+  Hype, firm Michael for Coach, plus a voice picker and "System voice
+  (basic)".
+- Lines are stitched from clips with exact pauses (250 ms after a score,
+  400 ms between sentences). Clips are preloaded per session and cached
+  offline. Beeps duck under the voice. Stale rep feedback is dropped when a
+  new rep starts. Any missing clip falls back to the system voice.
+- All spoken text now lives in coaching.js. tests/voice.test.mjs fails if
+  any line lacks a recording.
+
 ## 2.0.1 — 2026-10-04
 
 ### External USB webcams (e.g. Anker PowerConf C200)

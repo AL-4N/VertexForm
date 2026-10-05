@@ -20,6 +20,7 @@ import { showOnboarding } from "./ui/onboarding.js";
 import { startPreview, stopPreview, previewRunning } from "./ui/camera-preview.js";
 import { CircuitRunner, stepSession, describeStep } from "./circuit.js";
 import { gradeVar } from "./geometry.js";
+import { SYSTEM } from "./coaching.js";
 import { registerServiceWorker } from "./pwa.js";
 import { mountPageTransitions } from "./page-transition.js";
 import { saveScoreCard } from "./ui/sharecard.js";
@@ -81,7 +82,7 @@ function wireNav() {
     if (!lastResults) return;
     const ex = lastResults.exercise;
     showRest({
-      seconds: cfg.restSeconds, next: lastResults.isHold ? `${ex}, ${cfg.setReps * 6} s` : `${ex} × ${lastResults.repCount}`,
+      seconds: cfg.restSeconds, next: lastResults.isHold ? `${ex}, ${cfg.setReps * 6} s` : `${ex} × ${lastResults.repCount}`, nextExercise: ex,
       onGo: () => startSession(cfg.mode), onEnd: () => showScreen("results", { dir: "back" }),
     });
   });
@@ -97,7 +98,7 @@ function wireNav() {
   });
   $("#btn-test-voice").addEventListener("click", () => {
     if (!cfg.voice) { toast("The voice is off"); return; }
-    speech.say("Ninety two. Nice depth, keep the chest up.", { interrupt: true, priority: 5 });
+    speech.say([92, SYSTEM.sample], { interrupt: true, priority: 5 });
   });
 
   $("#mode-practice").addEventListener("click", () => startSession("practice"));
@@ -214,7 +215,7 @@ function startCircuit(routine) {
   stopPreview();
   stopDemo();
   circuit = new CircuitRunner(routine);
-  speech.say(`${routine.name}. ${routine.steps.length} exercises. First, ${describeStep(circuit.current).replace("×", "")}.`, { anytime: true, priority: 2 });
+  speech.say([SYSTEM.workoutStart, SYSTEM.firstUp, SYSTEM.name(circuit.current.exercise)], { anytime: true, priority: 2, maxAgeMs: 6000 });
   runCircuitStep();
 }
 
@@ -230,7 +231,7 @@ function runCircuitStep() {
     if (circuit.done) { endCircuit(); return; }
     showRest({
       seconds: circuit.routine.rest, kicker: `Rest · ${circuit.progress} next`,
-      next: describeStep(circuit.current), auto: true,
+      next: describeStep(circuit.current), nextExercise: circuit.current.exercise, auto: true,
       onGo: runCircuitStep, onEnd: endCircuit,
     });
   }, { label: `${circuit.routine.name} · ${circuit.progress}` });
@@ -251,7 +252,7 @@ function endCircuit() {
       <td>${r.done ? r.average : "–"}</td><td>${r.done ? r.reps : "–"}</td></tr>`).join("")}</tbody>`;
   renderMenu(openMode);
   showScreen("circuit-done");
-  if (done) speech.say(done === rows.length ? "Workout complete. Nice work." : "Workout ended.", { anytime: true, priority: 3 });
+  if (done) speech.say(done === rows.length ? SYSTEM.workoutDone : SYSTEM.workoutEnded, { anytime: true, priority: 3 });
 }
 
 /* ── Session lifecycle ──────────────────────────────────── */

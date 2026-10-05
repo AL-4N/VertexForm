@@ -34,6 +34,8 @@ export default {
     feet:      (m) => ({ ...m, legSpread: Math.max(m.legSpread, 1.7) }),
   },
   trend: { key: "armRaise", worse: -1, by: 0.05 },
+  posture: () => 1,               // facing the camera is checked separately
+  guide: "arms",
 
   measure(lms) {
     const lsh = lms[LM.LEFT_SHOULDER], rsh = lms[LM.RIGHT_SHOULDER];
@@ -82,6 +84,4 @@ export default {
     if (m.legSpread < 1.4) found.push(["feet", 2]);
     return rankFaults("Jumping Jack", found);
   },
-
-  drawIdeal() { return null; },
 };

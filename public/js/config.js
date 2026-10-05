@@ -69,7 +69,8 @@ export const DEFAULTS = {
   startMode: "countdown",  // countdown | auto (start once you hold the start position still)
   chattiness: "normal",    // quiet (score only) | normal | detailed (trends, fuller summary)
   tempo: "off",            // off | beep | voice ("down… 2… up")
-  voiceRate: 1.05,         // speech speed
+  voiceRate: 1.05,         // system voice speed; for recorded voices it sets the pause length
+  voiceId: "auto",         // auto (by personality) | af_heart | af_bella | am_michael | system
   volume: 1,               // voice + beeps, 0..1
   gymMode: false,          // huge rep counter on the live screen
   facing: null,            // phones: "user" (front) | "environment" (back); null = pick a camera by name

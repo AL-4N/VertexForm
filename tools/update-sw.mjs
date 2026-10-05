@@ -18,7 +18,9 @@ export function appFiles() {
     for (const name of fs.readdirSync(dir).sort()) {
       const full = path.join(dir, name);
       if (fs.statSync(full).isDirectory()) walk(full);
-      else if (!SKIP.has(name) && !name.startsWith(".") && !name.endsWith(".txt")) out.push(path.relative(root, full).split(path.sep).join("/"));
+      // Voice clips (public/audio/*/*.mp3, ~14 MB) aren't precached: each is
+      // cached the first time it plays (sw.js). Their manifests are.
+      else if (!SKIP.has(name) && !name.startsWith(".") && !name.endsWith(".txt") && !name.endsWith(".mp3")) out.push(path.relative(root, full).split(path.sep).join("/"));
     }
   };
   walk(root);

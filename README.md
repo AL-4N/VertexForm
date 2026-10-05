@@ -33,6 +33,11 @@ on your device, and it works offline after the first visit.
   - It gives a briefing from your last session and a summary after each set.
   - There's an optional tempo coach ("down… 2… up").
   - Three personalities (Chill, Hype, Coach) and three levels of chattiness.
+  - **A natural neural voice:** every line is pre-recorded with Kokoro-82M
+    (free, Apache-2.0, rendered on a computer by `npm run voice`). Each
+    personality has its own voice: calm Heart, energetic Bella, firm Michael.
+    Lines are stitched from clips with exact pauses, and beeps duck under the
+    voice. You can also pick "System voice (basic)".
 - **Accurate tracking:**
   - Smoothing that steadies the angles without lag.
   - Each frame is checked against your own bone lengths, so glitches are thrown out.
@@ -51,6 +56,23 @@ on your device, and it works offline after the first visit.
   - It notices a camera that's dead, frozen on a placeholder picture, or
     unplugged, and moves on.
   - You can switch cameras mid-session, or flip front/back on phones.
+- **Lines only when it's really you, really exercising:**
+  - Every frame gets a confidence score: visible joints, bone lengths,
+    side-on (or facing, for jumping jacks), the right posture for the
+    exercise, and not walking around.
+  - Nothing is drawn when confidence is low, just a hint. A faint skeleton
+    shows when you're ready. The full score-coloured skeleton and the
+    ideal-form guide appear mid-rep, fading in and out with hysteresis.
+  - Low-confidence frames are never graded or counted.
+- **An ideal-form guide you can trust:**
+  - It knows which way you face from a vote (toes, nose, knee bend, head
+    end), locked during a rep. When unsure, it draws no guide.
+  - It's built from your own limb lengths, anchored at your planted foot,
+    and flips with the mirror setting.
+  - Squat and lunge: the target pose, a "parallel" line at knee height and a
+    green torso-lean zone. Push-up and plank: a target line with a tolerance
+    band. Jumping jack: hand-height markers.
+  - It never covers your face.
 - **Live screen:** framing guide ("move left", "step back"), lighting check,
   pause, mute, mirror, gym mode (a rep counter readable across the room),
   fullscreen, and keyboard shortcuts (Space, M, F, G, Esc).
@@ -136,6 +158,7 @@ vertexform/
 ├── public/                     ← the website (this is what you deploy)
 │   ├── index.html  app.html  404.html  manifest.webmanifest  sw.js  _headers
 │   ├── css/                    fonts, site, theme, app, transitions
+│   ├── audio/              the pre-recorded coach voice (npm run voice): <voice>/<hash>.mp3 + manifest.json
 │   ├── icons/  fonts/  favicon.svg
 │   └── js/
 │       ├── session.js          ★ the analysis engine (pure logic, fully tested)
@@ -143,7 +166,9 @@ vertexform/
 │       ├── tracking.js         calibration, glitches, side choice, occlusion, framing, 2D/3D
 │       ├── coach.js            ★ the smarter coach: what to say (pure)
 │       ├── speech.js           the speech queue: when to say it (pure)
-│       ├── coaching.js         phrase banks, personalities
+│       ├── coaching.js         ★ every spoken phrase (personalities, faults, system lines)
+│       ├── phrases.js  voices.js   the phrase inventory; which voice each personality uses
+│       ├── guide.js            ideal-form guide geometry (pure)
 │       ├── circuit.js  history.js  rest.js  recording.js   (pure, tested)
 │       ├── pose.js             MediaPipe + camera (models, GPU/CPU, camera choice)
 │       ├── scoring.js  geometry.js  grade.js  storage.js (+ migration)  voice.js
@@ -157,6 +182,7 @@ vertexform/
 │   ├── e2e/run.mjs             Playwright end-to-end suite
 │   ├── videos/                 your own test videos (git-ignored)
 │   └── helpers/synth.mjs       simulated people → MediaPipe-style landmarks
+├── scripts/build-voice.mjs     renders the voice pack with Kokoro (npm run voice)
 ├── tools/                      update-sw.mjs (npm run sw), make-synthetic-fixture.mjs
 ├── RECORDING_GUIDE.md          which real clips to record for testing
 ├── CHANGELOG.md  CLAUDE.md  TODO.md
@@ -216,13 +242,14 @@ and `npm test` replays them through the engine.
 
 1. Create `public/js/exercises/<name>.js` (copy `squat.js`). Set the rep metric
    and thresholds, `repSeconds`, `measure()`, `grade()`, `detectFaults()`,
-   `fixes` (for the coach) and `drawIdeal()`. Then register it in
-   `exercises/index.js`.
+   `fixes` (for the coach), `posture()` (for the confidence gate) and `guide`
+   (the guide type in `js/guide.js`). Then register it in `exercises/index.js`.
 2. Add it to `EXERCISES`, `EXERCISE_META` and `DEMO_TIPS` in `config.js`, and
    give it fault, `CONCRETE`, `FIXED` and `FOCUS` lines in `coaching.js`.
 3. Optional, for the website: keyframes in `figures/poses.js`, sliders in
    `figures/lab.js`, and a card in `index.html`.
-4. Add a scenario to `tests/session.test.mjs`, then run `npm run sw` and `npm test`.
+4. Add a scenario to `tests/session.test.mjs`, then run `npm run voice` (records
+   any new phrases), `npm run sw` and `npm test`.
 
 ## Limits
 

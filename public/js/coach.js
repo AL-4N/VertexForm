@@ -23,27 +23,20 @@
  */
 
 import {
-  FAULTS, CONCRETE, FIXED, FOCUS, COACH_LINES, faultLabel, faultSeverity,
+  FAULTS, CONCRETE, FIXED, FOCUS, COACH_LINES, PRAISE, NEAR_MISS, NO_REP, MILESTONES, SYSTEM,
+  faultLabel, faultSeverity,
 } from "./coaching.js";
 import { median } from "./geometry.js";
 
 export const CHATTINESS = ["quiet", "normal", "detailed"];
 
-const PRAISE = {
-  Chill: ["Nice.", "Smooth rep.", "That's it.", "Clean.", "Good one.", "Really solid."],
-  Hype:  ["Let's go!", "That was money!", "You're on fire!", "Huge rep!", "Beautiful!", "Certified clean!"],
-  Coach: ["Good rep. Again.", "That's the standard.", "Solid, keep that form.", "Textbook.", "Yes. Lock that in."],
-};
-const NEAR = {
-  Chill: ["So close.", "Almost there."],
-  Hype:  ["So close!", "Knocking on the door!"],
-  Coach: ["Close.", "Almost."],
-};
-const NO_REP = {
-  Chill: ["Too shallow, that one didn't count.", "Not deep enough to count."],
-  Hype:  ["Deeper, that one didn't count!", "No rep, get all the way there!"],
-  Coach: ["No rep. Full range.", "Didn't count. Go deeper."],
-};
+/**
+ * A spoken line is a list of PARTS: numbers (said as numbers, e.g. a score)
+ * and whole phrases from coaching.js. The voice plays one recorded clip per
+ * part with set pauses between them (js/voice.js); `text` is the same line
+ * for the screen and the fallback system voice.
+ */
+export const partsText = (parts) => parts.map((p) => (typeof p === "number" ? `${p}.` : p)).join(" ").replace(/\s+/g, " ").trim();
 
 export class Coach {
   /**
@@ -91,19 +84,20 @@ export class Coach {
 
   /**
    * A finished rep (or a hold segment).
-   * @param rep { score, faults:[{key,severity}], measures, duration, streak }
-   * @returns [{ text, priority, kind }] — usually one line; a trend line may follow
+   * @param rep { score, faults:[{key,severity}], measures, duration, index }
+   * @param ctx { setReps } for the halfway call
+   * @returns [{ parts, text, priority, kind }] — usually one line; a trend line may follow
    */
-  onRep(rep) {
+  onRep(rep, { setReps = 0 } = {}) {
     const lines = [];
     const ranked = this.rankByImpact(rep);
     const top = ranked[0] ?? null;
     const good = rep.score >= this.target;
     const clean = good && !ranked.length;
     this.reps.push({ score: rep.score, measures: rep.measures ?? {}, duration: rep.duration });
-    const seg = this.ex.isHold;
+    const P = this.personality;
 
-    // Clean-rep run (for the groove line).
+    // Clean-rep run (for the "two in a row" and groove lines).
     this.cleanRun = clean ? this.cleanRun + 1 : 0;
     if (!clean) this.grooveSaid = false;
 
@@ -111,9 +105,8 @@ export class Coach {
     for (const k of [...this.repeats.keys()]) if (k !== top?.key) this.repeats.delete(k);
     if (top) this.repeats.set(top.key, (this.repeats.get(top.key) ?? 0) + 1);
 
-    const scoreText = seg ? "" : `${rep.score}.`;
     if (this.chattiness === "quiet") {
-      lines.push(this.#line(seg ? `${rep.score}.` : scoreText, 2, "score"));
+      lines.push(this.#line([rep.score], 2, "score"));
       this.#remember(rep, top);
       return lines;
     }
@@ -122,27 +115,30 @@ export class Coach {
     const fixedKey = this.prev?.topKey && !(rep.faults ?? []).some((f) => f.key === this.prev.topKey) && rep.score > this.prev.score
       ? this.prev.topKey : null;
     const reinforce = fixedKey && FIXED[this.name]?.[fixedKey]
-      ? this.#fill(this.#pick(`reinforce:${this.personality}`, COACH_LINES.reinforce[this.personality]), FIXED[this.name][fixedKey])
-      : "";
+      ? this.#fill(this.#pick(`reinforce:${P}`, COACH_LINES.reinforce[P]), FIXED[this.name][fixedKey])
+      : null;
 
     let body;
     if (good && !top) {
       const groove = this.cleanRun >= 3 && !this.grooveSaid;
       if (groove) this.grooveSaid = true;
-      body = groove ? this.#pick(`groove:${this.personality}`, COACH_LINES.groove[this.personality])
-           : reinforce || this.#pick(`praise:${this.personality}`, PRAISE[this.personality]);
+      body = groove ? [this.#pick(`groove:${P}`, COACH_LINES.groove[P])]
+           : this.cleanRun === 2 && !reinforce ? [MILESTONES.streak2[P]]
+           : [reinforce ?? this.#pick(`praise:${P}`, PRAISE[P])];
     } else if (top) {
-      const near = !good && rep.score >= this.target - 6 ? this.#pick(`near:${this.personality}`, NEAR[this.personality]) : "";
-      body = [reinforce, near, this.cue(top.key)].filter(Boolean).join(" ");
+      const near = !good && rep.score >= this.target - 6 ? this.#pick(`near:${P}`, NEAR_MISS[P]) : null;
+      body = [reinforce, near, this.cue(top.key)];
     } else {
-      body = reinforce || this.#pick(`praise:${this.personality}`, PRAISE[this.personality]);
+      body = [reinforce ?? this.#pick(`praise:${P}`, PRAISE[P])];
     }
-    lines.push(this.#line(`${scoreText} ${body}`.trim(), good ? 2 : 3, "rep"));
+    if (!this.ex.isHold && setReps >= 6 && rep.index === Math.ceil(setReps / 2)) body.push(MILESTONES.halfway[P]);
+    // A hold segment has no rep score to read out.
+    lines.push(this.#line([...(this.ex.isHold ? [] : [rep.score]), ...body.filter(Boolean)], good ? 2 : 3, "rep"));
 
     // Trends across the set (detailed coaching).
     if (this.chattiness === "detailed") {
       const trend = this.trend();
-      if (trend) lines.push(this.#line(trend, 1, "trend"));
+      if (trend) lines.push(this.#line([trend], 1, "trend"));
     }
     this.#remember(rep, top);
     return lines;
@@ -150,13 +146,13 @@ export class Coach {
 
   /** A rep that didn't go deep enough to count. */
   onNoRep() {
-    return [this.#line(this.#pick(`norep:${this.personality}`, NO_REP[this.personality]), 2, "norep")];
+    return [this.#line([this.#pick(`norep:${this.personality}`, NO_REP[this.personality])], 2, "norep")];
   }
 
   /** Standing still at the top mid-set. */
   onRest() {
     if (this.chattiness === "quiet") return [];
-    return [this.#line(this.#pick(`rest:${this.personality}`, COACH_LINES.rest[this.personality]), 1, "rest")];
+    return [this.#line([this.#pick(`rest:${this.personality}`, COACH_LINES.rest[this.personality])], 1, "rest")];
   }
 
   /**
@@ -207,9 +203,7 @@ export class Coach {
     if (this.chattiness === "quiet" || !last?.reps?.length) return null;
     const top = topFault(last.faults, this.name);
     if (!top) return this.#pick(`briefGood:${this.personality}`, COACH_LINES.briefGood[this.personality]);
-    const label = faultLabel(this.name, top).toLowerCase();
-    const focus = FOCUS[this.name]?.[top] ?? label;
-    return this.#fill(this.#pick(`briefFix:${this.personality}`, COACH_LINES.briefFix[this.personality]), label, focus);
+    return briefFixLine(this.name, top, this.#pick(`briefFix:${this.personality}`, COACH_LINES.briefFix[this.personality]));
   }
 
   /**
@@ -245,13 +239,12 @@ export class Coach {
     } : null;
 
     const target = nextTarget(res.reps, unit);
-    const fixLine = fix ? this.#fill(this.#pick(`summaryFix:${this.personality}`, COACH_LINES.summaryFix[this.personality]), "", fix.focus) : "";
-    const spoken = this.chattiness === "quiet"
-      ? `Set complete. Best ${res.best}.`
-      : this.chattiness === "detailed"
-        ? `Set complete. Average ${res.average}. ${strengths[0]}. ${fixLine} ${target}.`
-        : `Set complete. Average ${res.average}. ${fixLine || strengths[0] + "."}`;
-    return { strengths, fix, target, spoken: spoken.replace(/\s+/g, " ").trim() };
+    const fixLine = fix ? fillTemplate(this.#pick(`summaryFix:${this.personality}`, COACH_LINES.summaryFix[this.personality]), "", fix.focus) : null;
+    // Spoken: "Set complete. Average 87. Next time, focus on …" (the target stays on screen).
+    const parts = this.chattiness === "quiet"
+      ? [SYSTEM.setComplete]
+      : [SYSTEM.setComplete, SYSTEM.average, res.average, fixLine ?? SYSTEM.cleanSet];
+    return { strengths, fix, target, parts, spoken: partsText(parts) };
   }
 
   /* ── Helpers ─────────────────────────────────────────── */
@@ -271,19 +264,18 @@ export class Coach {
   }
 
   #fill(template, x, y = "") {
-    const text = template.replace("{x}", x).replace("{y}", y);
-    return text.charAt(0).toUpperCase() + text.slice(1);
+    return fillTemplate(template, x, y);
   }
 
-  /** Build a line; if it's word-for-word the last one, vary it. */
-  #line(text, priority, kind) {
-    let t = text.replace(/\s+/g, " ").trim();
-    if (t && t === this.lastLine) {
-      const alt = kind === "rep" || kind === "score" ? `${t.replace(/\.$/, "")}, again.` : "";
-      t = alt || t;
+  /** Build a line from parts; if it's word-for-word the last one, vary it ("… Again."). */
+  #line(parts, priority, kind) {
+    let text = partsText(parts);
+    if (text && text === this.lastLine && (kind === "rep" || kind === "score")) {
+      parts = [...parts, SYSTEM.again];
+      text = partsText(parts);
     }
-    this.lastLine = t;
-    return { text: t, priority, kind };
+    this.lastLine = partsText(parts.filter((p) => p !== SYSTEM.again));
+    return { parts, text, priority, kind };
   }
 }
 
@@ -308,4 +300,16 @@ export function nextTarget(scores, unit = "reps") {
   const hit = scores.filter((s) => s >= bar).length;
   const want = Math.min(n, hit + 1);
   return `Next time: hit ${bar}+ on ${want} of ${n} ${unit}`;
+}
+
+/** Fill a COACH_LINES template: {x} and {y}, capitalised. Exported so the voice pack can render every fill. */
+export function fillTemplate(template, x, y = "") {
+  const text = template.replace("{x}", x).replace("{y}", y);
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/** "Last time your most common issue was depth. Focus on sitting lower…" */
+export function briefFixLine(exercise, key, template) {
+  const label = faultLabel(exercise, key).toLowerCase();
+  return fillTemplate(template, label, FOCUS[exercise]?.[key] ?? label);
 }

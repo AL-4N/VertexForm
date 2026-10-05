@@ -32,8 +32,8 @@ export function setCfg(key, value) {
 }
 
 function apply(key) {
-  if (key == null || ["voice", "voiceRate", "volume"].includes(key)) {
-    configureVoice({ enabled: !!cfg.voice, rate: cfg.voiceRate, volume: cfg.volume });
+  if (key == null || ["voice", "voiceRate", "volume", "voiceId", "personality"].includes(key)) {
+    configureVoice({ enabled: !!cfg.voice, rate: cfg.voiceRate, volume: cfg.volume, voiceId: cfg.voiceId, personality: cfg.personality });
   }
 }
 

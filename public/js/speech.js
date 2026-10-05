@@ -14,9 +14,44 @@
  *     anything less important.
  */
 
+/**
+ * Pauses between the parts of a line, in ms. A score is followed by a short
+ * beat ("92 … nice depth"); separate sentences get a clear gap.
+ */
+export const PAUSE = { afterNumber: 250, betweenSentences: 400, beforeNumber: 120 };
+
+/** The manifest key for a number (scores, averages, countdown). */
+export const numberKey = (n) => `#${n}`;
+
+/** A line's parts as manifest keys: numbers → "#92", phrases as written. */
+export const partKey = (p) => (typeof p === "number" ? numberKey(Math.round(p)) : p);
+
+/**
+ * When each part of a line starts, given each part's clip length (ms).
+ * @param parts      e.g. [92, "Better, that one hit parallel.", "Go lower"]
+ * @param durations  ms per part, same order
+ * @param pace       1 = normal; > 1 shortens the pauses
+ * @returns { starts: [ms], total: ms }
+ */
+export function planLine(parts, durations, pace = 1) {
+  const starts = [];
+  let t = 0;
+  parts.forEach((p, i) => {
+    if (i > 0) {
+      const prev = parts[i - 1];
+      const gap = typeof prev === "number" ? PAUSE.afterNumber
+        : typeof p === "number" ? PAUSE.beforeNumber : PAUSE.betweenSentences;
+      t += gap / pace;
+    }
+    starts.push(Math.round(t));
+    t += durations[i];
+  });
+  return { starts, total: Math.round(t) };
+}
+
 export class SpeechQueue {
   /**
-   * @param backend { speak(text), cancel(), speaking() → bool }
+   * @param backend { speak(item: { text, parts }), cancel(), speaking() → bool }
    * @param opts    { now: () => ms, maxQueue }
    */
   constructor(backend, { now = () => performance.now(), maxQueue = 3 } = {}) {
@@ -34,9 +69,12 @@ export class SpeechQueue {
    * Queue a line.
    * @param opts { priority (higher first), maxAgeMs, key, interrupt, anytime }
    */
-  say(text, { priority = 1, maxAgeMs = 4000, key = null, interrupt = false, anytime = false } = {}) {
-    if (!this.enabled || !text) return;
-    const item = { text, priority, maxAgeMs, key, anytime: anytime || interrupt, at: this.now(), seq: this.seq++ };
+  say(line, { priority = 1, maxAgeMs = 4000, key = null, interrupt = false, anytime = false } = {}) {
+    if (!this.enabled || !line || (Array.isArray(line) && !line.length)) return;
+    // A line is a phrase, or parts: [92, "Nice."] (see js/coach.js).
+    const parts = Array.isArray(line) ? line : [line];
+    const text = parts.map((p) => (typeof p === "number" ? `${p}.` : p)).join(" ");
+    const item = { text, parts, priority, maxAgeMs, key, interrupt, anytime: anytime || interrupt, at: this.now(), seq: this.seq++ };
     if (interrupt) {
       this.backend.cancel();
       this.queue = this.queue.filter((q) => q.priority > priority);
@@ -66,12 +104,21 @@ export class SpeechQueue {
       .sort((a, b) => b.priority - a.priority || a.seq - b.seq)[0];
     if (!ready) return null;
     this.queue = this.queue.filter((q) => q !== ready);
-    // The same sentence twice within a few seconds is never useful.
-    if (ready.text === this.lastText && now - this.lastAt < 4000) return null;
+    // The same sentence twice within a few seconds is never useful (unless
+    // it was asked for: an interrupting line, like the Test voice button).
+    if (!ready.interrupt && ready.text === this.lastText && now - this.lastAt < 4000) return null;
     this.lastText = ready.text;
     this.lastAt = now;
-    this.backend.speak(ready.text);
+    this.backend.speak(ready);
     return ready.text;
+  }
+
+  /**
+   * Forget queued lines with this key (not one already being said), e.g.
+   * the last rep's feedback once a new rep has started.
+   */
+  drop(key) {
+    this.queue = this.queue.filter((q) => q.key !== key);
   }
 
   /** Forget everything queued and stop talking. */

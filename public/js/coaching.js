@@ -7,32 +7,64 @@
  * the tone of praise and milestones.
  */
 
-import { getSetting } from "./storage.js";
-
 /* ── Personality phrase banks ───────────────────────────── */
+/* Every line the coach can say lives in this file, so the pre-rendered voice
+   pack (npm run voice → public/audio/) can include all of them, and
+   tests/voice.test.mjs fails if a line has no recording. */
 
 export const PERSONALITIES = ["Chill", "Hype", "Coach"];
 
-const PRAISE = {
-  Chill: ["Nice.", "Smooth rep.", "That's it.", "Clean.", "Good one.",
-          "Really solid.", "Yeah, that works."],
-  Hype:  ["Let's go!", "That was money!", "You're on fire!", "Huge rep!",
-          "Beautiful!", "Unreal form!", "Certified clean!"],
-  Coach: ["Good rep. Again.", "That's the standard.", "Solid, keep that form.",
-          "Textbook.", "Yes. Lock that in.", "That's how it's done."],
+export const PRAISE = {
+  Chill: ["Nice.", "Smooth rep.", "That's it.", "Clean.", "Good one.", "Really solid.", "Yeah, that works."],
+  Hype:  ["Let's go!", "That was money!", "You're on fire!", "Huge rep!", "Beautiful!", "Unreal form!", "Certified clean!"],
+  Coach: ["Good rep. Again.", "That's the standard.", "Solid, keep that form.", "Textbook.", "Yes. Lock that in.", "That's how it's done."],
 };
 
-const NEAR_MISS = {
+export const NEAR_MISS = {
   Chill: ["So close.", "Almost there.", "Right on the edge."],
   Hype:  ["So close, one more push!", "You're knocking on the door!"],
   Coach: ["Close. Tighten it up.", "Almost. Fix one thing."],
 };
 
-const MILESTONES = {
+export const NO_REP = {
+  Chill: ["Too shallow, that one didn't count.", "Not deep enough to count."],
+  Hype:  ["Deeper, that one didn't count!", "No rep, get all the way there!"],
+  Coach: ["No rep. Full range.", "Didn't count. Go deeper."],
+};
+
+export const MILESTONES = {
   streak2:  { Chill: "Two in a row.",            Hype: "Back to back, keep it rolling!", Coach: "Two straight. Stay locked in." },
-  streak3:  { Chill: "Three straight, nice run.", Hype: "Hat trick! Unstoppable!",        Coach: "Three in a row. That's consistency." },
-  improved: { Chill: "Better than the last one.", Hype: "Level up! That one was better!", Coach: "Improvement. Do it again." },
   halfway:  { Chill: "Halfway there.",            Hype: "Halfway! Don't slow down!",      Coach: "Halfway. Hold the standard." },
+  improved: { Chill: "Better than the last one.", Hype: "Level up! That one was better!", Coach: "Improvement. Do it again." },
+};
+
+/* ── System lines: countdown, start, finish, rest timer, workouts ── */
+
+export const EXERCISE_NAMES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack"];
+export const REST_SECONDS = [15, 30, 45, 60, 75, 90, 105, 120];
+
+export const SYSTEM = {
+  go: "Go!",
+  again: "Again.",
+  average: "Average",
+  startRep: "Get into your starting position and hold still.",
+  startHold: "Get into position and hold still to start.",
+  setComplete: "Set complete.",
+  targetReached: "Target reached. Great work.",
+  cleanSet: "Clean set.",
+  restOver: "Rest's over. Tap Next set when you're ready.",
+  tenSeconds: "Ten seconds.",
+  thirtyLeft: "Thirty seconds left.",
+  nextUp: "Next up:",
+  firstUp: "First up:",
+  workoutStart: "Workout starting.",
+  workoutDone: "Workout complete. Nice work.",
+  workoutEnded: "Workout ended.",
+  voiceOff: "The voice is off.",
+  sample: "Nice depth, keep the chest up.",
+  tempo: ["Down", "two", "Up"],
+  rest: (n) => `Rest ${n} seconds.`,
+  name: (exercise) => `${exercise}.`,
 };
 
 /* ── Fault banks ────────────────────────────────────────
@@ -156,23 +188,6 @@ export const FAULTS = {
   },
 };
 
-/* ── Reps that didn't count ─────────────────────────────── */
-
-const NO_REP = {
-  "Squat":        ["Too shallow, that one didn't count", "No rep. Sit deeper", "Not deep enough to count"],
-  "Push-up":      ["No rep. Chest lower", "That one didn't count, go deeper", "Half rep. All the way down"],
-  "Lunge":        ["Too shallow to count, drop the back knee", "No rep. Sink lower"],
-  "Jumping Jack": ["Arms all the way up for it to count", "No rep. Hands overhead"],
-};
-
-export function noRepPhrase(exercise) {
-  const bank = NO_REP[exercise] ?? ["That one didn't count"];
-  const id = `norep:${exercise}`;
-  const next = (rotation.get(id) ?? -1) + 1;
-  rotation.set(id, next);
-  return bank[next % bank.length];
-}
-
 /* ── Setup problems (said out loud while you get into position) ── */
 
 export const SETUP_CUES = {
@@ -181,6 +196,21 @@ export const SETUP_CUES = {
   turn:     "Turn side-on to the camera",
   turnFront:"Face the camera",
   position: "Get into position",
+};
+
+/** Framing, lighting and camera hints (shown on screen, and said if they last). */
+export const FRAMING = {
+  enter: "Step into the frame",
+  stepBack: "Step back so I can see you head to toe",
+  feetCut: "Feet are cut off: lower the camera or tilt it down",
+  headCut: "Head is cut off: raise the camera or tilt it up",
+  moveRight: "Move a step to the right (as you see it on screen)",
+  moveLeft: "Move a step to the left (as you see it on screen)",
+  closer: "Step a little closer",
+  dark: "It's too dark: turn on a light in front of you",
+  black: "Camera shows a black picture. If it has a privacy cover, slide it open.",
+  wholeBody: "Keep your whole body in view",
+  still: "Stay in one spot",
 };
 
 /* ── Rotation so cues never repeat back to back ─────────── */
@@ -204,14 +234,6 @@ export function faultSeverity(exercise, key) {
   return FAULTS[exercise]?.[key]?.[0] ?? 1;
 }
 
-const personality = () => getSetting("personality", "Chill");
-
-export const praise    = () => pick(PRAISE[personality()] ?? PRAISE.Chill);
-export const nearMiss  = () => pick(NEAR_MISS[personality()] ?? NEAR_MISS.Chill);
-export const milestone = (key) => MILESTONES[key]?.[personality()] ?? "";
-
-function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
 /**
  * Rank detected faults worst-first.
  * @param found array of [key, severityOverride]
@@ -224,21 +246,6 @@ export function rankFaults(exercise, found) {
       label: faultLabel(exercise, key),
     }))
     .sort((a, b) => b.severity - a.severity);
-}
-
-/** Build the spoken line for a finished rep. */
-export function repFeedback(exercise, score, target, faults, streak) {
-  if (score >= target) {
-    const m = streak >= 3 ? milestone("streak3")
-            : streak === 2 ? milestone("streak2") : "";
-    return `${score}. ${praise()} ${m}`.trim();
-  }
-  if (score >= target - 6) {
-    const top = faults[0];
-    return `${score}. ${nearMiss()} ${top ? faultPhrase(exercise, top.key) : ""}`.trim();
-  }
-  const top = faults[0];
-  return top ? `${score}. ${faultPhrase(exercise, top.key)}` : `${score}.`;
 }
 
 /* ── Smarter-coach phrase banks (used by js/coach.js) ───────────────

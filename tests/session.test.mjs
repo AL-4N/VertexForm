@@ -11,7 +11,7 @@
 
 import { Session } from "../public/js/session.js";
 import { getExercise } from "../public/js/exercises/index.js";
-import { repStream, holdStream, faceCamera, W, H } from "./helpers/synth.mjs";
+import { repStream, holdStream, faceCamera, turnAround, W, H } from "./helpers/synth.mjs";
 
 const easeIO = (x) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
 
@@ -243,6 +243,47 @@ const GOOD_SQUAT = [STAND, { depth: 100, lean: 25 }];
   check("Per-rep data: phases add up to the rep", Math.abs(sum - d.duration) < 0.01 && d.phases.down > d.phases.up,
         JSON.stringify(d.phases));
   check("Per-rep data: depth and lean recorded", Number.isFinite(d.measures.depthDeg) && Number.isFinite(d.measures.lean), JSON.stringify(d.measures));
+}
+
+/* ── Confidence gate + facing (overlay) ───────────────── */
+{
+  /** Run a session and collect what the overlay would have done. */
+  const runOverlay = (exName, stream, map = (f) => f) => {
+    const s = new Session(getExercise(exName), { mode: "set", target: 90, goal: 1, setReps: 50 });
+    const overlays = {}, facings = [];
+    let reps = 0;
+    for (const f0 of stream) {
+      const f = map(f0);
+      const out = s.update(f.lms, ASPECT, f.t, f.world ?? null);
+      overlays[out.overlay ?? "none"] = (overlays[out.overlay ?? "none"] ?? 0) + 1;
+      if (out.overlay === "rep") facings.push(out.facing?.dir);
+      reps += out.events.filter((e) => e.type === "rep").length;
+    }
+    return { s, overlays, facings, reps };
+  };
+
+  // Walking across the room, bobbing a little: never lines, never reps.
+  const walk = (f) => (f.lms ? { ...f, lms: f.lms.map((p) => ({ ...p, x: p.x + (f.t / 1000) * 0.2 - 0.25 })) } : f);
+  let o = runOverlay("Squat", repStream("squat", STAND, { depth: 40, lean: 10 }, { reps: 6, timing: [0.4, 0.1, 0.4, 0.3] }), walk);
+  check("Walking around: no lines, no reps", o.reps === 0 && !o.overlays.rep && (o.overlays.none ?? 0) > (o.overlays.ready ?? 0), JSON.stringify(o.overlays));
+
+  o = runOverlay("Squat", repStream("squat", ...GOOD_SQUAT));
+  check("Facing right: reps counted, guide points right", o.reps === 5 && o.facings.length > 20 && o.facings.every((d) => d === 1), `reps=${o.reps} rep-frames=${o.facings.length}`);
+  check("Overlay: 'rep' only mid-rep, 'ready' between", o.overlays.rep > 0 && o.overlays.ready > 0, JSON.stringify(o.overlays));
+
+  o = runOverlay("Squat", repStream("squat", ...GOOD_SQUAT), (f) => (f.lms ? { ...f, lms: turnAround(f.lms) } : f));
+  check("Facing left: reps counted, guide points left", o.reps === 5 && o.facings.length > 20 && o.facings.every((d) => d === -1), `reps=${o.reps}`);
+
+  // Turns round between rep 3 and 4 (t ≈ 9.5 s): the side switches, facing follows, nothing breaks.
+  o = runOverlay("Squat", repStream("squat", ...GOOD_SQUAT, { reps: 6 }), (f) => (f.lms && f.t > 9500 ? { ...f, lms: turnAround(f.lms) } : f));
+  const after = o.facings.slice(-15);
+  check("Turning round mid-set: side + facing follow, reps keep counting", o.reps === 6 && o.s.sides.side === "RIGHT" && after.every((d) => d === -1),
+        `reps=${o.reps} side=${o.s.sides.side} last=${after.join("")}`);
+
+  // Jittery, barely-visible tracking (a dark room): don't draw, don't count.
+  const jittery = (f, rand) => (f.lms ? { ...f, lms: f.lms.map((p) => ({ ...p, x: p.x + (rand() - 0.5) * 0.02, y: p.y + (rand() - 0.5) * 0.02, visibility: 0.5 + rand() * 0.12 })) } : f);
+  o = runOverlay("Squat", repStream("squat", ...GOOD_SQUAT, { mutate: jittery, seed: 21 }));
+  check("Jittery low-visibility frames: no lines, no reps", o.reps === 0 && !o.overlays.rep, JSON.stringify(o.overlays));
 }
 
 /* ── Calibration inside a session ──────────────────────── */

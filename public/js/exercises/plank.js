@@ -13,6 +13,9 @@ export default {
   /** Timer only runs while you're actually in a plank (body near horizontal). */
   inPosition: (m) => m.incline < 40,
   positionTip: "Get into your plank, side-on to the camera",
+  posture: (m) => Math.max(0, Math.min(1, (55 - m.incline) / 15)),
+  floor: true,
+  guide: "line",
   fixes: {
     sag:  (m) => ({ ...m, sag: 0 }),
     pike: (m) => ({ ...m, sag: 0 }),
@@ -51,15 +54,5 @@ export default {
     if (m.head > 0.12)       found.push(["head", 1]);
     if (m.drift > 0.02)      found.push(["drift", 1]);
     return rankFaults("Plank", found);
-  },
-
-  drawIdeal(ctx, lms, side, w, h) {
-    const px = (p) => ({ x: p.x * w, y: p.y * h });
-    const sh = px(P(lms, side, "SHOULDER"));
-    const hip = px(P(lms, side, "HIP"));
-    const ank = px(P(lms, side, "ANKLE"));
-    const ax = ank.x - sh.x, ay = ank.y - sh.y;
-    const t = ((hip.x - sh.x) * ax + (hip.y - sh.y) * ay) / (ax * ax + ay * ay + 1e-6);
-    return [sh, { x: sh.x + t * ax, y: sh.y + t * ay }, ank];
   },
 };

@@ -170,3 +170,14 @@ export function faceCamera(lms) {
     return { ...p, x: p.x + dx, visibility: 0.95 };
   });
 }
+
+/**
+ * The same person turned round to face the other way: the picture mirrored,
+ * with left/right body landmarks swapped (their left side is now the far one).
+ */
+const LR_PAIRS = [[1, 4], [2, 5], [3, 6], [7, 8], [9, 10], [11, 12], [13, 14], [15, 16], [17, 18], [19, 20], [21, 22], [23, 24], [25, 26], [27, 28], [29, 30], [31, 32]];
+export function turnAround(lms) {
+  const out = lms.map((p) => ({ ...p, x: 1 - p.x }));
+  for (const [a, b] of LR_PAIRS) [out[a], out[b]] = [out[b], out[a]];
+  return out;
+}

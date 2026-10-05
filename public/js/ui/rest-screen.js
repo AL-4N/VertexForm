@@ -6,14 +6,15 @@
 import { $, showScreen } from "./components.js";
 import { speech, beep } from "../voice.js";
 import { restCue, mmss } from "../rest.js";
+import { SYSTEM, REST_SECONDS } from "../coaching.js";
 
 let timer = 0;
 
 /**
- * @param o { seconds, next: "Squat × 5", kicker, auto (start by itself at 0),
+ * @param o { seconds, next: "Squat × 5", nextExercise: "Squat", kicker, auto (start by itself at 0),
  *            onGo(), onEnd() }
  */
-export function showRest({ seconds, next, kicker = "Rest", auto = false, onGo, onEnd }) {
+export function showRest({ seconds, next, nextExercise = null, kicker = "Rest", auto = false, onGo, onEnd }) {
   stopRest();
   let total = seconds, left = seconds;
   let endAt = performance.now() + seconds * 1000;
@@ -28,7 +29,10 @@ export function showRest({ seconds, next, kicker = "Rest", auto = false, onGo, o
     $("#rest-prog").style.strokeDashoffset = String(100 - (left / total) * 100);
   };
   draw();
-  if (seconds > 0) speech.say(`Rest ${seconds} seconds.${next ? ` Next, ${next.replace("×", "")}.` : ""}`, { anytime: true, priority: 2 });
+  if (seconds > 0) {
+    const rest = REST_SECONDS.includes(seconds) ? SYSTEM.rest(seconds) : SYSTEM.rest(REST_SECONDS.reduce((a, b) => (Math.abs(b - seconds) < Math.abs(a - seconds) ? b : a)));
+    speech.say([rest, ...(nextExercise ? [SYSTEM.nextUp, SYSTEM.name(nextExercise)] : [])], { anytime: true, priority: 2, maxAgeMs: 6000 });
+  }
 
   const go = () => { stopRest(); onGo?.(); };
   const end = () => { stopRest(); speech.clear(); onEnd?.(); };
@@ -42,7 +46,7 @@ export function showRest({ seconds, next, kicker = "Rest", auto = false, onGo, o
     left = Math.max(0, (endAt - performance.now()) / 1000);
     draw();
     const cue = restCue(Math.ceil(before), Math.ceil(left), total, auto);
-    if (cue) { speech.say(cue, { anytime: true, priority: 4, maxAgeMs: 1500 }); if (/^\d$/.test(cue)) beep(660, 80, 0.04); }
+    if (cue != null) { speech.say([cue], { anytime: true, priority: 4, maxAgeMs: 1500 }); if (typeof cue === "number") beep(660, 80, 0.04); }
     if (left <= 0) {
       clearInterval(timer); timer = 0;
       if (auto) go();

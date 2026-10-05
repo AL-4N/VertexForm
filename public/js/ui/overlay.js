@@ -34,13 +34,17 @@ export function drawFrame(ctx, video, w, h, mirror) {
   ctx.restore();
 }
 
-/** Draw your tracked skeleton in the "you" colour. */
-/** colour: the live score's grade colour, so your skeleton shows how you're doing. */
-export function drawSkeleton(ctx, lms, w, h, mirror, colour) {
+/**
+ * Your tracked skeleton. colour: the live score's grade colour (or neutral);
+ * alpha: 0..1, faded in and out by live.js so it never flickers.
+ */
+export function drawSkeleton(ctx, lms, w, h, mirror, colour, alpha = 1) {
+  if (alpha <= 0.01) return;
   const X = (p) => (mirror ? (1 - p.x) : p.x) * w;
   const Y = (p) => p.y * h;
 
   ctx.save();
+  ctx.globalAlpha = alpha;
   const tint = colour || css("--you") || "#c6ef4e";
   ctx.lineWidth = Math.max(3, w / 240);
   ctx.strokeStyle = tint;
@@ -63,36 +67,6 @@ export function drawSkeleton(ctx, lms, w, h, mirror, colour) {
     if (!p || (p.visibility ?? 1) < 0.3) continue;
     ctx.beginPath();
     ctx.arc(X(p), Y(p), r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.restore();
-}
-
-/**
- * Draw the ideal-form guide: a chain of points in pixel space returned by
- * an exercise module's drawIdeal().
- */
-export function drawIdealChain(ctx, pts, w, mirror) {
-  if (!pts || pts.length < 2) return;
-  const X = (p) => (mirror ? (w - p.x) : p.x);
-
-  ctx.save();
-  ctx.strokeStyle = css("--ideal") || "#78ff78";
-  ctx.fillStyle = css("--ideal") || "#78ff78";
-  ctx.lineWidth = Math.max(3, w / 260);
-  ctx.lineCap = "round";
-  ctx.globalAlpha = 0.9;
-  ctx.setLineDash([Math.max(8, w / 90), Math.max(7, w / 110)]);
-
-  ctx.beginPath();
-  ctx.moveTo(X(pts[0]), pts[0].y);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(X(pts[i]), pts[i].y);
-  ctx.stroke();
-
-  const r = Math.max(4, w / 200);
-  for (const p of pts) {
-    ctx.beginPath();
-    ctx.arc(X(p), p.y, r, 0, Math.PI * 2);
     ctx.fill();
   }
   ctx.restore();
@@ -142,4 +116,113 @@ export function drawFramingGuide(ctx, w, h, check, margin = 0.03) {
     ctx.stroke();
   }
   ctx.restore();
+}
+
+/**
+ * The ideal-form guide (geometry from js/guide.js, already mirrored to match
+ * the picture): soft glow, dashed green lines, rounded joints, thickness
+ * relative to the frame. A circle around your head is cut out so the guide
+ * never covers your face.
+ */
+export function drawGuide(ctx, g, w, h, alpha = 1) {
+  if (!g || alpha <= 0.01) return;
+  const green = css("--ideal") || "#2ee59d";
+  const lw = Math.max(2.5, h / 170);
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  if (g.head) {                                   // everything except the head zone
+    ctx.beginPath();
+    ctx.rect(0, 0, w, h);
+    ctx.arc(g.head.x, g.head.y, g.head.r, 0, Math.PI * 2);
+    ctx.clip("evenodd");
+  }
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.shadowColor = "rgba(46,229,157,.75)";
+  ctx.shadowBlur = h / 55;
+
+  if (g.wedge) {                                  // torso-lean green zone
+    const { x, y, r, a0, a1 } = g.wedge;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.arc(x, y, r, a0, a1, a1 < a0);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(46,229,157,.16)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(46,229,157,.55)";
+    ctx.lineWidth = lw * 0.6;
+    ctx.setLineDash([]);
+    ctx.stroke();
+  }
+  if (g.depth) {                                  // "parallel" line at knee height (thin dots: not part of the pose)
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.75;
+    ctx.strokeStyle = green;
+    ctx.lineWidth = lw * 0.55;
+    ctx.setLineDash([lw * 0.4, lw * 1.6]);
+    ctx.beginPath();
+    ctx.moveTo(g.depth.x0, g.depth.y);
+    ctx.lineTo(g.depth.x1, g.depth.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Label under the far end of the line, clear of the target pose.
+    ctx.shadowBlur = 0;
+    const fs = Math.max(12, h / 46);
+    ctx.font = `600 ${fs}px "Instrument Sans", system-ui, sans-serif`;
+    const label = "parallel";
+    const tw = ctx.measureText(label).width;
+    const tx = g.depth.x0 < g.depth.x1 ? g.depth.x0 : g.depth.x0 - tw;
+    const ty = g.depth.y + fs * 1.5;
+    ctx.fillStyle = "rgba(9,13,28,.72)";
+    ctx.fillRect(tx - 5, ty - fs * 1.05, tw + 10, fs * 1.35);
+    ctx.fillStyle = green;
+    ctx.fillText(label, tx, ty);
+    ctx.restore();
+  }
+  if (g.line) {                                   // push-up / plank: one straight line + tolerance band
+    const [a, b] = g.line;
+    const nx = -(b.y - a.y), ny = b.x - a.x, nl = Math.hypot(nx, ny) || 1;
+    const ox = (nx / nl) * g.band, oy = (ny / nl) * g.band;
+    ctx.beginPath();
+    ctx.moveTo(a.x + ox, a.y + oy); ctx.lineTo(b.x + ox, b.y + oy);
+    ctx.lineTo(b.x - ox, b.y - oy); ctx.lineTo(a.x - ox, a.y - oy);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(46,229,157,.14)";
+    ctx.fill();
+    ctx.strokeStyle = green;
+    ctx.lineWidth = lw;
+    ctx.setLineDash([lw * 3, lw * 2.2]);
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    ctx.setLineDash([]);
+    dot(ctx, g.idealHip, lw * 1.5, green);
+  }
+  if (g.chain) {                                  // target pose at the bottom
+    ctx.strokeStyle = green;
+    ctx.lineWidth = lw;
+    ctx.setLineDash([lw * 3, lw * 2.2]);
+    ctx.beginPath();
+    g.chain.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
+    ctx.stroke();
+    ctx.setLineDash([]);
+    g.chain.forEach((p) => dot(ctx, p, lw * 1.4, green));
+  }
+  if (g.markers) {                                // jumping jack: hands up to here
+    for (const m of g.markers) {
+      ctx.strokeStyle = green;
+      ctx.lineWidth = lw;
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, lw * 4, 0, Math.PI * 2);
+      ctx.stroke();
+      dot(ctx, m, lw * 1.2, green);
+    }
+  }
+  ctx.restore();
+}
+
+function dot(ctx, p, r, colour) {
+  if (!p) return;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+  ctx.fillStyle = colour;
+  ctx.fill();
 }

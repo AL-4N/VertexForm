@@ -1,0 +1,18 @@
+{
+  "voices": {
+    "af_heart": {
+      "label": "Heart: calm"
+    },
+    "af_bella": {
+      "label": "Bella: energetic"
+    },
+    "am_michael": {
+      "label": "Michael: firm"
+    }
+  },
+  "personalities": {
+    "Chill": "af_heart",
+    "Hype": "af_bella",
+    "Coach": "am_michael"
+  }
+}

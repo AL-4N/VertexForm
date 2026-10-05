@@ -3,7 +3,7 @@
  *
  * Every exercise module exports the same shape:
  *   name, repMetric, deepThreshold, shallowThreshold,
- *   measure(lms, side), grade(m), detectFaults(m), drawIdeal(ctx, lms, side, w, h)
+ *   measure(lms, side), grade(m), detectFaults(m), posture(m), fixes, guide (see js/guide.js)
  */
 
 import { LM } from "../config.js";
@@ -33,6 +33,9 @@ export default {
     lean:  (m) => ({ ...m, lean: Math.min(m.lean, 25) }),
   },
   trend: { key: "depthDeg", worse: +1, by: 6 },
+  /** Does the body look like a squat at all? Upright-ish torso (0..1). */
+  posture: (m) => Math.max(0, Math.min(1, (72 - m.lean) / 15)),
+  guide: "squat",
 
   measure(lms, side) {
     const hip = P(lms, side, "HIP");
@@ -79,33 +82,5 @@ export default {
     if (m.bounce)              found.push(["bounce", 2]);   // rebounded out of the bottom
     if (m.duration && m.duration < 1.0) found.push(["tempo", 1]);
     return rankFaults("Squat", found);
-  },
-
-  /**
-   * Ideal squat: shin near-vertical, thigh parallel to the ground,
-   * torso ~15° forward. Anchored to the user's ankle and scaled to their
-   * own limb lengths, so it's a target for THEIR body.
-   */
-  drawIdeal(ctx, lms, side, w, h) {
-    const px = (p) => ({ x: p.x * w, y: p.y * h });
-    const hip = px(P(lms, side, "HIP"));
-    const knee = px(P(lms, side, "KNEE"));
-    const ankle = px(P(lms, side, "ANKLE"));
-    const sh = px(P(lms, side, "SHOULDER"));
-
-    const thigh = Math.hypot(hip.x - knee.x, hip.y - knee.y);
-    const shin  = Math.hypot(knee.x - ankle.x, knee.y - ankle.y);
-    const torso = Math.hypot(sh.x - hip.x, sh.y - hip.y);
-    const facing = sh.x >= hip.x ? 1 : -1;
-
-    const r10 = 10 * Math.PI / 180, r15 = 15 * Math.PI / 180;
-    const iAnkle = { ...ankle };
-    const iKnee  = { x: iAnkle.x + facing * shin * Math.sin(r10),
-                     y: iAnkle.y - shin * Math.cos(r10) };
-    const iHip   = { x: iKnee.x - facing * thigh * 0.95,
-                     y: iKnee.y - thigh * 0.15 };
-    const iSh    = { x: iHip.x + facing * torso * Math.sin(r15),
-                     y: iHip.y - torso * Math.cos(r15) };
-    return [iAnkle, iKnee, iHip, iSh];
   },
 };

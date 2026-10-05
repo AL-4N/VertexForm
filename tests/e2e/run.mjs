@@ -256,6 +256,44 @@ await test("Live: camera starts, pause / mute / gym / mirror, Back turns it off"
   assert((await activeScreen(page)) === "screen-mode", "Back didn't return to the setup screen");
 });
 
+await test("Overlay: nothing drawn when nobody is in frame", async (make) => {
+  const page = await make();
+  await page.goto(`${BASE}/app.html?debug`);
+  await page.evaluate(() => { window.__vf.cfg.countdown = 0; });
+  await openExercise(page);
+  await page.click("#mode-practice");
+  await waitLive(page);
+  await page.waitForTimeout(1500);
+  const d = await page.evaluate(() => window.__vfDebug);
+  assert(d.overlay === "none", `overlay should be "none" with no person (got ${d.overlay})`);
+  assert(d.reps === 0, "counted reps with nobody there");
+  await page.click("#live-back");
+  await assertCameraOff(page, "after the overlay test");
+});
+
+await test("Voice: recorded clips load (HTTP 200) and play; system voice option", async (make) => {
+  const page = await make({ storage: { settings: { onboarded: true, voice: true, personality: "Hype" } } });
+  const audio = [];
+  page.on("response", (r) => { if (/\/audio\//.test(r.url())) audio.push(`${r.status()} ${r.url().split("/audio/")[1]}`); });
+  await page.goto(`${BASE}/app.html`);
+  await page.click("#btn-settings");
+  await page.click("#btn-test-voice");
+  await page.waitForFunction(() => true);
+  await page.waitForTimeout(2500);
+  assert(audio.some((a) => /^200 af_bella\/manifest\.json/.test(a)), `Hype should load Bella's manifest: ${audio.join(", ")}`);
+  const clips = audio.filter((a) => /\.mp3$/.test(a));
+  assert(clips.length >= 2 && clips.every((a) => a.startsWith("200")), `clips: ${clips.join(", ")}`);
+  await page.click('[data-setting="voiceId"] [data-val="am_michael"]');
+  await page.click("#btn-test-voice");
+  await page.waitForTimeout(2000);
+  assert(audio.some((a) => /^200 am_michael\/.+\.mp3/.test(a)), "picking Michael should play Michael's clips");
+  await page.click('[data-setting="voiceId"] [data-val="system"]');
+  const before = audio.length;
+  await page.click("#btn-test-voice");
+  await page.waitForTimeout(800);
+  assert(audio.length === before, "the system voice shouldn't load clips");
+});
+
 await test("Live: switching cameras mid-session keeps detecting", async (make) => {
   const page = await make();
   await page.goto(`${BASE}/app.html?debug`);
