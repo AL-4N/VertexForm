@@ -43,10 +43,19 @@ export function mountMotionNav() {
     cancelAnimationFrame(frame);
     frame = 0;
     setBlur(0);
+    announce(null);
+  };
+
+  /** Tell the nav highlight (nav-spy.js) where we're heading, or that we've arrived. */
+  const announce = (hash) => {
+    if (hash) document.documentElement.dataset.gliding = hash;
+    else delete document.documentElement.dataset.gliding;
+    document.dispatchEvent(new Event("vf:glide"));
   };
 
   function glide(target) {
     stop();
+    announce(`#${target.id}`);
     const pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
     const maxY = document.documentElement.scrollHeight - innerHeight;
     const from = scrollY;
@@ -70,6 +79,7 @@ export function mountMotionNav() {
       else {
         frame = 0;
         setBlur(0);
+        announce(null);
         // Match a normal anchor jump: keyboard focus continues from the section.
         if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
         target.focus({ preventScroll: true });

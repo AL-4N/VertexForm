@@ -163,6 +163,14 @@ await test("Site: hero demo animates, nav glides, no overflow", async (make) => 
   const top = await page.$eval("#lab", (e) => Math.round(e.getBoundingClientRect().top));
   assert(Math.abs(top - 80) < 30, `Form Lab not at the top after the glide (${top}px)`);
   assert(await page.evaluate(() => [...document.querySelectorAll("main > *")].every((s) => !s.style.filter)), "blur left behind after the glide");
+  const lit = () => page.evaluate(() => document.querySelector(".nav nav a.active")?.hash ?? null);
+  assert((await lit()) === "#lab", `nav should highlight Form Lab (got ${await lit()})`);
+  await page.evaluate(() => document.getElementById("game").scrollIntoView({ behavior: "instant" }));
+  await page.waitForTimeout(200);
+  assert((await lit()) === "#game", "scrolling to the game should highlight Rep game");
+  await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
+  await page.waitForTimeout(200);
+  assert((await lit()) === null, "nothing should be highlighted on the hero");
   for (const w of [390, 1280]) { await page.setViewportSize({ width: w, height: 800 }); assert(await overflow(page) <= 0, `horizontal overflow at ${w}px`); }
 });
 

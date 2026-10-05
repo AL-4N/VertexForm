@@ -98,6 +98,16 @@ button { font: inherit; color: inherit; }
 .nav nav { display: flex; gap: 1.8rem; margin-left: auto; }
 .nav nav a { text-decoration: none; color: var(--text-dim); font-weight: 600; font-size: .94rem; }
 .nav nav a:hover { color: var(--text); }
+/* Where you are: the link turns gradient and a gradient bar glides under it (js/site/nav-spy.js). */
+.nav nav { position: relative; }
+.nav nav a { transition: color .2s; }
+.nav nav a.active { background: var(--go-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.nav-indicator {
+  position: absolute; bottom: -9px; left: 0; width: 0; height: 3px; border-radius: 3px;
+  background: var(--go-gradient); box-shadow: 0 0 12px rgba(46,229,157,.55);
+  opacity: 0; pointer-events: none; transition: width .3s var(--ease), opacity .2s;
+}
+.nav-indicator.on { opacity: 1; }
 @media (max-width: 860px) { .nav nav { display: none; } .nav .btn { margin-left: auto; } }
 
 /* ── Hero ────────────────────────────────────────────── */
