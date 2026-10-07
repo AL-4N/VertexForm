@@ -29,7 +29,7 @@ run it.
 | GitHub repo | https://github.com/AL-4N/VertexForm (branch `main`) |
 | Live site (Cloudflare) | https://vertexform.alan-ht-wang.workers.dev |
 | The trainer | https://vertexform.alan-ht-wang.workers.dev/app.html (add `?debug` for diagnostics) |
-| Local folder | `~/Downloads/vertexform` |
+| Local folder | `~/Downloads/VertexForm-main` |
 | Local dev server | `npm run dev` → http://localhost:8080 (python3 http.server on `public/`) |
 
 **Deploying:** Cloudflare Workers (static assets) is connected to the GitHub
@@ -39,7 +39,11 @@ serves `./public` with `html_handling: auto-trailing-slash`, which redirects
 compare `const VERSION` in the live `/sw.js` with the local `public/sw.js`.
 
 **Git:** pushes work over HTTPS with cached credentials, using
-`GIT_TERMINAL_PROMPT=0 git push origin main`. `http.postBuffer` is raised for
+`GIT_TERMINAL_PROMPT=0 git push origin main`. The credential is a classic GitHub token
+(`repo` scope) in the macOS Keychain; if a push fails with 401/403 it has
+expired: ask the user to make a new one and push once themselves. Node isn't
+installed: run it through VS Code's Electron with
+`ELECTRON_RUN_AS_NODE=1 "/Applications/Visual Studio Code.app/Contents/MacOS/Code"`. `http.postBuffer` is raised for
 large pushes. The GitHub CLI (`gh`) isn't installed. Commit as you go, with a
 clear message and the Co-Authored-By trailer, and push when asked.
 
