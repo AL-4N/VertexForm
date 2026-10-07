@@ -25,7 +25,7 @@ function unlock(id) {
   store.unlocked.push(id);
   save();
   const a = ACHIEVEMENTS.find((x) => x.id === id);
-  toast(`🏆 ${a?.title ?? id}`);
+  toast(`Achievement unlocked: ${a?.title ?? id}`);
   beep(880, 150, 0.06);
   return true;
 }

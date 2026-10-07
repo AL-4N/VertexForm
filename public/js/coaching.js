@@ -75,7 +75,7 @@ export const FAULTS = {
     depth: [3, "Depth", [
       "Go lower, sink the hips to parallel",
       "You're cutting it high, drop a few more inches",
-      "Deeper — thighs to parallel",
+      "Deeper. Thighs to parallel",
       "Not quite parallel yet, sit down into it",
       "Half reps. Get the hips below the knee line",
     ]],
@@ -83,13 +83,13 @@ export const FAULTS = {
       "You're folding forward, lift your chest",
       "Chest up, sit back into your heels",
       "Keep the torso tall, don't tip over your toes",
-      "Proud chest — hips back, not down and forward",
+      "Proud chest. Hips back, not down and forward",
       "Too much lean. Think about staying upright",
     ]],
     kneeTravel: [2, "Knees back", [
       "Knees are drifting past your toes, push the hips back",
       "Load the hips more, keep the shins closer to vertical",
-      "Sit back — let the hips do the work, not the knees",
+      "Sit back. Let the hips do the work, not the knees",
     ]],
     bounce: [2, "Control", [
       "Control the bottom, no bouncing",
@@ -111,7 +111,7 @@ export const FAULTS = {
     depth: [3, "Depth", [
       "Lower your chest, elbows to ninety",
       "Get the chest closer to the floor",
-      "Deeper — break ninety with the elbows",
+      "Deeper. Break ninety with the elbows",
       "Half reps don't count, all the way down",
     ]],
     sag: [3, "Hips up", [
@@ -122,7 +122,7 @@ export const FAULTS = {
     pike: [2, "Hips down", [
       "Hips are too high, flatten out",
       "Lower the hips, body in one straight line",
-      "You're piking — straighten from shoulders to ankles",
+      "You're piking. Straighten from shoulders to ankles",
     ]],
     head: [1, "Head neutral", [
       "Keep the head neutral, eyes just ahead of your hands",
@@ -141,7 +141,7 @@ export const FAULTS = {
       "Drop the back knee toward the floor",
     ]],
     tooDeep: [1, "Ease up", [
-      "That's very deep — ease up a little if the knee complains",
+      "That's very deep. Ease up a little if the knee complains",
     ]],
     lean: [2, "Torso tall", [
       "Stay upright, don't lean over the front leg",
@@ -158,11 +158,11 @@ export const FAULTS = {
     sag: [3, "Hips up", [
       "Hips are sagging, squeeze the glutes and lift them",
       "Brace the core, bring the hips up to the line",
-      "Don't let gravity win — hips back up",
+      "Don't let gravity win. Hips back up",
     ]],
     pike: [2, "Hips down", [
       "Hips are too high, lower into one straight line",
-      "Flatten out — shoulders to ankles in one line",
+      "Flatten out. Shoulders to ankles in one line",
     ]],
     head: [1, "Head neutral", [
       "Relax the neck, look at the floor just ahead",
@@ -177,7 +177,7 @@ export const FAULTS = {
   "Jumping Jack": {
     extension: [3, "Full range", [
       "Get the hands all the way overhead",
-      "Full range — clap those hands up top",
+      "Full range. Clap those hands up top",
       "Arms higher, reach for the ceiling",
     ]],
     feet: [2, "Feet wider", [

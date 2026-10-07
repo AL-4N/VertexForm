@@ -47,7 +47,7 @@ function boot() {
   wireWorkouts(startCircuit);
 
   if (!window.isSecureContext) {
-    toast("Camera needs HTTPS — use a local server or your published site");
+    toast("Camera needs HTTPS. Use a local server or your published site.");
   }
   // First visit: three quick setup tips (re-openable from Settings).
   if (!cfg.onboarded) showOnboarding(() => setCfg("onboarded", true));

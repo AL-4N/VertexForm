@@ -71,7 +71,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
   const isSet = cfg.mode === "set";
 
   /* ── HUD setup ─────────────────────────────────────────── */
-  $("#live-title").textContent = label ? `${label} — ${exerciseName}` : `${isSet ? "Set" : "Practice"} — ${exerciseName}`;
+  $("#live-title").textContent = label ? `${label}: ${exerciseName}` : `${isSet ? "Set" : "Practice"}: ${exerciseName}`;
   $("#live-goal").textContent = goalText(ex, cfg);
   $("#grade-target").textContent = `target ${target}`;
   $("#grade-letter").textContent = "–";
@@ -389,7 +389,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
     const res = session.results();
     stopLive({ keepTalking: true });     // let the summary finish
     if (!res) {
-      toast("No complete reps detected — try again with your whole body in frame");
+      toast("No complete reps detected. Try again with your whole body in frame.");
       onFinish(null);
       return;
     }

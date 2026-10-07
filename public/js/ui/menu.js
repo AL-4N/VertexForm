@@ -32,7 +32,7 @@ export function renderMenu(onPick) {
       ${best != null
         ? `<span class="best" style="color:${gradeVar(best)}">${best}</span>
            <button class="reset" title="Reset best">reset</button>`
-        : `<span class="best dim">—</span>`}
+        : `<span class="best dim">No best yet</span>`}
     `;
 
     card.addEventListener("click", (e) => {

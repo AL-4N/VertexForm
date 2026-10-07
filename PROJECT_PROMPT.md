@@ -53,6 +53,12 @@ clear message and the Co-Authored-By trailer, and push when asked.
   - **Every UI transition slides with a directional motion blur**, both
     existing and anything new. Use `public/js/ui/motion.js` → `slide()`.
     Respect `prefers-reduced-motion`.
+  - **Site style rules (no "AI template" look):** no purple gradients, no
+    pill-shaped buttons (rounded rectangles, ~10px), no emoji icons (use
+    SVG), no em dashes in visible text, no fake reviews or made-up metrics
+    (every number shown must be real or labelled as an example), no "made
+    with AI" tag, and no scroll animations: in-page links use the browser's
+    normal scroll.
   - Clickable buttons first; keyboard shortcuts only as extras.
   - Work autonomously in phases, run `npm test` after each, commit after each.
   - Brand: the grade gradient (coral F → green A) on navy; fonts Unbounded

@@ -9,7 +9,7 @@ import { slide, EASE } from "./motion.js";
 export function renderResults(r) {
   if (!r) return;
 
-  $("#results-title").textContent = `${r.exercise} — results`;
+  $("#results-title").textContent = `${r.exercise} results`;
   $("#res-letter").textContent = gradeLetter(r.best);
   $("#res-letter").style.color = gradeVar(r.best);
   $("#res-score").textContent = r.best;
@@ -42,7 +42,7 @@ export function renderResults(r) {
   if (!ranked.length) {
     $("#res-tip").hidden = false;
     $("#res-tip").textContent =
-      "Clean session — no repeated form faults detected. Keep that standard.";
+      "Clean session: no repeated form faults detected. Keep that standard.";
     $("#res-faults").innerHTML = "";
     return;
   }

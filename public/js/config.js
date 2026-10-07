@@ -43,11 +43,11 @@ export const DEMO_TIPS = {
 };
 
 export const EXERCISE_META = {
-  "Squat":        { icon: "🦵", hint: "Stand side-on. Slow, controlled reps.",  live: true  },
-  "Push-up":      { icon: "💪", hint: "Side-on to the camera.",                 live: true  },
-  "Plank":        { icon: "🧘", hint: "Side-on. Hold the position.",            live: true  },
-  "Lunge":        { icon: "🏃", hint: "Side-on. Step and hold.",                live: true  },
-  "Jumping Jack": { icon: "⭐", hint: "Face the camera.",                       live: true  },
+  "Squat":        { hint: "Stand side-on. Slow, controlled reps.",  live: true  },
+  "Push-up":      { hint: "Side-on to the camera.",                 live: true  },
+  "Plank":        { hint: "Side-on. Hold the position.",            live: true  },
+  "Lunge":        { hint: "Side-on. Step and hold.",                live: true  },
+  "Jumping Jack": { hint: "Face the camera.",                       live: true  },
 };
 
 // Visibility below this and we don't trust a measurement.

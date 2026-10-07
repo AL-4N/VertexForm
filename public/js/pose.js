@@ -163,7 +163,7 @@ export function cameraErrorMessage(err) {
   if (name === "BlackPicture")
     return "Camera shows a black picture. If it has a privacy cover, slide it open.";
   if (name === "StillImage")
-    return "This camera is showing a still picture, not live video (probably a virtual camera whose app isn't running) — pick another.";
+    return "This camera is showing a still picture, not live video (probably a virtual camera whose app isn't running). Pick another.";
   if (name === "NotSupportedError" || name === "TypeError")
     return "This browser can't use the camera on this page. Open the site in Chrome, Edge, Opera, Firefox or Safari over https:// (or localhost).";
   if (name === "NoSecureContext")

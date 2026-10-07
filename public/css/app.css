@@ -87,6 +87,7 @@ p  { margin: 0; line-height: 1.55; }
 .ex-card .name { font-family: var(--display); }
 .ex-card .hint { color: var(--text-dim); font-size: .8rem; margin-top: .15rem; }
 .ex-card .best { font-weight: 700; font-size: .95rem; white-space: nowrap; }
+.ex-card .best.dim { font-weight: 600; font-size: .78rem; }
 .ex-card .reset {
   background: none; border: none; color: var(--text-dim); cursor: pointer;
   font-size: .72rem; padding: .3rem .5rem; border-radius: 6px;
@@ -121,7 +122,7 @@ p  { margin: 0; line-height: 1.55; }
 .pills { display: flex; gap: .4rem; flex-wrap: wrap; }
 .pills button {
   font: inherit; font-size: .78rem; font-weight: 600; cursor: pointer;
-  padding: .4rem .8rem; border-radius: var(--radius-pill);
+  padding: .4rem .8rem; border-radius: var(--radius-sm);
   border: 1px solid var(--border); background: var(--panel-hi);
   color: var(--text-dim); transition: .15s var(--ease);
 }
@@ -229,7 +230,9 @@ p  { margin: 0; line-height: 1.55; }
   border: 1px solid var(--border); font-size: .8rem; opacity: .45;
 }
 .ach.on { opacity: 1; border-color: var(--gold); }
-.ach strong { display: block; margin-bottom: .15rem; }
+.ach strong { display: flex; align-items: center; gap: .35rem; margin-bottom: .15rem; }
+.ach-icon { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.ach.on .ach-icon { stroke: var(--gold); }
 
 /* ── Toasts ──────────────────────────────────────────── */
 #toasts {
@@ -329,7 +332,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
   appearance: none; -webkit-appearance: none;
   font: inherit; font-size: .78rem; font-weight: 600; cursor: pointer;
   max-width: min(240px, 45vw); text-overflow: ellipsis;
-  padding: .4rem 2rem .4rem .8rem; border-radius: var(--radius-pill);
+  padding: .4rem 2rem .4rem .8rem; border-radius: var(--radius-sm);
   border: 1px solid var(--border); color: var(--text); color-scheme: dark;
   background: var(--panel-hi) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23a6aecb' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right .8rem center;
 }

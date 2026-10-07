@@ -8,6 +8,9 @@ import { faultLabel } from "../coaching.js";
 import { $, confirmAction, toast } from "./components.js";
 import { gradeVar } from "../geometry.js";
 
+const ICON_TROPHY = `<svg class="ach-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 3h8v4a4 4 0 0 1-8 0zM6 5H3.5a2.5 2.5 0 0 0 2.6 3M14 5h2.5a2.5 2.5 0 0 1-2.6 3M10 11v3M7 17h6M8 14h4v3H8z"/></svg>`;
+const ICON_LOCK = `<svg class="ach-icon" viewBox="0 0 20 20" aria-hidden="true"><rect x="4.5" y="9" width="11" height="8" rx="1.5"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></svg>`;
+
 const TREND = {
   better: "↓ less often lately",
   worse: "↑ more often lately",
@@ -56,7 +59,7 @@ export function renderStats() {
       <div class="ach-grid">
         ${ACHIEVEMENTS.map((a) => `
           <div class="ach ${isUnlocked(a.id) ? "on" : ""}">
-            <strong>${isUnlocked(a.id) ? "🏆 " : "🔒 "}${a.title}</strong>
+            <strong>${isUnlocked(a.id) ? ICON_TROPHY : ICON_LOCK}${a.title}</strong>
             <span class="dim">${a.desc}</span>
             <span class="sr-only">${isUnlocked(a.id) ? "Unlocked" : "Locked"}</span>
           </div>`).join("")}
@@ -89,7 +92,7 @@ function historyChart(points, name) {
         <polyline points="${line("best")}" class="hist-best" />
         ${pts.map((p, i) => `<circle cx="${x(i).toFixed(1)}" cy="${y(p.best).toFixed(1)}" r="2.6" fill="${gradeVar(p.best)}"><title>${p.date ? new Date(p.date).toLocaleString() + ": " : ""}best ${p.best}, average ${p.average}</title></circle>`).join("")}
       </svg>
-      <figcaption class="dim small"><span class="key-best">— best</span> <span class="key-avg">- - average</span> · ${first} → ${last || "now"} · lines at 70 and 90</figcaption>
+      <figcaption class="dim small"><span class="key-best">solid: best</span> <span class="key-avg">dashed: average</span> · ${first} → ${last || "now"} · lines at 70 and 90</figcaption>
     </figure>`;
 }
 
