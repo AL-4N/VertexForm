@@ -4,7 +4,9 @@
  *
  * "Where you are" = the last linked section whose top has passed a line
  * 40% down the screen. Sections without a link (the hero, "Progress"…)
- * light nothing up.
+ * light nothing up. While a nav glide runs (motion-nav.js sets
+ * html[data-gliding]) the clicked link lights up at once instead of every
+ * section on the way.
  */
 
 export function mountNavSpy() {
@@ -40,7 +42,13 @@ export function mountNavSpy() {
     });
   }
 
-  const update = () => { raf = 0; show(whereAmI()); };
-  addEventListener("scroll", () => { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
+  const update = () => {
+    raf = 0;
+    const gliding = document.documentElement.dataset.gliding;
+    show(gliding ? links.findIndex((a) => a.hash === gliding) : whereAmI());
+  };
+  const schedule = () => { if (!raf) raf = requestAnimationFrame(update); };
+  addEventListener("scroll", schedule, { passive: true });
+  document.addEventListener("vf:glide", schedule);
   update();
 }

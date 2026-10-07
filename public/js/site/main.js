@@ -9,6 +9,7 @@ import { gradeColor } from "../grade.js";
 import { mountLab } from "./lab.js";
 import { mountGame } from "./game.js";
 import { renderHow } from "./how.js";
+import { mountMotionNav } from "./motion-nav.js";
 import { mountNavSpy } from "./nav-spy.js";
 import { mountPageTransitions } from "../page-transition.js";
 
@@ -28,6 +29,7 @@ function stickyNav() {
 
 document.addEventListener("DOMContentLoaded", () => {
   stickyNav();
+  mountMotionNav();
   mountNavSpy();
   mountPageTransitions();
   colourScores();

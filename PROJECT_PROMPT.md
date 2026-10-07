@@ -61,8 +61,8 @@ clear message and the Co-Authored-By trailer, and push when asked.
     pill-shaped buttons (rounded rectangles, ~10px), no emoji icons (use
     SVG), no em dashes in visible text, no fake reviews or made-up metrics
     (every number shown must be real or labelled as an example), no "made
-    with AI" tag, and no scroll animations: in-page links use the browser's
-    normal scroll.
+    with AI" tag. Scrolling: in-page links glide with a vertical motion blur
+    (`js/site/motion-nav.js`); no other scroll-triggered animations.
   - Clickable buttons first; keyboard shortcuts only as extras.
   - Work autonomously in phases, run `npm test` after each, commit after each.
   - Brand: the grade gradient (coral F → green A) on navy; fonts Unbounded
