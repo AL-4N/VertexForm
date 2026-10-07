@@ -7,11 +7,19 @@
  * whole page would make the browser blur thousands of off-screen pixels
  * every frame). The sticky header stays sharp. Reduced-motion users get the
  * browser's normal jump.
+ *
+ * Scrolling by hand (wheel, trackpad, touch, keys) blurs too, but only past
+ * a speed threshold, so normal reading stays sharp and fast flicks streak.
  */
 
 const DURATION = 750;     // ms for a full glide
 const BLUR_PER_SPEED = 6; // px of blur per (px/ms) of scroll speed
 const MAX_BLUR = 18;      // px, vertical blur cap
+// Hand scrolling: no blur below SCROLL_FLOOR px/ms (reading speed), then
+// SCROLL_GAIN px of blur per px/ms above it, up to SCROLL_MAX.
+const SCROLL_FLOOR = 1.2;
+const SCROLL_GAIN = 3.5;
+const SCROLL_MAX = 12;
 
 // Ease in and out (cubic), so the blur builds, peaks mid-flight, and clears.
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
@@ -103,4 +111,28 @@ export function mountMotionNav() {
   for (const type of ["wheel", "touchstart", "keydown", "mousedown"]) {
     addEventListener(type, stop, { passive: true });
   }
+
+  /* ── Hand scrolling ─────────────────────────────────── */
+  let lastY = scrollY, lastT = performance.now(), target = 0, shown = 0, loop = 0;
+
+  // Ease the blur toward the scroll speed; it fades out once scrolling stops.
+  const settle = () => {
+    loop = 0;
+    if (frame) return;                         // a glide owns the blur
+    if (performance.now() - lastT > 60) target = 0;
+    shown += (target - shown) * 0.35;
+    if (shown < 0.3 && target === 0) { shown = 0; setBlur(0); return; }
+    setBlur(shown);
+    loop = requestAnimationFrame(settle);
+  };
+
+  addEventListener("scroll", () => {
+    const now = performance.now();
+    const dt = Math.max(1, now - lastT);
+    const speed = Math.abs(scrollY - lastY) / dt;     // px/ms
+    lastY = scrollY; lastT = now;
+    if (frame || reduce.matches) return;
+    target = Math.min(SCROLL_MAX, Math.max(0, speed - SCROLL_FLOOR) * SCROLL_GAIN);
+    if (!loop && (target > 0 || shown > 0)) loop = requestAnimationFrame(settle);
+  }, { passive: true });
 }

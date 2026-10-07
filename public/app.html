@@ -550,9 +550,22 @@
       <button class="btn ghost" data-back="menu">&larr; Back</button>
       <h1>Skill path</h1>
     </header>
-    <p class="dim skills-intro">Each path builds toward a calisthenics skill. A step unlocks when one of your saved sets
-      meets its goal, in order. Steps marked "Not tracked yet" need a tracker that isn't built yet.</p>
+    <p class="dim skills-intro">Each path builds toward a calisthenics skill. A skill unlocks when one of your saved sets
+      meets its goal and everything it needs is unlocked. Skills marked "Not tracked yet" need a tracker that isn't built yet.
+      Open a path to see its tree.</p>
     <div class="skills-wrap" id="skills-wrap"></div>
+  </section>
+
+  <!-- ══ SKILL TREE (one path, full screen) ══ -->
+  <section id="screen-skilltree" class="screen screen-wide">
+    <header class="app-header">
+      <button class="btn ghost" data-back="skills">&larr; All paths</button>
+      <div><h1 id="tree-title">Skill tree</h1><p class="sub" id="tree-sub"></p></div>
+    </header>
+    <div class="tree-layout">
+      <div class="tree-scroll"><div class="tree" id="tree"></div></div>
+      <aside class="tree-detail card" id="tree-detail" aria-live="polite"></aside>
+    </div>
   </section>
 
 </div>

@@ -545,29 +545,106 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .cam-preview-side { display: grid; gap: .4rem; justify-items: start; font-size: .87rem; }
 @media (max-width: 560px) { .cam-preview { grid-template-columns: 1fr; } }
 
-/* ── Skill path ──────────────────────────────────────── */
+/* ── Skill path: overview ────────────────────────────── */
 .skills-intro { max-width: 70ch; margin: 0 0 1rem; font-size: .9rem; }
-.skills-wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; align-items: start; }
-.skill-path { margin: 0; }
-.skill-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .9rem; }
-.skill-head h2 { font-size: 1.05rem; }
-.skill-steps { list-style: none; margin: 0; padding: 0; }
-.skill { position: relative; display: grid; grid-template-columns: 26px 1fr; gap: .7rem; padding-bottom: 1.1rem; }
-.skill:last-child { padding-bottom: 0; }
-/* The rail between steps: green once the step above it is done. */
-.skill:not(:last-child)::before { content: ""; position: absolute; left: 12px; top: 28px; bottom: 2px; width: 2px; background: var(--border); }
-.skill.done:not(:last-child)::before { background: var(--lime); }
-.skill-node { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--border); background: var(--panel); }
+.skills-wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; align-items: stretch; }
+.path-card {
+  display: flex; flex-direction: column; gap: .5rem; margin: 0; text-align: left; cursor: pointer;
+  font: inherit; color: var(--text); transition: border-color .15s var(--ease), transform .15s var(--ease);
+}
+.path-card:hover { border-color: var(--lime); transform: translateY(-2px); }
+.path-card-head { display: flex; justify-content: space-between; align-items: baseline; }
+.path-card-name { font-family: var(--display); font-weight: 700; font-size: 1.15rem; }
+.path-card-count { font-family: var(--mono); font-weight: 600; color: var(--text-dim); }
+/* A tiny map of the tree: one row of dots per tier. */
+.path-map {
+  display: grid; gap: .45rem; padding: .8rem; margin: .2rem 0; border-radius: 6px; border: 1px solid var(--border);
+  background-color: var(--bg);
+  background-image: linear-gradient(rgba(166,174,203,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(166,174,203,.07) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+.path-map-row { display: flex; justify-content: center; gap: .55rem; }
+.path-map .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--border); }
+.path-map .dot.done { background: var(--lime); border-color: var(--lime); }
+.path-map .dot.next { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 35%, transparent); }
+.path-map .dot.planned { border-style: dashed; }
+.path-card-next { color: var(--text-dim); }
+.path-card-open { margin-top: auto; font-weight: 700; font-size: .85rem; color: var(--lime); }
+
+/* Status rings, shared by tree nodes and detail links. */
+.skill-node { width: 26px; height: 26px; flex: none; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--border); background: var(--panel); }
 .skill-node svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.skill.done .skill-node { background: var(--lime); border-color: var(--lime); color: #07140e; }
-.skill.next .skill-node { border-color: var(--amber); color: var(--amber); }
-.skill.next .skill-node svg { fill: currentColor; stroke: none; }
-.skill.locked .skill-node { color: var(--text-dim); }
-.skill.planned .skill-node { border-style: dashed; }
-.skill-body { display: grid; gap: .1rem; padding-top: .15rem; }
-.skill-body strong { font-size: .95rem; }
-.skill-status { font-size: .72rem; font-weight: 700; color: var(--text-dim); }
-.skill.done .skill-status { color: var(--lime); }
-.skill.next .skill-status { color: var(--amber); }
-.skill.locked .skill-body, .skill.planned .skill-body { opacity: .6; }
-.skill-closest { margin-top: .25rem; padding: .35rem .5rem; border-radius: 6px; background: var(--panel-hi); color: var(--text); }
+.skill-node.mini { width: 18px; height: 18px; border-width: 1.5px; }
+.skill-node.mini svg { width: 12px; height: 12px; }
+.done > .skill-node { background: var(--lime); border-color: var(--lime); color: #07140e; }
+.next > .skill-node { border-color: var(--amber); color: var(--amber); }
+.next > .skill-node svg { fill: currentColor; stroke: none; }
+.locked > .skill-node { color: var(--text-dim); }
+.planned > .skill-node { border-style: dashed; }
+.skill-closest { margin: .25rem 0 0; padding: .4rem .55rem; border-radius: 6px; background: var(--panel-hi); color: var(--text); font-family: var(--mono); }
+
+/* ── Skill tree (full screen) ────────────────────────── */
+.screen.screen-wide { max-width: 1400px; }
+.tree-layout { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; align-items: start; }
+@media (max-width: 900px) { .tree-layout { grid-template-columns: 1fr; } }
+.tree-scroll {
+  overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background-color: var(--bg);
+  background-image: linear-gradient(rgba(166,174,203,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(166,174,203,.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.tree { position: relative; min-width: 560px; padding: 1.5rem 1rem 1.75rem 3.2rem; display: grid; gap: 3rem; }
+.tree-edges { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.tree-edge { fill: none; stroke: var(--panel-hi2); stroke-width: 2; }
+.tree-edge.done { stroke: var(--lime); }
+.tree-edge.planned { stroke-dasharray: 5 6; }
+.tree-row { position: relative; }
+.tree-tier { position: absolute; left: -2.4rem; top: 50%; transform: translateY(-50%); font-family: var(--mono); font-size: .75rem; font-weight: 600; color: var(--text-dim); }
+.tree-row-nodes { display: flex; justify-content: space-around; gap: 1rem; }
+.tree-node {
+  position: relative; z-index: 1; display: flex; align-items: center; gap: .6rem; width: 190px; padding: .65rem .75rem;
+  font: inherit; color: var(--text); text-align: left; cursor: pointer;
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  transition: border-color .15s var(--ease), transform .15s var(--ease);
+}
+.tree-node:hover { transform: translateY(-2px); border-color: var(--text-dim); }
+.tree-node[aria-pressed="true"] { border-color: var(--lime); box-shadow: inset 0 0 0 1px var(--lime); }
+.tree-node.done { border-color: color-mix(in srgb, var(--lime) 55%, var(--border)); }
+.tree-node.next { border-color: var(--amber); }
+.tree-node.locked, .tree-node.planned:not(.ready) { opacity: .62; }
+.tree-node-text { display: grid; gap: .05rem; }
+.tree-node-text strong { font-size: .9rem; line-height: 1.2; }
+.tree-node-status { font-size: .7rem; font-weight: 700; color: var(--text-dim); }
+.tree-node.done .tree-node-status { color: var(--lime); }
+.tree-node.next .tree-node-status { color: var(--amber); }
+/* A prerequisite from another path. */
+.tree-ghost {
+  position: relative; z-index: 1; display: grid; gap: .05rem; width: 150px; padding: .45rem .65rem; cursor: pointer;
+  font: inherit; color: var(--text-dim); text-align: left; background: var(--bg);
+  border: 1px dashed var(--panel-hi2); border-radius: var(--radius-sm);
+}
+.tree-ghost:hover { color: var(--text); border-color: var(--text-dim); }
+.tree-ghost strong { font-size: .82rem; }
+.tree-ghost.done { border-color: var(--lime); }
+.tree-ghost-path { font-family: var(--mono); font-size: .66rem; text-transform: uppercase; letter-spacing: .06em; }
+@media (max-width: 620px) {
+  .tree { min-width: 0; padding-left: 2.6rem; gap: 2.4rem; }
+  .tree-row-nodes { flex-wrap: wrap; justify-content: center; gap: .6rem; }
+  .tree-node { width: 140px; padding: .5rem .55rem; gap: .45rem; }
+  .tree-ghost { width: 120px; }
+}
+
+.tree-detail { position: sticky; top: 1rem; margin: 0; display: grid; gap: .55rem; align-content: start; }
+.tree-detail h2 { font-family: var(--display); font-size: 1.3rem; }
+.tree-detail .label { margin-top: .5rem; }
+.tree-detail .btn { margin-top: .6rem; justify-self: start; }
+.tree-detail-status { font-size: .75rem; font-weight: 700; color: var(--text-dim); }
+.tree-detail-status.done { color: var(--lime); }
+.tree-detail-status.next { color: var(--amber); }
+.tree-goal { font-size: .95rem; }
+.tree-links { list-style: none; margin: 0; padding: 0; display: grid; gap: .3rem; }
+.tree-link {
+  display: flex; align-items: center; gap: .5rem; width: 100%; padding: .35rem .45rem; cursor: pointer;
+  font: inherit; font-size: .88rem; color: var(--text); text-align: left;
+  background: transparent; border: 1px solid transparent; border-radius: 6px;
+}
+.tree-link:hover { border-color: var(--border); background: var(--panel-hi); }

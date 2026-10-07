@@ -14,9 +14,21 @@ import { build, blend } from "../figures/rig.js";
 import { EXERCISES, GROUND } from "../figures/poses.js";
 import { gradeColor, gradeLetter } from "../grade.js";
 import { slide, EASE } from "../ui/motion.js";
+import { angleMark, levelLine, coachNote } from "../figures/annotate.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const CYCLES = { squat: 2, pushup: 2, plank: 1, lunge: 2, jack: 5 };
+const VIEW = { x: 0, y: 18, w: 600, h: 482 };
+
+// What the coach notes at the bottom of each demo rep (the demo reps are
+// good ones), and the body part the arrow points at.
+const NOTES = {
+  squat:  ["Thighs about parallel", "hip"],
+  pushup: ["Elbows at 90°", "elbN"],
+  plank:  ["One straight line, shoulders to ankles", "hip"],
+  lunge:  ["Back knee nearly down", "kneeF"],
+  jack:   ["Hands all the way up", "wriN"],
+};
 
 const el = (tag, attrs = {}, parent) => {
   const n = document.createElementNS(NS, tag);
@@ -56,7 +68,8 @@ export function mountStage(root) {
   const guide = el("line", { class: "stage-guide" }, svg);       // plank target line
   const far   = el("g", { class: "limb far" }, svg);
   const near  = el("g", { class: "limb near" }, svg);
-  const arc   = el("path", { class: "stage-arc" }, svg);
+  const marks = el("g", { class: "stage-marks" }, svg);           // protractor, notes
+  let marksHTML = "";
 
   const farLeg  = el("polyline", {}, far);
   const farArm  = el("polyline", {}, far);
@@ -144,19 +157,19 @@ export function mountStage(root) {
       : [s.neck, s.hip, s.kneeN, s.ankN, s.elbN, s.wriN, s.kneeF, s.elbF];
     joints.forEach((j, n) => { j.setAttribute("cx", jp[n][0].toFixed(1)); j.setAttribute("cy", jp[n][1].toFixed(1)); });
 
-    // Measured-joint arc (knee / elbow), or the plank's target line.
-    const arcAt = { squat: [s.hip, s.kneeN, s.ankN], lunge: [s.hip, s.kneeN, s.ankN], pushup: [s.neck, s.elbN, s.wriN] }[ex.id];
-    if (arcAt) {
-      const [a, b, cpt] = arcAt, r = 30;
-      const a1 = Math.atan2(a[1] - b[1], a[0] - b[0]);
-      const a2 = Math.atan2(cpt[1] - b[1], cpt[0] - b[0]);
-      let d = a2 - a1;
-      while (d <= -Math.PI) d += 2 * Math.PI;
-      while (d > Math.PI) d -= 2 * Math.PI;
-      arc.setAttribute("d",
-        `M${(b[0] + r * Math.cos(a1)).toFixed(1)} ${(b[1] + r * Math.sin(a1)).toFixed(1)} ` +
-        `A${r} ${r} 0 0 ${d > 0 ? 1 : 0} ${(b[0] + r * Math.cos(a2)).toFixed(1)} ${(b[1] + r * Math.sin(a2)).toFixed(1)}`);
-    } else arc.setAttribute("d", "");
+    // Drawing-board marks: a protractor on the measured joint (knee, elbow,
+    // shoulder), squat parallel, and at the bottom of the rep a coach's note.
+    const arcAt = {
+      squat: [s.hip, s.kneeN, s.ankN], lunge: [s.hip, s.kneeN, s.ankN],
+      pushup: [s.neck, s.elbN, s.wriN], jack: [s.hpN, s.shN, s.wriN],
+    }[ex.id];
+    let marked = arcAt ? angleMark(...arcAt) : "";
+    if (ex.id === "squat" && t > 0.6) marked += levelLine(s.kneeN[1], s.kneeN[0] - 120, s.kneeN[0] + 70, "parallel");
+    if (ex.id === "plank" || t > 0.9) {
+      const [text, at] = NOTES[ex.id];
+      marked += coachNote(s[at], text, { view: VIEW, pts: Object.values(s).filter(Array.isArray), tone: "good" });
+    }
+    if (marked !== marksHTML) { marks.innerHTML = marked; marksHTML = marked; }
 
     if (ex.id === "plank") {
       guide.setAttribute("x1", s.neck[0]); guide.setAttribute("y1", s.neck[1]);

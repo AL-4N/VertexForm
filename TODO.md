@@ -98,6 +98,8 @@ next, track `ended`, devicechange, switching mid-session.
 - [x] "Next up" shows your closest real attempt; untracked steps show "Not tracked yet"
 - [x] Holds save `heldS` (exact seconds); older saves fall back to 5 s per scored stretch
 - [x] tests/skills.test.mjs; storage test for the new fields
+- [x] Skill tree: prerequisites (`requires`, across paths too), tiers drawn top-down, full-screen
+      tree per path with a detail panel (needs / leads to / closest try / "Train" button)
 
 ### Skill path trackers (planned)
 Each one is a new `js/exercises/*.js` module (measure / grade / detectFaults / thresholds),

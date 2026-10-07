@@ -4,7 +4,8 @@
  *
  * Each entry turns a few slider values into a pose, then the exercise's own
  * measure() scores it with the app's scoring curves. Presets are the common
- * faults a coach would point out. `cue()` returns what the coach would say.
+ * faults a coach would point out. `cue()` returns what the coach would say,
+ * and `focus()` the body part it's about (a skeleton key, for the note's arrow).
  */
 
 import { build, blend, SEG } from "./rig.js";
@@ -49,6 +50,10 @@ export const LAB = {
         ? "Sit deeper: get your thighs down to parallel."
         : "Chest up. You're folding over your knees.";
     },
+    focus(v, m) {
+      const [[, depth], [, posture]] = m.parts;
+      return depth >= 90 && posture >= 90 ? "hip" : depth <= posture ? "hip" : "neck";
+    },
   },
 
   pushup: {
@@ -71,6 +76,10 @@ export const LAB = {
       if (depth <= line) return "Go lower: elbows to about 90°.";
       return v.hips > 0 ? "Squeeze your glutes. Your hips are sagging." : "Drop your hips into one straight line.";
     },
+    focus(v, m) {
+      const [[, depth], [, line]] = m.parts;
+      return (depth >= 90 && line >= 90) || depth <= line ? "elbN" : "hip";
+    },
   },
 
   plank: {
@@ -88,6 +97,7 @@ export const LAB = {
       if (m.score >= 90) return "Solid. Shoulders, hips and ankles in one line.";
       return v.hips > 0 ? "Brace your core and lift your hips." : "Lower your hips until your body is flat.";
     },
+    focus: () => "hip",
   },
 
   lunge: {
@@ -106,6 +116,10 @@ export const LAB = {
       const [[, depth], [, posture]] = m.parts;
       if (depth >= 90 && posture >= 90) return "Clean rep. Front knee at 90°, torso tall.";
       return depth <= posture ? "Drop your back knee toward the floor." : "Stay tall. Don't lean over your front leg.";
+    },
+    focus(v, m) {
+      const [[, depth], [, posture]] = m.parts;
+      return (depth >= 90 && posture >= 90) || depth <= posture ? "kneeF" : "neck";
     },
   },
 
@@ -131,6 +145,11 @@ export const LAB = {
       if (arms >= 90 && feet >= 90) return "Full range. Hands overhead, feet wide.";
       return arms <= feet ? "Reach all the way overhead." : "Jump your feet out wider.";
     },
+    arc: (s) => [s.hpN, s.shN, s.wriN],
+    focus(v, m) {
+      const [[, arms], [, feet]] = m.parts;
+      return (arms >= 90 && feet >= 90) || arms <= feet ? "wriN" : "ankN";
+    },
   },
 };
 
@@ -141,5 +160,5 @@ export function evaluate(id, v) {
   const lab = LAB[id];
   const s = build(lab.pose(v));
   const m = BY_ID[id].measure(s);
-  return { s, m, cue: lab.cue(v, m) };
+  return { s, m, cue: lab.cue(v, m), focus: lab.focus(v, m) };
 }

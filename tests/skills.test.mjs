@@ -1,8 +1,8 @@
 /**
- * skills.test.mjs — the skill path (js/skills.js) unlocks steps only from
- * real saved sets, in order, and never loses one. Run with:  npm test
+ * skills.test.mjs — the skill tree (js/skills.js) unlocks skills only from
+ * real saved sets, after their prerequisites, and never loses one. Run with:  npm test
  */
-import { PATHS, skillPath, newSkills, heldSeconds } from "../public/js/skills.js";
+import { PATHS, STEP_BY_ID, skillPath, newSkills, heldSeconds } from "../public/js/skills.js";
 import { REGISTRY } from "../public/js/exercises/index.js";
 
 let pass = 0, fail = 0;
@@ -21,8 +21,13 @@ check("Four paths: Push, Pull, Legs, Core", PATHS.map((p) => p.name).join() === 
 check("Step ids are unique", new Set(all.map((s) => s.id)).size === all.length);
 check("Every tracked step uses an exercise the app can grade", all.filter((s) => s.test).every((s) => REGISTRY[s.test.exercise]));
 check("Every step says what it takes", all.every((s) => s.name && s.goal));
-check("In each path, untracked steps come after tracked ones",
-  PATHS.every((p) => p.steps.findIndex((s) => !s.test) === -1 || p.steps.slice(p.steps.findIndex((s) => !s.test)).every((s) => !s.test)));
+check("Every prerequisite is a real skill", all.every((s) => s.requires.every((r) => STEP_BY_ID[r])));
+const acyclic = (id, seen = new Set()) => !seen.has(id) && STEP_BY_ID[id].requires.every((r) => acyclic(r, new Set([...seen, id])));
+check("No prerequisite loops", all.every((s) => acyclic(s.id)));
+check("No tracked skill waits on an untracked one (it could never unlock)",
+  all.filter((s) => s.test).every((s) => s.requires.every((r) => STEP_BY_ID[r].test)));
+check("Tier 1 skills have no prerequisites",
+  skillPath().every((p) => p.steps.filter((s) => s.tier === 1).every((s) => !s.requires.length)));
 check("L-sit and pull-up are on the path", !!step(PATHS, "l_sit") && !!step(PATHS, "pullup"));
 
 /* ── Statuses ─────────────────────────────────────────── */
@@ -46,7 +51,7 @@ check("One great set unlocks both push-up steps", step(p, "pushup").status === "
 check("After the tracked steps, the path waits on a tracker", step(p, "diamond").status === "planned");
 
 p = skillPath([set("Lunge", 12, 95)]);
-check("Steps unlock in order (lunge waits for squats)", step(p, "lunge").status === "locked");
+check("Prerequisites gate unlocks (lunge waits for squats)", step(p, "lunge").status === "locked");
 p = skillPath([set("Lunge", 12, 95), set("Squat", 15, 96)]);
 check("...and unlocks once the squats are done", step(p, "squat_deep").status === "done" && step(p, "lunge").status === "done");
 
@@ -60,7 +65,20 @@ check("31 s plank at 85 unlocks Plank, not Solid plank", step(p, "plank").status
 check("Hold progress is shown in seconds", step(p, "plank_solid").closest === "31 s, average 85", step(p, "plank_solid").closest);
 check("A 60 s plank at 90 unlocks Solid plank", step(skillPath([plank(60, 90)]), "plank_solid").status === "done");
 
+/* ── Tree shape ───────────────────────────────────────── */
+p = skillPath();
+const tier = (id) => step(p, id).tier;
+check("Tiers go top-down from the prerequisites", tier("pushup") === 1 && tier("pushup_clean") === 2 && tier("dips") === 3 && tier("hspu") === 4, `hspu ${tier("hspu")}`);
+check("Branches join: pistol needs both deep squats and lunges", STEP_BY_ID.pistol.requires.join() === "squat_deep,lunge" && tier("pistol") === 3);
+check("Cross-path prerequisites: muscle-up and L-sit need dips", STEP_BY_ID.muscle_up.requires.includes("dips") && STEP_BY_ID.l_sit.requires.includes("dips"));
+check("Tiers only count prerequisites in the same path", tier("muscle_up") === tier("pullup_10") + 1 && tier("l_sit") === tier("hollow") + 1);
+p = skillPath([set("Push-up", 10, 85)]);
+check("ready: prerequisites done", step(p, "pushup_clean").ready && !step(p, "diamond").ready);
+p = skillPath([set("Push-up", 15, 95)]);
+check("Untracked skill with its prerequisites done is ready", step(p, "diamond").status === "planned" && step(p, "diamond").ready);
+
 /* ── Kept unlocks + new unlocks ───────────────────────── */
+check("A kept unlock stays even if its prerequisites aren't done", step(skillPath([], ["lunge"]), "lunge").status === "done");
 p = skillPath([], ["pushup", "pushup_clean"]);
 check("Kept skills stay unlocked after history is trimmed", step(p, "pushup_clean").status === "done" && p.find((x) => x.id === "push").done === 2);
 check("newSkills lists only fresh unlocks, in path order", JSON.stringify(newSkills([set("Push-up", 15, 92), set("Squat", 10, 85)], ["pushup"])) === JSON.stringify(["pushup_clean", "squat"]));

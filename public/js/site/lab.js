@@ -9,9 +9,31 @@
 import { LAB, evaluate } from "../figures/lab.js";
 import { BY_ID } from "../figures/poses.js";
 import { figureMarkup } from "../figures/draw.js";
+import { angleMark, levelLine, offsetMark, coachNote, jointAngle } from "../figures/annotate.js";
 import { gradeColor, gradeLetter } from "../grade.js";
 import { slide, EASE } from "../ui/motion.js";
 
+/**
+ * Drawing-board marks for one pose: the measured angle as a protractor,
+ * squat parallel / body-line offset as dimensions, and the coach's cue as a
+ * handwritten note pointing at the body part it's about.
+ */
+function annotations(exId, s, lab, view, score, cue, focus) {
+  const pts = Object.values(s).filter(Array.isArray);
+  let out = "";
+  if (exId === "squat") out += levelLine(s.kneeN[1], s.kneeN[0] - 120, s.kneeN[0] + 70, "parallel");
+  const guide = lab.guide?.(s);
+  if (guide) {
+    const bend = Math.round(180 - jointAngle(s.neck, s.hip, s.ankN));
+    if (bend >= 4) out += offsetMark(s.hip, guide[0], guide[1], `${bend}° off line`);
+  }
+  const arc = lab.arc?.(s);
+  if (arc) out += angleMark(...arc);
+  // The big score sits over the picture's top-left corner.
+  const avoid = [{ x: view.x, y: view.y, w: view.w * 0.42, h: view.h * 0.22 }];
+  out += coachNote(s[focus], cue, { view, pts, avoid, tone: score >= 90 ? "good" : "fix" });
+  return out;
+}
 const same = (a, b) => Object.keys(a).every((k) => Math.round(a[k]) === Math.round(b[k]));
 
 export function mountLab(root) {
@@ -67,20 +89,19 @@ export function mountLab(root) {
 
   function render() {
     const lab = LAB[id];
-    const { s, m, cue } = evaluate(id, v);
+    const { s, m, cue, focus } = evaluate(id, v);
     const score = Math.round(m.score);
     const c = gradeColor(score);
     root.style.setProperty("--lab", c);
 
     // Floor exercises are long and low, so zoom in on them (same aspect ratio).
-    svg.setAttribute("viewBox", id === "pushup" || id === "plank" ? "40 164 520 408" : "0 20 600 470");
+    const view = id === "pushup" || id === "plank" ? { x: 40, y: 164, w: 520, h: 408 } : { x: 0, y: 20, w: 600, h: 470 };
+    svg.setAttribute("viewBox", `${view.x} ${view.y} ${view.w} ${view.h}`);
     svg.innerHTML = `
       <defs><radialGradient id="lab-glow"><stop offset="0" stop-color="${c}" stop-opacity=".32"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs>
       <ellipse cx="300" cy="330" rx="260" ry="190" fill="url(#lab-glow)"/>
-      ${figureMarkup(s, {
-        color: c, floor: { x0: 24, x1: 576 },
-        arc: lab.arc?.(s), guide: lab.guide?.(s), guideColor: "#eef1fb",
-      })}`;
+      ${figureMarkup(s, { color: c, floor: { x0: 24, x1: 576 }, guide: lab.guide?.(s), guideColor: "#eef1fb" })}
+      ${annotations(id, s, lab, view, score, cue, focus)}`;
 
     ui.score.textContent = score;
     ui.letter.textContent = gradeLetter(score);

@@ -89,7 +89,7 @@ function wireNav() {
   });
 
   $("#btn-skills").addEventListener("click", () => {
-    renderSkills();
+    renderSkills(openMode);
     showScreen("skills");
   });
 
