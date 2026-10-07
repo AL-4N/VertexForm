@@ -544,3 +544,30 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .cam-preview video { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px; background: #000; }
 .cam-preview-side { display: grid; gap: .4rem; justify-items: start; font-size: .87rem; }
 @media (max-width: 560px) { .cam-preview { grid-template-columns: 1fr; } }
+
+/* ── Skill path ──────────────────────────────────────── */
+.skills-intro { max-width: 70ch; margin: 0 0 1rem; font-size: .9rem; }
+.skills-wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; align-items: start; }
+.skill-path { margin: 0; }
+.skill-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .9rem; }
+.skill-head h2 { font-size: 1.05rem; }
+.skill-steps { list-style: none; margin: 0; padding: 0; }
+.skill { position: relative; display: grid; grid-template-columns: 26px 1fr; gap: .7rem; padding-bottom: 1.1rem; }
+.skill:last-child { padding-bottom: 0; }
+/* The rail between steps: green once the step above it is done. */
+.skill:not(:last-child)::before { content: ""; position: absolute; left: 12px; top: 28px; bottom: 2px; width: 2px; background: var(--border); }
+.skill.done:not(:last-child)::before { background: var(--lime); }
+.skill-node { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--border); background: var(--panel); }
+.skill-node svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.skill.done .skill-node { background: var(--lime); border-color: var(--lime); color: #07140e; }
+.skill.next .skill-node { border-color: var(--amber); color: var(--amber); }
+.skill.next .skill-node svg { fill: currentColor; stroke: none; }
+.skill.locked .skill-node { color: var(--text-dim); }
+.skill.planned .skill-node { border-style: dashed; }
+.skill-body { display: grid; gap: .1rem; padding-top: .15rem; }
+.skill-body strong { font-size: .95rem; }
+.skill-status { font-size: .72rem; font-weight: 700; color: var(--text-dim); }
+.skill.done .skill-status { color: var(--lime); }
+.skill.next .skill-status { color: var(--amber); }
+.skill.locked .skill-body, .skill.planned .skill-body { opacity: .6; }
+.skill-closest { margin-top: .25rem; padding: .35rem .5rem; border-radius: 6px; background: var(--panel-hi); color: var(--text); }

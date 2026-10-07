@@ -15,6 +15,7 @@ const BLANK = {
   routines: [],     // v2: saved circuits (up to 3)
   stats: { totalReps: 0, goodReps: 0, tried: [] },
   unlocked: [],     // achievement ids
+  skills: [],       // unlocked skill-path step ids (js/skills.js)
   days: [],         // local dates (YYYY-MM-DD) with at least one scored set
   settings: {},     // overrides of DEFAULTS
 };
@@ -30,6 +31,7 @@ export function migrate(d) {
   out.stats = { ...BLANK.stats, ...(out.stats ?? {}) };
   if (!Array.isArray(out.sessions)) out.sessions = [];
   if (!Array.isArray(out.routines)) out.routines = [];
+  if (!Array.isArray(out.skills)) out.skills = [];
   if (!(d?.version >= 2)) {
     for (const [exercise, scores] of Object.entries(out.history ?? {})) {
       for (const score of Array.isArray(scores) ? scores : []) {
@@ -88,6 +90,7 @@ export function recordSession(r, date = new Date()) {
     date: date.toISOString(), exercise: r.exercise, mode: r.mode ?? null,
     best: r.best, average: r.average, reps: r.reps.slice(0, 60), faults,
     activeS: r.activeSeconds ?? null,
+    heldS: r.isHold ? Math.round((r.durations ?? []).reduce((a, b) => a + b, 0)) : null,
   });
   store.sessions = store.sessions.slice(-500);
   save();
@@ -122,6 +125,7 @@ export function resetAll() {
   store.sessions = [];
   store.stats = { totalReps: 0, goodReps: 0, tried: [] };
   store.unlocked = [];
+  store.skills = [];
   store.days = [];
   save();
 }

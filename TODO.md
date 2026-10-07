@@ -92,6 +92,42 @@ next, track `ended`, devicechange, switching mid-session.
 - [x] Old localStorage data loads (migration test)
 - [x] README, CLAUDE.md, in-app help, CHANGELOG.md
 
+## Skill path (js/skills.js, "Skill path" screen)
+- [x] Four paths (Push, Pull, Legs, Core); steps unlock in order from real saved sets
+      (set: N reps averaging X+; hold: N s averaging X+); unlocks kept in `store.skills`
+- [x] "Next up" shows your closest real attempt; untracked steps show "Not tracked yet"
+- [x] Holds save `heldS` (exact seconds); older saves fall back to 5 s per scored stretch
+- [x] tests/skills.test.mjs; storage test for the new fields
+
+### Skill path trackers (planned)
+Each one is a new `js/exercises/*.js` module (measure / grade / detectFaults / thresholds),
+fault phrases in `coaching.js` (then `npm run voice` + `npm run sw`), synthetic poses in
+`tests/helpers/synth.mjs`, scoring bands in `tests/scoring.test.mjs`, then a `test:` on its
+step in `js/skills.js`. Order = most useful first.
+- [ ] **Pull-up** (unlocks Pull path: Negative, Pull-up, 10 pull-ups). Front-on or side-on,
+      whole body + hands in frame (camera further back and higher than for squats).
+      Rep metric: elbow angle (hang > 155°, top < 70°) plus nose above the wrist line at the top.
+      The bar isn't tracked; the wrists stand in for it. Faults: half rep (chin under wrists),
+      no dead hang at the bottom, kipping (hip swing: horizontal hip speed), rushed lowering.
+      Negative = top hold then a lowering of 3 s or more.
+- [ ] **Dead hang** (hold): wrists above head, elbows > 160°, feet off the floor (ankles move
+      up with the body, no floor contact for the whole hold). Fault: shrugged shoulders
+      (shoulder-to-ear distance shrinks vs the calibrated standing value).
+- [ ] **L-sit** (hold, side-on): hip angle 80–100°, knees > 165°, ankles at or above hip height.
+      In-position only when the hips are above the wrists' floor line (hands on floor or
+      parallettes). Faults: bent knees, legs dropping (ankle below hip), leaning back.
+- [ ] **Hollow hold** (hold, side-on, lying): shoulders and ankles both off the floor line,
+      hip angle 140–170°. Fault: legs too high (easy), lower back arching (hip lifts).
+- [ ] **V-sit** (hold): like the L-sit with ankles clearly above hip height (hip angle < 75°).
+- [ ] **Diamond push-up**: push-up module plus wrists close together (wrist gap < shoulder
+      width x 0.5, front-on or 45°). Needs a facing check that allows a 45° camera.
+- [ ] **Pike push-up**: hips high (hip angle < 110°), rep = head toward the floor (elbow angle).
+- [ ] **Handstand push-up** (wall): body inverted (ankles above shoulders), elbow angle reps.
+- [ ] **Pistol squat**: squat module on one leg; the free foot must stay off the floor for the
+      whole rep; depth = working thigh angle; per-leg counts.
+- [ ] **Muscle-up**: pull-up tracker plus a transition phase (wrists move from above the head
+      to below the shoulders) and a lockout at the top.
+
 ## Decided not to do
 - **Upgrade MediaPipe tasks-vision 0.10.14 → 1.x.** A major version with possible API changes; 0.10.14 is
   known to work here and the upgrade can't be verified without a real webcam. Revisit separately.

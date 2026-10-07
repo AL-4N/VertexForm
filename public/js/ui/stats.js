@@ -55,7 +55,7 @@ export function renderStats() {
 
   const achievements = `
     <div class="card" style="grid-column:1/-1">
-      <h2 class="label">Achievements: ${store.unlocked.length}/${ACHIEVEMENTS.length}</h2>
+      <h2 class="label">Achievements: ${ACHIEVEMENTS.filter((a) => isUnlocked(a.id)).length}/${ACHIEVEMENTS.length}</h2>
       <div class="ach-grid">
         ${ACHIEVEMENTS.map((a) => `
           <div class="ach ${isUnlocked(a.id) ? "on" : ""}">
@@ -98,7 +98,7 @@ function historyChart(points, name) {
 
 export function wireStatsReset(onDone) {
   $("#btn-reset-all").addEventListener("click", () => {
-    if (confirmAction("Erase ALL bests, history, and achievements? This cannot be undone.")) {
+    if (confirmAction("Erase ALL bests, history, achievements and skills? This cannot be undone.")) {
       resetAll();
       toast("All data cleared");
       renderStats();

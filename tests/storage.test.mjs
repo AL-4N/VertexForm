@@ -29,11 +29,14 @@ check("v1 → v2: routines list added, version set", Array.isArray(m.routines) &
 check("Migrating again doesn't duplicate anything", migrate(structuredClone(m)).sessions.length === 4);
 check("Corrupt data: falls back to a blank store", migrate("nonsense").sessions.length === 0 && migrate(null).bests && migrate(null).version === VERSION);
 check("Partial v1 data (no stats): filled in", migrate({ bests: { Plank: 90 } }).stats.totalReps === 0);
+check("Older saves get an empty skills list; kept skills survive", Array.isArray(m.skills) && !m.skills.length && migrate({ version: 2, skills: ["squat"] }).skills[0] === "squat");
 
 recordSession({ exercise: "Squat", mode: "set", best: 91, average: 85, reps: [80, 85, 91], faults: ["depth", "depth", "lean"], activeSeconds: 31 }, new Date("2026-10-04T10:00:00Z"));
 const last = lastSession("Squat");
 check("New sessions record date, scores and fault counts", last?.date === "2026-10-04T10:00:00.000Z" && last.faults.depth === 2 && last.faults.lean === 1 && last.activeS === 31, JSON.stringify(last));
-check("lastSession finds the latest of that exercise only", lastSession("Plank") === null && store.sessions.length >= 1);
+recordSession({ exercise: "Plank", mode: "set", best: 95, average: 92, reps: [90, 95, 92], faults: [], isHold: true, durations: [5, 5, 5.4] });
+check("Holds record the seconds held", lastSession("Plank")?.heldS === 15 && lastSession("Squat").heldS === null);
+check("lastSession finds the latest of that exercise only", lastSession("Lunge") === null && store.sessions.length >= 2);
 
 console.log(`\n${fail ? `${fail} storage check(s) FAILED` : "All storage checks pass"} (${pass} passed)`);
 process.exit(fail ? 1 : 0);

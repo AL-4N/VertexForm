@@ -14,6 +14,7 @@ import { runLive, stopLive, switchCamera, togglePause, toggleMute, toggleFullscr
 import { refreshCameraPickers, onCameraPicked } from "./ui/camera-picker.js";
 import { renderResults } from "./ui/results.js";
 import { renderStats, wireStatsReset } from "./ui/stats.js";
+import { renderSkills } from "./ui/skills.js";
 import { wireWorkouts, renderWorkouts } from "./ui/workouts.js";
 import { showRest, stopRest } from "./ui/rest-screen.js";
 import { showOnboarding } from "./ui/onboarding.js";
@@ -85,6 +86,11 @@ function wireNav() {
       seconds: cfg.restSeconds, next: lastResults.isHold ? `${ex}, ${cfg.setReps * 6} s` : `${ex} × ${lastResults.repCount}`, nextExercise: ex,
       onGo: () => startSession(cfg.mode), onEnd: () => showScreen("results", { dir: "back" }),
     });
+  });
+
+  $("#btn-skills").addEventListener("click", () => {
+    renderSkills();
+    showScreen("skills");
   });
 
   $("#btn-stats").addEventListener("click", () => {

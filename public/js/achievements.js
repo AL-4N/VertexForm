@@ -6,6 +6,7 @@ import { store, save, globalAverage, dayStreak } from "./storage.js";
 import { toast } from "./ui/components.js";
 import { beep } from "./voice.js";
 import { REGISTRY } from "./exercises/index.js";
+import { newSkills, skillName } from "./skills.js";
 
 export const ACHIEVEMENTS = [
   { id: "first_rep",  title: "Getting Started", desc: "Complete your first rep" },
@@ -51,6 +52,17 @@ export function checkSession() {
   const streak = dayStreak();
   if (streak >= 3) unlock("streak_3");
   if (streak >= 7) unlock("streak_7");
+  checkSkills();
+}
+
+/** Unlock any skill-path steps the saved sets now reach. */
+export function checkSkills() {
+  const fresh = newSkills(store.sessions, store.skills);
+  if (!fresh.length) return;
+  store.skills.push(...fresh);
+  save();
+  for (const id of fresh) toast(`Skill unlocked: ${skillName(id)}`);
+  beep(988, 180, 0.06);
 }
 
 export const isUnlocked = (id) => store.unlocked.includes(id);
