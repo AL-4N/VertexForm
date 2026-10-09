@@ -85,8 +85,7 @@ on your device, and it works offline after the first visit.
   signal.
 
 **The website** (`index.html`): live stick-figure demo, the Form Lab (drag
-sliders and watch the real scoring engine grade a figure), and a "Spot the
-better rep" game. Moving between the website and the trainer uses a
+sliders and watch the real scoring engine grade a figure). Moving between the website and the trainer uses a
 motion-blur page transition.
 
 ---

@@ -20,7 +20,7 @@ run it.
   (N reps or seconds, then a breakdown), and Workouts (circuits of up to 10
   steps with rest; 3 saved routines).
 - **Website** (`index.html`): a hero demo, the Form Lab (sliders that drive the
-  real scoring engine), and a "Spot the better rep" game.
+  real scoring engine).
 
 ## Links and places
 
@@ -176,7 +176,7 @@ public/            index.html  app.html  404.html  sw.js  manifest.webmanifest  
      exercises/    squat, pushup, plank, lunge, jumpingjack (thresholds, measure, grade, faults, fixes, posture, guide)
      ui/           live.js ★ · overlay.js · motion.js · settings.js · results.js · stats.js · workouts.js
                    rest-screen.js · onboarding.js · camera-picker.js · camera-preview.js · menu.js · components.js
-     site/         website scripts (stage, lab, game, how, motion-nav, nav-spy)
+     site/         website scripts (stage, lab, how, motion-nav, nav-spy, rail)
      figures/      stick-figure rig used by the site, the setup demo and the simulator
 tests/             *.test.mjs (npm test) · e2e/run.mjs · helpers/synth.mjs (simulated people) · fixtures/ · videos/ (git-ignored)
 scripts/build-voice.mjs   tools/update-sw.mjs   tools/make-synthetic-fixture.mjs

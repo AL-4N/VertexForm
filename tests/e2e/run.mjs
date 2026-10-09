@@ -165,9 +165,9 @@ await test("Site: hero demo animates, nav glides, no overflow", async (make) => 
   assert(await page.evaluate(() => [...document.querySelectorAll("main > *")].every((s) => !s.style.filter)), "blur left behind after the glide");
   const lit = () => page.evaluate(() => document.querySelector(".nav nav a.active")?.hash ?? null);
   assert((await lit()) === "#lab", `nav should highlight Form Lab (got ${await lit()})`);
-  await page.evaluate(() => document.getElementById("game").scrollIntoView({ behavior: "instant" }));
+  await page.evaluate(() => document.getElementById("coach").scrollIntoView({ behavior: "instant" }));
   await page.waitForTimeout(200);
-  assert((await lit()) === "#game", "scrolling to the game should highlight Rep game");
+  assert((await lit()) === "#coach", "scrolling to the coach section should highlight Coaching");
   await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
   await page.waitForTimeout(200);
   assert((await lit()) === null, "nothing should be highlighted on the hero");
@@ -187,17 +187,6 @@ await test("Site: Form Lab sliders re-grade the figure", async (make) => {
   assert((await lab.innerText()) !== before, "moving a slider changed nothing");
   const presets = lab.locator("button");
   if (await presets.count()) { await presets.nth(1).click(); await page.waitForTimeout(150); }
-});
-
-await test("Site: 'Spot the better rep' game responds", async (make) => {
-  const page = await make({ camera: false });
-  await page.goto(`${BASE}/index.html#game`);
-  const game = page.locator("[data-game]");
-  await game.scrollIntoViewIfNeeded();
-  const before = await game.innerText();
-  await game.locator("button").first().click();
-  await page.waitForTimeout(400);
-  assert((await game.innerText()) !== before, "picking an answer changed nothing");
 });
 
 await test("Site: 404 page and links back", async (make) => {

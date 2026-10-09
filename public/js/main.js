@@ -38,10 +38,20 @@ let circuit = null;              // the running workout (CircuitRunner), if any
 
 /* ── Boot ───────────────────────────────────────────────── */
 
+// The menu waits for its two fonts (at most 1 s) behind a skeleton, so its
+// text never jumps from a fallback font to the real one.
+const fontsIn = Promise.race([
+  Promise.all(["700 1em Unbounded", "400 1em 'Instrument Sans'"].map((f) => document.fonts?.load(f))).catch(() => {}),
+  new Promise((r) => setTimeout(r, 1000)),
+]);
+
 function boot() {
   mountPageTransitions();
   wireSettings();
-  renderMenu(openMode);
+  fontsIn.then(() => {
+    renderMenu(openMode);
+    document.documentElement.classList.remove("vf-loading");
+  });
   wireNav();
   wireStatsReset(() => renderMenu(openMode));
   wireCamera();

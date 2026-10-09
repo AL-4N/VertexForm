@@ -1,6 +1,5 @@
 /**
- * lab.js — adjustable versions of each exercise, for the Form Lab and the
- * "Spot the better rep" game.
+ * lab.js — adjustable versions of each exercise, for the Form Lab.
  *
  * Each entry turns a few slider values into a pose, then the exercise's own
  * measure() scores it with the app's scoring curves. Presets are the common
@@ -152,8 +151,6 @@ export const LAB = {
     },
   },
 };
-
-export const LAB_ORDER = ["squat", "pushup", "plank", "lunge", "jack"];
 
 /** Pose, measure and describe one setting of an exercise. */
 export function evaluate(id, v) {

@@ -16,6 +16,7 @@ export function addSessionEntry(exercise, score) {
 export function renderMenu(onPick) {
   const list = $("#exercise-list");
   list.innerHTML = "";
+  list.removeAttribute("aria-busy");
 
   EXERCISES.forEach((name) => {
     const meta = EXERCISE_META[name];

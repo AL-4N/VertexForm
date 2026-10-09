@@ -1,6 +1,7 @@
 /**
- * nav-spy.js — the header nav shows where you are: the link for the section
- * on screen turns gradient.
+ * nav-spy.js — the nav shows where you are: every link to the section on
+ * screen (header nav and side rail) turns gradient, and a "vf:section"
+ * event says which one it is (rail.js moves its marker on it).
  *
  * "Where you are" = the last linked section whose top has passed a line
  * 40% down the screen. Sections without a link (the hero, "Progress"…)
@@ -36,10 +37,13 @@ export function mountNavSpy() {
   function show(i) {
     if (i === current) return;
     current = i;
-    links.forEach((a, k) => {
-      a.classList.toggle("active", k === i);
-      if (k === i) a.setAttribute("aria-current", "location"); else a.removeAttribute("aria-current");
-    });
+    const hash = i == null ? null : links[i].hash;
+    for (const a of document.querySelectorAll('.nav nav a[href^="#"], .rail a[href^="#"]')) {
+      const on = a.hash === hash;
+      a.classList.toggle("active", on);
+      if (on) a.setAttribute("aria-current", "location"); else a.removeAttribute("aria-current");
+    }
+    document.dispatchEvent(new CustomEvent("vf:section", { detail: hash }));
   }
 
   const update = () => {

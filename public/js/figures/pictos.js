@@ -2,6 +2,9 @@
  * pictos.js — small static figures for the exercise cards, drawn by the same
  * rig as the hero, in each exercise's "good form" position and stroked with
  * the grade gradient's A end.
+ *
+ * `data-picto-plain` hosts (the exercise switchers) skip the gradient and
+ * stroke in currentColor, so CSS can colour them by state.
  */
 
 import { build, angleAt } from "./rig.js";
@@ -39,16 +42,18 @@ export function renderPictos(root = document) {
     const spine = s.front ? [s.hpN, s.hpF, s.hip, s.neck] : [s.hip, s.neck];
 
     const line = (arr, cls = "") => `<polyline class="${cls}" points="${arr.map(P).join(" ")}"/>`;
+    const plain = host.hasAttribute("data-picto-plain");
+    const stroke = plain ? "currentColor" : `url(#${id})`;
     host.innerHTML = `
       <svg viewBox="${x0} ${y0} ${x1 - x0} ${y1 - y0}" aria-hidden="true">
-        <defs>
+        ${plain ? "" : `<defs>
           <linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${x0}" y1="${y1}" x2="${x1}" y2="${y0}">
             <stop offset="0" stop-color="#c6ef4e"/><stop offset="1" stop-color="#2ee59d"/>
           </linearGradient>
-        </defs>
+        </defs>`}
         <line x1="${x0}" y1="${GROUND}" x2="${x1}" y2="${GROUND}" class="picto-floor"/>
-        <g class="picto-far" stroke="url(#${id})">${[...farLegs, ...farArms].map((a) => line(a)).join("")}</g>
-        <g class="picto-near" stroke="url(#${id})">
+        <g class="picto-far" stroke="${stroke}">${[...farLegs, ...farArms].map((a) => line(a)).join("")}</g>
+        <g class="picto-near" stroke="${stroke}">
           ${line(spine)}${legs.map((a) => line(a)).join("")}${arms.map((a) => line(a)).join("")}
           ${s.front ? line([s.shN, s.shF]) : ""}
           <circle cx="${s.head[0].toFixed(1)}" cy="${s.head[1].toFixed(1)}" r="19"/>

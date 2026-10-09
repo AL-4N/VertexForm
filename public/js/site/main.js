@@ -7,10 +7,10 @@ import { renderPictos } from "../figures/pictos.js";
 import { mountCoach } from "./coach.js";
 import { gradeColor } from "../grade.js";
 import { mountLab } from "./lab.js";
-import { mountGame } from "./game.js";
 import { renderHow } from "./how.js";
 import { mountMotionNav } from "./motion-nav.js";
 import { mountNavSpy } from "./nav-spy.js";
+import { mountRail } from "./rail.js";
 import { mountPageTransitions } from "../page-transition.js";
 
 function colourScores() {
@@ -30,6 +30,7 @@ function stickyNav() {
 document.addEventListener("DOMContentLoaded", () => {
   stickyNav();
   mountMotionNav();
+  mountRail();
   mountNavSpy();
   mountPageTransitions();
   colourScores();
@@ -40,8 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (stage) mountStage(stage);
   const lab = document.querySelector("[data-lab]");
   if (lab) mountLab(lab);
-  const game = document.querySelector("[data-game]");
-  if (game) mountGame(game);
 });
 // The service worker is registered by the trainer (js/main.js), not here: in
 // Chrome, the first navigation from a page loaded before the worker existed to

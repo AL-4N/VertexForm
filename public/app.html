@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Train: VertexForm</title>
 <meta name="description" content="Real-time workout form analysis and coaching in your browser." />
+<link rel="preload" href="fonts/unbounded-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/instrument-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="css/fonts.css" />
 <link rel="stylesheet" href="css/theme.css" />
 <link rel="stylesheet" href="css/app.css" />
@@ -13,6 +15,12 @@
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 <meta name="theme-color" content="#090d1c" />
+<!-- The menu shows a skeleton until its fonts and data are in (js/main.js);
+     never longer than 2.5 s, even if the app's script fails. -->
+<script>
+  document.documentElement.classList.add("vf-loading");
+  setTimeout(() => document.documentElement.classList.remove("vf-loading"), 2500);
+</script>
 </head>
 <body>
 
@@ -42,7 +50,14 @@
     </header>
 
     <div class="menu-grid">
-      <div class="exercise-list" id="exercise-list"><!-- built by menu.js --></div>
+      <!-- Built by menu.js; until then, a skeleton of the same shape. -->
+      <div class="exercise-list" id="exercise-list" aria-busy="true">
+        <div class="ex-card skel" aria-hidden="true"><span class="skel-block skel-picto"></span><span class="meta"><span class="skel-line skel-name"></span><span class="skel-line skel-hint"></span></span><span class="skel-line skel-best"></span></div>
+        <div class="ex-card skel" aria-hidden="true"><span class="skel-block skel-picto"></span><span class="meta"><span class="skel-line skel-name"></span><span class="skel-line skel-hint"></span></span><span class="skel-line skel-best"></span></div>
+        <div class="ex-card skel" aria-hidden="true"><span class="skel-block skel-picto"></span><span class="meta"><span class="skel-line skel-name"></span><span class="skel-line skel-hint"></span></span><span class="skel-line skel-best"></span></div>
+        <div class="ex-card skel" aria-hidden="true"><span class="skel-block skel-picto"></span><span class="meta"><span class="skel-line skel-name"></span><span class="skel-line skel-hint"></span></span><span class="skel-line skel-best"></span></div>
+        <div class="ex-card skel" aria-hidden="true"><span class="skel-block skel-picto"></span><span class="meta"><span class="skel-line skel-name"></span><span class="skel-line skel-hint"></span></span><span class="skel-line skel-best"></span></div>
+      </div>
 
       <aside class="sidebar">
         <h2 class="label">This session</h2>
@@ -52,17 +67,17 @@
 
         <div class="card stat-card">
           <span class="label">Global average</span>
-          <span class="big-stat" id="global-avg">--</span>
+          <span class="big-stat" id="global-avg"><span class="skel-line skel-num"></span></span>
         </div>
 
         <div class="card stat-card">
           <span class="label">Day streak</span>
-          <span class="big-stat" id="day-streak">0</span>
+          <span class="big-stat" id="day-streak"><span class="skel-line skel-num"></span></span>
         </div>
 
         <div class="card stat-card">
           <span class="label">Total reps</span>
-          <span class="big-stat" id="total-reps">0</span>
+          <span class="big-stat" id="total-reps"><span class="skel-line skel-num"></span></span>
         </div>
       </aside>
     </div>

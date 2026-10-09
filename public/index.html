@@ -52,7 +52,6 @@
       <a href="#lab">Form Lab</a>
       <a href="#how">How it works</a>
       <a href="#coach">Coaching</a>
-      <a href="#game">Rep game</a>
     </nav>
     <a class="btn btn-grad btn-sm" href="app.html">Start training</a>
   </div>
@@ -104,11 +103,11 @@
         </div>
 
         <div class="tabs" role="tablist" aria-label="Choose an exercise to demo">
-          <button role="tab" data-ex="squat"  aria-selected="true">Squat</button>
-          <button role="tab" data-ex="pushup" aria-selected="false">Push-up</button>
-          <button role="tab" data-ex="plank"  aria-selected="false">Plank</button>
-          <button role="tab" data-ex="lunge"  aria-selected="false">Lunge</button>
-          <button role="tab" data-ex="jack"   aria-selected="false">Jumping jack</button>
+          <button role="tab" data-ex="squat"  aria-selected="true"><span class="tab-picto" data-picto="squat" data-picto-plain></span><span class="tab-name">Squat</span></button>
+          <button role="tab" data-ex="pushup" aria-selected="false"><span class="tab-picto" data-picto="pushup" data-picto-plain></span><span class="tab-name">Push-up</span></button>
+          <button role="tab" data-ex="plank"  aria-selected="false"><span class="tab-picto" data-picto="plank" data-picto-plain></span><span class="tab-name">Plank</span></button>
+          <button role="tab" data-ex="lunge"  aria-selected="false"><span class="tab-picto" data-picto="lunge" data-picto-plain></span><span class="tab-name">Lunge</span></button>
+          <button role="tab" data-ex="jack"   aria-selected="false"><span class="tab-picto" data-picto="jack" data-picto-plain></span><span class="tab-name">Jumping jack</span></button>
         </div>
       </div>
     </div>
@@ -191,11 +190,11 @@
 
         <div class="lab-panel">
           <div class="lab-tabs" role="tablist" aria-label="Exercise">
-            <button role="tab" data-lab-ex="squat" aria-selected="true">Squat</button>
-            <button role="tab" data-lab-ex="pushup" aria-selected="false" tabindex="-1">Push-up</button>
-            <button role="tab" data-lab-ex="plank" aria-selected="false" tabindex="-1">Plank</button>
-            <button role="tab" data-lab-ex="lunge" aria-selected="false" tabindex="-1">Lunge</button>
-            <button role="tab" data-lab-ex="jack" aria-selected="false" tabindex="-1">Jumping jack</button>
+            <button role="tab" data-lab-ex="squat" aria-selected="true"><span class="tab-picto" data-picto="squat" data-picto-plain></span><span class="tab-name">Squat</span></button>
+            <button role="tab" data-lab-ex="pushup" aria-selected="false" tabindex="-1"><span class="tab-picto" data-picto="pushup" data-picto-plain></span><span class="tab-name">Push-up</span></button>
+            <button role="tab" data-lab-ex="plank" aria-selected="false" tabindex="-1"><span class="tab-picto" data-picto="plank" data-picto-plain></span><span class="tab-name">Plank</span></button>
+            <button role="tab" data-lab-ex="lunge" aria-selected="false" tabindex="-1"><span class="tab-picto" data-picto="lunge" data-picto-plain></span><span class="tab-name">Lunge</span></button>
+            <button role="tab" data-lab-ex="jack" aria-selected="false" tabindex="-1"><span class="tab-picto" data-picto="jack" data-picto-plain></span><span class="tab-name">Jumping jack</span></button>
           </div>
 
           <div class="lab-sliders" data-l="sliders"></div>
@@ -323,40 +322,8 @@
   </section>
 
 
-  <!-- ═════════════ GAME ═════════════ -->
-  <section id="game" class="section section-alt">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Spot the better rep.</h2>
-        <p>Two reps, one engine. Tap the one you think scores higher, then see what a
-           coach would say about the other one. It's the fastest way to train your eye.</p>
-      </div>
-
-      <div class="game" data-game>
-        <div class="game-bar">
-          <span class="game-ex" data-g="ex">Squat</span>
-          <span class="game-tally">Streak <b data-g="streak">0</b><span aria-hidden="true">·</span>Best <b data-g="best">0</b></span>
-        </div>
-        <div class="game-pair">
-          <button class="game-card" data-pick="0" aria-label="Rep A">
-            <span class="game-fig"></span>
-            <span class="game-foot"><span class="game-label">Rep A</span><span class="game-score"></span></span>
-          </button>
-          <button class="game-card" data-pick="1" aria-label="Rep B">
-            <span class="game-fig"></span>
-            <span class="game-foot"><span class="game-label">Rep B</span><span class="game-score"></span></span>
-          </button>
-        </div>
-        <div class="game-bottom">
-          <p class="game-msg" data-g="msg" aria-live="polite"></p>
-          <button class="btn btn-grad btn-sm" data-g="next" hidden>Next pair</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ═════════════ MODES + PROGRESS ═════════════ -->
-  <section id="progress" class="section">
+  <section id="progress" class="section section-alt">
     <div class="wrap">
       <div class="section-head">
         <h2>Two ways to train, and progress that sticks.</h2>
@@ -403,7 +370,7 @@
   </section>
 
   <!-- ═════════════ PRIVACY + LIMITS ═════════════ -->
-  <section class="section section-alt">
+  <section class="section">
     <div class="wrap two-col">
       <div class="panel">
         <h2>Private by design.</h2>
