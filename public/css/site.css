@@ -391,11 +391,19 @@ button { font: inherit; color: inherit; }
 .badges span { font-size: .74rem; font-weight: 700; padding: .25rem .55rem; border-radius: 99px; background: rgba(198,239,78,.14); color: var(--g85); }
 .badges span.locked { background: var(--surface-2); color: var(--text-faint); }
 
+/* The rest of the trainer, under the mode cards: name on the left, what it does on the right. */
+.also { margin: 2rem 0 0; display: grid; border-top: 1px solid var(--line); }
+.also > div { display: grid; grid-template-columns: 9rem 1fr; gap: 1.5rem; padding: 1rem 0; border-bottom: 1px solid var(--line); }
+.also dt { font-family: var(--display); font-weight: 700; font-size: 1rem; }
+.also dd { margin: 0; color: var(--text-dim); max-width: 62ch; }
+@media (max-width: 620px) { .also > div { grid-template-columns: 1fr; gap: .3rem; } }
+
 /* Privacy + limits */
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
 .panel { background: var(--surface); border-radius: var(--r-lg); padding: clamp(1.5rem, 3vw, 2.2rem); box-shadow: inset 0 0 0 1px var(--line); }
 .panel h2 { font-size: clamp(1.35rem, 2.4vw, 1.75rem); margin-bottom: 1.2rem; }
+.panel-text { color: var(--text-dim); }
 .checks { list-style: none; margin: 0; padding: 0; display: grid; gap: .85rem; }
 .checks li { position: relative; padding-left: 2rem; color: var(--text-dim); }
 .checks li::before {

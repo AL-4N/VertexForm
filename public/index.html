@@ -7,7 +7,7 @@
 <meta name="description" content="VertexForm watches your workouts through your webcam, measures your joint angles, grades every rep and coaches you out loud. Runs in your browser; nothing is uploaded." />
 <meta name="theme-color" content="#090d1c" />
 <meta property="og:title" content="VertexForm: form feedback for every rep" />
-<meta property="og:description" content="Your coach can't watch every rep. VertexForm can." />
+<meta property="og:description" content="Point your webcam at yourself and get every rep graded from 0 to 100, with a spoken fix after each one." />
 
 <link rel="preload" href="fonts/unbounded-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="fonts/instrument-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
@@ -95,7 +95,6 @@
         </div>
         <ul class="facts">
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg>Free, no account</li>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg>Runs in your browser</li>
           <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg>Video never leaves your device</li>
         </ul>
       </div>
@@ -137,9 +136,9 @@
   <section id="exercises" class="section">
     <div class="wrap">
       <div class="section-head">
-        <h2>Every exercise, judged on its own terms.</h2>
-        <p>There's no generic "good form" checker here. Every exercise has its own
-           measurements, its own list of faults, and its own picture of a correct rep. More workouts are on the way.</p>
+        <h2>Five exercises, each measured its own way.</h2>
+        <p>A squat is judged on how low your thighs get and how far you lean; a push-up on your
+           elbow angle and whether your body stays in one line. Pull-ups and the L-sit are next.</p>
       </div>
 
       <div class="ex-grid">
@@ -195,7 +194,7 @@
         <span class="tag tag-live">Try it now. No camera needed.</span>
         <h2>The Form Lab: grade a rep yourself.</h2>
         <p>Drag the sliders to change the figure's form. Every position is scored by the
-           exact engine the trainer uses, so you can see what costs points before you
+           same rules the trainer uses, so you can see what costs points before you
            ever turn your camera on.</p>
       </div>
 
@@ -282,14 +281,16 @@
     <div class="wrap trust-grid">
       <div>
         <div class="section-head">
-          <h2>A score that means something.</h2>
-          <p>Every grade sits on one scale, from coral to green. The engine was tested on
-             exact synthetic movements to make sure good form scores high and shortcuts
+          <h2>How the scoring is tested.</h2>
+          <p>Every grade sits on one scale, from coral (F) to green (A). The scoring was tested on
+             simulated reps with known angles, to make sure good form scores high and shortcuts
              don't.</p>
         </div>
         <ul class="principles">
-          <li><strong>One bad frame can't ruin a rep.</strong> Scores use the median
-              across every frame at the bottom, not a single snapshot.</li>
+          <li><strong>One bad frame can't ruin a rep.</strong> A rep's score is the median
+              of every frame at the bottom of the movement.</li>
+          <li><strong>Bouncing doesn't count.</strong> A rep needs real time at the bottom,
+              and quick rebounds are flagged.</li>
           <li><strong>It won't guess.</strong> Frames where your joints are hidden or
               out of shot are thrown out, and you're told to adjust the camera.</li>
           <li><strong>Parallel means parallel.</strong> Depth is the thigh's angle to the
@@ -321,7 +322,7 @@
       <div class="section-head">
         <h2>It talks, so you don't have to read mid&#8209;rep.</h2>
         <p>After every rep you hear your score and the one fix that matters most. The
-           wording rotates so it never nags with the same line, and you choose the
+           wording changes from rep to rep so you don't hear the same line every time, and you choose the
            voice it coaches in.</p>
         <div class="voices" role="group" aria-label="Coach personality">
           <button data-voice="Chill" aria-pressed="true">Chill</button>
@@ -346,8 +347,8 @@
   <section id="progress" class="section section-alt">
     <div class="wrap">
       <div class="section-head">
-        <h2>Two ways to train, and progress that sticks.</h2>
-        <p>The scores in these cards are examples of what you'll see, not real results.</p>
+        <h2>Train rep by rep, or in sets.</h2>
+        <p>The scores in these cards are examples.</p>
       </div>
 
       <div class="modes">
@@ -386,6 +387,13 @@
           </div>
         </article>
       </div>
+
+      <dl class="also">
+        <div><dt>Workouts</dt><dd>Circuits of up to 10 exercises with rest in between. Save up to 3 routines.</dd></div>
+        <div><dt>Skill tree</dt><dd>Four paths toward the muscle-up, V-sit, pistol squat and handstand push-up. A skill unlocks when one of your real sets meets its goal.</dd></div>
+        <div><dt>Rep replay</dt><dd>Watch your skeleton replay each rep beside the ideal form. Save the reps you want; unsaved ones are deleted after 7 days.</dd></div>
+        <div><dt>Challenges</dt><dd>One goal a day for 7, 14 or 30 days. Miss a day and the run starts over.</dd></div>
+      </dl>
     </div>
   </section>
 
@@ -393,19 +401,16 @@
   <section class="section">
     <div class="wrap two-col">
       <div class="panel">
-        <h2>Private by design.</h2>
-        <ul class="checks">
-          <li>The pose model runs on your device. No video is uploaded, ever.</li>
-          <li>No account and no sign-up.</li>
-          <li>Scores and bests are saved in your browser, and only there.</li>
-        </ul>
+        <h2>What stays on your device</h2>
+        <p class="panel-text">The pose model runs in your browser and no video is ever uploaded. There's no account
+           to make. Your scores, bests and rep replays are saved in this browser only.</p>
       </div>
       <div class="panel">
-        <h2>Honest about its limits.</h2>
+        <h2>What it can't do</h2>
         <ul class="checks checks-warn">
           <li>A side-on camera can't see knees caving inward or weight shifting side to side.</li>
-          <li>Cut-off feet or a dark room hurt tracking. You'll get a warning, not a fake score.</li>
-          <li>It compares you to general coaching ranges. It isn't a physio.</li>
+          <li>Cut-off feet or a dark room hurt tracking. When that happens, it warns you and holds back the score.</li>
+          <li>It compares you to general coaching ranges. For pain or an injury, see a physio.</li>
         </ul>
       </div>
     </div>
@@ -414,8 +419,8 @@
   <!-- ═════════════ CLOSE ═════════════ -->
   <section class="cta-band">
     <div class="wrap">
-      <h2>Your next set, graded.</h2>
-      <p>Allow the camera once, step back until you fit in the frame, and go.</p>
+      <h2>Try it on your next set.</h2>
+      <p>Allow the camera, then step back until your whole body is in the frame.</p>
       <a class="btn btn-dark btn-lg" href="app.html">Start training</a>
     </div>
   </section>
@@ -427,7 +432,7 @@
     <a class="logo logo-sm" href="index.html">
       <svg class="logo-mark" aria-hidden="true"><use href="#mark"/></svg><span>Vertex<em>Form</em></span>
     </a>
-    <p>Pose tracking by MediaPipe. Hosted on Cloudflare Pages.</p>
+    <p>Pose tracking by MediaPipe. Hosted on Cloudflare.</p>
     <a href="app.html">Open the trainer</a>
   </div>
 </footer>
