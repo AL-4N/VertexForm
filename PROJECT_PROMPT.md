@@ -57,6 +57,7 @@ clear message and the Co-Authored-By trailer, and push when asked.
   - **Every UI transition slides with a directional motion blur**, both
     existing and anything new. Use `public/js/ui/motion.js` → `slide()`.
     Respect `prefers-reduced-motion`.
+  - **Design system:** `DESIGN.md` (colours, type, figures, motion, writing).
   - **Site style rules (no "AI template" look):** no purple gradients, no
     pill-shaped buttons (rounded rectangles, ~10px), no emoji icons (use
     SVG), no em dashes in visible text, no fake reviews or made-up metrics

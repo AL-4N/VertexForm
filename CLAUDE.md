@@ -5,6 +5,9 @@ Browser-based workout form coach. Read README.md for features and layout.
 Full briefing (repo, live site, deploy, user, architecture, open items):
 @PROJECT_PROMPT.md
 
+How it looks, sounds and reads (colours, type, figures, motion, writing rules):
+@DESIGN.md
+
 ## Ground rules
 - Plain HTML/CSS/vanilla JS ES modules. No frameworks, no build step. `public/` deploys as static files.
 - Everything stays on-device: no uploads, accounts or analytics. MediaPipe loads from jsDelivr/Google storage, then is cached by `sw.js`. No server code: an AI coach summary was built and then removed at the user's request (it would spend their API credits). Accounts/leaderboards: don't build until the user asks.
