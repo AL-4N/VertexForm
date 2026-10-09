@@ -20,6 +20,17 @@ function colourScores() {
   });
 }
 
+/** The header's "Start training" shows only once the hero's own button is out of view. */
+function headerCta() {
+  const nav = document.querySelector(".nav");
+  const heroBtn = document.querySelector(".hero-actions .btn-grad");
+  if (!nav || !heroBtn || !("IntersectionObserver" in window)) { nav?.classList.remove("cta-hidden"); return; }
+  const headerH = nav.getBoundingClientRect().height;
+  new IntersectionObserver(([e]) => nav.classList.toggle("cta-hidden", e.isIntersecting), {
+    rootMargin: `-${Math.round(headerH)}px 0px 0px 0px`,     // hidden under the sticky header counts as gone
+  }).observe(heroBtn);
+}
+
 function stickyNav() {
   const nav = document.querySelector(".nav");
   const onScroll = () => nav.classList.toggle("scrolled", window.scrollY > 8);
@@ -29,6 +40,7 @@ function stickyNav() {
 
 document.addEventListener("DOMContentLoaded", () => {
   stickyNav();
+  headerCta();
   mountMotionNav();
   mountRail();
   mountNavSpy();

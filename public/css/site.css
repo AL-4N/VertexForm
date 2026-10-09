@@ -92,6 +92,14 @@ button { font: inherit; color: inherit; }
   border-bottom: 1px solid transparent; transition: border-color .2s;
 }
 .nav.scrolled { border-bottom-color: var(--line); }
+/* The header's "Start training" waits until the hero's own button has
+   scrolled away, so there's only ever one on screen (js/site/main.js). */
+.nav .btn { transition: opacity .25s var(--ease), transform .25s var(--ease), filter .25s var(--ease), visibility 0s; }
+.js .nav.cta-hidden .btn {
+  opacity: 0; transform: translateY(-6px); filter: blur(4px); visibility: hidden; pointer-events: none;
+  transition: opacity .2s var(--ease), transform .2s var(--ease), filter .2s var(--ease), visibility 0s .2s;
+}
+@media (prefers-reduced-motion: reduce) { .nav .btn, .js .nav.cta-hidden .btn { transition: none; transform: none; filter: none; } }
 .nav-row { display: flex; align-items: center; gap: 2rem; height: 68px; }
 .logo { display: inline-flex; align-items: center; gap: .6rem; text-decoration: none; }
 .logo span { font-family: var(--display); font-weight: 700; font-size: 1.25rem; letter-spacing: -.02em; }

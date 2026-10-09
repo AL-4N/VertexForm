@@ -17,6 +17,9 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<!-- Marks that scripts run, so script-driven states (like the header button
+     waiting until you scroll past the hero's) never hide anything without them. -->
+<script>document.documentElement.classList.add("js");</script>
 </head>
 <body>
 
@@ -41,7 +44,7 @@
   </symbol>
 </svg>
 
-<header class="nav">
+<header class="nav cta-hidden">
   <div class="wrap nav-row">
     <a class="logo" href="index.html" aria-label="VertexForm home">
       <svg class="logo-mark" aria-hidden="true"><use href="#mark"/></svg>

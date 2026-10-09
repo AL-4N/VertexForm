@@ -130,6 +130,42 @@ step in `js/skills.js`. Order = most useful first.
 - [ ] **Muscle-up**: pull-up tracker plus a transition phase (wrists move from above the head
       to below the shoulders) and a lockout at the top.
 
+## Feature ideas (not started)
+Rough order: most useful first. Everything stays on-device unless it says otherwise.
+
+### Training
+- [ ] **Pull-up, dead hang and L-sit trackers** (plan above): opens up the Pull path and most of
+      the Core path of the skill tree, which right now mostly says "Not tracked yet"
+- [ ] **Rep replay**: after a set, play back your own skeleton for your best and worst rep, side
+      by side with the ideal guide (the landmark recorder already captures what's needed)
+- [ ] **Phone as the camera, laptop as the screen**: pair them with a QR code (WebRTC, peer to
+      peer on your own Wi-Fi), so the camera can sit far away at hip height while you watch the
+      big screen
+- [ ] **Left vs right**: per-leg scores for lunges (later pistols), flag an imbalance over time
+- [ ] **More exercises**: glute bridge, wall sit (hold), hip hinge / good morning, burpee
+- [ ] **Tempo targets**: pick a tempo like 3-1-1 and get a metronome cue plus a tempo score
+- [ ] **Mobility check**: measured ankle bend, overhead reach and hip hinge, retested weekly
+
+### Coaching + progress
+- [ ] **Weekly plan from the skill tree**: pick a goal (say, first pull-up) and get a 3-day
+      plan built from the steps under it, with the next skill's target sets
+- [ ] **Weekly report card**: average per exercise, most improved fault, skills unlocked, as a
+      share image (the PNG score card already exists)
+- [ ] **Challenges**: e.g. 30 days of squats, with the day streak and a clean-rep target
+- [ ] **AI coach summary** (opt-in, Claude API through a Cloudflare Worker with the key kept
+      server-side): sends only your numbers, never video, and writes a short plain-English
+      review of the week
+- [ ] **Accounts, cloud sync, leaderboards** (opt-in, Workers + D1): keep progress across
+      devices; local-only stays the default
+
+### Website + look
+- [ ] **Real recording in the hero**: replay a real tracked person from tests/fixtures,
+      labelled as real, instead of only the stick figure
+- [ ] **Texture over glow**: light film grain on the navy; drop the remaining soft glows
+- [ ] **Self-hosted handwriting + mono fonts** so coach notes look the same on every device
+      (now they use each system's own fonts)
+- [ ] **Measuring crosshair cursor**, over the figures only
+
 ## Decided not to do
 - **Upgrade MediaPipe tasks-vision 0.10.14 → 1.x.** A major version with possible API changes; 0.10.14 is
   known to work here and the upgrade can't be verified without a real webcam. Revisit separately.
