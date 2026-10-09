@@ -128,11 +128,11 @@ button { font: inherit; color: inherit; }
   .rail-fill {
     position: absolute; left: -1px; top: 0; width: 2px; height: 100%;
     background: linear-gradient(180deg, var(--g70), var(--g85) 50%, var(--g100));
-    transform-origin: top; transform: scaleY(0); transition: transform .38s cubic-bezier(.22,.61,.36,1);
+    transform-origin: top; transform: scaleY(0); will-change: transform;   /* eased per frame by rail.js */
   }
   .rail-marker {
     position: absolute; left: -6px; top: -1.5px; width: 24px; height: 3px; border-radius: 2px;
-    background: var(--go-gradient); opacity: 0; transition: opacity .2s;
+    background: var(--go-gradient); opacity: 0; transition: opacity .2s; will-change: transform;
   }
   .rail-marker.on { opacity: 1; }
   .rail ol { list-style: none; margin: 0; padding: 0; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }

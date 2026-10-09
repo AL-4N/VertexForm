@@ -1,7 +1,7 @@
 /**
  * nav-spy.js — the nav shows where you are: every link to the section on
  * screen (header nav and side rail) turns gradient, and a "vf:section"
- * event says which one it is (rail.js moves its marker on it).
+ * event says which one it is.
  *
  * "Where you are" = the last linked section whose top has passed a line
  * 40% down the screen. Sections without a link (the hero, "Progress"…)
