@@ -157,9 +157,8 @@ Rough order: most useful first. Everything stays on-device unless it says otherw
       share image (the PNG score card already exists)
 - [x] **Challenges** (js/challenges.js): five daily challenges; a day counts when one of that
       day's sets meets the goal, a missed day ends the run. Dashboard card + Challenges screen
-- [x] **AI coach summary** (opt-in): History → Coach summary. js/weekly.js decides what's sent
-      (a week of numbers and names), worker/ re-validates it and calls Claude. Needs the
-      ANTHROPIC_API_KEY secret in Cloudflare (README)
+- [ ] ~~**AI coach summary**~~ built, then removed at the user's request (it would spend their
+      API credits; anyone visiting the site could use it). Commit ebff0b9 has it if wanted again
 - [ ] **Accounts, cloud sync, leaderboards** (opt-in, Workers + D1): keep progress across
       devices; local-only stays the default. **Only build when the user asks.**
 

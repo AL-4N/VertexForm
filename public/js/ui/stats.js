@@ -2,7 +2,6 @@
 
 import { store, globalAverage, resetAll } from "../storage.js";
 import { removeAll as removeAllReplays } from "../replay-store.js";
-import { renderCoachAI, clearCoachAI } from "./coach-ai.js";
 import { ACHIEVEMENTS, isUnlocked } from "../achievements.js";
 import { EXERCISES } from "../config.js";
 import { exerciseHistory, toCSV } from "../history.js";
@@ -21,7 +20,6 @@ const TREND = {
 };
 
 export function renderStats() {
-  renderCoachAI();
   const host = $("#stats-wrap");
   const avg = globalAverage();
   const s = store.stats;
@@ -104,7 +102,6 @@ export function wireStatsReset(onDone) {
     if (confirmAction("Erase ALL bests, history, achievements, skills and saved replays? This cannot be undone.")) {
       resetAll();
       removeAllReplays().catch(() => {});
-      clearCoachAI();
       toast("All data cleared");
       renderStats();
       onDone?.();

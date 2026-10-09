@@ -813,16 +813,3 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .ch-result { font-size: .75rem; font-weight: 700; }
 .ch-result.complete { color: var(--lime); }
 .ch-result.ended { color: var(--text-dim); }
-
-/* ── AI coach summary (js/ui/coach-ai.js) ────────────── */
-.coach-ai { display: grid; gap: .6rem; max-width: 70ch; }
-.ai-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
-.ai-head .label { margin: 0; }
-.ai-by { color: var(--text-dim); }
-.ai-text p { margin: 0 0 .6rem; line-height: 1.55; }
-.ai-text p:last-child { margin-bottom: 0; }
-.coach-ai .btn { justify-self: start; }
-.ai-note { margin: 0; }
-.ai-error { margin: 0; color: var(--amber); }
-.ai-skel { height: .8rem; width: 100%; margin: .45rem 0; }
-.ai-skel.short { width: 60%; }
