@@ -7,7 +7,7 @@ Full briefing (repo, live site, deploy, user, architecture, open items):
 
 ## Ground rules
 - Plain HTML/CSS/vanilla JS ES modules. No frameworks, no build step. `public/` deploys as static files.
-- Everything stays on-device: no uploads, accounts or analytics. MediaPipe loads from jsDelivr/Google storage, then is cached by `sw.js`.
+- Everything stays on-device: no uploads, accounts or analytics. MediaPipe loads from jsDelivr/Google storage, then is cached by `sw.js`. Only exception: the opt-in AI coach summary (`js/weekly.js` → `worker/` → Claude), which sends a week of numbers, never video. Accounts/leaderboards: don't build until the user asks.
 - Pure logic, no DOM, unit-tested: `session.js`, `filters.js`, `tracking.js`, `coach.js`, `speech.js`, `circuit.js`, `history.js`, `rest.js`, `recording.js`, `scoring.js`, `geometry.js`, `exercises/*`. UI goes in `js/ui/`.
 - Scoring calibration: good reps ≈ 95–100, half squat ≈ 70–76, quarter ≈ 50–58, obvious faults clearly lower. Change a curve → update `tests/scoring.test.mjs` and say why.
 - Back must always stop the camera at once, in any state (`stopLive()` in `ui/live.js`). The e2e suite checks every stream ever opened has ended.

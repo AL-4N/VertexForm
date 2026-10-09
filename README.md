@@ -5,8 +5,9 @@
 VertexForm is a workout form coach that runs entirely in the browser. Point a
 webcam at yourself and it tracks 33 points on your body, measures the joint
 angles that matter for each exercise, grades every rep, and tells you out loud
-what to fix. There's no server, no account and no uploads: the pose model runs
-on your device, and it works offline after the first visit.
+what to fix. There's no account and no video upload: the pose model runs on
+your device, and it works offline after the first visit. The only server
+call is the optional AI coach summary (see "AI coach summary" below).
 
 ## Features
 
@@ -89,6 +90,31 @@ sliders and watch the real scoring engine grade a figure). Moving between the we
 motion-blur page transition.
 
 ---
+
+
+## AI coach summary (optional)
+
+The History screen can write a short review of your week with Claude
+(Anthropic). It's the only feature that talks to a server, and only when you
+press the button (it asks the first time). What's sent is decided in
+`public/js/weekly.js`: per exercise, sets, reps, average and best score, last
+week's average and the top fault names, plus skill names and your challenge
+day. Never video, landmarks or anything that identifies you.
+
+It runs through a small Cloudflare Worker (`worker/index.js`, configured in
+`wrangler.jsonc`) so the API key stays on the server. The Worker re-checks
+everything it receives (`worker/coach.js`), only accepts requests from this
+site's own pages, and calls `claude-opus-5-5` at low effort with refusal
+fallback on.
+
+**One-time setup**, in the Cloudflare dashboard: Workers & Pages → vertexform
+→ Settings → Variables and Secrets → Add → type *Secret*, name
+`ANTHROPIC_API_KEY`, value: your key from console.anthropic.com. Until it's
+set, the button says the coach isn't set up yet. Each summary costs a fraction
+of a cent; set a monthly spend limit in the Anthropic console to be safe.
+
+Optional rate limit: add a Workers rate-limit binding named `COACH_LIMIT`
+(e.g. 5 requests per 60 s per visitor) and the Worker will use it.
 
 ## Run it locally
 

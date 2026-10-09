@@ -66,6 +66,11 @@
           <p class="dim">No attempts yet.<br />Your scores show up here.</p>
         </div>
 
+        <h2 class="label">Challenge</h2>
+        <div class="card challenge-card" id="challenge-card">
+          <span class="skel-line skel-name"></span><span class="skel-line skel-hint"></span>
+        </div>
+
         <div class="card stat-card">
           <span class="label">Global average</span>
           <span class="big-stat" id="global-avg"><span class="skel-line skel-num"></span></span>
@@ -555,7 +560,7 @@
           <dd><kbd>Space</kbd> pause · <kbd>M</kbd> mute · <kbd>F</kbd> fullscreen · <kbd>G</kbd> gym mode ·
             <kbd>Esc</kbd> back. Every key has a button too.</dd>
           <dt>Your data</dt>
-          <dd>Everything stays in this browser: no uploads, no account. History → Export CSV saves a copy.
+          <dd>Everything stays in this browser: no uploads, no account. History → Export CSV saves a copy. The one exception is the optional coach summary on History: only when you ask for one, it sends that week's scores and fault names (never video) to Claude to write it.
             Works offline after your first session; install it from your browser's menu.</dd>
         </dl>
       </div>
@@ -573,7 +578,20 @@
         <button class="btn danger" id="btn-reset-all">Reset all</button>
       </div>
     </header>
+    <div class="card coach-ai" id="coach-ai"></div>
     <div class="stats-wrap" id="stats-wrap"></div>
+  </section>
+
+  <!-- ══ CHALLENGES ══ -->
+  <section id="screen-challenges" class="screen">
+    <header class="app-header">
+      <button class="btn ghost" data-back="menu">&larr; Back</button>
+      <div><h1>Challenges</h1><p class="sub">One goal every day. A day counts when one of that day's sets meets it; miss a day and the run ends.</p></div>
+    </header>
+    <div class="card ch-current" id="challenge-current" hidden></div>
+    <div class="ch-list" id="challenge-list"></div>
+    <h2 class="label">Past challenges</h2>
+    <ul class="ch-log" id="challenge-log"></ul>
   </section>
 
   <!-- ══ REPLAYS ══ -->

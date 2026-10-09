@@ -11,8 +11,8 @@ to work on it, and what's still open.
 **VertexForm** is a browser-based workout form coach. You point a webcam at
 yourself and it tracks 33 body landmarks with MediaPipe Pose, entirely
 on-device. It grades every rep 0–100 and talks to you with a natural
-pre-recorded voice. There's no server, no account, no uploads and no
-analytics. It's static HTML/CSS/vanilla JS ES modules with no build step to
+pre-recorded voice. There's no account, no video upload and no analytics. The
+only server code is the opt-in AI coach summary (`worker/`, Cloudflare Worker). It's static HTML/CSS/vanilla JS ES modules with no build step to
 run it.
 
 - **Exercises:** squat, push-up, plank (a timed hold), lunge, jumping jack.
@@ -73,7 +73,10 @@ clear message and the Co-Authored-By trailer, and push when asked.
 1. Vanilla JS ES modules, no framework, no build step to run. `public/` must
    stay deployable as static files.
 2. All processing stays on-device. MediaPipe loads from jsDelivr and Google's
-   model storage, then `sw.js` caches it.
+   model storage, then `sw.js` caches it. The single exception is the opt-in
+   AI coach summary: `js/weekly.js` decides exactly what's sent (a week of
+   scores, rep counts, fault and skill names; never video or landmarks), and
+   `worker/coach.js` re-validates it. Don't widen what it sends.
 3. Pure logic (no DOM, unit-tested) stays pure: `session.js`, `filters.js`,
    `tracking.js`, `guide.js`, `coach.js`, `speech.js`, `circuit.js`,
    `history.js`, `rest.js`, `recording.js`, `phrases.js`, `scoring.js`,

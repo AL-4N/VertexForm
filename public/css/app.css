@@ -695,6 +695,12 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
   background-size: 24px 24px;
 }
 .rp-svg { display: block; width: 100%; height: auto; }
+.rp-pane { margin: 0; min-width: 0; }
+/* Compare: your rep and the other one side by side, divided by a hairline. */
+.rp-stage.two { display: grid; grid-template-columns: 1fr 1fr; }
+.rp-stage.two .rp-pane-b { border-left: 1px solid var(--border); }
+.rp-cap { padding: .35rem .6rem .5rem; font-size: .75rem; color: var(--text-dim); border-top: 1px solid var(--border); }
+.rp-pane-b .rp-cap { color: var(--lime); }
 .rp-floor { stroke: #2e3a63; stroke-width: 2; }
 .rp-controls { display: flex; align-items: center; gap: .7rem; margin-top: .7rem; }
 .rp-play {
@@ -705,10 +711,16 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .rp-play svg { width: 16px; height: 16px; fill: currentColor; }
 .rp-scrub { flex: 1; min-width: 0; accent-color: var(--lime); cursor: pointer; }
 .rp-time { flex: none; min-width: 3.4rem; text-align: right; font: 600 .8rem var(--mono); color: var(--text-dim); font-variant-numeric: tabular-nums; }
-.rp-speed { flex: none; display: flex; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
-.rp-speed button { border: 0; padding: .45rem .6rem; cursor: pointer; font: 600 .8rem var(--mono); background: var(--panel); color: var(--text-dim); }
-.rp-speed button[aria-pressed="true"] { background: var(--panel-hi2); color: var(--text); }
-.rp-angle { margin: .5rem 0 0; min-height: 1.2em; font: 600 .82rem var(--mono); color: var(--text-dim); font-variant-numeric: tabular-nums; }
+/* Segmented toggles (speed, compare) */
+.rp-seg { flex: none; display: flex; align-items: stretch; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.rp-seg button { border: 0; padding: .45rem .6rem; cursor: pointer; font: 600 .78rem var(--font); background: var(--panel); color: var(--text-dim); }
+.rp-seg button + button { border-left: 1px solid var(--border); }
+.rp-seg button[aria-pressed="true"] { background: var(--panel-hi2); color: var(--text); }
+.rp-seg button:disabled { cursor: not-allowed; opacity: .45; }
+.rp-speed button { font-family: var(--mono); }
+.rp-seg-label { display: grid; place-items: center; padding: 0 .6rem; font-size: .75rem; color: var(--text-dim); background: var(--panel-hi); border-right: 1px solid var(--border); }
+.rp-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem .8rem; margin-top: .6rem; }
+.rp-angle { margin: 0; min-height: 1.2em; font: 600 .82rem var(--mono); color: var(--text-dim); font-variant-numeric: tabular-nums; }
 
 /* Rep chips: one per rep, coloured by its score. */
 .rep-strip { display: flex; flex-wrap: wrap; gap: .4rem; }
@@ -758,3 +770,59 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .recent-set { display: grid; gap: .5rem; padding: .75rem 0; border-top: 1px solid var(--border); }
 .recent-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .7rem; }
 .recent-keep { color: var(--amber); margin-left: auto; }
+
+/* ── Challenges (js/ui/challenges.js) ────────────────── */
+.challenge-card { display: grid; gap: .35rem; }
+.challenge-card .btn { justify-self: start; margin-top: .25rem; }
+.ch-name { margin: 0; font-family: var(--display); font-weight: 700; font-size: .95rem; }
+.ch-day { margin: 0; font-size: .8rem; color: var(--text-dim); }
+.ch-dots { display: flex; flex-wrap: wrap; gap: 4px; margin: .2rem 0; }
+.ch-dots i { width: 9px; height: 9px; border-radius: 2px; background: var(--panel-hi2); }
+.ch-dots i.done { background: var(--lime); }
+.ch-dots i.missed { background: var(--coral); }
+.ch-dots i.today { background: transparent; box-shadow: inset 0 0 0 1.5px var(--amber); }
+.ch-today { margin: 0; color: var(--text-dim); }
+.ch-today.done { color: var(--lime); }
+.ch-today.broken { color: var(--coral); }
+
+.ch-current { margin-bottom: 1rem; }
+.ch-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: start; gap: 1rem; margin-bottom: 1rem; }
+.ch-head h2 { font-family: var(--display); font-size: 1.2rem; margin: 0 0 .3rem; }
+.ch-head p { margin: 0; max-width: 60ch; }
+.ch-actions { display: flex; gap: .5rem; }
+/* The run as a calendar: one cell per day, a week per row. */
+.ch-cal { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .4rem; }
+.ch-cal li { display: grid; gap: .1rem; padding: .45rem .5rem; border-radius: 8px; background: var(--panel-hi); border: 1px solid var(--border); min-width: 0; }
+.ch-cal b { font-family: var(--display); font-size: .95rem; }
+.ch-cal span { font-size: .66rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-cal li.done { background: color-mix(in srgb, var(--lime) 16%, var(--panel)); border-color: var(--lime); }
+.ch-cal li.done span { color: var(--lime); }
+.ch-cal li.missed { border-color: var(--coral); }
+.ch-cal li.missed span { color: var(--coral); }
+.ch-cal li.today { border-color: var(--amber); box-shadow: inset 0 0 0 1px var(--amber); }
+.ch-cal li.today span { color: var(--amber); }
+.ch-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.ch-option { margin: 0; display: grid; gap: .4rem; align-content: start; }
+.ch-option h3 { margin: 0; font-family: var(--display); font-size: 1rem; }
+.ch-option p { margin: 0; }
+.ch-option .btn { justify-self: start; }
+.ch-option.on { border-color: var(--lime); }
+.ch-badge { justify-self: start; font-size: .75rem; font-weight: 700; color: var(--lime); }
+.ch-log { list-style: none; margin: .4rem 0 0; padding: 0; display: grid; gap: .4rem; }
+.ch-log li { display: flex; flex-wrap: wrap; gap: .3rem .6rem; align-items: baseline; }
+.ch-result { font-size: .75rem; font-weight: 700; }
+.ch-result.complete { color: var(--lime); }
+.ch-result.ended { color: var(--text-dim); }
+
+/* ── AI coach summary (js/ui/coach-ai.js) ────────────── */
+.coach-ai { display: grid; gap: .6rem; max-width: 70ch; }
+.ai-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.ai-head .label { margin: 0; }
+.ai-by { color: var(--text-dim); }
+.ai-text p { margin: 0 0 .6rem; line-height: 1.55; }
+.ai-text p:last-child { margin-bottom: 0; }
+.coach-ai .btn { justify-self: start; }
+.ai-note { margin: 0; }
+.ai-error { margin: 0; color: var(--amber); }
+.ai-skel { height: .8rem; width: 100%; margin: .45rem 0; }
+.ai-skel.short { width: 60%; }

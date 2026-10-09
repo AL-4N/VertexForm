@@ -7,6 +7,7 @@ import { toast } from "./ui/components.js";
 import { beep } from "./voice.js";
 import { REGISTRY } from "./exercises/index.js";
 import { newSkills, skillName } from "./skills.js";
+import { challengeStatus, todayJustDone, dayKey } from "./challenges.js";
 
 export const ACHIEVEMENTS = [
   { id: "first_rep",  title: "Getting Started", desc: "Complete your first rep" },
@@ -53,6 +54,23 @@ export function checkSession() {
   if (streak >= 3) unlock("streak_3");
   if (streak >= 7) unlock("streak_7");
   checkSkills();
+  checkChallenge();
+}
+
+/** After a set: note a challenge day done, or the whole challenge complete. */
+export function checkChallenge(now = new Date()) {
+  if (!store.challenge) return;
+  const st = challengeStatus(store.challenge, store.sessions, now);
+  if (!st || st.state === "broken") return;
+  if (st.state === "complete") {
+    store.challengeLog.push({ ...store.challenge, end: dayKey(now), result: "complete" });
+    store.challenge = null;
+    save();
+    toast(`Challenge complete: ${st.challenge.name}`);
+    beep(1046, 260, 0.07);
+  } else if (todayJustDone(store.challenge, store.sessions, now)) {
+    toast(`${st.challenge.name}: day ${st.day} of ${st.challenge.days} done`);
+  }
 }
 
 /** Unlock any skill-path steps the saved sets now reach. */

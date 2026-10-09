@@ -184,3 +184,30 @@ export function bestAndWorst(clips) {
   });
   return { best, worst: clips[worst].score === clips[best].score ? null : worst };
 }
+
+/* ── Comparing two reps in step ─────────────────────────── */
+// Reps rarely take the same time, so two are lined up by phase: they start
+// together, reach their deepest point together, and finish together.
+// Progress 0..0.5 is the way down, 0.5 the bottom, 0.5..1 the way up.
+
+/** Where frame i sits in the rep, 0..1. */
+export function phaseProgress(clip, i, deep = deepestFrame(clip)) {
+  const t = clip.t, end = t[clip.n - 1], td = t[deep];
+  if (i <= deep) return td > 0 ? 0.5 * (t[i] / td) : 0.5;
+  return end > td ? 0.5 + 0.5 * ((t[i] - td) / (end - td)) : 1;
+}
+
+/** The frame of a clip at progress p (0..1), lined up by phase. */
+export function frameAtProgress(clip, p, deep = deepestFrame(clip)) {
+  const t = clip.t, end = t[clip.n - 1], td = t[deep];
+  const ms = p <= 0.5 ? td * (p / 0.5) : td + (end - td) * ((p - 0.5) / 0.5);
+  let k = 0;
+  while (k < clip.n - 1 && t[k + 1] <= ms) k++;
+  return k;
+}
+
+/** Which way the person faces in the clip (+1 right, −1 left), from foot direction. */
+export function facingDir(clip, near = nearSide(clip)) {
+  const p = framePoints(clip, 0), s = SIDE[near];
+  return p[s.ft].x >= p[s.an].x ? 1 : -1;
+}

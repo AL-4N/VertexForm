@@ -7,6 +7,7 @@
 import {
   JOINTS, SIDE, KEEP_DAYS, MAX_UNSAVED, packFrame, RepBuffer, makeClip, framePoints,
   nearSide, keyAngle, deepestFrame, clipBounds, daysLeft, expiredIds, bestAndWorst,
+  phaseProgress, frameAtProgress, facingDir,
 } from "../public/js/repclips.js";
 import { Session } from "../public/js/session.js";
 import { getExercise } from "../public/js/exercises/index.js";
@@ -82,6 +83,15 @@ check("Bounds cover the visible joints", Math.abs(b.x0 - 0.4) < 1e-3 && Math.abs
   check("Each clip spans its rep (plus a little either side)", lens.every((d) => d > -0.05 && d < 0.45), lens.map((d) => d.toFixed(2)).join(" "));
   const deep = clips.map(({ c }) => keyAngle(c, deepestFrame(c)).deg);
   check("The replay's deepest knee angle is a real squat bottom", deep.every((d) => d > 50 && d < 115), deep.map((d) => d.toFixed(0)).join(" "));
+  // Compare two reps in step: a fast and a slow rep line up at the bottom.
+  const [A, B] = [clips[0].c, clips[1].c];
+  const slowB = { ...B, t: B.t.map((v) => v * 1.6) };
+  const dA = deepestFrame(A), dB = deepestFrame(slowB);
+  check("In step: both reps are at the bottom at the same moment", frameAtProgress(slowB, phaseProgress(A, dA)) === dB, `A ${dA}, B ${dB}`);
+  check("In step: start with start, end with end", frameAtProgress(slowB, 0) === 0 && frameAtProgress(slowB, 1) === slowB.n - 1);
+  const prog = Array.from({ length: A.n }, (_, i) => phaseProgress(A, i));
+  check("Progress runs 0 to 1 and never goes back", prog[0] === 0 && Math.abs(prog.at(-1) - 1) < 1e-9 && prog.every((v, i) => !i || v >= prog[i - 1]));
+  check("Facing is +1 or -1", [1, -1].includes(facingDir(A)));
   const bytes = clips.reduce((n, { c }) => n + c.xy.byteLength + c.vis.byteLength + c.t.byteLength, 0) / clips.length;
   check("A rep's clip is small (under 12 KB)", bytes < 12 * 1024, `${(bytes / 1024).toFixed(1)} KB`);
 }

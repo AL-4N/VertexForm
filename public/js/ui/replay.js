@@ -14,8 +14,13 @@
 
 import {
   SIDE, chains, KEY_ANGLE, KEEP_DAYS, framePoints, nearSide, keyAngle, deepestFrame,
-  clipBounds, daysLeft, bestAndWorst,
+  clipBounds, daysLeft, bestAndWorst, phaseProgress, frameAtProgress, facingDir,
 } from "../repclips.js";
+import { build, blend } from "../figures/rig.js";
+import { BY_ID } from "../figures/poses.js";
+import { figureMarkup, bounds } from "../figures/draw.js";
+import { BY_NAME } from "../figures/pictos.js";
+import { LAB } from "../figures/lab.js";
 import { allClips, putClips, removeClip, purgeExpired } from "../replay-store.js";
 import { angleMark } from "../figures/annotate.js";
 import { gradeColor, gradeLetter } from "../grade.js";
@@ -69,40 +74,119 @@ function thumbSVG(clip) {
   return `<svg viewBox="0 0 ${VIEW_W} ${VIEW_H}" aria-hidden="true">${frameMarkup(clip, deepestFrame(clip), fit, nearSide(clip), { marks: false, width: 12 })}</svg>`;
 }
 
+/* ── Ideal form, in step with you ──────────────────────── */
+
+/**
+ * The site's stick figure doing a clean rep, timed to your rep's phases
+ * (it reaches the bottom exactly when you do). Holds stay in their good
+ * position. Drawn facing the same way you were.
+ */
+function idealMarkup(exercise, p, faceDir) {
+  const id = BY_NAME[exercise], ex = BY_ID[id];
+  if (!ex) return null;
+  const top = build(ex.top), bottom = build(ex.bottom);
+  const b0 = bounds(top, 40), b1 = bounds(bottom, 40);
+  let x0 = Math.min(b0.x0, b1.x0), x1 = Math.max(b0.x1, b1.x1), y0 = Math.min(b0.y0, b1.y0), y1 = Math.max(b0.y1, b1.y1);
+  // Same 3:2 shape as your pane.
+  const w = x1 - x0, h = y1 - y0, want = VIEW_W / VIEW_H;
+  if (w / h < want) { const add = h * want - w; x0 -= add / 2; x1 += add / 2; } else { const add = w / want - h; y0 -= add; }
+  const ease = (x) => (x < 0.5 ? 2 * x * x : 1 - (-2 * x + 2) ** 2 / 2);
+  const t = ex.isHold || ex.id === "plank" ? (ex.good === "top" ? 0 : 1) : ease(p <= 0.5 ? p / 0.5 : (1 - p) / 0.5);
+  let s = build(blend(ex.top, ex.bottom, t));
+  // Face the same way you did (side views only).
+  const rigDir = top.toeN && top.ankN ? Math.sign(top.toeN[0] - top.ankN[0]) || 1 : 1;
+  if (!s.front && faceDir !== rigDir) {
+    const cx = (x0 + x1) / 2;
+    s = Object.fromEntries(Object.entries(s).map(([k, v]) => [k, Array.isArray(v) ? [2 * cx - v[0], v[1]] : v]));
+  }
+  const arc = LAB[id]?.arc?.(s);
+  return {
+    viewBox: `${x0.toFixed(1)} ${y0.toFixed(1)} ${(x1 - x0).toFixed(1)} ${(y1 - y0).toFixed(1)}`,
+    markup: figureMarkup(s, { color: "#2ee59d", floor: { x0: x0 + 16, x1: x1 - 16 }, floorColor: "#2e3a63", headFill: "#0d1326", joints: false })
+      + (arc ? angleMark(...arc, { r: 32 }) : ""),
+  };
+}
+
 /* ── Player ────────────────────────────────────────────── */
 
+/**
+ * Compare modes: "off", "ideal" (the clean stick figure) or "best" (the
+ * set's best rep). The choice sticks as you move between reps.
+ */
 export function createPlayer(host) {
   host.innerHTML = `
     <div class="rp">
-      <div class="rp-stage"><svg class="rp-svg" viewBox="0 0 ${VIEW_W} ${VIEW_H}" role="img"></svg></div>
+      <div class="rp-stage">
+        <figure class="rp-pane"><svg class="rp-svg rp-a" viewBox="0 0 ${VIEW_W} ${VIEW_H}" role="img"></svg><figcaption class="rp-cap rp-cap-a" hidden></figcaption></figure>
+        <figure class="rp-pane rp-pane-b" hidden><svg class="rp-svg rp-b" viewBox="0 0 ${VIEW_W} ${VIEW_H}" aria-hidden="true"></svg><figcaption class="rp-cap rp-cap-b"></figcaption></figure>
+      </div>
       <div class="rp-controls">
         <button type="button" class="rp-play" aria-label="Play">${ICON.play}</button>
         <input type="range" class="rp-scrub" min="0" max="1" step="1" value="0" aria-label="Position in the rep" />
         <span class="rp-time" aria-hidden="true">0.0 s</span>
-        <div class="rp-speed" role="group" aria-label="Speed">
+        <div class="rp-seg rp-speed" role="group" aria-label="Speed">
           <button type="button" data-speed="1" aria-pressed="true">1×</button>
           <button type="button" data-speed="0.5" aria-pressed="false">½×</button>
         </div>
       </div>
-      <p class="rp-angle"></p>
+      <div class="rp-row">
+        <p class="rp-angle"></p>
+        <div class="rp-seg rp-compare" role="group" aria-label="Compare with">
+          <span class="rp-seg-label">Compare</span>
+          <button type="button" data-cmp="off" aria-pressed="true">Off</button>
+          <button type="button" data-cmp="ideal" aria-pressed="false">Ideal form</button>
+          <button type="button" data-cmp="best" aria-pressed="false">Best rep</button>
+        </div>
+      </div>
     </div>`;
-  const svg = host.querySelector(".rp-svg"), play = host.querySelector(".rp-play");
-  const scrub = host.querySelector(".rp-scrub"), time = host.querySelector(".rp-time"), angleEl = host.querySelector(".rp-angle");
+  const q = (sel) => host.querySelector(sel);
+  const stage = q(".rp-stage"), svg = q(".rp-a"), svgB = q(".rp-b"), paneB = q(".rp-pane-b");
+  const capA = q(".rp-cap-a"), capB = q(".rp-cap-b"), play = q(".rp-play");
+  const scrub = q(".rp-scrub"), time = q(".rp-time"), angleEl = q(".rp-angle"), bestBtn = q('[data-cmp="best"]');
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let clip = null, fit = null, near = "L", i = 0, pos = 0, speed = 1, playing = false, raf = 0, last = 0, holdUntil = 0, visible = true;
+  let clip = null, fit = null, near = "L", deep = 0, i = 0, pos = 0, speed = 1, playing = false, raf = 0, last = 0, holdUntil = 0, visible = true;
+  let mode = "off", best = null, other = null;     // other: { clip, fit, near, deep } for "best"
 
   const frameAt = (ms) => {
     let k = 0;
     while (k < clip.n - 1 && clip.t[k + 1] <= ms) k++;
     return k;
   };
+
+  function drawB() {
+    const p = phaseProgress(clip, i, deep);
+    if (mode === "ideal") {
+      const ideal = idealMarkup(clip.exercise, p, facingDir(clip, near));
+      if (!ideal) return;
+      svgB.setAttribute("viewBox", ideal.viewBox);
+      svgB.innerHTML = ideal.markup;
+    } else if (mode === "best" && other) {
+      svgB.setAttribute("viewBox", `0 0 ${VIEW_W} ${VIEW_H}`);
+      svgB.innerHTML = frameMarkup(other.clip, frameAtProgress(other.clip, p, other.deep), other.fit, other.near);
+    }
+  }
   function show(k) {
     i = k;
     svg.innerHTML = frameMarkup(clip, i, fit, near);
+    if (mode !== "off") drawB();
     scrub.value = String(i);
     time.textContent = `${(clip.t[i] / 1000).toFixed(1)} s`;
     const spec = KEY_ANGLE[clip.exercise], a = keyAngle(clip, i, near);
     angleEl.textContent = spec && a ? `${spec.name}: ${Math.round(a.deg)}°` : "";
+  }
+  function setMode(m) {
+    if (m === "best" && !(best && best.id !== clip?.id)) m = "off";
+    mode = m;
+    other = m === "best" ? { clip: best, fit: fitter(best), near: nearSide(best), deep: deepestFrame(best) } : null;
+    host.querySelectorAll("[data-cmp]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.cmp === mode)));
+    const on = mode !== "off";
+    paneB.hidden = !on; capA.hidden = !on;
+    stage.classList.toggle("two", on);
+    if (clip) {
+      capA.textContent = `You, rep ${clip.index} (${clip.score})`;
+      capB.textContent = mode === "ideal" ? "Ideal form, in step with you" : other ? `Your best, rep ${other.clip.index} (${other.clip.score})` : "";
+      show(i);
+    }
   }
   function setPlaying(on) {
     playing = on;
@@ -127,22 +211,32 @@ export function createPlayer(host) {
 
   play.addEventListener("click", () => setPlaying(!playing));
   scrub.addEventListener("input", () => { setPlaying(false); show(Number(scrub.value)); pos = clip.t[i]; });
-  host.querySelector(".rp-speed").addEventListener("click", (e) => {
+  q(".rp-speed").addEventListener("click", (e) => {
     const b = e.target.closest("[data-speed]");
     if (!b) return;
     speed = Number(b.dataset.speed);
     host.querySelectorAll("[data-speed]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
   });
+  q(".rp-compare").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-cmp]");
+    if (b && !b.disabled) setMode(b.dataset.cmp);
+  });
   // Only spend frames while the player is on screen.
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(svg);
 
   return {
-    load(c) {
-      clip = c; fit = fitter(c); near = nearSide(c);
+    /** Play a clip. `opts.best`: the clip "Best rep" compares with (or null). */
+    load(c, opts = {}) {
+      clip = c; fit = fitter(c); near = nearSide(c); deep = deepestFrame(c);
+      best = opts.best ?? null;
+      const canBest = !!(best && best.id !== c.id);
+      bestBtn.disabled = !canBest;
+      bestBtn.title = canBest ? "" : best ? "This is your best rep" : "No other rep to compare with";
       scrub.max = String(c.n - 1);
       svg.setAttribute("aria-label", `Replay of ${c.exercise.toLowerCase()} rep ${c.index}, scored ${c.score}`);
-      pos = 0;
-      if (reduce) { setPlaying(false); show(deepestFrame(c)); }      // a still of the bottom; Play still works
+      pos = 0; i = 0;
+      setMode(mode === "best" && !canBest ? "off" : mode);
+      if (reduce) { setPlaying(false); show(deep); }      // a still of the bottom; Play still works
       else { show(0); setPlaying(true); }
     },
     stop() { setPlaying(false); },
@@ -203,14 +297,14 @@ export function renderReplayCard(clips) {
     $("#res-replay-info").innerHTML = infoHTML(clips[pick], clips.length);
   };
   draw();
-  cardPlayer.load(clips[pick]);
+  cardPlayer.load(clips[pick], { best: clips[best] });
 
   strip.onclick = (e) => {
     const b = e.target.closest("[data-k]");
     if (!b) return;
     pick = Number(b.dataset.k);
     draw();
-    cardPlayer.load(clips[pick]);
+    cardPlayer.load(clips[pick], { best: clips[best] });
   };
   $("#res-replay-info").onclick = async (e) => {
     if (!e.target.closest("[data-save]")) return;
@@ -274,7 +368,11 @@ async function renderReplays(selectId = null) {
 
   $("#replays-title").textContent = `${current.exercise}, ${dateText(current.date)}`;
   $("#replays-info").innerHTML = infoHTML(current, setSize) + `<button type="button" class="btn danger rp-delete" data-del="${current.id}">Delete replay</button>`;
-  screenPlayer.load(current);
+  // "Best rep" = the best rep of the same set, else your best saved rep of that exercise.
+  const sameSet = clips.filter((c) => c.setId === current.setId);
+  const pool = sameSet.length > 1 ? sameSet : clips.filter((c) => c.exercise === current.exercise);
+  const bestClip = pool.reduce((a, c) => (c.score > a.score ? c : a), pool[0]);
+  screenPlayer.load(current, { best: bestClip });
 
   $("#replays-lists").onclick = (e) => {
     const b = e.target.closest("[data-id]");

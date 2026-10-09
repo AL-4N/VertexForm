@@ -16,6 +16,8 @@ const BLANK = {
   stats: { totalReps: 0, goodReps: 0, tried: [] },
   unlocked: [],     // achievement ids
   skills: [],       // unlocked skill-path step ids (js/skills.js)
+  challenge: null,  // the challenge you're on: { id, start: "YYYY-MM-DD" } (js/challenges.js)
+  challengeLog: [], // challenges that ended: [{ id, start, end, result: "complete" | "ended" }]
   days: [],         // local dates (YYYY-MM-DD) with at least one scored set
   settings: {},     // overrides of DEFAULTS
 };
@@ -32,6 +34,8 @@ export function migrate(d) {
   if (!Array.isArray(out.sessions)) out.sessions = [];
   if (!Array.isArray(out.routines)) out.routines = [];
   if (!Array.isArray(out.skills)) out.skills = [];
+  if (!out.challenge || typeof out.challenge !== "object" || !out.challenge.id) out.challenge = null;
+  if (!Array.isArray(out.challengeLog)) out.challengeLog = [];
   if (!(d?.version >= 2)) {
     for (const [exercise, scores] of Object.entries(out.history ?? {})) {
       for (const score of Array.isArray(scores) ? scores : []) {
@@ -126,6 +130,8 @@ export function resetAll() {
   store.stats = { totalReps: 0, goodReps: 0, tried: [] };
   store.unlocked = [];
   store.skills = [];
+  store.challenge = null;
+  store.challengeLog = [];
   store.days = [];
   save();
 }

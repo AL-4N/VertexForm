@@ -140,7 +140,8 @@ Rough order: most useful first. Everything stays on-device unless it says otherw
       IndexedDB via js/replay-store.js). Results show a player (protractor reads the key angle
       live, scrub, ½× speed) with best/worst marked; Save keeps a rep for good, unsaved ones are
       deleted 7 days after the set. Replays screen (History → Replays) lists saved + recent
-- [ ] **Replay side by side**: two reps (or a rep and the ideal guide) playing in step
+- [x] **Replay side by side**: Compare → Ideal form (the clean stick figure, timed to your rep so
+      you both hit the bottom together) or Best rep, lined up by phase
 - [ ] **Phone as the camera, laptop as the screen**: pair them with a QR code (WebRTC, peer to
       peer on your own Wi-Fi), so the camera can sit far away at hip height while you watch the
       big screen
@@ -154,12 +155,13 @@ Rough order: most useful first. Everything stays on-device unless it says otherw
       plan built from the steps under it, with the next skill's target sets
 - [ ] **Weekly report card**: average per exercise, most improved fault, skills unlocked, as a
       share image (the PNG score card already exists)
-- [ ] **Challenges**: e.g. 30 days of squats, with the day streak and a clean-rep target
-- [ ] **AI coach summary** (opt-in, Claude API through a Cloudflare Worker with the key kept
-      server-side): sends only your numbers, never video, and writes a short plain-English
-      review of the week
+- [x] **Challenges** (js/challenges.js): five daily challenges; a day counts when one of that
+      day's sets meets the goal, a missed day ends the run. Dashboard card + Challenges screen
+- [x] **AI coach summary** (opt-in): History → Coach summary. js/weekly.js decides what's sent
+      (a week of numbers and names), worker/ re-validates it and calls Claude. Needs the
+      ANTHROPIC_API_KEY secret in Cloudflare (README)
 - [ ] **Accounts, cloud sync, leaderboards** (opt-in, Workers + D1): keep progress across
-      devices; local-only stays the default
+      devices; local-only stays the default. **Only build when the user asks.**
 
 ### Website + look
 - [ ] **Real recording in the hero**: replay a real tracked person from tests/fixtures,

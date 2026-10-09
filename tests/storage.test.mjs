@@ -29,6 +29,7 @@ check("v1 → v2: routines list added, version set", Array.isArray(m.routines) &
 check("Migrating again doesn't duplicate anything", migrate(structuredClone(m)).sessions.length === 4);
 check("Corrupt data: falls back to a blank store", migrate("nonsense").sessions.length === 0 && migrate(null).bests && migrate(null).version === VERSION);
 check("Partial v1 data (no stats): filled in", migrate({ bests: { Plank: 90 } }).stats.totalReps === 0);
+check("Older saves: no challenge, empty challenge log; a saved one survives", m.challenge === null && Array.isArray(m.challengeLog) && migrate({ version: 2, challenge: { id: "plank7", start: "2026-10-01" } }).challenge?.id === "plank7" && migrate({ challenge: "junk" }).challenge === null);
 check("Older saves get an empty skills list; kept skills survive", Array.isArray(m.skills) && !m.skills.length && migrate({ version: 2, skills: ["squat"] }).skills[0] === "squat");
 
 recordSession({ exercise: "Squat", mode: "set", best: 91, average: 85, reps: [80, 85, 91], faults: ["depth", "depth", "lean"], activeSeconds: 31 }, new Date("2026-10-04T10:00:00Z"));

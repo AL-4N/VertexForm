@@ -5,6 +5,7 @@ import { store, globalAverage, resetExercise, dayStreak } from "../storage.js";
 import { $, showScreen, confirmAction, toast } from "./components.js";
 import { gradeVar } from "../geometry.js";
 import { renderPictos } from "../figures/pictos.js";
+import { renderChallengeCard } from "./challenges.js";
 
 let sessionLog = [];
 
@@ -78,6 +79,7 @@ function renderSidebar() {
   $("#total-reps").textContent = store.stats.totalReps ?? 0;
   const streak = dayStreak();
   $("#day-streak").textContent = streak ? `${streak} day${streak === 1 ? "" : "s"}` : "0";
+  renderChallengeCard();
 }
 
 export { showScreen };
