@@ -57,6 +57,22 @@
   </div>
 </header>
 
+<!-- Side rail: wide screens only (css/site.css). In the page itself, not built
+     by script, so the right layout shows from the first frame. js/site/rail.js
+     moves the marker; keep these links in sync with the header nav. -->
+<nav class="rail" aria-label="Sections">
+  <div class="rail-inner">
+    <span class="rail-track" aria-hidden="true"><span class="rail-fill"></span></span>
+    <span class="rail-marker" aria-hidden="true"></span>
+    <ol>
+      <li><a href="#exercises"><span class="rail-n">01</span><span class="rail-label">Exercises</span></a></li>
+      <li><a href="#lab"><span class="rail-n">02</span><span class="rail-label">Form Lab</span></a></li>
+      <li><a href="#how"><span class="rail-n">03</span><span class="rail-label">How it works</span></a></li>
+      <li><a href="#coach"><span class="rail-n">04</span><span class="rail-label">Coaching</span></a></li>
+    </ol>
+  </div>
+</nav>
+
 <main id="main">
 
   <!-- ═════════════ HERO ═════════════ -->

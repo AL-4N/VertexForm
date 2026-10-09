@@ -108,12 +108,16 @@ button { font: inherit; color: inherit; }
 /* ── Side rail (js/site/rail.js): a ruler down the left edge, wide screens only ── */
 .rail { display: none; }
 @media (min-width: 1400px) {
-  html.has-rail .nav nav { display: none; }
-  html.has-rail .nav .btn { margin-left: auto; }
+  :root { --rail-w: 190px; }
+  /* The rail is a column of its own: the page moves over to make room. */
+  body { padding-left: var(--rail-w); }
+  .nav nav { display: none; }
+  .nav .btn { margin-left: auto; }
   .rail {
-    display: block; position: fixed; z-index: 30; left: 26px; top: 50%; transform: translateY(-50%);
-    height: min(56vh, 400px); width: 150px;
+    display: block; position: fixed; z-index: 45; left: 0; top: 0; bottom: 0; width: var(--rail-w);
+    background: var(--ink); border-right: 1px solid var(--line);
   }
+  .rail-inner { position: absolute; left: 30px; right: 12px; top: 50%; transform: translateY(-50%); height: min(56vh, 400px); }
   /* The ruler: a hairline with a minor tick every 12px. */
   .rail-track {
     position: absolute; left: 0; top: 0; bottom: 0; width: 7px;
@@ -121,26 +125,33 @@ button { font: inherit; color: inherit; }
     background: repeating-linear-gradient(180deg, var(--line-2) 0 1px, transparent 1px 12px);
     background-size: 6px 100%; background-repeat: no-repeat;
   }
-  .rail-fill { position: absolute; left: -1px; top: 0; width: 1px; height: 100%; background: var(--g100); transform-origin: top; transform: scaleY(0); }
+  .rail-fill {
+    position: absolute; left: -1px; top: 0; width: 2px; height: 100%;
+    background: linear-gradient(180deg, var(--g70), var(--g85) 50%, var(--g100));
+    transform-origin: top; transform: scaleY(0); transition: transform .38s cubic-bezier(.22,.61,.36,1);
+  }
   .rail-marker {
-    position: absolute; left: -5px; top: -1px; width: 22px; height: 3px; border-radius: 2px;
-    background: var(--g100); opacity: 0; transition: opacity .2s;
+    position: absolute; left: -6px; top: -1.5px; width: 24px; height: 3px; border-radius: 2px;
+    background: var(--go-gradient); opacity: 0; transition: opacity .2s;
   }
   .rail-marker.on { opacity: 1; }
   .rail ol { list-style: none; margin: 0; padding: 0; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
   .rail a {
-    position: relative; display: flex; align-items: baseline; gap: .55rem; padding: .25rem 0 .25rem 26px;
+    position: relative; display: flex; align-items: baseline; gap: .55rem; padding: .25rem 0 .25rem 28px;
     text-decoration: none; white-space: nowrap; font-family: var(--mono); font-size: .74rem; letter-spacing: .06em; text-transform: uppercase;
-    color: var(--text-faint); transition: color .2s;
+    color: var(--text-dim); transition: color .2s;
   }
   /* Major tick for each section. */
-  .rail a::before { content: ""; position: absolute; left: 0; top: 50%; width: 14px; height: 1px; background: var(--text-faint); transition: width .2s, background .2s; }
+  .rail a::before { content: ""; position: absolute; left: 0; top: 50%; width: 14px; height: 1px; background: var(--text-faint); transition: background .2s; }
   .rail a:hover { color: var(--text); }
   .rail a:hover::before { background: var(--text); }
-  .rail-n { color: var(--line-2); font-weight: 600; transition: color .2s; }
-  .rail a.active { color: var(--text); background: none; -webkit-background-clip: initial; background-clip: initial; }
-  .rail a.active .rail-n { color: var(--g100); }
+  .rail-n { color: var(--text-faint); font-weight: 600; }
+  /* The current section: number and label in the brand gradient. */
+  .rail a.active { background: none; color: var(--text); }
   .rail a.active::before { background: transparent; }
+  .rail a.active .rail-n, .rail a.active .rail-label {
+    background: var(--go-gradient); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
 }
 
 /* ── Exercise switchers: each button shows the movement ── */
