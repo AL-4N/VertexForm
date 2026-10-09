@@ -215,19 +215,7 @@ button { font: inherit; color: inherit; }
     linear-gradient(180deg, #121b36 0%, #0b1125 100%);
   background-size: 24px 24px, 24px 24px, auto;
 }
-.vf-dim path { fill: none; stroke: #eef1fb; stroke-linecap: round; }
-.vf-dim-arc  { stroke-width: 1.6; opacity: .9; }
-.vf-dim-tick { stroke-width: 1.2; opacity: .7; }
-.vf-dim-lead { stroke-width: 1; opacity: .7; }
-.vf-dim-ref  { stroke-width: 1.2; stroke-dasharray: 3 5; opacity: .55; }
-.vf-dim rect { fill: #090d1c; stroke: #eef1fb; stroke-width: 1; opacity: .95; }
-.vf-dim text { font-family: var(--mono); font-size: 15px; font-weight: 600; fill: #eef1fb; font-variant-numeric: tabular-nums; }
-.vf-dim .vf-dim-small { font-size: 12px; font-weight: 600; fill: #c9cfe6; letter-spacing: .04em; text-transform: uppercase; }
-.vf-dim-level text { fill: var(--text-dim); }
-.vf-note text { font-family: var(--hand); font-size: 21px; font-weight: 600; fill: #fff6d8; }
-.vf-note-arrow { fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.vf-note-good .vf-note-arrow { stroke: var(--g100); }
-.vf-note-fix  .vf-note-arrow { stroke: var(--g70); }
+/* .vf-dim / .vf-note (protractor, dimensions, coach notes): css/marks.css */
 .readout-rows dd, .lab-rows dd, .lab-part b { font-family: var(--mono); font-weight: 600; }
 .limb polyline { fill: none; stroke: var(--live); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
 .limb.far polyline { opacity: .38; }

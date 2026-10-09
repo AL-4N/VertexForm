@@ -15,6 +15,8 @@ import { refreshCameraPickers, onCameraPicked } from "./ui/camera-picker.js";
 import { renderResults } from "./ui/results.js";
 import { renderStats, wireStatsReset } from "./ui/stats.js";
 import { renderSkills } from "./ui/skills.js";
+import { openReplays, wireReplays } from "./ui/replay.js";
+import { purgeExpired } from "./replay-store.js";
 import { wireWorkouts, renderWorkouts } from "./ui/workouts.js";
 import { showRest, stopRest } from "./ui/rest-screen.js";
 import { showOnboarding } from "./ui/onboarding.js";
@@ -47,6 +49,7 @@ const fontsIn = Promise.race([
 
 function boot() {
   mountPageTransitions();
+  purgeExpired().catch(() => {});     // unsaved rep replays past their 7 days go for good
   wireSettings();
   fontsIn.then(() => {
     renderMenu(openMode);
@@ -97,6 +100,10 @@ function wireNav() {
       onGo: () => startSession(cfg.mode), onEnd: () => showScreen("results", { dir: "back" }),
     });
   });
+
+  wireReplays();
+  $("#btn-replays").addEventListener("click", () => openReplays("stats"));
+  $("#btn-replays-from-results").addEventListener("click", () => openReplays("results"));
 
   $("#btn-skills").addEventListener("click", () => {
     renderSkills(openMode);

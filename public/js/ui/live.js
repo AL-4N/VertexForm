@@ -30,6 +30,8 @@ import { Coach } from "../coach.js";
 import { voice, speech, beep, setMuted, isMuted } from "../voice.js";
 import { recordScore, recordSession, lastSession, countRep } from "../storage.js";
 import { checkRep, checkStreak, checkSession } from "../achievements.js";
+import { RepBuffer, makeClip } from "../repclips.js";
+import { putClips } from "../replay-store.js";
 import { $, renderBars, toast } from "./components.js";
 import { slide, EASE } from "./motion.js";
 import { sizeCanvas, drawFrame, drawSkeleton, drawGuide, drawBorder, drawFramingGuide } from "./overlay.js";
@@ -97,6 +99,22 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
   // The session starts unarmed: frames during the countdown drive the
   // framing guide and calibration, but nothing is counted yet.
   const session = new Session(ex, { ...cfg, armed: false });
+
+  // Rep replays (js/repclips.js): the last few seconds of skeleton, cut
+  // into one clip per scored rep (or plank stretch). Saved when the set ends.
+  const repBuf = new RepBuffer();
+  const clips = [];
+  const setStart = new Date();
+  const setId = `${setStart.getTime().toString(36)}-${exerciseName.toLowerCase().replace(/\W+/g, "")}`;
+  let frameTs = 0, frameAspect = 16 / 9;
+  function keepClip(index, score, faults, t0, t1) {
+    const c = makeClip(repBuf.slice(t0 - 200, t1 + 100), {
+      id: `${setId}-${index}`, setId, exercise: exerciseName, index, score,
+      faults: (faults ?? []).slice(0, 3).map((f) => f.label ?? String(f)), date: setStart.toISOString(),
+      aspect: frameAspect, mirror: !!cfg.mirror,
+    });
+    if (c) clips.push(c);
+  }
   const coach = new Coach(ex, { personality: cfg.personality, chattiness: cfg.chattiness, target });
   // Coaching waits for a good moment: never mid-rep (resting is fine).
   speech.gate = () => !session.armed || session.phase !== "down" || session.resting;
@@ -166,6 +184,8 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
     const lms = det?.landmarks ?? null;
     ctl.recorder?.add(ts, lms, det?.world ?? null);
     const out = session.update(lms, w / h, ts, det?.world ?? null);
+    frameTs = ts; frameAspect = w / h;
+    repBuf.push(ts, out.display);
     if (lastFrameAt) fps = fps ? fps * 0.9 + (1000 / Math.max(1, ts - lastFrameAt)) * 0.1 : 1000 / Math.max(1, ts - lastFrameAt);
     lastFrameAt = ts;
     autoQuality(ts);
@@ -317,6 +337,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
       checkRep(e.score);
       if (e.good) { checkStreak(e.streak); beep(880, 120, 0.05); } else beep(420, 100, 0.04);
       addChip(e.score, e.good);
+      keepClip(e.index, e.score, e.faults, e.at - e.duration * 1000, e.at);
       announce(`Rep ${e.index}: ${e.score}${e.faults?.[0] ? `, ${e.faults[0].label}` : ""}`);
       sayLines(coach.onRep(e, { setReps: isSet ? cfg.setReps : 0 }));
       updateCounts();
@@ -327,6 +348,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
       announce("No rep: not deep enough");
     } else if (e.type === "segment") {
       addChip(e.score, e.score >= target);
+      keepClip(e.index, e.score, e.faults, frameTs - (session.repDetails.at(-1)?.duration ?? 5) * 1000, frameTs);
       lastScore = e.score;
       announce(`${session.reps.length * 5} seconds: ${e.score}`);
       sayLines(coach.onRep({ ...e, measures: session.repDetails.at(-1)?.measures }));
@@ -394,7 +416,9 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
       return;
     }
     const isBest = recordScore(exerciseName, res.best);
-    const full = { exercise: exerciseName, target, isBest, mode: cfg.mode, ...res, summary: ctl.summary ?? coach.summary(res) };
+    const full = { exercise: exerciseName, target, isBest, mode: cfg.mode, ...res, summary: ctl.summary ?? coach.summary(res), replays: clips };
+    for (const c of clips) c.of = clips.length;   // "Rep 3 of 10", even after some are deleted
+    putClips(clips).catch(() => {});      // replays are a bonus: never let them break a finished set
     recordSession(full);
     checkSession();
     onFinish(full);

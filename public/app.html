@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="css/fonts.css" />
 <link rel="stylesheet" href="css/theme.css" />
 <link rel="stylesheet" href="css/app.css" />
+<link rel="stylesheet" href="css/marks.css" />
 <link rel="stylesheet" href="css/transitions.css" />
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <link rel="manifest" href="manifest.webmanifest" />
@@ -310,6 +311,21 @@
         </div>
       </div>
 
+      <!-- Rep replay (js/ui/replay.js): hidden when the set has no clips. -->
+      <div class="card replay-card" id="res-replay-card" hidden>
+        <div class="replay-head">
+          <h3 class="label">Rep replay</h3>
+          <button type="button" class="btn ghost" id="btn-replays-from-results">All replays</button>
+        </div>
+        <div class="replay-body">
+          <div id="res-player"></div>
+          <div class="replay-side">
+            <div class="rep-strip" id="res-strip" role="group" aria-label="Pick a rep to watch"></div>
+            <div class="replay-info" id="res-replay-info"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <h3 class="label">Rep by rep</h3>
         <canvas id="res-chart" width="520" height="170"></canvas>
@@ -552,11 +568,37 @@
       <button class="btn ghost" data-back="menu">&larr; Back</button>
       <h1>Your progress</h1>
       <div class="header-actions">
+        <button class="btn" id="btn-replays">Replays</button>
         <button class="btn" id="btn-export">Export CSV</button>
         <button class="btn danger" id="btn-reset-all">Reset all</button>
       </div>
     </header>
     <div class="stats-wrap" id="stats-wrap"></div>
+  </section>
+
+  <!-- ══ REPLAYS ══ -->
+  <section id="screen-replays" class="screen">
+    <header class="app-header">
+      <button class="btn ghost" id="replays-back">&larr; Back</button>
+      <div><h1>Replays</h1><p class="sub">Saved reps stay until you delete them. Unsaved ones are deleted 7 days after the set.</p></div>
+    </header>
+    <div class="replays-empty card" id="replays-empty" hidden>
+      <h2>No replays yet</h2>
+      <p class="dim">Finish a set and every rep shows up here, ready to watch back. Save the ones you want to keep.</p>
+    </div>
+    <div class="replays-layout" id="replays-main">
+      <div class="replays-watch card">
+        <h2 class="replays-title" id="replays-title"></h2>
+        <div id="replays-player"></div>
+        <div class="replay-info" id="replays-info"></div>
+      </div>
+      <div class="replays-lists" id="replays-lists">
+        <h2 class="label">Saved</h2>
+        <div class="saved-grid" id="replays-saved"></div>
+        <h2 class="label">Recent sets</h2>
+        <div id="replays-recent"></div>
+      </div>
+    </div>
   </section>
 
   <!-- ══ SKILL PATH ══ -->

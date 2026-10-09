@@ -679,3 +679,82 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 @media (prefers-reduced-motion: reduce) {
   .skel-line, .skel-block, .vf-loading #screen-menu .app-header h1, .vf-loading #screen-menu .app-header .sub, .vf-loading #screen-menu .sidebar .label { animation: none; }
 }
+
+/* ── Rep replay (js/ui/replay.js) ────────────────────── */
+.replay-card { grid-column: 1 / -1; }
+.replay-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: .8rem; }
+.replay-head .label { margin: 0; }
+.replay-body { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+@media (max-width: 760px) { .replay-body { grid-template-columns: 1fr; } }
+
+/* The player: your skeleton on the drafting grid. */
+.rp-stage {
+  border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;
+  background-color: var(--bg);
+  background-image: linear-gradient(rgba(166,174,203,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(166,174,203,.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.rp-svg { display: block; width: 100%; height: auto; }
+.rp-floor { stroke: #2e3a63; stroke-width: 2; }
+.rp-controls { display: flex; align-items: center; gap: .7rem; margin-top: .7rem; }
+.rp-play {
+  flex: none; display: grid; place-items: center; width: 40px; height: 40px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--panel-hi); color: var(--text);
+}
+.rp-play:hover { background: var(--panel-hi2); }
+.rp-play svg { width: 16px; height: 16px; fill: currentColor; }
+.rp-scrub { flex: 1; min-width: 0; accent-color: var(--lime); cursor: pointer; }
+.rp-time { flex: none; min-width: 3.4rem; text-align: right; font: 600 .8rem var(--mono); color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.rp-speed { flex: none; display: flex; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.rp-speed button { border: 0; padding: .45rem .6rem; cursor: pointer; font: 600 .8rem var(--mono); background: var(--panel); color: var(--text-dim); }
+.rp-speed button[aria-pressed="true"] { background: var(--panel-hi2); color: var(--text); }
+.rp-angle { margin: .5rem 0 0; min-height: 1.2em; font: 600 .82rem var(--mono); color: var(--text-dim); font-variant-numeric: tabular-nums; }
+
+/* Rep chips: one per rep, coloured by its score. */
+.rep-strip { display: flex; flex-wrap: wrap; gap: .4rem; }
+.rep-chip {
+  position: relative; display: grid; justify-items: center; gap: .05rem; min-width: 3.3rem; padding: .4rem .45rem .35rem; cursor: pointer;
+  font: inherit; color: var(--text); background: var(--panel-hi); border: 1px solid var(--border); border-radius: 8px;
+}
+.rep-chip b { font-family: var(--display); font-size: 1rem; color: var(--c); font-variant-numeric: tabular-nums; }
+.rep-chip span { font-size: .66rem; color: var(--text-dim); }
+.rep-chip:hover { border-color: var(--text-dim); }
+.rep-chip.on { border-color: var(--c); box-shadow: inset 0 0 0 1px var(--c); background: var(--panel-hi2); }
+.rep-chip.saved::after { content: ""; position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+
+.replay-info { display: grid; gap: .35rem; align-content: start; margin-top: 1rem; }
+.rp-which { margin: 0; color: var(--text-dim); font-size: .85rem; }
+.rp-score { margin: 0; font-family: var(--display); font-weight: 800; font-size: 2.4rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.rp-score span { margin-left: .35rem; font-size: 1rem; font-weight: 700; color: var(--text-dim); }
+.rp-faults { margin: .2rem 0 0; padding-left: 1.1rem; font-size: .88rem; }
+.rp-save { display: inline-flex; align-items: center; gap: .45rem; justify-self: start; margin-top: .5rem; }
+.rp-save svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; }
+.rp-save[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+.rp-save[aria-pressed="true"] svg { fill: var(--gold); stroke: var(--gold); }
+.rp-keep { margin: 0; }
+.rp-delete { justify-self: start; margin-top: .4rem; }
+
+/* Replays screen */
+.replays-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+@media (max-width: 900px) { .replays-layout { grid-template-columns: 1fr; } }
+.replays-watch { margin: 0; }
+.replays-title { font-family: var(--display); font-size: 1.05rem; margin: 0 0 .7rem; }
+.replays-lists { display: grid; gap: .6rem; align-content: start; }
+.replays-lists > .label { margin: .4rem 0 0; }
+.replays-empty { max-width: 46ch; }
+.replays-empty h2 { font-family: var(--display); font-size: 1.15rem; margin: 0 0 .4rem; }
+.saved-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .6rem; }
+.saved-rep {
+  position: relative; display: grid; gap: .4rem; padding: .5rem; cursor: pointer; text-align: left;
+  font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-sm);
+}
+.saved-rep:hover { border-color: var(--text-dim); }
+.saved-rep.on { border-color: var(--c); box-shadow: inset 0 0 0 1px var(--c); }
+.saved-thumb { display: block; border-radius: 6px; background: var(--bg); }
+.saved-thumb svg { display: block; width: 100%; height: auto; }
+.saved-meta { display: grid; }
+.saved-meta strong { font-size: .85rem; }
+.saved-score { position: absolute; top: .6rem; right: .7rem; font-family: var(--display); color: var(--c); }
+.recent-set { display: grid; gap: .5rem; padding: .75rem 0; border-top: 1px solid var(--border); }
+.recent-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .7rem; }
+.recent-keep { color: var(--amber); margin-left: auto; }

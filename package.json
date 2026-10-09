@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "python3 -m http.server 8080 --directory public",
-    "test": "node tests/scoring.test.mjs && node tests/rig.test.mjs && node tests/session.test.mjs && node tests/camera.test.mjs && node tests/tracking.test.mjs && node tests/coach.test.mjs && node tests/speech.test.mjs && node tests/storage.test.mjs && node tests/skills.test.mjs && node tests/circuit.test.mjs && node tests/pwa.test.mjs && node tests/replay.test.mjs && node tests/overlay.test.mjs && node tests/voice.test.mjs",
+    "test": "node tests/scoring.test.mjs && node tests/rig.test.mjs && node tests/session.test.mjs && node tests/camera.test.mjs && node tests/tracking.test.mjs && node tests/coach.test.mjs && node tests/speech.test.mjs && node tests/storage.test.mjs && node tests/skills.test.mjs && node tests/repclips.test.mjs && node tests/circuit.test.mjs && node tests/pwa.test.mjs && node tests/replay.test.mjs && node tests/overlay.test.mjs && node tests/voice.test.mjs",
     "deploy": "npm run sw && npx wrangler deploy",
     "eval:angles": "node tests/eval-angles.mjs",
     "sw": "node tools/update-sw.mjs",

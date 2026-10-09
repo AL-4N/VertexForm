@@ -136,8 +136,11 @@ Rough order: most useful first. Everything stays on-device unless it says otherw
 ### Training
 - [ ] **Pull-up, dead hang and L-sit trackers** (plan above): opens up the Pull path and most of
       the Core path of the skill tree, which right now mostly says "Not tracked yet"
-- [ ] **Rep replay**: after a set, play back your own skeleton for your best and worst rep, side
-      by side with the ideal guide (the landmark recorder already captures what's needed)
+- [x] **Rep replay**: every rep of a set is kept as a skeleton clip (js/repclips.js, ~5 KB each,
+      IndexedDB via js/replay-store.js). Results show a player (protractor reads the key angle
+      live, scrub, ½× speed) with best/worst marked; Save keeps a rep for good, unsaved ones are
+      deleted 7 days after the set. Replays screen (History → Replays) lists saved + recent
+- [ ] **Replay side by side**: two reps (or a rep and the ideal guide) playing in step
 - [ ] **Phone as the camera, laptop as the screen**: pair them with a QR code (WebRTC, peer to
       peer on your own Wi-Fi), so the camera can sit far away at hip height while you watch the
       big screen

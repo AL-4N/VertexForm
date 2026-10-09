@@ -1,6 +1,7 @@
 /** results.js — post-session breakdown: grade, bars, rep chart, coach notes. */
 
 import { $, renderBars, drawRepChart } from "./components.js";
+import { renderReplayCard } from "./replay.js";
 import { gradeLetter, gradeVar } from "../geometry.js";
 import { faultLabel, faultPhrase } from "../coaching.js";
 import { getExercise } from "../exercises/index.js";
@@ -33,6 +34,7 @@ export function renderResults(r) {
   $("#res-chart").setAttribute("aria-label", `Rep scores: ${r.reps.join(", ")}. Target ${r.target}.`);
   renderSummary(r);
   renderDetails(r);
+  renderReplayCard(r.replays);
 
   // ── Coach notes: the most common fault across the session ──
   const counts = {};

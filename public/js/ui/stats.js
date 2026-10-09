@@ -1,6 +1,7 @@
 /** stats.js — the Progress screen: overview, per-exercise history charts, faults over time, achievements, CSV export. */
 
 import { store, globalAverage, resetAll } from "../storage.js";
+import { removeAll as removeAllReplays } from "../replay-store.js";
 import { ACHIEVEMENTS, isUnlocked } from "../achievements.js";
 import { EXERCISES } from "../config.js";
 import { exerciseHistory, toCSV } from "../history.js";
@@ -98,8 +99,9 @@ function historyChart(points, name) {
 
 export function wireStatsReset(onDone) {
   $("#btn-reset-all").addEventListener("click", () => {
-    if (confirmAction("Erase ALL bests, history, achievements and skills? This cannot be undone.")) {
+    if (confirmAction("Erase ALL bests, history, achievements, skills and saved replays? This cannot be undone.")) {
       resetAll();
+      removeAllReplays().catch(() => {});
       toast("All data cleared");
       renderStats();
       onDone?.();
