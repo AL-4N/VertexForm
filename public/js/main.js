@@ -56,6 +56,11 @@ function boot() {
     document.documentElement.classList.remove("vf-loading");
   });
   wireNav();
+  // The homepage's Settings link (app.html#settings) opens straight on Settings.
+  if (location.hash === "#settings") {
+    $("#btn-settings").click();
+    history.replaceState(null, "", location.pathname + location.search);
+  }
   wireStatsReset(() => renderMenu(openMode));
   wireCamera();
   wireWorkouts(startCircuit);

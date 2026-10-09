@@ -94,10 +94,16 @@ button { font: inherit; color: inherit; }
 .nav.scrolled { border-bottom-color: var(--line); }
 /* The header's "Start training" waits until the hero's own button has
    scrolled away, so there's only ever one on screen (js/site/main.js). */
-.nav .btn { transition: opacity .25s var(--ease), transform .25s var(--ease), filter .25s var(--ease), visibility 0s; }
+/* While hidden it also takes no room, so the Settings link sits at the edge
+   and slides over as the button comes in. */
+.nav .btn {
+  max-width: 12rem; white-space: nowrap; overflow: hidden;
+  transition: opacity .25s var(--ease), transform .25s var(--ease), filter .25s var(--ease), max-width .3s var(--ease), padding .3s var(--ease), margin .3s var(--ease), visibility 0s;
+}
 .js .nav.cta-hidden .btn {
   opacity: 0; transform: translateY(-6px); filter: blur(4px); visibility: hidden; pointer-events: none;
-  transition: opacity .2s var(--ease), transform .2s var(--ease), filter .2s var(--ease), visibility 0s .2s;
+  max-width: 0; padding-left: 0; padding-right: 0; margin-left: -2rem !important;   /* cancels the row's 2rem gap */
+  transition: opacity .2s var(--ease), transform .2s var(--ease), filter .2s var(--ease), max-width .3s var(--ease), padding .3s var(--ease), margin .3s var(--ease), visibility 0s .3s;
 }
 @media (prefers-reduced-motion: reduce) { .nav .btn, .js .nav.cta-hidden .btn { transition: none; transform: none; filter: none; } }
 .nav-row { display: flex; align-items: center; gap: 2rem; height: 68px; }
@@ -111,7 +117,15 @@ button { font: inherit; color: inherit; }
 .nav nav a:hover { color: var(--text); }
 /* Where you are: the link for the section on screen turns gradient (js/site/nav-spy.js). */
 .nav nav a.active { background: var(--go-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
-@media (max-width: 860px) { .nav nav { display: none; } .nav .btn { margin-left: auto; } }
+/* Settings: opens the trainer on its Settings screen (app.html#settings). */
+.nav-settings {
+  display: inline-flex; align-items: center; gap: .45rem; margin-left: -.6rem; padding: .5rem .7rem; border-radius: 9px;
+  color: var(--text-dim); font-weight: 600; font-size: .94rem; text-decoration: none; transition: color .2s, background .2s;
+}
+.nav-settings:hover { color: var(--text); background: var(--surface); }
+.nav-settings svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+@media (max-width: 860px) { .nav nav { display: none; } .nav-settings { margin-left: auto; } .nav .btn { margin-left: .4rem; } }
+@media (max-width: 480px) { .nav-settings span { display: none; } .nav-settings { padding: .55rem; } }
 
 /* ── Side rail (js/site/rail.js): a ruler down the left edge, wide screens only ── */
 .rail { display: none; }
@@ -120,7 +134,8 @@ button { font: inherit; color: inherit; }
   /* The rail is a column of its own: the page moves over to make room. */
   body { padding-left: var(--rail-w); }
   .nav nav { display: none; }
-  .nav .btn { margin-left: auto; }
+  .nav-settings { margin-left: auto; }
+  .nav .btn { margin-left: .4rem; }
   .rail {
     display: block; position: fixed; z-index: 45; left: 0; top: 0; bottom: 0; width: var(--rail-w);
     background: var(--ink); border-right: 1px solid var(--line);
