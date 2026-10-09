@@ -13,13 +13,13 @@
  */
 
 const DURATION = 750;     // ms for a full glide
-const BLUR_PER_SPEED = 6; // px of blur per (px/ms) of scroll speed
-const MAX_BLUR = 18;      // px, vertical blur cap
+const BLUR_PER_SPEED = 4.5; // px of blur per (px/ms) of scroll speed
+const MAX_BLUR = 14;      // px, vertical blur cap
 // Hand scrolling: no blur below SCROLL_FLOOR px/ms (reading speed), then
 // SCROLL_GAIN px of blur per px/ms above it, up to SCROLL_MAX.
 const SCROLL_FLOOR = 1.2;
-const SCROLL_GAIN = 3.5;
-const SCROLL_MAX = 12;
+const SCROLL_GAIN = 2.6;
+const SCROLL_MAX = 9;
 
 // Ease in and out (cubic), so the blur builds, peaks mid-flight, and clears.
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
