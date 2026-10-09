@@ -4,11 +4,18 @@
  * Each entry turns a few slider values into a pose, then the exercise's own
  * measure() scores it with the app's scoring curves. Presets are the common
  * faults a coach would point out. `cue()` returns what the coach would say,
- * and `focus()` the body part it's about (a skeleton key, for the note's arrow).
+ * as parts the voice has recordings for, and `focus()` the body part it's
+ * about (a skeleton key, for the note's arrow).
  */
 
 import { build, blend, SEG } from "./rig.js";
 import { BY_ID } from "./poses.js";
+import { FAULTS, PRAISE } from "../coaching.js";
+
+// Cues are the trainer's own recorded lines (js/coaching.js), so the site
+// speaks them in the same natural voice (public/audio) instead of the
+// browser's robotic one. fault(ex, key) = that fault's first phrasing.
+const fault = (ex, key) => FAULTS[ex][key][2][0];
 
 const rad = (d) => (d * Math.PI) / 180;
 
@@ -44,10 +51,8 @@ export const LAB = {
     arc: (s) => [s.hip, s.kneeN, s.ankN],
     cue(v, m) {
       const [[, depth], [, posture]] = m.parts;
-      if (depth >= 90 && posture >= 90) return "Clean rep. Thighs at parallel, chest proud.";
-      return depth <= posture
-        ? "Sit deeper: get your thighs down to parallel."
-        : "Chest up. You're folding over your knees.";
+      if (depth >= 90 && posture >= 90) return [PRAISE.Coach[3]];                    // "Textbook."
+      return [depth <= posture ? fault("Squat", "depth") : fault("Squat", "lean")];
     },
     focus(v, m) {
       const [[, depth], [, posture]] = m.parts;
@@ -71,9 +76,9 @@ export const LAB = {
     guide: (s) => [s.neck, s.ankN],
     cue(v, m) {
       const [[, depth], [, line]] = m.parts;
-      if (depth >= 90 && line >= 90) return "Clean rep. Full depth, one straight line.";
-      if (depth <= line) return "Go lower: elbows to about 90°.";
-      return v.hips > 0 ? "Squeeze your glutes. Your hips are sagging." : "Drop your hips into one straight line.";
+      if (depth >= 90 && line >= 90) return [PRAISE.Coach[2]];                       // "Solid, keep that form."
+      if (depth <= line) return [fault("Push-up", "depth")];
+      return [fault("Push-up", v.hips > 0 ? "sag" : "pike")];
     },
     focus(v, m) {
       const [[, depth], [, line]] = m.parts;
@@ -93,8 +98,8 @@ export const LAB = {
     pose: (v) => shiftHip(BY_ID.plank.top, v.hips),
     guide: (s) => [s.neck, s.ankN],
     cue(v, m) {
-      if (m.score >= 90) return "Solid. Shoulders, hips and ankles in one line.";
-      return v.hips > 0 ? "Brace your core and lift your hips." : "Lower your hips until your body is flat.";
+      if (m.score >= 90) return [PRAISE.Coach[1]];                                   // "That's the standard."
+      return [fault("Plank", v.hips > 0 ? "sag" : "pike")];
     },
     focus: () => "hip",
   },
@@ -113,8 +118,8 @@ export const LAB = {
     arc: (s) => [s.hip, s.kneeN, s.ankN],
     cue(v, m) {
       const [[, depth], [, posture]] = m.parts;
-      if (depth >= 90 && posture >= 90) return "Clean rep. Front knee at 90°, torso tall.";
-      return depth <= posture ? "Drop your back knee toward the floor." : "Stay tall. Don't lean over your front leg.";
+      if (depth >= 90 && posture >= 90) return [PRAISE.Chill[1]];                    // "Smooth rep."
+      return [fault("Lunge", depth <= posture ? "shallow" : "lean")];
     },
     focus(v, m) {
       const [[, depth], [, posture]] = m.parts;
@@ -141,8 +146,8 @@ export const LAB = {
     },
     cue(v, m) {
       const [[, arms], [, feet]] = m.parts;
-      if (arms >= 90 && feet >= 90) return "Full range. Hands overhead, feet wide.";
-      return arms <= feet ? "Reach all the way overhead." : "Jump your feet out wider.";
+      if (arms >= 90 && feet >= 90) return [PRAISE.Chill[4]];                        // "Good one."
+      return [fault("Jumping Jack", arms <= feet ? "extension" : "feet")];
     },
     arc: (s) => [s.hpN, s.shN, s.wriN],
     focus(v, m) {
@@ -157,5 +162,9 @@ export function evaluate(id, v) {
   const lab = LAB[id];
   const s = build(lab.pose(v));
   const m = BY_ID[id].measure(s);
-  return { s, m, cue: lab.cue(v, m), focus: lab.focus(v, m) };
+  const parts = lab.cue(v, m);
+  return { s, m, cue: asText(parts), parts, focus: lab.focus(v, m) };
 }
+
+/** Parts as one line of text: each a sentence ("Go lower, …" → "Go lower, ….") */
+export const asText = (parts) => parts.map((p) => (/[.!?]$/.test(p) ? p : `${p}.`)).join(" ");

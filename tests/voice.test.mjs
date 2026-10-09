@@ -86,6 +86,23 @@ for (const auto of [true, false]) for (let s = 90; s >= 0; s--) { const c = rest
 say([...Object.values(SETUP_CUES), ...Object.values(FRAMING)]);
 check("The coach and app only say recorded phrases", !unknown.size, unknown.size ? [...unknown].slice(0, 5).join(" | ") : `checked ${PERSONALITIES.length * 3 * Object.keys(REGISTRY).length * 120} simulated reps`);
 
+/* ── The website speaks in the same recorded voice ──────── */
+// The homepage voice demo and the Form Lab's play button use these clips too,
+// so every line they can say must be recorded (or they'd sound robotic).
+const { DEMO, DEMO_SCORES } = await import("../public/js/site/coach-lines.js");
+const { LAB, evaluate } = await import("../public/js/figures/lab.js");
+const site = new Set();
+const sayOnSite = (parts) => parts.forEach((p) => { if (!known.has(partKey(p))) site.add(String(p)); });
+for (const lines of Object.values(DEMO)) lines.forEach((parts, i) => sayOnSite([DEMO_SCORES[i], ...parts]));
+let labLines = 0;
+for (const [id, lab] of Object.entries(LAB)) {
+  const settings = [...lab.presets.map((p) => p.v)];
+  // Every slider at its ends and middle too, not just the presets.
+  for (const sl of lab.sliders) for (const val of [sl.min, (sl.min + sl.max) / 2, sl.max]) settings.push({ ...lab.presets[0].v, [sl.key]: val });
+  for (const v of settings) { const { m, parts } = evaluate(id, v); sayOnSite([Math.round(m.score), ...parts]); labLines++; }
+}
+check("The website's demo and Form Lab only say recorded phrases", !site.size, site.size ? [...site].slice(0, 4).join(" | ") : `${labLines} Form Lab poses + ${Object.keys(DEMO).length * 3} demo lines`);
+
 console.log(`\nVoice pack: ${(totalBytes / 1048576).toFixed(1)} MB (${Object.keys(VOICES).length} voices × ${keys.length} clips)`);
 console.log(`${fail ? `${fail} voice check(s) FAILED` : "All voice checks pass"} (${pass} passed)`);
 process.exit(fail ? 1 : 0);

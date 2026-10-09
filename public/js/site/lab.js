@@ -12,6 +12,7 @@ import { figureMarkup } from "../figures/draw.js";
 import { angleMark, levelLine, offsetMark, coachNote, jointAngle } from "../figures/annotate.js";
 import { gradeColor, gradeLetter } from "../grade.js";
 import { slide, EASE } from "../ui/motion.js";
+import { voice, configureVoice } from "../voice.js";
 
 /**
  * Drawing-board marks for one pose: the measured angle as a protractor,
@@ -48,6 +49,7 @@ export function mountLab(root) {
 
   let id = "squat";
   let v = {};
+  let cueParts = [];             // what the play button says after the score
 
   function select(next, focus = false) {
     // Switching exercise: the new figure and its controls slide in from the
@@ -89,7 +91,8 @@ export function mountLab(root) {
 
   function render() {
     const lab = LAB[id];
-    const { s, m, cue, focus } = evaluate(id, v);
+    const { s, m, cue, parts, focus } = evaluate(id, v);
+    cueParts = parts;
     const score = Math.round(m.score);
     const c = gradeColor(score);
     root.style.setProperty("--lab", c);
@@ -143,12 +146,10 @@ export function mountLab(root) {
     render();
   });
 
+  // The score, then the cue, in the trainer's recorded voice (js/voice.js).
   ui.speak?.addEventListener("click", () => {
-    if (!("speechSynthesis" in window)) return;
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(`${ui.score.textContent}. ${ui.cue.textContent}`);
-    u.rate = 1.02;
-    speechSynthesis.speak(u);
+    configureVoice({ personality: "Chill" });
+    voice.say([Number(ui.score.textContent), ...cueParts], { interrupt: true });
   });
 
   select("squat");
