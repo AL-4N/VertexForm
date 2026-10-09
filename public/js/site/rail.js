@@ -5,7 +5,8 @@
  * its own column (the page shifts over to make room), so section
  * backgrounds never run underneath it.
  *
- * The fill grows continuously as you scroll: between two sections it's
+ * On the hero it rests on the first tick (that item is lit from the first
+ * frame; see index.html). Then it grows continuously as you scroll: between two sections it's
  * the same fraction of the way between their ticks, so it reaches a tick
  * exactly as that section becomes current (nav-spy.js lights the label at
  * the same line, 40% down the screen). After the last linked section it
@@ -40,9 +41,8 @@ export function mountRail() {
     const tops = sections.map((s) => s.getBoundingClientRect().top + scrollY);
     const lerp = (a, b, t) => a + (b - a) * Math.max(0, Math.min(1, t));
 
-    // Before the first section: from the top of the ruler to its first tick.
-    const start = innerHeight * 0.4;
-    if (line < tops[0]) return lerp(0, ticks[0], (line - start) / Math.max(1, tops[0] - start));
+    // Before the first section (the hero): rest on the first tick.
+    if (line < tops[0]) return ticks[0];
     for (let i = 0; i < tops.length - 1; i++) {
       if (line < tops[i + 1]) return lerp(ticks[i], ticks[i + 1], (line - tops[i]) / (tops[i + 1] - tops[i]));
     }
@@ -57,7 +57,6 @@ export function mountRail() {
     const H = inner.offsetHeight || 1;
     fill.style.transform = `scaleY(${(y / H).toFixed(4)})`;
     marker.style.transform = `translateY(${y.toFixed(2)}px)`;
-    marker.classList.toggle("on", y > 0.5);
   };
 
   function frame(now) {
