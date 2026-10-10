@@ -717,6 +717,9 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .rp-seg button + button { border-left: 1px solid var(--border); }
 .rp-seg button[aria-pressed="true"] { background: var(--panel-hi2); color: var(--text); }
 .rp-seg button:disabled { cursor: not-allowed; opacity: .45; }
+.rp-seg.has-ind { background: var(--panel); }
+.rp-seg.has-ind button, .rp-seg.has-ind button[aria-pressed="true"] { background: transparent; }
+.rp-seg .seg-ind { background: var(--panel-hi2); }
 .rp-speed button { font-family: var(--mono); }
 .rp-seg-label { display: grid; place-items: center; padding: 0 .6rem; font-size: .75rem; color: var(--text-dim); background: var(--panel-hi); border-right: 1px solid var(--border); }
 .rp-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem .8rem; margin-top: .6rem; }

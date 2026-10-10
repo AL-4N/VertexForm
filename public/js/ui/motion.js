@@ -119,3 +119,40 @@ export function slide(el, {
 export function settle(el) {
   running.get(el)?.cancel();
 }
+
+/**
+ * A damped spring from `from` to `to`, like a gauge needle settling: it
+ * overshoots a little, swings back and comes to rest. Calls onUpdate(value)
+ * every frame. Returns a function that stops it where it is.
+ * Reduced motion: jumps straight to `to`.
+ */
+export function spring(from, to, onUpdate, { stiffness = 190, damping = 17, precision = 0.05 } = {}) {
+  if (reducedMotion() || from === to) { onUpdate(to); return () => {}; }
+  let x = from, v = 0, last = 0, raf = 0;
+  const step = (now) => {
+    const dt = Math.min(0.032, last ? (now - last) / 1000 : 0.016);
+    last = now;
+    const a = stiffness * (to - x) - damping * v;      // unit mass
+    v += a * dt;
+    x += v * dt;
+    if (Math.abs(to - x) < precision && Math.abs(v) < precision * 10) { onUpdate(to); raf = 0; return; }
+    onUpdate(x);
+    raf = requestAnimationFrame(step);
+  };
+  raf = requestAnimationFrame(step);
+  return () => cancelAnimationFrame(raf);
+}
+
+/** A timed run from `from` to `to` (ease-out by default). Returns a stop function. */
+export function tween(from, to, onUpdate, { duration = 900, ease = EASE.out } = {}) {
+  if (reducedMotion() || duration <= 0) { onUpdate(to); return () => {}; }
+  let start = 0, raf = 0;
+  const step = (now) => {
+    start ||= now;
+    const t = Math.min(1, (now - start) / duration);
+    onUpdate(from + (to - from) * ease(t));
+    raf = t < 1 ? requestAnimationFrame(step) : 0;
+  };
+  raf = requestAnimationFrame(step);
+  return () => cancelAnimationFrame(raf);
+}

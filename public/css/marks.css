@@ -16,3 +16,26 @@
 .vf-note-arrow { fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .vf-note-good .vf-note-arrow { stroke: var(--g100, #2ee59d); }
 .vf-note-fix  .vf-note-arrow { stroke: var(--g70, #ffbe3d); }
+
+/* A note being written (coachNote write: true): each line is penned in left
+   to right after the one before (--t start, --d length), then the arrow
+   draws itself toward the body part. */
+.vf-note-write text { clip-path: inset(-6px 100% -6px 0); animation: vf-pen var(--d, .5s) cubic-bezier(.45, .05, .55, .95) var(--t, 0s) forwards; }
+.vf-note-write .vf-note-arrow { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: vf-arrow .38s cubic-bezier(.22, .61, .36, 1) var(--t, 0s) forwards; }
+@keyframes vf-pen { to { clip-path: inset(-6px -6px -6px 0); } }
+@keyframes vf-arrow { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .vf-note-write text { animation: none; clip-path: none; }
+  .vf-note-write .vf-note-arrow { animation: none; stroke-dashoffset: 0; }
+}
+
+/* Rolling digits (js/ui/digits.js): each digit rolls in its own window. */
+.dg { display: inline-block; position: relative; overflow: hidden; vertical-align: bottom; line-height: inherit; }
+.dg > span { display: inline-block; }
+.dg > .dg-out { position: absolute; left: 0; top: 0; }
+
+/* Gliding toggle highlight (js/ui/segmented.js): one indicator slides
+   between options; the options themselves go transparent. */
+.has-ind { position: relative; isolation: isolate; }
+.has-ind > button { position: relative; z-index: 1; }
+.seg-ind { position: absolute; z-index: 0; pointer-events: none; opacity: 0; transition: width .32s cubic-bezier(.22,.61,.36,1), height .32s, opacity .2s; }

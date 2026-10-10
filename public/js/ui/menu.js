@@ -6,6 +6,7 @@ import { $, showScreen, confirmAction, toast } from "./components.js";
 import { gradeVar } from "../geometry.js";
 import { renderPictos } from "../figures/pictos.js";
 import { renderChallengeCard } from "./challenges.js";
+import { rollTo } from "./digits.js";
 
 let sessionLog = [];
 
@@ -74,9 +75,9 @@ function renderSidebar() {
   }
 
   const avg = globalAverage();
-  $("#global-avg").textContent = avg ?? "--";
+  rollTo($("#global-avg"), avg ?? "--");
   if (avg != null) $("#global-avg").style.color = gradeVar(avg);
-  $("#total-reps").textContent = store.stats.totalReps ?? 0;
+  rollTo($("#total-reps"), store.stats.totalReps ?? 0);
   const streak = dayStreak();
   $("#day-streak").textContent = streak ? `${streak} day${streak === 1 ? "" : "s"}` : "0";
   renderChallengeCard();

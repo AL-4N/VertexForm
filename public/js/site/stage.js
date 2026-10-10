@@ -8,6 +8,10 @@
  *
  * Auto-advances between exercises until someone picks a tab, pauses when
  * scrolled out of view, and renders a still frame for reduced motion.
+ *
+ * The first time the page opens in a visit, the figure arrives the way the
+ * trainer sees a person ("it finds you"): the tracked points pop in, the
+ * bones join them up, then the grade colour floods in.
  */
 
 import { build, blend } from "../figures/rig.js";
@@ -15,6 +19,7 @@ import { EXERCISES, GROUND } from "../figures/poses.js";
 import { gradeColor, gradeLetter } from "../grade.js";
 import { slide, EASE } from "../ui/motion.js";
 import { angleMark, levelLine, coachNote } from "../figures/annotate.js";
+import { keypoints } from "../figures/draw.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const CYCLES = { squat: 2, pushup: 2, plank: 1, lunge: 2, jack: 5 };
@@ -68,8 +73,9 @@ export function mountStage(root) {
   const guide = el("line", { class: "stage-guide" }, svg);       // plank target line
   const far   = el("g", { class: "limb far" }, svg);
   const near  = el("g", { class: "limb near" }, svg);
-  const marks = el("g", { class: "stage-marks" }, svg);           // protractor, notes
-  let marksHTML = "";
+  const marks = el("g", { class: "stage-marks" }, svg);           // protractor, parallel line
+  const noteG = el("g", { class: "stage-note" }, svg);            // the coach's note (written once per rep)
+  let marksHTML = "", noteOn = false, introActive = false;
 
   const farLeg  = el("polyline", {}, far);
   const farArm  = el("polyline", {}, far);
@@ -96,6 +102,7 @@ export function mountStage(root) {
       slide(card.name, { from: [dir * 30, 0], to: [0, 0], opacity: [0, 1], duration: 380, ease: EASE.out });
     }
     start = performance.now(); cycles = 0;
+    noteG.replaceChildren(); noteOn = false;
     if (byUser) pinned = true;
     tabs.forEach((t, k) => t.setAttribute("aria-selected", String(k === idx)));
     card.name.textContent = EXERCISES[idx].name;
@@ -165,11 +172,14 @@ export function mountStage(root) {
     }[ex.id];
     let marked = arcAt ? angleMark(...arcAt) : "";
     if (ex.id === "squat" && t > 0.6) marked += levelLine(s.kneeN[1], s.kneeN[0] - 120, s.kneeN[0] + 70, "parallel");
-    if (ex.id === "plank" || t > 0.9) {
-      const [text, at] = NOTES[ex.id];
-      marked += coachNote(s[at], text, { view: VIEW, pts: Object.values(s).filter(Array.isArray), tone: "good" });
-    }
     if (marked !== marksHTML) { marks.innerHTML = marked; marksHTML = marked; }
+    // The note is written once, when the rep reaches the bottom (always, for the plank).
+    const wantNote = ex.id === "plank" || t >= 0.999 || (noteOn && t > 0.85);
+    if (wantNote && !noteOn) {
+      const [text, at] = NOTES[ex.id];
+      noteG.innerHTML = coachNote(s[at], text, { view: VIEW, pts: Object.values(s).filter(Array.isArray), tone: "good", write: true });
+      noteOn = true;
+    } else if (!wantNote && noteOn) { noteG.replaceChildren(); noteOn = false; }
 
     if (ex.id === "plank") {
       guide.setAttribute("x1", s.neck[0]); guide.setAttribute("y1", s.neck[1]);
@@ -190,7 +200,7 @@ export function mountStage(root) {
   let last = performance.now();
   function frame(now) {
     raf = requestAnimationFrame(frame);
-    if (!visible) { last = now; return; }
+    if (!visible || introActive) { last = now; start = now; return; }
     const dt = now - last; last = now;
     const ex = EXERCISES[idx];
     const [dn, hold, up, rest] = ex.timing;
@@ -209,8 +219,68 @@ export function mountStage(root) {
     draw(t, dt);
   }
 
+  /* ── "It finds you" ───────────────────────────────────── */
+  // Once per visit, only if the hero is on screen. Each step is also timed
+  // with setTimeout, so the figure always ends up fully drawn even if the
+  // browser skips the animations.
+  function playIntro() {
+    const ex = EXERCISES[idx];
+    const s = build(blend(ex.top, ex.bottom, 0));
+    draw(0);
+    introActive = true;
+    const limbs = [spine, nearLeg, farLeg, nearArm, farArm, girdles];
+    const anims = [];
+    const go = (node, frames, opts) => { if (node.animate) anims.push(node.animate(frames, { fill: "both", ...opts })); };
+    svg.style.setProperty("--live", "#eef1fb");
+    svg.classList.add("intro");
+    marks.style.opacity = "0";
+
+    // 1. The tracked points pop in, one after another.
+    const dots = el("g", { class: "intro-dots" }, svg);
+    const pts = keypoints(s);
+    pts.forEach((p, i) => {
+      const dot = el("circle", { cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: i >= pts.length - 5 ? 2.6 : 5.2 }, dots);
+      go(dot, [{ opacity: 0, transform: "scale(.2)" }, { opacity: 1, transform: "scale(1)" }],
+        { duration: 240, delay: i * 18, easing: "cubic-bezier(.2,.9,.3,1.35)" });
+    });
+    // 2. The bones join them up.
+    const T1 = 380;
+    limbs.forEach((l, k) => {
+      l.setAttribute("pathLength", "1");
+      go(l, [{ strokeDasharray: "1 1", strokeDashoffset: 1 }, { strokeDasharray: "1 1", strokeDashoffset: 0 }],
+        { duration: 420, delay: T1 + k * 55, easing: "cubic-bezier(.22,.61,.36,1)" });
+    });
+    go(head, [{ opacity: 0, transform: "scale(.6)" }, { opacity: 1, transform: "scale(1)" }],
+      { duration: 320, delay: T1 + 220, easing: "cubic-bezier(.2,.9,.3,1.3)" });
+    joints.forEach((j) => go(j, [{ opacity: 0 }, { opacity: 0 }], { duration: 1, fill: "forwards" }));
+    go(glow, [{ opacity: 0 }, { opacity: 0 }], { duration: 1, fill: "forwards" });    // the glow comes with the colour
+
+    // 3. The grade colour floods in; the points hand over to the joints.
+    const T2 = T1 + 720;
+    setTimeout(() => {
+      svg.classList.add("intro-color");
+      svg.style.removeProperty("--live");
+      draw(0);
+      go(dots, [{ opacity: 1 }, { opacity: 0 }], { duration: 320, easing: "ease-out" });
+      go(glow, [{ opacity: 0 }, { opacity: 1 }], { duration: 500, easing: "ease-out" });
+    }, T2);
+    setTimeout(() => {
+      anims.forEach((a) => a.cancel());
+      limbs.forEach((l) => l.removeAttribute("pathLength"));
+      dots.remove();
+      marks.style.opacity = "";
+      svg.classList.remove("intro", "intro-color");
+      introActive = false;
+    }, T2 + 520);
+  }
+
   select(0, false);
   if (reduced) { draw(stillT()); return; }
+
+  let firstVisit = true;
+  try { firstVisit = !sessionStorage.getItem("vf-intro-seen"); sessionStorage.setItem("vf-intro-seen", "1"); } catch { /* storage blocked: play it */ }
+  const onScreen = root.getBoundingClientRect().bottom > 0 && root.getBoundingClientRect().top < innerHeight;
+  if (firstVisit && onScreen) playIntro();
 
   new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { threshold: 0.05 }).observe(root);
   document.addEventListener("visibilitychange", () => { visible = !document.hidden; });

@@ -31,9 +31,10 @@ import { voice, speech, beep, setMuted, isMuted } from "../voice.js";
 import { recordScore, recordSession, lastSession, countRep } from "../storage.js";
 import { checkRep, checkStreak, checkSession } from "../achievements.js";
 import { RepBuffer, makeClip } from "../repclips.js";
+import { rollTo } from "./digits.js";
 import { putClips } from "../replay-store.js";
 import { $, renderBars, toast } from "./components.js";
-import { slide, EASE } from "./motion.js";
+import { slide, EASE, spring } from "./motion.js";
 import { sizeCanvas, drawFrame, drawSkeleton, drawGuide, drawBorder, drawFramingGuide } from "./overlay.js";
 import { buildGuide, mirrorGuide, guideAlpha } from "../guide.js";
 import { framingCheck, lightingHint } from "../tracking.js";
@@ -85,7 +86,8 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
   $("#celebrate").hidden = true;
   $("#live-best").textContent = "Best: –";
   $("#live-clock").textContent = "0:00";
-  $("#gym-reps").textContent = "0";
+  delete $("#gym-reps").dataset.roll;
+  rollTo($("#gym-reps"), 0);
   $("#gym-sub").textContent = ex.isHold ? "seconds" : isSet ? `of ${cfg.setReps} reps` : "reps";
   $("#paused").hidden = true;
   $("#live-pause").setAttribute("aria-pressed", "false");
@@ -278,7 +280,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
       const shown = ex.isHold ? out.hold?.score ?? null : lastScore;
       drawBorder(ctx, w, h, shown ?? 0, target);
       if (ex.isHold && out.hold) {
-        setText("#gym-reps", String(Math.floor(Math.min(out.hold.seconds, out.hold.goal))));
+        rollTo($("#gym-reps"), Math.floor(Math.min(out.hold.seconds, out.hold.goal)));
         setBadge(out.hold.score == null ? null : Math.round(out.hold.score));
         setText("#live-reps",
           `${out.hold.label}: ${Math.min(out.hold.seconds, out.hold.goal).toFixed(1)}${Number.isFinite(out.hold.goal) ? " / " + out.hold.goal + " s" : " s"}`);
@@ -375,7 +377,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
 
   function updateCounts() {
     $("#live-best").textContent = `Best: ${session.best}`;
-    setText("#gym-reps", String(ex.isHold ? Math.floor(session.hold.inPos) : session.reps.length));
+    rollTo($("#gym-reps"), ex.isHold ? Math.floor(session.hold.inPos) : session.reps.length);
     setText("#gym-sub", ex.isHold ? "seconds" : `${isSet ? `of ${cfg.setReps} reps` : "reps"} · best ${session.best}`);
     if (ex.isHold) return;
     $("#live-reps").textContent = isSet
@@ -862,10 +864,26 @@ function dropBadge() {
   slide($("#grade-badge"), { from: [0, -28], to: [0, 0], duration: 360, ease: EASE.outBack, strength: 1.1 });
 }
 
+// The badge's number swings to each new score and settles, like a gauge
+// needle (spring); letter and colour follow the number as it moves.
+let badgeAt = null, stopBadge = null;
 function setBadge(score) {
-  $("#grade-letter").textContent = score == null ? "–" : gradeLetter(score);
-  $("#grade-letter").style.color = score == null ? "" : gradeVar(score);
-  $("#grade-num").textContent = score == null ? "" : score;
+  stopBadge?.();
+  if (score == null) {
+    badgeAt = null;
+    $("#grade-letter").textContent = "–";
+    $("#grade-letter").style.color = "";
+    $("#grade-num").textContent = "";
+    return;
+  }
+  const show = (x) => {
+    const n = Math.round(Math.max(0, Math.min(100, x)));
+    $("#grade-letter").textContent = gradeLetter(n);
+    $("#grade-letter").style.color = gradeVar(n);
+    $("#grade-num").textContent = n;
+    badgeAt = x;
+  };
+  stopBadge = spring(badgeAt ?? score, score, show, { stiffness: 220, damping: 18 });
 }
 
 function addChip(score, good) {

@@ -25,6 +25,7 @@ import { allClips, putClips, removeClip, purgeExpired } from "../replay-store.js
 import { angleMark } from "../figures/annotate.js";
 import { gradeColor, gradeLetter } from "../grade.js";
 import { $, showScreen, toast, confirmAction } from "./components.js";
+import { glide } from "./segmented.js";
 
 const VIEW_W = 600, VIEW_H = 400;
 const f1 = (n) => n.toFixed(1);
@@ -223,6 +224,7 @@ export function createPlayer(host) {
   });
   // Only spend frames while the player is on screen.
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(svg);
+  host.querySelectorAll(".rp-seg").forEach(glide);
 
   return {
     /** Play a clip. `opts.best`: the clip "Best rep" compares with (or null). */

@@ -5,15 +5,38 @@ import { renderReplayCard } from "./replay.js";
 import { gradeLetter, gradeVar } from "../geometry.js";
 import { faultLabel, faultPhrase } from "../coaching.js";
 import { getExercise } from "../exercises/index.js";
-import { slide, EASE } from "./motion.js";
+import { slide, tween, EASE } from "./motion.js";
+import { gradeColor } from "../grade.js";
+
+/**
+ * The score counts up from 0, and the number and letter take each colour of
+ * the grade scale on the way, so you watch it climb from coral to where you
+ * landed; the letter drops in each time it moves up a grade.
+ */
+let stopCount = null;
+function countUp(best) {
+  stopCount?.();
+  const num = $("#res-score"), letter = $("#res-letter");
+  let shown = null;
+  stopCount = tween(0, best, (x) => {
+    const n = Math.round(x);
+    num.textContent = n;
+    num.style.color = gradeColor(n);
+    const l = gradeLetter(n);
+    if (l !== shown) {
+      letter.textContent = l;
+      letter.style.color = gradeVar(n);
+      if (shown != null) slide(letter, { from: [0, -10], to: [0, 0], duration: 200, ease: EASE.out, strength: 0.8 });
+      shown = l;
+    }
+  }, { duration: 1100 });
+}
 
 export function renderResults(r) {
   if (!r) return;
 
   $("#results-title").textContent = `${r.exercise} results`;
-  $("#res-letter").textContent = gradeLetter(r.best);
-  $("#res-letter").style.color = gradeVar(r.best);
-  $("#res-score").textContent = r.best;
+  countUp(r.best);
   const held = Math.round((r.durations ?? []).reduce((a, b) => a + b, 0));
   $("#res-sub").textContent = r.isHold
     ? `${held} s hold · best 5 s ${r.best} · average ${r.average}`

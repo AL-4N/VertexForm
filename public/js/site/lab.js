@@ -11,7 +11,7 @@ import { BY_ID } from "../figures/poses.js";
 import { figureMarkup } from "../figures/draw.js";
 import { angleMark, levelLine, offsetMark, coachNote, jointAngle } from "../figures/annotate.js";
 import { gradeColor, gradeLetter } from "../grade.js";
-import { slide, EASE } from "../ui/motion.js";
+import { slide, spring, EASE } from "../ui/motion.js";
 import { voice, configureVoice } from "../voice.js";
 
 /**
@@ -19,7 +19,7 @@ import { voice, configureVoice } from "../voice.js";
  * squat parallel / body-line offset as dimensions, and the coach's cue as a
  * handwritten note pointing at the body part it's about.
  */
-function annotations(exId, s, lab, view, score, cue, focus) {
+function annotations(exId, s, lab, view, score, cue, focus, note) {
   const pts = Object.values(s).filter(Array.isArray);
   let out = "";
   if (exId === "squat") out += levelLine(s.kneeN[1], s.kneeN[0] - 120, s.kneeN[0] + 70, "parallel");
@@ -32,7 +32,8 @@ function annotations(exId, s, lab, view, score, cue, focus) {
   if (arc) out += angleMark(...arc);
   // The big score sits over the picture's top-left corner.
   const avoid = [{ x: view.x, y: view.y, w: view.w * 0.42, h: view.h * 0.22 }];
-  out += coachNote(s[focus], cue, { view, pts, avoid, tone: score >= 90 ? "good" : "fix" });
+  // note: "write" pens a new cue in, "show" keeps the last one, "none" while the pose is still swinging.
+  if (note !== "none") out += coachNote(s[focus], cue, { view, pts, avoid, tone: score >= 90 ? "good" : "fix", write: note === "write" });
   return out;
 }
 const same = (a, b) => Object.keys(a).every((k) => Math.round(a[k]) === Math.round(b[k]));
@@ -50,6 +51,8 @@ export function mountLab(root) {
   let id = "squat";
   let v = {};
   let cueParts = [];             // what the play button says after the score
+  let lastNote = null;           // the cue the coach last wrote (so it's only penned in when it changes)
+  let swinging = false, stopSwing = null;
 
   function select(next, focus = false) {
     // Switching exercise: the new figure and its controls slide in from the
@@ -93,6 +96,8 @@ export function mountLab(root) {
     const lab = LAB[id];
     const { s, m, cue, parts, focus } = evaluate(id, v);
     cueParts = parts;
+    const note = swinging ? "none" : `${id}:${cue}` !== lastNote ? "write" : "show";
+    if (!swinging) lastNote = `${id}:${cue}`;
     const score = Math.round(m.score);
     const c = gradeColor(score);
     root.style.setProperty("--lab", c);
@@ -104,7 +109,7 @@ export function mountLab(root) {
       <defs><radialGradient id="lab-glow"><stop offset="0" stop-color="${c}" stop-opacity=".32"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs>
       <ellipse cx="300" cy="330" rx="260" ry="190" fill="url(#lab-glow)"/>
       ${figureMarkup(s, { color: c, floor: { x0: 24, x1: 576 }, guide: lab.guide?.(s), guideColor: "#eef1fb" })}
-      ${annotations(id, s, lab, view, score, cue, focus)}`;
+      ${annotations(id, s, lab, view, score, cue, focus, note)}`;
 
     ui.score.textContent = score;
     ui.letter.textContent = gradeLetter(score);
@@ -134,16 +139,30 @@ export function mountLab(root) {
   ui.sliders.addEventListener("input", (e) => {
     const inp = e.target.closest("input");
     if (!inp) return;
+    stopSwing?.(); swinging = false;
     v[inp.dataset.key] = Number(inp.value);
     render();
   });
 
+  // A preset swings the pose there like a gauge needle: a little past, back,
+  // and settled (js/ui/motion.js spring). The figure, angles and score all
+  // follow; the coach writes the new cue once it has settled.
   ui.presets.addEventListener("click", (e) => {
     const b = e.target.closest("[data-preset]");
     if (!b) return;
-    v = { ...LAB[id].presets[+b.dataset.preset].v };
-    syncInputs();
-    render();
+    const lab = LAB[id], from = { ...v }, to = { ...lab.presets[+b.dataset.preset].v };
+    const range = Object.fromEntries(lab.sliders.map((sl) => [sl.key, [sl.min, sl.max]]));
+    stopSwing?.();
+    swinging = true;
+    stopSwing = spring(0, 1, (k) => {
+      for (const key of Object.keys(to)) {
+        const [lo, hi] = range[key] ?? [-Infinity, Infinity];
+        v[key] = Math.max(lo, Math.min(hi, from[key] + (to[key] - from[key]) * k));
+      }
+      if (k === 1) { v = { ...to }; swinging = false; }
+      syncInputs();
+      render();
+    });
   });
 
   // The score, then the cue, in the trainer's recorded voice (js/voice.js).

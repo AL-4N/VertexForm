@@ -8,6 +8,7 @@ import { gradeColor } from "../grade.js";
 import { voice, configureVoice } from "../voice.js";
 import { asText } from "../figures/lab.js";
 import { DEMO, DEMO_SCORES } from "./coach-lines.js";
+import { glide } from "../ui/segmented.js";
 
 export function mountCoach(root) {
   if (!root) return;
@@ -32,4 +33,5 @@ export function mountCoach(root) {
 
   buttons.forEach((b) => b.addEventListener("click", () => { personality = b.dataset.voice; render(); }));
   render();
+  glide(root.querySelector(".voices"));
 }

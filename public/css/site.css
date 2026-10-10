@@ -237,6 +237,10 @@ button { font: inherit; color: inherit; }
 .limb.far.front polyline { opacity: 1; }
 .limb .head { fill: var(--ink); stroke: var(--live); stroke-width: 6; }
 .limb .joint { fill: #fff; }
+/* "It finds you" intro (stage.js): points, then bones, then colour. */
+.stage-svg.intro .intro-dots circle { fill: #fff; transform-box: fill-box; transform-origin: center; }
+.stage-svg.intro .head { transform-box: fill-box; transform-origin: center; }
+.stage-svg.intro-color .limb polyline, .stage-svg.intro-color .limb .head { transition: stroke .5s var(--ease); }
 
 .readout {
   display: grid; align-items: center; column-gap: 1.5rem; row-gap: .15rem;
@@ -376,6 +380,8 @@ button { font: inherit; color: inherit; }
 .voices { display: inline-flex; gap: .3rem; margin-top: 1.6rem; padding: .3rem; border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
 .voices button { border: 0; cursor: pointer; padding: .55rem 1.1rem; border-radius: 9px; background: transparent; color: var(--text-dim); font-weight: 600; }
 .voices button[aria-pressed="true"] { background: var(--go-gradient); color: #07140e; }
+.voices.has-ind button[aria-pressed="true"] { background: transparent; }
+.voices .seg-ind { background: var(--go-gradient); border-radius: 9px; }
 .cues { list-style: none; margin: 0; padding: 0; display: grid; gap: .8rem; }
 .cue { display: flex; align-items: center; gap: 1rem; background: var(--surface); border-radius: var(--r-md); padding: .85rem .9rem .85rem .85rem; box-shadow: inset 0 0 0 1px var(--line); }
 .cue-score { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; font-family: var(--display); font-weight: 800; font-size: 1.15rem; color: #0a0f1d; }

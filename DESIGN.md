@@ -100,6 +100,21 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   (`js/site/motion-nav.js`); slow reading-speed scrolling stays sharp.
 - The side rail's fill eases toward the scroll position every frame, so it
   never jumps.
+- Signature moments (each tied to what VertexForm does, not decoration):
+  - **"It finds you"** (`site/stage.js`): once per visit, the hero figure's
+    tracked points pop in, the bones join them, then the grade colour floods in.
+  - **Written notes** (`coachNote` with `write`): the coach's note is penned
+    in line by line, then its arrow draws to the body part. Only when the
+    cue is new.
+  - **Gauge settle** (`spring` in `ui/motion.js`): values that jump (a Form
+    Lab preset, the live grade badge) swing a little past and settle, like a
+    needle.
+  - **Count up the scale** (`results.js`): the final score counts from 0,
+    taking each grade colour on the way, the letter dropping in at each grade.
+  - **Rolling digits** (`ui/digits.js`): changed digits roll up or down with
+    a vertical motion blur (dashboard stats, the live rep counter).
+  - **Gliding toggles** (`ui/segmented.js`): one highlight slides between a
+    toggle group's options with a horizontal motion blur.
 - No fade-in-on-scroll for sections, no looping decorative animation.
 - `prefers-reduced-motion`: everything jumps straight to its end state.
 

@@ -131,9 +131,10 @@ function place(box, view, pts, target, avoid = []) {
 /**
  * opts: view {x,y,w,h} (the SVG viewBox), pts (the figure's points, to keep
  * clear of), avoid (more rects to keep clear of, e.g. a score overlaid on
- * the picture), tone ("good" | "fix").
+ * the picture), tone ("good" | "fix"), write (pen it in line by line, then
+ * draw the arrow; pass it only when the note is new, or it replays).
  */
-export function coachNote(target, text, { view, pts, avoid, tone = "fix" }) {
+export function coachNote(target, text, { view, pts, avoid, tone = "fix", write = false }) {
   const lines = wrap(text);
   const box = { w: Math.max(...lines.map((l) => l.length)) * CHAR_W, h: lines.length * LINE_H };
   const { x, y } = place(box, view, pts, target, avoid);
@@ -149,9 +150,16 @@ export function coachNote(target, text, { view, pts, avoid, tone = "fix" }) {
   const ang = Math.atan2(e[1] - c1[1], e[0] - c1[0]);
   const head = (da) => `${f(e[0] - 13 * Math.cos(ang + da))} ${f(e[1] - 13 * Math.sin(ang + da))}`;
 
-  const tspans = lines.map((l, i) => `<tspan x="${f(x)}" dy="${i ? LINE_H : 0}">${l}</tspan>`).join("");
-  return `<g class="vf-note vf-note-${tone}">
-    <path class="vf-note-arrow" d="M${f(s0[0])} ${f(s0[1])}Q${f(c1[0])} ${f(c1[1])} ${f(e[0])} ${f(e[1])}M${head(0.45)}L${f(e[0])} ${f(e[1])}L${head(-0.45)}"/>
-    <text x="${f(x)}" y="${f(y + 18)}" transform="rotate(-3 ${f(x)} ${f(y)})">${tspans}</text>
+  // One <text> per line, so `write` can pen them in one after another
+  // (css/marks.css): each line's time scales with its length, then the arrow.
+  let at = 0;
+  const texts = lines.map((l, i) => {
+    const dur = Math.max(0.28, l.length * 0.032), delay = at;
+    at += dur + 0.06;
+    return `<text x="${f(x)}" y="${f(y + 18 + i * LINE_H)}" transform="rotate(-3 ${f(x)} ${f(y)})" style="--d:${dur.toFixed(2)}s;--t:${delay.toFixed(2)}s">${l}</text>`;
+  }).join("");
+  return `<g class="vf-note vf-note-${tone}${write ? " vf-note-write" : ""}">
+    <path class="vf-note-arrow" pathLength="1" style="--t:${at.toFixed(2)}s" d="M${f(s0[0])} ${f(s0[1])}Q${f(c1[0])} ${f(c1[1])} ${f(e[0])} ${f(e[1])}M${head(0.45)}L${f(e[0])} ${f(e[1])}L${head(-0.45)}"/>
+    ${texts}
   </g>`;
 }
