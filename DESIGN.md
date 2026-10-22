@@ -91,6 +91,13 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   arrow to the body part. Green arrow for a good rep, amber for a fix. The
   note says the real cue, never filler.
 - Icons are drawn SVG (stroke `currentColor`). **No emoji icons.**
+- 3D view (`js/site/rep3d.js`, homepage): the same figure rules in
+  perspective. Drafting grid on the floor (25 cm squares, fading out), a
+  protractor ring around the figure with the webcam's position marked,
+  floor shadows, and the knee protractor drawn in the plane of the leg.
+  Far limbs recede to 38%. Drawn on a canvas with its own small camera,
+  no 3D library. Every score it shows comes from the engine (the clip's
+  data is made and checked by `tools/make-rep3d.mjs` / `tests/rep3d.test.mjs`).
 
 ## Motion
 

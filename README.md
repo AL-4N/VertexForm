@@ -84,7 +84,7 @@ on your device, and it works offline after the first visit.
   screen-reader announcements, reduced motion, and colour is never the only
   signal.
 
-**The website** (`index.html`): live stick-figure demo, the Form Lab (drag
+**The website** (`index.html`): live stick-figure demo, a 3D squat you can turn around (3D vs flat knee angle), the Form Lab (drag
 sliders and watch the real scoring engine grade a figure). Moving between the website and the trainer uses a
 motion-blur page transition.
 

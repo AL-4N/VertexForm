@@ -136,6 +136,63 @@
     </div>
   </section>
 
+  <!-- ═════════════ 3D REP VIEWER (js/site/rep3d.js) ═════════════ -->
+  <section class="section section-alt r3-section" aria-labelledby="r3-title">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="tag">Drag the figure to turn it</span>
+        <h2 id="r3-title">Turn the view and a flat angle changes. The 3D one doesn't.</h2>
+        <p>MediaPipe estimates how far each tracked point is from the camera, not only
+           where it sits in the picture. Side-on, the picture alone measures your joints
+           well. Turn toward the camera and flat angles start reading too straight, so
+           VertexForm blends in the 3D ones, up to half.</p>
+      </div>
+
+      <div class="r3" data-r3>
+        <div class="r3-stage">
+          <canvas class="r3-canvas" tabindex="0" role="img"
+                  aria-label="A squatting figure in 3D, coloured by each rep's score. Drag or use the arrow keys to turn the view."></canvas>
+          <span class="r3-hud r3-hud-view" data-3="view" aria-hidden="true">VIEW 38° FROM WEBCAM · 16° UP</span>
+          <span class="r3-hud r3-hud-src">Simulated person, scored by the real engine</span>
+          <p class="r3-status" data-3="status">Loading the 3D clip.</p>
+        </div>
+
+        <div class="r3-panel">
+          <div class="r3-controls">
+            <div class="r3-seg r3-clips" role="group" aria-label="Which squat">
+              <button type="button" data-clip="full" aria-pressed="true">Full depth</button>
+              <button type="button" data-clip="half" aria-pressed="false">Half squat</button>
+            </div>
+            <div class="r3-seg r3-views" role="group" aria-label="View">
+              <button type="button" data-view="webcam" aria-pressed="false">Webcam</button>
+              <button type="button" data-view="turned" aria-pressed="true">Turned</button>
+              <button type="button" data-view="front" aria-pressed="false">Front</button>
+              <button type="button" data-view="top" aria-pressed="false">Top</button>
+            </div>
+          </div>
+
+          <dl class="r3-rows">
+            <div><dt>Rep</dt><dd data-3="rep">1 of 3</dd></div>
+            <div><dt>Score</dt><dd class="r3-score" data-3="score">99 A+</dd></div>
+            <div><dt>Knee, measured in 3D</dt><dd data-3="k3">0°</dd></div>
+            <div><dt>Knee, as this view's picture shows it</dt><dd><span data-3="k2">0°</span> <small data-3="diff"></small></dd></div>
+          </dl>
+
+          <div class="r3-time">
+            <button type="button" class="r3-play" data-3="play" aria-pressed="true" aria-label="Pause">
+              <svg class="i-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4h3v12H6zM11 4h3v12h-3z"/></svg>
+              <svg class="i-play" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4l10 6-10 6z"/></svg>
+            </button>
+            <div class="r3-track">
+              <div class="r3-marks" data-3="marks" aria-hidden="true"></div>
+              <input type="range" min="0" max="1" step="1" value="0" data-3="scrub" aria-label="Position in the clip" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ═════════════ EXERCISES ═════════════ -->
   <section id="exercises" class="section">
     <div class="wrap">
