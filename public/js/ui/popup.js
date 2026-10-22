@@ -27,6 +27,27 @@ function shapeOf(dlg, from, radius) {
   return `inset(${top}px ${right}px ${bottom}px ${left}px round ${radius}px)`;
 }
 
+/**
+ * Grow an element that just appeared out of a rectangle on screen (the
+ * button or card that was pressed, measured before the page changed), then
+ * let its children rise in one after another. With no rect: out of the
+ * centre as a circle. Used for trainer screens, the skill-tree panel, and
+ * anything else that should look like it came from what you clicked.
+ */
+export function growFrom(el, rect, { radius = 14, duration = 560, items = [] } = {}) {
+  if (reducedMotion() || !el?.animate) return;
+  const d = el.getBoundingClientRect();
+  const from = rect && rect.width
+    ? `inset(${Math.max(0, rect.top - d.top)}px ${Math.max(0, d.right - rect.right)}px ${Math.max(0, d.bottom - rect.bottom)}px ${Math.max(0, rect.left - d.left)}px round ${radius}px)`
+    : `circle(0px at 50% ${Math.min(d.height / 2, innerHeight / 2 - d.top)}px)`;
+  const to = rect && rect.width ? `inset(0px 0px 0px 0px round 0px)` : `circle(${Math.hypot(d.width, d.height)}px at 50% ${Math.min(d.height / 2, innerHeight / 2 - d.top)}px)`;
+  el.animate([{ clipPath: from }, { clipPath: to }], { duration, easing: EASE_OUT });
+  items.forEach((c, i) => c.animate(
+    [{ opacity: 0, transform: "translateY(18px)", filter: "blur(5px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
+    { duration: 440, delay: 140 + i * 45, easing: EASE_OUT, fill: "backwards" },
+  ));
+}
+
 export function openPopup(dlg, from = null, { onClose } = {}) {
   dlg._from = from;
   dlg._onClose = onClose;

@@ -13,6 +13,7 @@
  *             a button to train it.
  */
 
+import { growFrom } from "./popup.js";
 import { store } from "../storage.js";
 import { skillPath } from "../skills.js";
 import { $, showScreen } from "./components.js";
@@ -143,6 +144,8 @@ function drawTree() {
     selected = node.dataset.skill;
     $$tree("[data-skill]").forEach((n) => n.setAttribute("aria-pressed", String(n.dataset.skill === selected)));
     drawDetail();
+    const panel = $("#tree-detail");
+    growFrom(panel, node.getBoundingClientRect(), { duration: 480, items: [...panel.children] });
   };
   drawDetail();
 

@@ -71,7 +71,7 @@ p  { margin: 0; line-height: 1.55; }
   .btn.danger:hover { color: #fff; }
 }
 @media (prefers-reduced-motion: reduce) { .btn, .btn::before { transition: none; } }
-.btn.primary { --btn-bg: var(--paper); border-color: transparent; color: var(--ink); }
+.btn.primary { --btn-bg: transparent; --btn-fill: linear-gradient(var(--paper), var(--paper)); background: var(--go-gradient); border-color: transparent; color: #090d1c; }
 .btn.ghost   { --btn-bg: transparent; color: var(--text-dim); }
 .btn.danger  { --btn-bg: transparent; --btn-fill: linear-gradient(var(--coral), var(--coral)); border-color: var(--coral); color: var(--coral); }
 
@@ -141,7 +141,7 @@ p  { margin: 0; line-height: 1.55; }
   color: var(--text-dim); transition: .15s var(--ease);
 }
 .pills button:hover { color: var(--text); }
-.pills button.on { background: var(--paper); border-color: transparent; color: var(--ink); }
+.pills button.on { background: var(--go-gradient); border-color: transparent; color: #090d1c; }
 
 /* ── Live stage ──────────────────────────────────────── */
 .stage { position: relative; width: 100%; height: 100vh; height: 100dvh; background: #000; overflow: hidden; }
@@ -206,7 +206,7 @@ p  { margin: 0; line-height: 1.55; }
   background: rgba(0,0,0,.55); backdrop-filter: blur(3px);
 }
 .countdown span { font-size: 9rem; font-weight: 800; color: var(--lime); line-height: 1; }
-.celebrate { background: rgba(13,13,12,.88); }
+.celebrate { background: rgba(29,79,145,.72); }
 .celebrate h2 { font-size: 2.6rem; letter-spacing: .02em; }
 .loading { font-size: 1rem; color: var(--text-dim); background: #000; }
 [hidden] { display: none !important; }
@@ -276,14 +276,14 @@ a.btn { text-decoration: none; display: inline-block; }
 .brand { display: flex; align-items: center; gap: .6rem; text-decoration: none; color: var(--text); }
 .brand svg { width: 30px; height: 30px; flex: none; }
 .brand h1 { font-size: 1.45rem; letter-spacing: -.02em; }
-.brand h1 em { font-style: normal; color: var(--text-dim); }
+.brand h1 em { font-style: normal; background: var(--go-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
 h1, h2, h3 { letter-spacing: -.02em; }
 .mode-card h3 { color: var(--text); }
 .mode-card:hover h3 { color: var(--lime); }
 .ex-card .name { font-size: 1.05rem; font-weight: 700; }
-.countdown span { color: var(--text); }
-.celebrate { background: rgba(13,13,12,.72); }
-.celebrate h2 { color: var(--g100, #2ee59d); }
+.countdown span { background: var(--go-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.celebrate { background: rgba(9,13,28,.72); }
+.celebrate h2 { background: var(--go-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .live-top strong { color: var(--text); }
 
 /* Exercise list uses the same rig-drawn figures as the site */
@@ -300,7 +300,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
 /* ── Setup screen: good-rep demo ─────────────────────── */
 .demo-card { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(200px, 340px) 1fr; gap: 1.5rem; align-items: center; }
 @media (max-width: 720px) { .demo-card { grid-template-columns: 1fr; } }
-.demo-fig { background: var(--bg, #0d0d0c); border-radius: 14px; padding: .5rem .5rem 0; }
+.demo-fig { background: var(--bg, #090d1c); border-radius: 14px; padding: .5rem .5rem 0; }
 .demo-fig svg { display: block; width: 100%; height: auto; max-height: 230px; }
 .demo-tips { margin: .6rem 0 .8rem; padding: 0; list-style: none; display: grid; gap: .55rem; }
 .demo-tips li { position: relative; padding-left: 1.6rem; font-weight: 600; }
@@ -312,7 +312,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
 @media (max-width: 560px) { .grade-row { flex-wrap: wrap; } .share-btn { margin-left: 0; width: 100%; } }
 
 /* ── Opened-as-a-file warning ───────────────────────── */
-.file-warn { position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%); z-index: 50; width: min(640px, calc(100% - 2rem)); display: grid; gap: .3rem; padding: 1rem 1.2rem; border-radius: 14px; background: #2a1420; color: #ecebe6; box-shadow: inset 0 0 0 1.5px #ff4d6d, 0 20px 50px -10px rgba(0,0,0,.7); font-size: .93rem; }
+.file-warn { position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%); z-index: 50; width: min(640px, calc(100% - 2rem)); display: grid; gap: .3rem; padding: 1rem 1.2rem; border-radius: 14px; background: #2a1420; color: #eef1fb; box-shadow: inset 0 0 0 1.5px #ff4d6d, 0 20px 50px -10px rgba(0,0,0,.7); font-size: .93rem; }
 .file-warn[hidden] { display: none; }
 .file-warn strong { color: #ffb3c1; }
 
@@ -352,7 +352,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .camera-select:disabled { cursor: default; color: var(--text-dim); border-color: var(--border); }
 .camera-select option { background: var(--panel); color: var(--text); }
 .live-actions { display: flex; align-items: center; gap: .5rem; flex: none; }
-.live-top .camera-select { background-color: rgba(26,26,24,.85); }
+.live-top .camera-select { background-color: rgba(18,26,50,.85); }
 
 /* Live score bars only show once there's something to show. */
 .live-bars:empty { display: none; }
@@ -361,7 +361,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
    The canvas behind these panels repaints every camera frame, so a
    backdrop-filter blur would be recomputed 30× a second. Solid translucent
    panels look nearly the same and cost nothing. */
-.live-bars, .live-stats { backdrop-filter: none; background: rgba(20,20,19,.82); }
+.live-bars, .live-stats { backdrop-filter: none; background: rgba(13,19,38,.82); }
 .live-tip { backdrop-filter: none; background: rgba(0,0,0,.72); z-index: 25; }
 .countdown { backdrop-filter: none; background: rgba(0,0,0,.28); }
 .celebrate { backdrop-filter: none; }
@@ -384,7 +384,7 @@ label { cursor: pointer; }
 .res-summary:empty { display: none; }
 .sum-row { display: grid; grid-template-columns: 6.2rem 1fr; gap: .7rem; align-items: start; font-size: .9rem; }
 .sum-row ul { margin: 0; padding-left: 1.1rem; }
-.sum-tag { font-size: .72rem; font-weight: 700; padding: .2rem .55rem; border-radius: var(--radius-pill); text-align: center; color: #0d0d0c; }
+.sum-tag { font-size: .72rem; font-weight: 700; padding: .2rem .55rem; border-radius: var(--radius-pill); text-align: center; color: #090d1c; }
 .sum-tag.good { background: var(--lime); }
 .sum-tag.fix { background: var(--amber); }
 .sum-tag.goal { background: var(--lime-dk); }
@@ -399,7 +399,7 @@ label { cursor: pointer; }
 .icon-btn {
   display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: .1rem;
   min-width: 2.75rem; height: 2.75rem; padding: .25rem .35rem; border-radius: 12px; cursor: pointer;
-  border: 1px solid var(--border); background: rgba(26,26,24,.85); color: var(--text);
+  border: 1px solid var(--border); background: rgba(18,26,50,.85); color: var(--text);
   font: inherit; transition: background .15s var(--ease), border-color .15s var(--ease);
 }
 .icon-btn:hover { border-color: var(--lime); }
@@ -426,7 +426,7 @@ label { cursor: pointer; }
 .stage.gym .live-tip { font-size: 1.5rem; }
 
 /* Paused */
-.paused { position: absolute; inset: 0; z-index: 22; display: flex; align-items: center; justify-content: center; background: rgba(13,13,12,.6); }
+.paused { position: absolute; inset: 0; z-index: 22; display: flex; align-items: center; justify-content: center; background: rgba(9,13,28,.6); }
 .paused-box { display: grid; gap: .7rem; justify-items: center; text-align: center; padding: 1.5rem 2rem; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--border); }
 .paused-box h2 { font-size: 1.6rem; }
 
@@ -571,7 +571,7 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .path-map {
   display: grid; gap: .45rem; padding: .8rem; margin: .2rem 0; border-radius: 6px; border: 1px solid var(--border);
   background-color: var(--bg);
-  background-image: linear-gradient(rgba(168,166,158,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(168,166,158,.07) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(166,174,203,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(166,174,203,.07) 1px, transparent 1px);
   background-size: 12px 12px;
 }
 .path-map-row { display: flex; justify-content: center; gap: .55rem; }
@@ -587,7 +587,7 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .skill-node svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .skill-node.mini { width: 18px; height: 18px; border-width: 1.5px; }
 .skill-node.mini svg { width: 12px; height: 12px; }
-.done > .skill-node { background: var(--lime); border-color: var(--lime); color: #0d0d0c; }
+.done > .skill-node { background: var(--lime); border-color: var(--lime); color: #090d1c; }
 .next > .skill-node { border-color: var(--amber); color: var(--amber); }
 .next > .skill-node svg { fill: currentColor; stroke: none; }
 .locked > .skill-node { color: var(--text-dim); }
@@ -600,7 +600,7 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 @media (max-width: 900px) { .tree-layout { grid-template-columns: 1fr; } }
 .tree-scroll {
   overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background-color: var(--bg);
-  background-image: linear-gradient(rgba(168,166,158,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(168,166,158,.06) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(166,174,203,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(166,174,203,.06) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 /* Grows upward: starting skills at the bottom, on a trunk (js/ui/skills.js). */
@@ -734,7 +734,7 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .rp-stage {
   border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;
   background-color: var(--bg);
-  background-image: linear-gradient(rgba(168,166,158,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(168,166,158,.06) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(166,174,203,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(166,174,203,.06) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 .rp-svg { display: block; width: 100%; height: auto; }
@@ -744,7 +744,7 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .rp-stage.two .rp-pane-b { border-left: 1px solid var(--border); }
 .rp-cap { padding: .35rem .6rem .5rem; font-size: .75rem; color: var(--text-dim); border-top: 1px solid var(--border); }
 .rp-pane-b .rp-cap { color: var(--lime); }
-.rp-floor { stroke: #3c3b36; stroke-width: 2; }
+.rp-floor { stroke: #2e3a63; stroke-width: 2; }
 .rp-controls { display: flex; align-items: center; gap: .7rem; margin-top: .7rem; }
 .rp-play {
   flex: none; display: grid; place-items: center; width: 40px; height: 40px; cursor: pointer;
@@ -859,24 +859,3 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .ch-result { font-size: .75rem; font-weight: 700; }
 .ch-result.complete { color: var(--lime); }
 .ch-result.ended { color: var(--text-dim); }
-
-/* ── Light desk, dark panels ─────────────────────────────
-   Outside the camera view the trainer sits on warm paper; cards stay dark
-   graphite panels, so the figures and grade colours keep their contrast
-   (same idea as the site's tones). The live camera screen stays all dark. */
-html:not(:has(#screen-live.active)) {
-  --bg: var(--paper);
-  --text: #151513; --text-dim: #4a4843;
-  --border: rgba(21,21,19,.14);
-  --panel: rgba(21,21,19,.05); --panel-hi: rgba(21,21,19,.07); --panel-hi2: rgba(21,21,19,.13);
-}
-html:not(:has(#screen-live.active)) :is(.card, .ex-card, .mode-card, .path-card, .tree-scroll, .tree-node, .tree-ghost, .onboarding, .pop, .onb-card, .paused-box, .loading-box, .toast, .cal-day, .rep-chip, .saved-rep) {
-  --bg: #0d0d0c; --text: #ecebe6; --text-dim: #a8a69e;
-  --border: #2c2b28; --panel: #1a1a18; --panel-hi: #222220; --panel-hi2: #2c2b28;
-  color: var(--text);
-}
-html:not(:has(#screen-live.active)) :is(.card, .ex-card, .mode-card, .path-card, .tree-node, .onboarding, .onb-card) { background-color: var(--panel); }
-/* Primary buttons on the paper desk are ink; inside panels they stay paper. */
-html:not(:has(#screen-live.active)) .btn.primary { --btn-bg: var(--ink); color: var(--paper); }
-html:not(:has(#screen-live.active)) :is(.card, .ex-card, .mode-card, .path-card, .onboarding, .pop, .onb-card) .btn.primary { --btn-bg: var(--paper); color: var(--ink); }
-html:not(:has(#screen-live.active)) .btn.primary:hover { color: var(--ink); }

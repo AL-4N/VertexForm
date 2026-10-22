@@ -22,6 +22,17 @@
   from { opacity: 0; transform: translateY(6vh) scale(.985); filter: blur(14px); }
 }
 
+/* Arriving from a link click: the new page opens as a circle growing out
+   of the point you clicked (--vt-x/--vt-y, set by the inline script in
+   each page's <head>), over the old page, which holds still. */
+html.vt-circle::view-transition-old(root) { animation: vf-hold .62s linear both; }
+html.vt-circle::view-transition-new(root) { animation: vf-circle .62s cubic-bezier(.22, .61, .36, 1) both; }
+@keyframes vf-hold { to { filter: blur(6px) brightness(.7); } }
+@keyframes vf-circle {
+  from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 50%)); }
+  to   { clip-path: circle(150vmax at var(--vt-x, 50%) var(--vt-y, 50%)); }
+}
+
 /* In-app screen changes: quicker and lighter. */
 html.vt-screen::view-transition-old(root) { animation: vf-screen-out .16s ease-in both; }
 html.vt-screen::view-transition-new(root) { animation: vf-screen-in .26s cubic-bezier(.22, .61, .36, 1) both; }

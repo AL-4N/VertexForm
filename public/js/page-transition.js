@@ -10,7 +10,18 @@ const native = () => "onpagereveal" in window;     // ships with cross-document 
 const KEY = "vf-page-transition";
 
 export function mountPageTransitions() {
-  if (native() || reduced()) return;
+  if (reduced()) return;
+  // Remember where a link to the other page was clicked: the next page opens
+  // as a circle growing from that point (the inline script in each page's
+  // <head> picks it up on "pagereveal", css/transitions.css draws it).
+  document.addEventListener("click", (e) => {
+    const a = e.target instanceof Element && e.target.closest("a[href]");
+    if (!a || e.button !== 0) return;
+    const url = new URL(a.href, location.href);
+    if (url.origin !== location.origin || url.pathname === location.pathname) return;
+    try { sessionStorage.setItem("vf-vt", JSON.stringify({ x: Math.round(e.clientX), y: Math.round(e.clientY) })); } catch { /* fine */ }
+  }, true);
+  if (native()) return;
   const body = document.body;
 
   // Arriving from a page that played the "leave" animation.

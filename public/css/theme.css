@@ -5,11 +5,11 @@
    =========================================================== */
 :root {
   /* Surfaces */
-  --bg:          #0d0d0c;
-  --panel:       #1a1a18;
-  --panel-hi:    #222220;
-  --panel-hi2:   #2c2b28;
-  --border:      #2c2b28;
+  --bg:          #090d1c;
+  --panel:       #121a32;
+  --panel-hi:    #18223f;
+  --panel-hi2:   #222c4e;
+  --border:      #222c4e;
 
   /* Brand + status */
   --lime:        #2ee59d;   /* A — top of the grade scale */
@@ -23,10 +23,10 @@
   --ideal:       #2ee59d;   /* ideal form: dashed green */
 
   /* Text */
-  --text:        #ecebe6;
-  --text-dim:    #a8a69e;
-  --paper:       #ecebe6;   /* light fills: primary buttons, selected toggles */
-  --ink:         #0d0d0c;   /* text on paper and on the gradient */
+  --text:        #eef1fb;
+  --text-dim:    #a6aecb;
+  --paper:       #eef1fb;   /* light fills: primary buttons, selected toggles */
+  --ink:         #090d1c;   /* text on paper and on the gradient */
 
   /* Shape + motion */
   --radius:      14px;

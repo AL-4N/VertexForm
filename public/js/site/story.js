@@ -21,7 +21,7 @@ import { gradeColor, gradeLetter } from "../grade.js";
 import { slide, EASE, reducedMotion } from "../ui/motion.js";
 import { Scene, loadClips, frameAt, mixColor, clamp, smooth } from "../figures/scene3d.js";
 
-const PAPER = "#ecebe6";
+const PAPER = "#eef1fb";
 // Camera at the middle of each step: [yaw, pitch].
 const SHOTS = [[0, 5], [40, 14], [68, 22], [22, 10]];
 

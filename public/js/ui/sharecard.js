@@ -11,7 +11,7 @@ import { bounds } from "../figures/draw.js";
 import { GRADE_STOPS, gradeColor, gradeLetter } from "../grade.js";
 
 const W = 1080, H = 1350;
-const NAVY = "#0d0d0c", INK2 = "#141413", DIM = "#a8a69e", FAINT = "#78766e", LINE = "#2c2b28";
+const NAVY = "#090d1c", INK2 = "#0d1326", DIM = "#a6aecb", FAINT = "#737d9f", LINE = "#222c4e";
 
 function gradeGradient(ctx, x0, x1) {
   const g = ctx.createLinearGradient(x0, 0, x1, 0);
@@ -39,7 +39,7 @@ function drawFigure(ctx, s, color, bx, by, bw, bh) {
 
   ctx.save();
   ctx.lineCap = "round"; ctx.lineJoin = "round";
-  ctx.strokeStyle = "#3c3b36"; ctx.lineWidth = 3;
+  ctx.strokeStyle = "#2e3a63"; ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(bx, T([0, GROUND])[1]); ctx.lineTo(bx + bw, T([0, GROUND])[1]);
   ctx.stroke();
@@ -114,7 +114,7 @@ export async function renderScoreCard(r) {
 
   // Exercise name
   ctx.font = "800 84px Unbounded, system-ui, sans-serif";
-  ctx.fillStyle = "#ecebe6";
+  ctx.fillStyle = "#eef1fb";
   ctx.fillText(r.exercise, 84, 290);
 
   // Figure in its good-form position, coloured by the score
@@ -141,7 +141,7 @@ export async function renderScoreCard(r) {
     roundRect(ctx, x, y, cw, 48, 14);
     ctx.fillStyle = gradeColor(sc); ctx.fill();
     ctx.font = "700 24px Unbounded, system-ui, sans-serif";
-    ctx.fillStyle = "#0d0d0c"; ctx.textAlign = "center";
+    ctx.fillStyle = "#090d1c"; ctx.textAlign = "center";
     ctx.fillText(String(sc), x + cw / 2, y + 33);
     ctx.textAlign = "left";
   });

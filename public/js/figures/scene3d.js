@@ -31,7 +31,7 @@ const DOTS = ["shL", "shR", "elL", "elR", "wrL", "wrR", "hipL", "hipR", "knL", "
 export const POINTS = Object.keys(IDX);
 
 // The canvas drawings are dark panels whatever the page tone around them.
-const C = { text: "#ecebe6", dim: "#a8a69e", faint: "#78766e", line2: "#3c3b36", head: "#141413", paper: "#ecebe6", note: "#fff6d8", good: "#2ee59d", fix: "#ffbe3d" };
+const C = { text: "#eef1fb", dim: "#a6aecb", faint: "#737d9f", line2: "#2e3a63", head: "#0d1326", paper: "#eef1fb", note: "#fff6d8", good: "#2ee59d", fix: "#ffbe3d" };
 const MONO = 'ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace';
 const HAND = '"Bradley Hand", "Segoe Print", "Ink Free", "Chalkboard SE", "Comic Neue", cursive';
 
@@ -220,7 +220,7 @@ export class Scene {
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     if (box) {
       const w = ctx.measureText(text).width + 12, h = size + 9;
-      ctx.fillStyle = "#0d0d0c"; ctx.strokeStyle = color; ctx.lineWidth = 1;
+      ctx.fillStyle = "#090d1c"; ctx.strokeStyle = color; ctx.lineWidth = 1;
       ctx.fillRect(x - w / 2, y - h / 2, w, h); ctx.strokeRect(x - w / 2 + 0.5, y - h / 2 + 0.5, w - 1, h - 1);
     }
     ctx.fillStyle = color;

@@ -13,10 +13,14 @@
 <link rel="stylesheet" href="css/marks.css" />
 <link rel="stylesheet" href="css/popup.css" />
 <link rel="stylesheet" href="css/transitions.css" />
+<!-- A link click on the previous page saved where it was clicked: open this
+     page as a circle from that point (css/transitions.css, js/page-transition.js). -->
+<script>addEventListener("pagereveal",function(e){try{var o=JSON.parse(sessionStorage.getItem("vf-vt")||"null");sessionStorage.removeItem("vf-vt");if(!e.viewTransition||!o)return;var d=document.documentElement;d.style.setProperty("--vt-x",o.x+"px");d.style.setProperty("--vt-y",o.y+"px");d.classList.add("vt-circle");e.viewTransition.finished.finally(function(){d.classList.remove("vt-circle")})}catch(_){}});</script>
+
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
-<meta name="theme-color" content="#0d0d0c" />
+<meta name="theme-color" content="#090d1c" />
 <!-- The menu shows a skeleton until its fonts and data are in (js/main.js);
      never longer than 2.5 s, even if the app's script fails. -->
 <script>

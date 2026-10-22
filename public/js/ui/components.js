@@ -1,6 +1,6 @@
 /** components.js — small shared UI helpers. */
 
-import { askPopup } from "./popup.js";
+import { askPopup, growFrom } from "./popup.js";
 import { gradeVar } from "../geometry.js";
 import { slide, EASE } from "./motion.js";
 
@@ -13,6 +13,14 @@ export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
  * (js/ui/motion.js). `focus` = a selector to focus once it's showing (else
  * its heading), for keyboard and screen-reader users.
  */
+// The control that was pressed last, measured as it was pressed, so the next
+// screen can grow out of it (showScreen). Older than 700 ms: not the cause.
+let pressed = null;
+document.addEventListener("click", (e) => {
+  const t = e.target instanceof Element && e.target.closest("button, a, [role=button], .ex-card, .mode-card, .path-card, .tree-node");
+  if (t) pressed = { rect: t.getBoundingClientRect(), at: performance.now() };
+}, true);
+
 export function showScreen(id, { focus = null, dir = "forward" } = {}) {
   const next = document.getElementById(`screen-${id}`);
   const current = $(".screen.active");
@@ -24,8 +32,15 @@ export function showScreen(id, { focus = null, dir = "forward" } = {}) {
     target.focus({ preventScroll: true });
   }
   if (next && current && current !== next) {
-    const dx = dir === "back" ? -64 : 64;
-    slide(next, { from: [dx, 0], to: [0, 0], opacity: [0, 1], duration: 380, ease: EASE.out, strength: 1.1 });
+    // Forward: the screen grows out of the button or card you pressed (or
+    // out of the middle when nothing was pressed, like results after a set).
+    // Back: it slides in from the left with a motion blur.
+    if (dir === "back") slide(next, { from: [-64, 0], to: [0, 0], opacity: [0, 1], duration: 380, ease: EASE.out, strength: 1.1 });
+    else {
+      const recent = pressed && performance.now() - pressed.at < 700 ? pressed.rect : null;
+      growFrom(next, recent, { items: [...next.children].slice(0, 8) });
+    }
+    pressed = null;
   }
 }
 
@@ -37,10 +52,17 @@ export function toast(message, ms = 2800) {
   el.className = "toast";
   el.textContent = message;
   host.appendChild(el);
-  // Drops in from the top, and flies back up when it's done.
-  slide(el, { from: [0, -34], to: [0, 0], opacity: [0, 1], duration: 360, ease: EASE.outBack });
+  // Pops open from a dot in the middle, drops into place, and closes back
+  // into a dot when it's done.
+  const shut = "inset(0 calc(50% - 6px) round 99px)", open = "inset(0 0 round 99px)";
+  if (el.animate && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    el.animate([{ clipPath: shut, transform: "translateY(-14px) scale(.9)" }, { clipPath: open, transform: "none" }],
+      { duration: 460, easing: "cubic-bezier(.2,.9,.3,1.2)" });
+  }
   setTimeout(() => {
-    slide(el, { from: [0, 0], to: [0, -34], opacity: [1, 0], duration: 260, ease: EASE.in, keep: true }).then(() => el.remove());
+    if (!el.animate || matchMedia("(prefers-reduced-motion: reduce)").matches) { el.remove(); return; }
+    el.animate([{ clipPath: open, opacity: 1 }, { clipPath: shut, opacity: 0 }], { duration: 300, easing: "cubic-bezier(.55,.06,.68,.19)", fill: "forwards" })
+      .finished.then(() => el.remove());
   }, ms);
 }
 

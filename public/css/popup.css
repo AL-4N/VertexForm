@@ -6,26 +6,26 @@
 .pop {
   padding: 0; border: 0; border-radius: 22px; overflow: auto;
   width: min(560px, calc(100vw - 2rem)); max-height: calc(100svh - 2rem);
-  background: #121211; color: #ecebe6;
-  box-shadow: inset 0 0 0 1px #2c2b28, 0 40px 120px -30px rgba(0, 0, 0, .75);
+  background: #0f1630; color: #eef1fb;
+  box-shadow: inset 0 0 0 1px #222c4e, 0 40px 120px -30px rgba(0, 0, 0, .75);
 }
 .pop::backdrop, .onboarding::backdrop {
-  background: rgba(13, 13, 12, .5);
+  background: rgba(9,13,28, .5);
   backdrop-filter: blur(10px) saturate(120%); -webkit-backdrop-filter: blur(10px) saturate(120%);
   transition: background .45s, backdrop-filter .45s, -webkit-backdrop-filter .45s;
 }
 @starting-style {
-  .pop[open]::backdrop, .onboarding[open]::backdrop { background: rgba(13, 13, 12, 0); backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); }
+  .pop[open]::backdrop, .onboarding[open]::backdrop { background: rgba(9,13,28, 0); backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); }
 }
-.pop.closing::backdrop, .onboarding.closing::backdrop { background: rgba(13, 13, 12, 0); backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); }
+.pop.closing::backdrop, .onboarding.closing::backdrop { background: rgba(9,13,28, 0); backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); }
 .pop-inner { position: relative; }
 .pop-close {
   position: absolute; top: .9rem; right: .9rem; z-index: 2; display: grid; place-items: center;
   width: 40px; height: 40px; border-radius: 10px; border: 0; cursor: pointer;
-  background: rgba(236, 235, 230, .08); color: #ecebe6;
+  background: rgba(238,241,251, .08); color: #eef1fb;
   transition: background .2s, transform .3s cubic-bezier(.22,.61,.36,1);
 }
-.pop-close:hover { background: rgba(236, 235, 230, .16); transform: rotate(90deg); }
+.pop-close:hover { background: rgba(238,241,251, .16); transform: rotate(90deg); }
 .pop-close svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
 /* A yes/no question (askPopup). */

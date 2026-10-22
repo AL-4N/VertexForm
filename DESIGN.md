@@ -10,9 +10,9 @@ are the real ones in `public/css/theme.css`, `site.css`, `app.css` and
 VertexForm measures bodies, so it looks like a measuring instrument: a
 drafting board. Stick figures sit on a faint grid, joints get protractor
 marks with the angle in a boxed mono label, and the coach writes notes by
-hand with an arrow to the body part. Everything else stays flat graphite and warm
-paper (no navy, no glows, no gradient washes) so the grade colours carry the
-meaning.
+hand with an arrow to the body part. Everything else stays quiet navy so the grade
+colours carry the meaning. (A graphite-and-paper palette was tried in
+Oct 2026 and dropped: the owner prefers this navy.)
 
 The grade scale is the brand. Coral is an F, green is an A, and that
 gradient appears wherever a score lives: the logo, primary buttons, score
@@ -22,16 +22,16 @@ numbers, figures, the side rail.
 
 | Token | Value | Use |
 |---|---|---|
-| `--ink` / `--bg` | `#0d0d0c` | page background (neutral, no blue tint) |
-| `--ink-2` | `#141413` | alternate sections, figure heads |
-| `--surface` / `--panel` | `#1a1a18` | cards, panels |
-| `--surface-2` / `--panel-hi` | `#222220` | raised controls, selected states |
-| `--line` / `--border` | `#2c2b28` | borders, dividers |
-| `--line-2` | `#3c3b36` | stronger rules, floor lines, ruler ticks |
-| `--text` | `#ecebe6` | body text |
-| `--text-dim` | `#a8a69e` | secondary text |
-| `--text-faint` | `#78766e` | hints, inactive labels |
-| `--paper` | `#ecebe6` | primary buttons, selected toggles, the closing band |
+| `--ink` / `--bg` | `#090d1c` | page background |
+| `--ink-2` | `#0d1326` | alternate sections, figure heads |
+| `--surface` / `--panel` | `#121a32` | cards, panels |
+| `--surface-2` / `--panel-hi` | `#18223f` | raised controls, selected states |
+| `--line` / `--border` | `#222c4e` | borders, dividers |
+| `--line-2` | `#2e3a63` | stronger rules, floor lines, ruler ticks |
+| `--text` | `#eef1fb` | body text |
+| `--text-dim` | `#a6aecb` | secondary text |
+| `--text-faint` | `#737d9f` | hints, inactive labels |
+| `--paper` | `#eef1fb` | the light circle that fills a primary button on hover |
 
 Grade scale (keep in sync with `public/js/grade.js`, which maps any score to
 its exact colour):
@@ -45,25 +45,22 @@ its exact colour):
 | 100 | `#2ee59d` | A, green |
 
 - `--grade-gradient`: the full scale, F to A. Score bars, the closing band.
-- `--go-gradient`: amber to green. Only as the hover fill of buttons and
-  the side rail.
+- `--go-gradient`: amber to green. Primary buttons, selected toggles, the
+  current item in nav, the logo's "Form", the hover fill of other buttons.
 - Letters: 90+ A, 80 B, 70 C, 60 D, below 60 F. The trainer shows A+ from 95.
 - A score is always drawn in its own colour (`gradeColor(score)`), never a
   fixed "good" or "bad" colour. Colour is never the only signal: the number
   or letter is always shown too.
-- No purple, no navy, no blue-to-purple gradients, no glows, no radial
-  washes, no gradient text. Backgrounds are flat.
-- Buttons are flat at rest (primary: paper with ink text, ink with paper
-  text on light sections; secondary: hairline outline). On hover the grade
-  gradient grows as a circle from where the pointer came in until it fills
-  the button, and shrinks back toward where it left (`js/ui/hover-fill.js`
-  + `.btn::before` clip-path). No glow, no lift. Danger buttons fill coral.
-- Tones: the page is not one colour. Site sections alternate dark
-  graphite, paper (`.tone-paper`, `--paper`) and sage (`.tone-sage`,
-  `#b9c1a6`). On light tones the section's own text turns dark, while
-  cards, figures and the 3D view stay dark panels so grade colours keep
-  their contrast. The trainer works the same way: a paper desk with dark
-  panels, except the live camera screen, which stays all dark.
+- No purple, no blue-to-purple gradients. Glows stay limited to the ones that
+  exist (behind the hero and Form Lab figures, under the primary button).
+- Buttons: on hover a circle grows from where the pointer came in until it
+  fills the button, and shrinks back toward where it left
+  (`js/ui/hover-fill.js` + `.btn::before` clip-path). Primary buttons (the
+  go gradient) fill with a light circle; the others fill with the gradient.
+  Danger buttons fill coral.
+- Tones: sections alternate the two navies (`--ink`, `--ink-2`), and the
+  page glides from one to the other as you scroll (`site/tones.js`).
+  Cards, figures and 3D views keep their own panel colours.
 
 ## Type
 
@@ -150,14 +147,21 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **"How it works" is a pinned scroll story** (`site/story.js`): the
   section holds still while scrolling walks one 3D squat through the four
   steps and moves the camera round it. Progress is eased, so a flick glides.
-- **Tones blend** (`site/tones.js`): sections are dark, paper or sage, and
-  the page colour glides to the tone of the section under the middle of
-  the screen (registered custom properties), never a hard edge.
+- **Tones blend** (`site/tones.js`): the page colour glides between the two
+  navies to the tone of the section under the middle of the screen
+  (registered custom properties), never a hard edge.
 - **Headings rise in** word by word from a mask (`site/reveal.js`): the
   hero's on load, each section's the first time it comes on screen.
-- **Popups grow out of what you clicked** (`ui/popup.js`): exercise cards,
-  the trainer's confirms and onboarding. The page behind blurs and dims;
-  closing runs back into the trigger.
+- **Things grow out of what you clicked** (`ui/popup.js`): exercise-card
+  popups, the trainer's confirms and onboarding (the page behind blurs and
+  dims; closing runs back into the trigger); trainer screens grow out of
+  the button or card that opened them (`showScreen`, `growFrom`), or out
+  of the middle when nothing was pressed; the skill-tree panel grows out of
+  the skill you picked; "Target reached" bursts out as a circle; toasts pop
+  open from a dot and close back into one.
+- **Page changes open as a circle** from where you clicked (home ↔
+  trainer): the inline `pagereveal` script in each page's head +
+  `css/transitions.css` `vt-circle`.
 - **A cursor ring** (`site/cursor.js`, site only): trails the pointer,
   opens over links, and over draggable or openable areas becomes a disc
   that says "Drag" or "Open". `difference` blend, mouse only.

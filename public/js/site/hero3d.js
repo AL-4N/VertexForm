@@ -38,7 +38,7 @@ const NOTES = {
   lunge:  ["Back knee nearly down", "kn", "other"],
   jack:   ["Hands all the way up", "wr"],
 };
-const PAPER = "#ecebe6";
+const PAPER = "#eef1fb";
 const BASE = { yaw: 32, pitch: 12 };
 
 /** Where to point the camera and how far back to stand so the whole clip fits. */
@@ -134,6 +134,7 @@ export async function mountHero3d(root) {
     }
     const goal = n >= 0 ? gradeColor(clip.reps[n].score) : PAPER;
     st.colour = mixColor(st.from, goal, st.flood);
+    hero.style.setProperty("--hero-live", st.colour);
 
     // The intro: points, then bones.
     let dots = 1, grow = 1;

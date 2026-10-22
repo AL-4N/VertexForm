@@ -108,7 +108,7 @@ export function mountLab(root) {
     svg.innerHTML = `
       <defs><radialGradient id="lab-glow"><stop offset="0" stop-color="${c}" stop-opacity=".32"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs>
       <ellipse cx="300" cy="330" rx="260" ry="190" fill="url(#lab-glow)"/>
-      ${figureMarkup(s, { color: c, floor: { x0: 24, x1: 576 }, guide: lab.guide?.(s), guideColor: "#ecebe6" })}
+      ${figureMarkup(s, { color: c, floor: { x0: 24, x1: 576 }, guide: lab.guide?.(s), guideColor: "#eef1fb" })}
       ${annotations(id, s, lab, view, score, cue, focus, note)}`;
 
     ui.score.textContent = score;

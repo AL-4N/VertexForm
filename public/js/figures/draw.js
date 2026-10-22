@@ -59,7 +59,7 @@ export function figureMarkup(s, opts = {}) {
 
   let out = "";
   if (opts.floor) {
-    out += `<line x1="${f(opts.floor.x0)}" y1="${GROUND}" x2="${f(opts.floor.x1)}" y2="${GROUND}" stroke="${opts.floorColor ?? "#3c3b36"}" stroke-width="2"/>`;
+    out += `<line x1="${f(opts.floor.x0)}" y1="${GROUND}" x2="${f(opts.floor.x1)}" y2="${GROUND}" stroke="${opts.floorColor ?? "#2e3a63"}" stroke-width="2"/>`;
   }
   if (opts.guide) {
     const [a, b] = opts.guide;
@@ -74,7 +74,7 @@ export function figureMarkup(s, opts = {}) {
     out += `<g opacity="${far}">${line([s.hip, s.kneeF, s.ankF, s.toeF])}${line([s.neck, s.elbF, s.wriF])}</g>`;
     out += line([s.hip, s.neck]) + line([s.hip, s.kneeN, s.ankN, s.toeN]) + line([s.neck, s.elbN, s.wriN]);
   }
-  out += `<circle cx="${f(s.head[0])}" cy="${f(s.head[1])}" r="19" fill="${opts.headFill ?? "#141413"}" stroke="${c}" stroke-width="${w * 0.86}"/>`;
+  out += `<circle cx="${f(s.head[0])}" cy="${f(s.head[1])}" r="19" fill="${opts.headFill ?? "#0d1326"}" stroke="${c}" stroke-width="${w * 0.86}"/>`;
 
   if (opts.joints) {
     const pts = keypoints(s), r = opts.jointR ?? 5.5;

@@ -16,6 +16,7 @@
  * one if it doesn't. You can switch cameras mid-session from the dropdown.
  */
 
+import { growFrom } from "./popup.js";
 import { getExercise } from "../exercises/index.js";
 import {
   initPose, detect, poseDelegate, poseModel, MODEL_NAMES,
@@ -40,7 +41,7 @@ import { buildGuide, mirrorGuide, guideAlpha } from "../guide.js";
 import { framingCheck, lightingHint } from "../tracking.js";
 import { Recorder } from "../recording.js";
 
-const NEUTRAL = "#ecebe6";        // skeleton colour between reps
+const NEUTRAL = "#eef1fb";        // skeleton colour between reps
 const SETUP_SPEAK_AFTER = 2500;   // ms a setup problem must last before it's said out loud
 const STALL_MS = 3000;            // no new video frames for this long = the camera has stopped
 const STILL_MS = 4000;            // the exact same picture for this long = a placeholder, not a camera
@@ -401,6 +402,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
     $("#celebrate h2").textContent = isSet ? "SET COMPLETE" : "TARGET REACHED";
     $("#celebrate-sub").textContent = ex.isHold ? `Best 5 s: ${session.best}` : `Best rep: ${session.best}`;
     $("#celebrate").hidden = false;
+    growFrom($("#celebrate"), null, { duration: 520 });
     slide($("#celebrate h2"), { from: [0, 70], to: [0, 0], opacity: [0, 1], duration: 480, ease: EASE.outBack, strength: 1.1, maxBlur: 28 });
     slide($("#celebrate-sub"), { from: [0, 40], to: [0, 0], opacity: [0, 1], duration: 560, ease: EASE.out });
     beep(1046, 220, 0.07);
