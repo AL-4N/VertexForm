@@ -127,6 +127,12 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     a vertical motion blur (dashboard stats, the live rep counter).
   - **Gliding toggles** (`ui/segmented.js`): one highlight slides between a
     toggle group's options with a horizontal motion blur.
+  - **The skill tree blooms** (`ui/skills.js`, `.tree.growing` in
+    `app.css`): each path is drawn as a tree growing up from a trunk.
+    Opening one grows the branches tier by tier, then flowers open on the
+    unlocked skills (paper petals, green heart), the next skill shows an
+    amber bud, untracked and locked ones are bare twigs. A small blossom
+    sits on each branch between two unlocked skills.
 - No fade-in-on-scroll for sections, no looping decorative animation.
 - `prefers-reduced-motion`: everything jumps straight to its end state.
 
