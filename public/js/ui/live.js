@@ -40,7 +40,7 @@ import { buildGuide, mirrorGuide, guideAlpha } from "../guide.js";
 import { framingCheck, lightingHint } from "../tracking.js";
 import { Recorder } from "../recording.js";
 
-const NEUTRAL = "#eef1fb";        // skeleton colour between reps
+const NEUTRAL = "#ecebe6";        // skeleton colour between reps
 const SETUP_SPEAK_AFTER = 2500;   // ms a setup problem must last before it's said out loud
 const STALL_MS = 3000;            // no new video frames for this long = the camera has stopped
 const STILL_MS = 4000;            // the exact same picture for this long = a placeholder, not a camera

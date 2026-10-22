@@ -121,10 +121,10 @@ export async function mountRep3d(root) {
 
   const css = getComputedStyle(document.documentElement);
   const MONO = css.getPropertyValue("--mono").trim() || "ui-monospace, monospace";
-  const INK2 = css.getPropertyValue("--ink-2").trim() || "#0d1326";
-  const LINE2 = css.getPropertyValue("--line-2").trim() || "#2e3a63";
-  const DIM = css.getPropertyValue("--text-dim").trim() || "#a6aecb";
-  const FAINT = css.getPropertyValue("--text-faint").trim() || "#737d9f";
+  const INK2 = css.getPropertyValue("--ink-2").trim() || "#141413";
+  const LINE2 = css.getPropertyValue("--line-2").trim() || "#3c3b36";
+  const DIM = css.getPropertyValue("--text-dim").trim() || "#a8a69e";
+  const FAINT = css.getPropertyValue("--text-faint").trim() || "#78766e";
 
   const st = {
     clip: clips.full ?? Object.values(clips)[0],
@@ -189,14 +189,14 @@ export async function mountRep3d(root) {
     ctx.lineWidth = width;
     ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke();
   }
-  function label(x, y, text, { color = "#eef1fb", box = true, size = 12, align = "center" } = {}) {
+  function label(x, y, text, { color = "#ecebe6", box = true, size = 12, align = "center" } = {}) {
     ctx.globalAlpha = 1;
     ctx.font = `600 ${size}px ${MONO}`;
     ctx.textAlign = align; ctx.textBaseline = "middle";
     if (box) {
       const w = ctx.measureText(text).width + 12, h = size + 9;
       const x0 = align === "center" ? x - w / 2 : align === "left" ? x - 6 : x - w + 6;
-      ctx.fillStyle = "#090d1c"; ctx.strokeStyle = color; ctx.lineWidth = 1;
+      ctx.fillStyle = "#0d0d0c"; ctx.strokeStyle = color; ctx.lineWidth = 1;
       ctx.fillRect(x0, y - h / 2, w, h); ctx.strokeRect(x0 + 0.5, y - h / 2 + 0.5, w - 1, h - 1);
     }
     ctx.fillStyle = color;
@@ -288,13 +288,13 @@ export async function mountRep3d(root) {
     const at = (r, a) => add(knee, add(mul(u, r * Math.cos(a)), mul(v, r * Math.sin(a))));
     const R = 0.13;
     ctx.lineCap = "round";
-    ctx.globalAlpha = 0.9; ctx.strokeStyle = "#eef1fb"; ctx.lineWidth = 1.6;
+    ctx.globalAlpha = 0.9; ctx.strokeStyle = "#ecebe6"; ctx.lineWidth = 1.6;
     ctx.beginPath();
     for (let i = 0; i <= 24; i++) { const p = proj(cam, at(R, (th * i) / 24)); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }
     ctx.stroke();
     for (let a = 0; a <= th / DEG; a += 10) {
       const long = Math.round(a) % 30 === 0;
-      line(cam, at(R, a * DEG), at(R * (long ? 0.72 : 0.84), a * DEG), "#eef1fb", 1.2, 0.7);
+      line(cam, at(R, a * DEG), at(R * (long ? 0.72 : 0.84), a * DEG), "#ecebe6", 1.2, 0.7);
     }
     const p = proj(cam, at(R * 2.1, th / 2));
     label(p[0], p[1], `${Math.round(th / DEG)}°`, { size: 13 });

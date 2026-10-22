@@ -10,8 +10,9 @@ are the real ones in `public/css/theme.css`, `site.css`, `app.css` and
 VertexForm measures bodies, so it looks like a measuring instrument: a
 drafting board. Stick figures sit on a faint grid, joints get protractor
 marks with the angle in a boxed mono label, and the coach writes notes by
-hand with an arrow to the body part. Everything else stays quiet navy so the
-grade colours carry the meaning.
+hand with an arrow to the body part. Everything else stays flat graphite and warm
+paper (no navy, no glows, no gradient washes) so the grade colours carry the
+meaning.
 
 The grade scale is the brand. Coral is an F, green is an A, and that
 gradient appears wherever a score lives: the logo, primary buttons, score
@@ -21,15 +22,16 @@ numbers, figures, the side rail.
 
 | Token | Value | Use |
 |---|---|---|
-| `--ink` / `--bg` | `#090d1c` | page background |
-| `--ink-2` | `#0d1326` | alternate sections, figure heads |
-| `--surface` / `--panel` | `#121a32` | cards, panels |
-| `--surface-2` / `--panel-hi` | `#18223f` | raised controls, selected states |
-| `--line` / `--border` | `#222c4e` | borders, dividers |
-| `--line-2` | `#2e3a63` | stronger rules, floor lines, ruler ticks |
-| `--text` | `#eef1fb` | body text |
-| `--text-dim` | `#a6aecb` | secondary text |
-| `--text-faint` | `#737d9f` | hints, inactive labels |
+| `--ink` / `--bg` | `#0d0d0c` | page background (neutral, no blue tint) |
+| `--ink-2` | `#141413` | alternate sections, figure heads |
+| `--surface` / `--panel` | `#1a1a18` | cards, panels |
+| `--surface-2` / `--panel-hi` | `#222220` | raised controls, selected states |
+| `--line` / `--border` | `#2c2b28` | borders, dividers |
+| `--line-2` | `#3c3b36` | stronger rules, floor lines, ruler ticks |
+| `--text` | `#ecebe6` | body text |
+| `--text-dim` | `#a8a69e` | secondary text |
+| `--text-faint` | `#78766e` | hints, inactive labels |
+| `--paper` | `#ecebe6` | primary buttons, selected toggles, the closing band |
 
 Grade scale (keep in sync with `public/js/grade.js`, which maps any score to
 its exact colour):
@@ -43,14 +45,17 @@ its exact colour):
 | 100 | `#2ee59d` | A, green |
 
 - `--grade-gradient`: the full scale, F to A. Score bars, the closing band.
-- `--go-gradient`: amber to green. Primary buttons, the current item in nav.
+- `--go-gradient`: amber to green. Only as the hover fill of buttons (it
+  sweeps in from the left like a score bar filling) and the side rail.
 - Letters: 90+ A, 80 B, 70 C, 60 D, below 60 F. The trainer shows A+ from 95.
 - A score is always drawn in its own colour (`gradeColor(score)`), never a
   fixed "good" or "bad" colour. Colour is never the only signal: the number
   or letter is always shown too.
-- No purple, no blue-to-purple gradients. Glows stay limited to the ones that
-  exist (behind the hero and Form Lab figures, under the primary button);
-  don't add more.
+- No purple, no navy, no blue-to-purple gradients, no glows, no radial
+  washes, no gradient text. Backgrounds are flat.
+- Buttons are flat at rest (primary: paper with ink text; secondary:
+  hairline outline). On hover the grade gradient fills them from the left
+  and the text turns ink. No glow, no lift. Danger buttons fill coral.
 
 ## Type
 

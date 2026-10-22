@@ -4,21 +4,23 @@
    One idea runs through it: the grade scale. Coral is an F, green is
    an A, and that gradient is the brand. It shows up wherever a score
    lives — the logo, the buttons, the scale bars, the live figure —
-   while everything else stays a quiet deep navy so it can be loud.
+   while everything else stays flat graphite and paper so it can be loud.
+   No navy, no glows, no gradient text: the gradient means "score".
 
    Keep --g* in sync with js/grade.js (the JS uses the same stops).
    =========================================================== */
 
 :root {
-  --ink:        #090d1c;
-  --ink-2:      #0d1326;
-  --surface:    #121a32;
-  --surface-2:  #18223f;
-  --line:       #222c4e;
-  --line-2:     #2e3a63;
-  --text:       #eef1fb;
-  --text-dim:   #a6aecb;
-  --text-faint: #737d9f;
+  --ink:        #0d0d0c;
+  --ink-2:      #141413;
+  --surface:    #1a1a18;
+  --surface-2:  #222220;
+  --line:       #2c2b28;
+  --line-2:     #3c3b36;
+  --text:       #ecebe6;
+  --text-dim:   #a8a69e;
+  --text-faint: #78766e;
+  --paper:      #ecebe6;    /* light surfaces: primary buttons, the closing band */
 
   --g0:   #ff4d6d;   /* F */
   --g55:  #ff7a45;
@@ -67,19 +69,23 @@ button { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--g85); outline-offset: 3px; border-radius: 6px; }
 
 /* ── Buttons ─────────────────────────────────────────── */
+/* Flat at rest. On hover the grade gradient fills the button from the left,
+   like a score bar filling up. No glow, no lift. */
 .btn {
+  --btn-bg: transparent;
   display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
   font-weight: 700; font-size: 1rem; line-height: 1; text-decoration: none;
   padding: 1rem 1.5rem; border-radius: 10px; border: 0; cursor: pointer;
-  transition: transform .15s var(--ease), box-shadow .2s var(--ease), background .2s var(--ease);
+  background: var(--go-gradient) 0 0 / 0% 100% no-repeat var(--btn-bg);
+  transition: background-size .45s var(--ease), color .25s var(--ease), box-shadow .25s var(--ease);
 }
-.btn:active { transform: translateY(1px); }
-.btn-grad { background: var(--go-gradient); color: #07140e; box-shadow: 0 6px 24px -8px rgba(46,229,157,.55); }
-.btn-grad:hover { box-shadow: 0 10px 32px -8px rgba(46,229,157,.75); transform: translateY(-1px); }
-.btn-ghost { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1.5px var(--line-2); }
-.btn-ghost:hover { box-shadow: inset 0 0 0 1.5px var(--text-dim); }
-.btn-dark { background: var(--ink); color: #fff; }
-.btn-dark:hover { background: #000; }
+@media (hover: hover) {
+  .btn:hover { background-size: 100% 100%; color: var(--ink); box-shadow: none; }
+}
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+.btn-grad { --btn-bg: var(--paper); color: var(--ink); }
+.btn-ghost { color: var(--text); box-shadow: inset 0 0 0 1.5px var(--line-2); }
+.btn-dark { --btn-bg: var(--ink); color: var(--paper); }
 .btn-sm { font-size: .9rem; padding: .7rem 1.15rem; }
 .btn-lg { font-size: 1.08rem; padding: 1.15rem 2rem; }
 
@@ -87,7 +93,7 @@ button { font: inherit; color: inherit; }
 .nav {
   position: sticky; top: 0; z-index: 40;
   padding-top: env(safe-area-inset-top, 0px);
-  background: rgba(9,13,28,.72); backdrop-filter: blur(14px) saturate(140%);
+  background: rgba(13,13,12,.72); backdrop-filter: blur(14px) saturate(140%);
   -webkit-backdrop-filter: blur(14px) saturate(140%);
   border-bottom: 1px solid transparent; transition: border-color .2s;
 }
@@ -109,14 +115,15 @@ button { font: inherit; color: inherit; }
 .nav-row { display: flex; align-items: center; gap: 2rem; height: 68px; }
 .logo { display: inline-flex; align-items: center; gap: .6rem; text-decoration: none; }
 .logo span { font-family: var(--display); font-weight: 700; font-size: 1.25rem; letter-spacing: -.02em; }
-.logo span em { font-style: normal; background: var(--go-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.logo span em { font-style: normal; color: var(--text-dim); }
 .logo-mark { width: 30px; height: 30px; }
 .logo-sm span { font-size: 1.05rem; } .logo-sm .logo-mark { width: 24px; height: 24px; }
 .nav nav { display: flex; gap: 1.8rem; margin-left: auto; }
 .nav nav a { text-decoration: none; color: var(--text-dim); font-weight: 600; font-size: .94rem; }
 .nav nav a:hover { color: var(--text); }
-/* Where you are: the link for the section on screen turns gradient (js/site/nav-spy.js). */
-.nav nav a.active { background: var(--go-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+/* Where you are: the link for the section on screen lights up and gets a
+   short rule underneath (js/site/nav-spy.js). */
+.nav nav a.active { color: var(--text); text-decoration: underline 2px var(--g100); text-underline-offset: 8px; }
 /* Settings: opens the trainer on its Settings screen (app.html#settings). */
 .nav-settings {
   display: inline-flex; align-items: center; gap: .45rem; margin-left: -.6rem; padding: .5rem .7rem; border-radius: 9px;
@@ -173,12 +180,10 @@ button { font: inherit; color: inherit; }
   .rail a:hover { color: var(--text); }
   .rail a:hover::before { background: var(--text); }
   .rail-n { color: var(--text-faint); font-weight: 600; }
-  /* The current section: number and label in the brand gradient. */
+  /* The current section: full-strength text, its number in green. */
   .rail a.active { background: none; color: var(--text); }
   .rail a.active::before { background: transparent; }
-  .rail a.active .rail-n, .rail a.active .rail-label {
-    background: var(--go-gradient); -webkit-background-clip: text; background-clip: text; color: transparent;
-  }
+  .rail a.active .rail-n { color: var(--g100); }
 }
 
 /* ── Exercise switchers: each button shows the movement ── */
@@ -191,11 +196,6 @@ button { font: inherit; color: inherit; }
 
 /* ── Hero ────────────────────────────────────────────── */
 .hero { position: relative; padding: clamp(2.5rem, 6vw, 5rem) 0 clamp(3rem, 7vw, 6rem); overflow: hidden; }
-.hero::before {           /* faint wash in the live grade colour, top right */
-  content: ""; position: absolute; inset: -20% -10% auto auto; width: 70%; height: 90%;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--hero-live, var(--g100)) 16%, transparent), transparent);
-  pointer-events: none; transition: background .4s;
-}
 .hero-grid { position: relative; display: grid; grid-template-columns: 1fr 1.08fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
 @media (max-width: 1000px) { .hero-grid { grid-template-columns: 1fr; } }
 
@@ -225,9 +225,9 @@ button { font: inherit; color: inherit; }
 /* A faint drafting grid behind the figures. */
 .stage-frame, .lab-stage {
   background-image:
-    linear-gradient(rgba(166,174,203,.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(166,174,203,.06) 1px, transparent 1px),
-    linear-gradient(180deg, #121b36 0%, #0b1125 100%);
+    linear-gradient(rgba(168,166,158,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168,166,158,.06) 1px, transparent 1px),
+    #121211;
   background-size: 24px 24px, 24px 24px, auto;
 }
 /* .vf-dim / .vf-note (protractor, dimensions, coach notes): css/marks.css */
@@ -247,7 +247,7 @@ button { font: inherit; color: inherit; }
   grid-template-columns: auto 1fr minmax(150px, .95fr);
   grid-template-areas: "top rows scale" "score rows scale";
   padding: 1rem 1.3rem 1.1rem; border-top: 1px solid var(--line);
-  background: rgba(9,13,28,.55);
+  background: rgba(13,13,12,.55);
 }
 .readout-top   { grid-area: top; }
 .readout-score { grid-area: score; }
@@ -270,10 +270,10 @@ button { font: inherit; color: inherit; }
 .scale-bar::after, .cal-bar::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   background:
-    linear-gradient(90deg, transparent calc(60% - 1px), rgba(9,13,28,.85) calc(60% - 1px) calc(60% + 1px), transparent calc(60% + 1px)),
-    linear-gradient(90deg, transparent calc(70% - 1px), rgba(9,13,28,.85) calc(70% - 1px) calc(70% + 1px), transparent calc(70% + 1px)),
-    linear-gradient(90deg, transparent calc(80% - 1px), rgba(9,13,28,.85) calc(80% - 1px) calc(80% + 1px), transparent calc(80% + 1px)),
-    linear-gradient(90deg, transparent calc(90% - 1px), rgba(9,13,28,.85) calc(90% - 1px) calc(90% + 1px), transparent calc(90% + 1px));
+    linear-gradient(90deg, transparent calc(60% - 1px), rgba(13,13,12,.85) calc(60% - 1px) calc(60% + 1px), transparent calc(60% + 1px)),
+    linear-gradient(90deg, transparent calc(70% - 1px), rgba(13,13,12,.85) calc(70% - 1px) calc(70% + 1px), transparent calc(70% + 1px)),
+    linear-gradient(90deg, transparent calc(80% - 1px), rgba(13,13,12,.85) calc(80% - 1px) calc(80% + 1px), transparent calc(80% + 1px)),
+    linear-gradient(90deg, transparent calc(90% - 1px), rgba(13,13,12,.85) calc(90% - 1px) calc(90% + 1px), transparent calc(90% + 1px));
 }
 .scale-marker {
   position: absolute; z-index: 1; top: 50%; width: 16px; height: 16px; border-radius: 50%;
@@ -319,7 +319,7 @@ button { font: inherit; color: inherit; }
 .ex-card.ex-wide { grid-column: span 3; }
 @media (max-width: 900px) { .ex-card, .ex-card.ex-wide { grid-column: span 3; } }
 @media (max-width: 620px) { .ex-card, .ex-card.ex-wide { grid-column: span 6; } }
-.picto { height: 172px; display: flex; align-items: center; justify-content: center; padding: 1.1rem 1rem .5rem; background: radial-gradient(80% 90% at 50% 100%, rgba(46,229,157,.10), transparent 70%); }
+.picto { height: 172px; display: flex; align-items: center; justify-content: center; padding: 1.1rem 1rem .5rem; }
 .picto svg { display: block; height: 100%; width: auto; max-width: min(100%, 290px); }
 .picto-floor { stroke: var(--line-2); stroke-width: 2; vector-effect: non-scaling-stroke; }
 /* Line weight stays constant whatever the figure's scale, so wide and tall poses match. */
@@ -369,7 +369,7 @@ button { font: inherit; color: inherit; }
 .cal-rows { list-style: none; margin: 0; padding: 0; }
 .cal-rows li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem 0; border-top: 1px solid var(--line); font-size: .97rem; }
 .cal-rows b {
-  font-family: var(--display); font-weight: 700; font-size: .95rem; color: #0a0f1d;
+  font-family: var(--display); font-weight: 700; font-size: .95rem; color: #0d0d0c;
   background: var(--c); border-radius: 10px; padding: .3rem .55rem; min-width: 3.1rem; text-align: center;
 }
 
@@ -379,12 +379,12 @@ button { font: inherit; color: inherit; }
 .coach-grid .section-head { margin-bottom: 0; }
 .voices { display: inline-flex; gap: .3rem; margin-top: 1.6rem; padding: .3rem; border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
 .voices button { border: 0; cursor: pointer; padding: .55rem 1.1rem; border-radius: 9px; background: transparent; color: var(--text-dim); font-weight: 600; }
-.voices button[aria-pressed="true"] { background: var(--go-gradient); color: #07140e; }
+.voices button[aria-pressed="true"] { background: var(--paper); color: var(--ink); }
 .voices.has-ind button[aria-pressed="true"] { background: transparent; }
-.voices .seg-ind { background: var(--go-gradient); border-radius: 9px; }
+.voices .seg-ind { background: var(--paper); border-radius: 9px; }
 .cues { list-style: none; margin: 0; padding: 0; display: grid; gap: .8rem; }
 .cue { display: flex; align-items: center; gap: 1rem; background: var(--surface); border-radius: var(--r-md); padding: .85rem .9rem .85rem .85rem; box-shadow: inset 0 0 0 1px var(--line); }
-.cue-score { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; font-family: var(--display); font-weight: 800; font-size: 1.15rem; color: #0a0f1d; }
+.cue-score { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; font-family: var(--display); font-weight: 800; font-size: 1.15rem; color: #0d0d0c; }
 .cue-text { flex: 1; font-size: 1.02rem; }
 .cue-play { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 0; cursor: pointer; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line-2); }
 .cue-play:hover { background: var(--line-2); }
@@ -399,9 +399,9 @@ button { font: inherit; color: inherit; }
 .mock { margin-top: auto; background: var(--ink-2); border-radius: 14px; padding: 1rem; box-shadow: inset 0 0 0 1px var(--line); min-height: 118px; }
 .mock-pills { display: flex; gap: .35rem; margin-bottom: .9rem; flex-wrap: wrap; }
 .mock-pills span { font-size: .78rem; font-weight: 700; padding: .3rem .6rem; border-radius: 7px; background: var(--surface-2); color: var(--text-faint); }
-.mock-pills span.on { background: var(--go-gradient); color: #07140e; }
+.mock-pills span.on { background: var(--paper); color: var(--ink); }
 .mock-chips { display: flex; gap: .4rem; }
-.mock-chips span { font-family: var(--display); font-weight: 700; font-size: .9rem; color: #0a0f1d; background: var(--c); border-radius: 9px; padding: .35rem .55rem; }
+.mock-chips span { font-family: var(--display); font-weight: 700; font-size: .9rem; color: #0d0d0c; background: var(--c); border-radius: 9px; padding: .35rem .55rem; }
 .mock-chart { display: flex; align-items: flex-end; gap: .5rem; height: 118px; }
 .mock-chart span { position: relative; flex: 1; height: var(--h); border-radius: 8px 8px 3px 3px; background: linear-gradient(180deg, var(--c), color-mix(in srgb, var(--c) 40%, transparent)); }
 .mock-chart i { position: absolute; top: -1.25rem; left: 50%; transform: translateX(-50%); font-style: normal; font-family: var(--display); font-weight: 700; font-size: .72rem; color: var(--c); }
@@ -435,8 +435,9 @@ button { font: inherit; color: inherit; }
   background: rgba(255,190,61,.16) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 5v6' stroke='%23ffbe3d' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='14.6' r='1.4' fill='%23ffbe3d'/%3E%3C/svg%3E") center/80% no-repeat;
 }
 
-/* Closing band — the full grade gradient, edge to edge */
-.cta-band { background: var(--grade-gradient); color: #0a0f1d; text-align: center; padding: clamp(4rem, 9vw, 6.5rem) 0; }
+/* Closing band: paper, with the grade scale as a rule along its top edge */
+.cta-band { position: relative; background: var(--paper); color: var(--ink); text-align: center; padding: clamp(4rem, 9vw, 6.5rem) 0; }
+.cta-band::before { content: ""; position: absolute; inset: 0 0 auto; height: 6px; background: var(--grade-gradient); }
 .cta-band h2 { font-size: clamp(2rem, 4.6vw, 3.4rem); line-height: 1.05; margin-bottom: .8rem; }
 .cta-band p { font-size: 1.1rem; margin-bottom: 2rem; font-weight: 500; }
 
@@ -510,7 +511,7 @@ button { font: inherit; color: inherit; }
 .r3-stage {
   position: relative; border-radius: var(--r-lg); overflow: hidden; min-height: 0;
   box-shadow: inset 0 0 0 1px var(--line);
-  background: radial-gradient(120% 90% at 50% 30%, #131c38 0%, #0a1024 70%);
+  background: #121211;
 }
 .r3-stage::after { content: ""; position: absolute; inset: 0 0 auto; height: 3px; background: var(--r3); transition: background .25s; }
 .r3-canvas { display: block; width: 100%; aspect-ratio: 16 / 11; cursor: grab; touch-action: pan-y; outline: none; }
@@ -554,7 +555,7 @@ button { font: inherit; color: inherit; }
 .r3-marks { position: absolute; left: 9px; right: 9px; top: 0; height: 1.3rem; }
 .r3-mark {
   position: absolute; transform: translateX(-50%); font-family: var(--mono); font-size: .68rem; font-weight: 700;
-  padding: .05rem .3rem; border-radius: 5px; color: #0a0f1d; background: var(--c);
+  padding: .05rem .3rem; border-radius: 5px; color: #0d0d0c; background: var(--c);
 }
 .r3-mark::after { content: ""; position: absolute; left: 50%; top: 100%; width: 1px; height: .45rem; background: var(--c); }
 .r3-track input[type=range] { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 6px; margin: .35rem 0; border-radius: 99px; background: var(--ink-2); box-shadow: inset 0 0 0 1px var(--line-2); cursor: pointer; }

@@ -173,7 +173,7 @@ export function drawGuide(ctx, g, w, h, alpha = 1) {
     const tw = ctx.measureText(label).width;
     const tx = g.depth.x0 < g.depth.x1 ? g.depth.x0 : g.depth.x0 - tw;
     const ty = g.depth.y + fs * 1.5;
-    ctx.fillStyle = "rgba(9,13,28,.72)";
+    ctx.fillStyle = "rgba(13,13,12,.72)";
     ctx.fillRect(tx - 5, ty - fs * 1.05, tw + 10, fs * 1.35);
     ctx.fillStyle = green;
     ctx.fillText(label, tx, ty);

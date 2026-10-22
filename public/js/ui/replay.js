@@ -60,7 +60,7 @@ export function frameMarkup(clip, i, fit, near, { marks = true, width = 7 } = {}
   out += chains(SIDE[far]).map((ch) => line(ch, 0.35)).join("");
   out += chains(S).map((ch) => line(ch, 1)).join("");
   const nose = pts[0].xy;
-  out += `<circle cx="${f1(nose[0])}" cy="${f1(nose[1])}" r="${f1(r)}" fill="#0d1326" stroke="${c}" stroke-width="${width * 0.8}"/>`;
+  out += `<circle cx="${f1(nose[0])}" cy="${f1(nose[1])}" r="${f1(r)}" fill="#141413" stroke="${c}" stroke-width="${width * 0.8}"/>`;
   out += [S.sh, S.el, S.wr, S.hip, S.kn, S.an].map((j) => `<circle cx="${f1(pts[j].xy[0])}" cy="${f1(pts[j].xy[1])}" r="${width * 0.6}" fill="#fff"/>`).join("");
   if (marks) {
     const k = keyAngle(clip, i, near);
@@ -103,7 +103,7 @@ function idealMarkup(exercise, p, faceDir) {
   const arc = LAB[id]?.arc?.(s);
   return {
     viewBox: `${x0.toFixed(1)} ${y0.toFixed(1)} ${(x1 - x0).toFixed(1)} ${(y1 - y0).toFixed(1)}`,
-    markup: figureMarkup(s, { color: "#2ee59d", floor: { x0: x0 + 16, x1: x1 - 16 }, floorColor: "#2e3a63", headFill: "#0d1326", joints: false })
+    markup: figureMarkup(s, { color: "#2ee59d", floor: { x0: x0 + 16, x1: x1 - 16 }, floorColor: "#3c3b36", headFill: "#141413", joints: false })
       + (arc ? angleMark(...arc, { r: 32 }) : ""),
   };
 }

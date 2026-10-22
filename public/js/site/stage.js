@@ -65,7 +65,8 @@ export function mountStage(root) {
   const stop0 = el("stop", { offset: "0%", "stop-opacity": ".55" }, grad);
   el("stop", { offset: "70%", "stop-opacity": "0", "stop-color": "#000" }, grad);
 
-  const glow = el("ellipse", { cx: 300, cy: 340, rx: 270, ry: 210, fill: "url(#stage-glow)" }, svg);
+  // No glow behind the figure any more (flat look); kept as an element so the intro timing is unchanged.
+  const glow = el("ellipse", { cx: 300, cy: 340, rx: 270, ry: 210, fill: "url(#stage-glow)", display: "none" }, svg);
   el("line", { x1: 30, y1: GROUND, x2: 570, y2: GROUND, class: "stage-floor" }, svg);
   // Faint tick marks on the floor read as a measuring scale.
   for (let x = 60; x <= 540; x += 40) el("line", { x1: x, y1: GROUND, x2: x, y2: GROUND + 8, class: "stage-tick" }, svg);
@@ -231,7 +232,7 @@ export function mountStage(root) {
     const limbs = [spine, nearLeg, farLeg, nearArm, farArm, girdles];
     const anims = [];
     const go = (node, frames, opts) => { if (node.animate) anims.push(node.animate(frames, { fill: "both", ...opts })); };
-    svg.style.setProperty("--live", "#eef1fb");
+    svg.style.setProperty("--live", "#ecebe6");
     svg.classList.add("intro");
     marks.style.opacity = "0";
 
