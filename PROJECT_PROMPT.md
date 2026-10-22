@@ -45,7 +45,10 @@ expired: ask the user to make a new one and push once themselves. Node isn't
 installed: run it through VS Code's Electron with
 `ELECTRON_RUN_AS_NODE=1 "/Applications/Visual Studio Code.app/Contents/MacOS/Code"`. `http.postBuffer` is raised for
 large pushes. The GitHub CLI (`gh`) isn't installed. Commit as you go, with a
-clear message and the Co-Authored-By trailer, and push when asked.
+clear message and the Co-Authored-By trailer. **Push every commit to `main`
+right away without asking** (the owner asked for this in Oct 2026; it
+deploys live), then check the deploy landed (live `/sw.js` VERSION matches
+local). `npm test` must pass first, as always.
 
 ## The user
 
@@ -70,7 +73,7 @@ clear message and the Co-Authored-By trailer, and push when asked.
     (ScrollTrigger, SplitText), Lenis and Three.js live in `public/vendor/`
     (CLAUDE.md "Motion libraries"); never load anything from a CDN.
   - Clickable buttons first; keyboard shortcuts only as extras.
-  - Work autonomously in phases, run `npm test` after each, commit after each.
+  - Work autonomously in phases, run `npm test` after each, commit and push after each.
   - Brand: the grade gradient (coral F → green A) on navy; fonts Unbounded
     (display) and Instrument Sans (body); tokens in `css/theme.css`.
 
