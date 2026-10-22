@@ -134,6 +134,12 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     a vertical motion blur (dashboard stats, the live rep counter).
   - **Gliding toggles** (`ui/segmented.js`): one highlight slides between a
     toggle group's options with a horizontal motion blur.
+  - **A path card zooms into its tree** (`zoomIntoTree` in `ui/skills.js`):
+    a box with the card's little tree map lifts off the card and grows to
+    cover it (a small overshoot), holds a beat, then takes the whole screen
+    slow to fast (`cubic-bezier(.7, 0, .84, 0)`), and the tree screen
+    takes over as it fades. Use this card-to-full-screen zoom for any card
+    that opens a whole screen of its own.
   - **The skill tree blooms** (`ui/skills.js`, `.tree.growing` in
     `app.css`): each path is drawn as a tree growing up from a trunk.
     Opening one grows the branches tier by tier, then flowers open on the

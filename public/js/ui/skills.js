@@ -13,6 +13,7 @@
  *             a button to train it.
  */
 
+import { reducedMotion } from "./motion.js";
 import { growFrom } from "./popup.js";
 import { store } from "../storage.js";
 import { skillPath } from "../skills.js";
@@ -71,8 +72,51 @@ export function renderSkills(train) {
     </button>`).join("");
   $("#skills-wrap").onclick = (e) => {
     const card = e.target.closest("[data-path]");
-    if (card) openTree(card.dataset.path);
+    if (card) zoomIntoTree(card, card.dataset.path);
   };
+}
+
+/**
+ * Opening a path from its card: a box holding the card's little tree map
+ * lifts off the card and grows to cover it (with a small overshoot, the
+ * dots scaling up), holds a beat, then takes the whole screen, slow at
+ * first and fast at the end, the dots flying past. The tree screen opens
+ * underneath and the box fades away as the tree starts to grow and bloom.
+ * Reduced motion: the tree just opens.
+ */
+let zooming = false;
+async function zoomIntoTree(card, id) {
+  if (zooming) return;
+  if (reducedMotion() || !document.body.animate) { openTree(id); return; }
+  zooming = true;
+  const map = card.querySelector(".path-map");
+  const m = map.getBoundingClientRect(), c = card.getBoundingClientRect();
+  const box = document.createElement("div");
+  box.className = "tree-zoom";
+  box.setAttribute("aria-hidden", "true");
+  box.innerHTML = `<span class="path-map">${map.innerHTML}</span>`;
+  document.body.appendChild(box);
+  const dots = box.firstElementChild;
+  const at = (r, radius) => ({ left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px`, borderRadius: radius });
+  const over = { left: c.left - 8, top: c.top - 8, width: c.width + 16, height: c.height + 16 };
+  const whole = { left: 0, top: 0, width: innerWidth, height: innerHeight };
+  const SLOW_TO_FAST = "cubic-bezier(.7, 0, .84, 0)";
+  try {
+    // 1. The box appears on the card: out of the map, over the whole card.
+    dots.animate([{ transform: "scale(1)" }, { transform: "scale(1.45)" }], { duration: 380, easing: "cubic-bezier(.2,.9,.3,1.15)", fill: "forwards" });
+    await box.animate([at(m, "6px"), at(over, "18px")], { duration: 380, easing: "cubic-bezier(.2,.9,.3,1.15)", fill: "forwards" }).finished;
+    await new Promise((r) => setTimeout(r, 110));
+    // 2. Then the whole screen: slow, then fast.
+    dots.animate([{ transform: "scale(1.45)", opacity: 1 }, { transform: "scale(3.2)", opacity: 0 }], { duration: 560, easing: SLOW_TO_FAST, fill: "forwards" });
+    await box.animate([at(over, "18px"), at(whole, "0px")], { duration: 600, easing: SLOW_TO_FAST, fill: "forwards" }).finished;
+    // 3. The tree takes over underneath; the box fades off it.
+    openTree(id, null, { grow: false });
+    await box.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 280, easing: "ease-out", fill: "forwards" }).finished;
+  } finally {
+    box.remove();
+    zooming = false;
+    if (!document.getElementById("screen-skilltree")?.classList.contains("active")) openTree(id);
+  }
 }
 
 function nextLine(p) {
@@ -87,7 +131,7 @@ function nextLine(p) {
 let current = null, selected = null, resizeObs = null, grow = false;
 const BARK = 9;                                   // trunk width; branches thin out as they climb
 
-export function openTree(pathId, focusId = null) {
+export function openTree(pathId, focusId = null, { grow: growScreen = true } = {}) {
   paths = skillPath(store.sessions, store.skills);
   current = pathOf(pathId);
   const first = current.steps.find((s) => s.status === "next") ?? current.steps.find((s) => s.status !== "done") ?? current.steps[0];
@@ -95,7 +139,7 @@ export function openTree(pathId, focusId = null) {
   $("#tree-title").textContent = `${current.name} tree`;
   $("#tree-sub").textContent = `Builds to: ${current.goal} · ${current.done} of ${current.steps.length} unlocked`;
   drawTree();
-  showScreen("skilltree");
+  showScreen("skilltree", { grow: growScreen });
   grow = true;
   requestAnimationFrame(drawEdges);
 }

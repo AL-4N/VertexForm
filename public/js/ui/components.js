@@ -21,7 +21,7 @@ document.addEventListener("click", (e) => {
   if (t) pressed = { rect: t.getBoundingClientRect(), at: performance.now() };
 }, true);
 
-export function showScreen(id, { focus = null, dir = "forward" } = {}) {
+export function showScreen(id, { focus = null, dir = "forward", grow = true } = {}) {
   const next = document.getElementById(`screen-${id}`);
   const current = $(".screen.active");
   $$(".screen").forEach((s) => s.classList.toggle("active", s === next));
@@ -31,7 +31,7 @@ export function showScreen(id, { focus = null, dir = "forward" } = {}) {
     if (!target.matches("button, a, input, select, textarea, [tabindex]")) target.setAttribute("tabindex", "-1");
     target.focus({ preventScroll: true });
   }
-  if (next && current && current !== next) {
+  if (next && current && current !== next && grow) {
     // Forward: the screen grows out of the button or card you pressed (or
     // out of the middle when nothing was pressed, like results after a set).
     // Back: it slides in from the left with a motion blur.

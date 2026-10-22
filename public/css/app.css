@@ -582,6 +582,16 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .path-card-next { color: var(--text-dim); }
 .path-card-open { margin-top: auto; font-weight: 700; font-size: .85rem; color: var(--lime); }
 
+/* The box that grows out of a path card into the full tree (zoomIntoTree in ui/skills.js). */
+.tree-zoom {
+  position: fixed; z-index: 60; display: grid; place-items: center; overflow: hidden; pointer-events: none;
+  border: 1px solid var(--border); background-color: var(--bg);
+  background-image: linear-gradient(rgba(166,174,203,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(166,174,203,.07) 1px, transparent 1px);
+  background-size: 12px 12px;
+  box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+}
+.tree-zoom .path-map { border: 0; background: none; margin: 0; }
+
 /* Status rings, shared by tree nodes and detail links. */
 .skill-node { width: 26px; height: 26px; flex: none; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--border); background: var(--panel); }
 .skill-node svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
