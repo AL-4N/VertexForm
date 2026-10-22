@@ -25,6 +25,7 @@ import { CircuitRunner, stepSession, describeStep } from "./circuit.js";
 import { gradeVar } from "./geometry.js";
 import { SYSTEM } from "./coaching.js";
 import { registerServiceWorker } from "./pwa.js";
+import { mountHoverFill } from "./ui/hover-fill.js";
 import { mountPageTransitions } from "./page-transition.js";
 import { saveScoreCard } from "./ui/sharecard.js";
 import { mountLoop } from "./figures/loop.js";
@@ -51,6 +52,7 @@ function boot() {
   mountPageTransitions();
   purgeExpired().catch(() => {});     // unsaved rep replays past their 7 days go for good
   wireSettings();
+  mountHoverFill();
   fontsIn.then(() => {
     renderMenu(openMode);
     document.documentElement.classList.remove("vf-loading");

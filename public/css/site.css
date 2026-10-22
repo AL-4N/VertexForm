@@ -68,21 +68,54 @@ button { font: inherit; color: inherit; }
 .skip:focus { left: 1rem; top: 1rem; }
 :focus-visible { outline: 2px solid var(--g85); outline-offset: 3px; border-radius: 6px; }
 
+/* ── Section tones ───────────────────────────────────
+   The page isn't one colour: sections alternate dark graphite, warm paper
+   and sage. On the light tones the section's own text turns dark, while
+   cards, figures and the 3D view stay dark panels ("islands") so the grade
+   colours keep their contrast. */
+.tone-paper, .tone-sage {
+  --text: #151513; --text-dim: #4a4843; --text-faint: #6f6c63;
+  --line: rgba(21,21,19,.14); --line-2: rgba(21,21,19,.26);
+  --surface: rgba(21,21,19,.06); --surface-2: rgba(21,21,19,.1);
+  background: var(--tone); color: var(--text); border-block: 0;
+}
+.tone-paper { --tone: var(--paper); }
+.tone-sage  { --tone: #b9c1a6; --text-dim: #3c4234; --text-faint: #565d4b; }
+/* Dark islands inside a light section get the dark tokens back. */
+:is(.tone-paper, .tone-sage) :is(.ex-card, .r3-stage, .r3-panel, .cue, .mode, .panel, .calibration, .step-fig, .lab-stage, .lab-panel) {
+  --text: #ecebe6; --text-dim: #a8a69e; --text-faint: #78766e;
+  --line: #2c2b28; --line-2: #3c3b36; --surface: #1a1a18; --surface-2: #222220;
+  color: var(--text);
+}
+:is(.tone-paper, .tone-sage) .btn-grad { --btn-bg: var(--ink); color: var(--paper); }
+:is(.tone-paper, .tone-sage) .tag { background: rgba(21,21,19,.07); color: var(--text-dim); box-shadow: inset 0 0 0 1px var(--line-2); }
+:is(.tone-paper, .tone-sage) .tag-live { color: #1d6b45; background: rgba(46,229,157,.18); box-shadow: inset 0 0 0 1px rgba(29,107,69,.35); }
+:is(.tone-paper, .tone-sage) :focus-visible { outline-color: var(--ink); }
+
 /* ── Buttons ─────────────────────────────────────────── */
-/* Flat at rest. On hover the grade gradient fills the button from the left,
-   like a score bar filling up. No glow, no lift. */
+/* Flat at rest. On hover the grade gradient grows as a circle from where the
+   pointer came in until it fills the button, and shrinks back toward where it
+   left (js/ui/hover-fill.js sets --fx/--fy). No glow, no lift. */
 .btn {
   --btn-bg: transparent;
+  position: relative; isolation: isolate; overflow: hidden;
   display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
   font-weight: 700; font-size: 1rem; line-height: 1; text-decoration: none;
   padding: 1rem 1.5rem; border-radius: 10px; border: 0; cursor: pointer;
-  background: var(--go-gradient) 0 0 / 0% 100% no-repeat var(--btn-bg);
-  transition: background-size .45s var(--ease), color .25s var(--ease), box-shadow .25s var(--ease);
+  background: var(--btn-bg);
+  transition: color .3s var(--ease) .1s, box-shadow .3s var(--ease);
+}
+.btn::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: var(--go-gradient);
+  clip-path: circle(0% at var(--fx, 50%) var(--fy, 50%));
+  transition: clip-path .55s var(--ease);
 }
 @media (hover: hover) {
-  .btn:hover { background-size: 100% 100%; color: var(--ink); box-shadow: none; }
+  .btn:hover { color: var(--ink); box-shadow: none; }
+  .btn:hover::before { clip-path: circle(150% at var(--fx, 50%) var(--fy, 50%)); }
 }
-@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .btn, .btn::before { transition: none; } }
 .btn-grad { --btn-bg: var(--paper); color: var(--ink); }
 .btn-ghost { color: var(--text); box-shadow: inset 0 0 0 1.5px var(--line-2); }
 .btn-dark { --btn-bg: var(--ink); color: var(--paper); }

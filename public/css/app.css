@@ -46,22 +46,31 @@ p  { margin: 0; line-height: 1.55; }
 .header-actions { display: flex; gap: .5rem; }
 
 /* ── Buttons ─────────────────────────────────────────── */
-/* Flat at rest. On hover the grade gradient fills the button from the left
-   (danger buttons fill coral). No glow, no lift. Same as the site. */
+/* Flat at rest. On hover the grade gradient grows as a circle from where the
+   pointer came in (danger buttons fill coral), and shrinks back toward where
+   it left (js/ui/hover-fill.js sets --fx/--fy). No glow, no lift. Same as the site. */
 .btn {
   --btn-bg: var(--panel-hi); --btn-fill: var(--go-gradient);
+  position: relative; isolation: isolate; overflow: hidden;
   font: inherit; font-size: .85rem; font-weight: 600;
   padding: .55rem 1rem; border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: var(--btn-fill) 0 0 / 0% 100% no-repeat var(--btn-bg);
+  background: var(--btn-bg);
   color: var(--text); cursor: pointer;
-  transition: background-size .4s var(--ease), color .2s var(--ease), border-color .2s var(--ease);
+  transition: color .25s var(--ease) .1s, border-color .25s var(--ease);
+}
+.btn::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: var(--btn-fill);
+  clip-path: circle(0% at var(--fx, 50%) var(--fy, 50%));
+  transition: clip-path .5s var(--ease);
 }
 @media (hover: hover) {
-  .btn:hover { background-size: 100% 100%; color: var(--ink); border-color: transparent; }
+  .btn:hover { color: var(--ink); border-color: transparent; }
+  .btn:hover::before { clip-path: circle(150% at var(--fx, 50%) var(--fy, 50%)); }
   .btn.danger:hover { color: #fff; }
 }
-@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .btn, .btn::before { transition: none; } }
 .btn.primary { --btn-bg: var(--paper); border-color: transparent; color: var(--ink); }
 .btn.ghost   { --btn-bg: transparent; color: var(--text-dim); }
 .btn.danger  { --btn-bg: transparent; --btn-fill: linear-gradient(var(--coral), var(--coral)); border-color: var(--coral); color: var(--coral); }
@@ -850,3 +859,24 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .ch-result { font-size: .75rem; font-weight: 700; }
 .ch-result.complete { color: var(--lime); }
 .ch-result.ended { color: var(--text-dim); }
+
+/* ── Light desk, dark panels ─────────────────────────────
+   Outside the camera view the trainer sits on warm paper; cards stay dark
+   graphite panels, so the figures and grade colours keep their contrast
+   (same idea as the site's tones). The live camera screen stays all dark. */
+html:not(:has(#screen-live.active)) {
+  --bg: var(--paper);
+  --text: #151513; --text-dim: #4a4843;
+  --border: rgba(21,21,19,.14);
+  --panel: rgba(21,21,19,.05); --panel-hi: rgba(21,21,19,.07); --panel-hi2: rgba(21,21,19,.13);
+}
+html:not(:has(#screen-live.active)) :is(.card, .ex-card, .mode-card, .path-card, .tree-scroll, .tree-node, .tree-ghost, .onboarding, .onb-card, .paused-box, .loading-box, .toast, .cal-day, .rep-chip, .saved-rep) {
+  --bg: #0d0d0c; --text: #ecebe6; --text-dim: #a8a69e;
+  --border: #2c2b28; --panel: #1a1a18; --panel-hi: #222220; --panel-hi2: #2c2b28;
+  color: var(--text);
+}
+html:not(:has(#screen-live.active)) :is(.card, .ex-card, .mode-card, .path-card, .tree-node, .onboarding, .onb-card) { background-color: var(--panel); }
+/* Primary buttons on the paper desk are ink; inside panels they stay paper. */
+html:not(:has(#screen-live.active)) .btn.primary { --btn-bg: var(--ink); color: var(--paper); }
+html:not(:has(#screen-live.active)) :is(.card, .ex-card, .mode-card, .path-card, .onboarding, .onb-card) .btn.primary { --btn-bg: var(--paper); color: var(--ink); }
+html:not(:has(#screen-live.active)) .btn.primary:hover { color: var(--ink); }

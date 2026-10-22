@@ -45,17 +45,25 @@ its exact colour):
 | 100 | `#2ee59d` | A, green |
 
 - `--grade-gradient`: the full scale, F to A. Score bars, the closing band.
-- `--go-gradient`: amber to green. Only as the hover fill of buttons (it
-  sweeps in from the left like a score bar filling) and the side rail.
+- `--go-gradient`: amber to green. Only as the hover fill of buttons and
+  the side rail.
 - Letters: 90+ A, 80 B, 70 C, 60 D, below 60 F. The trainer shows A+ from 95.
 - A score is always drawn in its own colour (`gradeColor(score)`), never a
   fixed "good" or "bad" colour. Colour is never the only signal: the number
   or letter is always shown too.
 - No purple, no navy, no blue-to-purple gradients, no glows, no radial
   washes, no gradient text. Backgrounds are flat.
-- Buttons are flat at rest (primary: paper with ink text; secondary:
-  hairline outline). On hover the grade gradient fills them from the left
-  and the text turns ink. No glow, no lift. Danger buttons fill coral.
+- Buttons are flat at rest (primary: paper with ink text, ink with paper
+  text on light sections; secondary: hairline outline). On hover the grade
+  gradient grows as a circle from where the pointer came in until it fills
+  the button, and shrinks back toward where it left (`js/ui/hover-fill.js`
+  + `.btn::before` clip-path). No glow, no lift. Danger buttons fill coral.
+- Tones: the page is not one colour. Site sections alternate dark
+  graphite, paper (`.tone-paper`, `--paper`) and sage (`.tone-sage`,
+  `#b9c1a6`). On light tones the section's own text turns dark, while
+  cards, figures and the 3D view stay dark panels so grade colours keep
+  their contrast. The trainer works the same way: a paper desk with dark
+  panels, except the live camera screen, which stays all dark.
 
 ## Type
 

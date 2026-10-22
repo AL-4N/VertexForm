@@ -13,6 +13,7 @@ import { mountMotionNav } from "./motion-nav.js";
 import { mountNavSpy } from "./nav-spy.js";
 import { mountRail } from "./rail.js";
 import { mountPageTransitions } from "../page-transition.js";
+import { mountHoverFill } from "../ui/hover-fill.js";
 
 function colourScores() {
   // Any element with data-score gets its exact colour on the grade scale.
@@ -41,6 +42,7 @@ function stickyNav() {
 
 document.addEventListener("DOMContentLoaded", () => {
   stickyNav();
+  mountHoverFill();
   headerCta();
   mountMotionNav();
   mountRail();
