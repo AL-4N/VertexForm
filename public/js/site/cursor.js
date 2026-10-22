@@ -1,12 +1,13 @@
 /**
  * cursor.js — a measuring ring that follows the pointer.
  *
- * A small ring trails the pointer (eased, so it settles like a needle).
- * Over links and buttons it opens up; over anything marked data-cursor it
- * becomes a filled disc saying what you can do there ("Drag", "Open").
- * It blends with `difference`, so it reads on dark and on paper alike.
- * The system pointer stays visible everywhere except over data-cursor
- * areas, where the disc replaces it.
+ * It replaces the system pointer on the homepage: a small dot sits exactly
+ * where you point (so clicks stay precise) and a ring trails it, eased so
+ * it settles like a needle. Over links and buttons the ring opens up; over
+ * anything marked data-cursor it becomes a filled disc saying what you can
+ * do there ("Drag", "Open"). It blends with `difference`, so it reads on
+ * any colour. Popups sit above everything else on the page, where the ring
+ * can't follow, so inside an open popup the system pointer comes back.
  *
  * Mouse and trackpad only; not on touch, and not with reduced motion.
  */
@@ -19,7 +20,10 @@ export function mountCursor() {
   ring.className = "cursor";
   ring.setAttribute("aria-hidden", "true");
   ring.innerHTML = `<span class="cursor-label"></span>`;
-  document.body.appendChild(ring);
+  const dot = document.createElement("div");
+  dot.className = "cursor-dot";
+  dot.setAttribute("aria-hidden", "true");
+  document.body.append(ring, dot);
   document.documentElement.classList.add("has-cursor");
   const label = ring.firstElementChild;
 
@@ -36,16 +40,18 @@ export function mountCursor() {
   addEventListener("pointermove", (e) => {
     if (e.pointerType !== "mouse") return;
     tx = e.clientX; ty = e.clientY;
-    if (!shown) { x = tx; y = ty; shown = true; ring.classList.add("on"); }
+    dot.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+    if (!shown) { x = tx; y = ty; shown = true; ring.classList.add("on"); dot.classList.add("on"); }
     const t = e.target instanceof Element ? e.target : null;
     const area = t?.closest("[data-cursor]");
     const link = !area && t?.closest("a, button, [role=tab], input[type=range], label");
     ring.classList.toggle("is-label", !!area);
+    dot.classList.toggle("is-label", !!area);
     ring.classList.toggle("is-link", !!link);
     if (area) label.textContent = area.dataset.cursor;
     raf ||= requestAnimationFrame(tick);
   }, { passive: true });
   addEventListener("pointerdown", () => ring.classList.add("down"));
   addEventListener("pointerup", () => ring.classList.remove("down"));
-  document.addEventListener("pointerleave", () => { ring.classList.remove("on"); shown = false; });
+  document.addEventListener("pointerleave", () => { ring.classList.remove("on"); dot.classList.remove("on"); shown = false; });
 }

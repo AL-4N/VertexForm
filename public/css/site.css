@@ -753,9 +753,20 @@ body::after {
   font-family: var(--body); font-size: .8rem; font-weight: 700; transition: opacity .2s, transform .3s var(--ease);
 }
 .cursor.is-label .cursor-label { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-html.has-cursor [data-cursor] { cursor: none; }
-html:has(dialog[open]) .cursor { opacity: 0; }
-html.has-cursor dialog [data-cursor] { cursor: grab; }
+/* The dot is the pointer itself: exactly under the mouse, no lag. */
+.cursor-dot {
+  position: fixed; left: 0; top: 0; z-index: 101; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
+  background: #fff; mix-blend-mode: difference; pointer-events: none; opacity: 0; transition: opacity .2s;
+}
+.cursor-dot.on { opacity: 1; }
+.cursor-dot.is-label { opacity: 0; }
+/* The ring and dot replace the system pointer everywhere on the page... */
+html.has-cursor, html.has-cursor * { cursor: none !important; }
+/* ...except in an open popup, which sits above them: the system pointer is back there. */
+html:has(dialog[open]) :is(.cursor, .cursor-dot) { opacity: 0; }
+html.has-cursor dialog[open], html.has-cursor dialog[open] * { cursor: auto !important; }
+html.has-cursor dialog[open] :is(a, button, [role=button], label) { cursor: pointer !important; }
+html.has-cursor dialog[open] [data-cursor] { cursor: grab !important; }
 
 /* ── Scroll effects (js/site/scroll-fx.js, js/site/smooth.js) ── */
 /* Lenis drives the scrolling itself; the browser's smooth scroll would fight it. */

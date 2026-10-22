@@ -176,9 +176,11 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **Page changes open as a circle** from where you clicked (home ↔
   trainer): the inline `pagereveal` script in each page's head +
   `css/transitions.css` `vt-circle`.
-- **A cursor ring** (`site/cursor.js`, site only): trails the pointer,
-  opens over links, and over draggable or openable areas becomes a disc
-  that says "Drag" or "Open". `difference` blend, mouse only.
+- **A custom cursor** (`site/cursor.js`, site only) replaces the system
+  pointer: a dot exactly under the mouse and a ring that trails it, opens
+  over links, and over draggable or openable areas becomes a disc that
+  says "Drag" or "Open". `difference` blend, mouse only. Inside an open
+  popup (top layer, above the ring) the system pointer comes back.
 - Nothing loops just for decoration: the figures are always doing an
   exercise, and only while on screen.
 - `prefers-reduced-motion`: everything jumps straight to its end state.
