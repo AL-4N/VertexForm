@@ -18,7 +18,7 @@ export const smooth = () => lenis;
 export function mountSmooth() {
   if (lenis || reducedMotion() || typeof window.Lenis !== "function") return null;
   const { gsap, ScrollTrigger } = window;
-  lenis = new window.Lenis({ lerp: 0.1, smoothWheel: true, autoRaf: !gsap });
+  lenis = new window.Lenis({ lerp: 0.15, smoothWheel: true, autoRaf: !gsap });   // 0.15: glides, but keeps up with the hand
   if (gsap && ScrollTrigger) {
     lenis.on("scroll", ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf(time * 1000));

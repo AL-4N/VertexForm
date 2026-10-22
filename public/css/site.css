@@ -108,7 +108,7 @@ body[data-tone="paper"], body[data-tone="sage"] { --tone: #0d1326; }
 body::after {
   content: ""; position: fixed; inset: 0; z-index: 90; pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 160px 160px; opacity: .09; mix-blend-mode: overlay;
+  background-size: 160px 160px; opacity: .035;    /* no blend mode: a blended full-screen layer re-composites the whole page every frame */
 }
 
 /* ── Buttons ─────────────────────────────────────────── */
@@ -128,7 +128,7 @@ body::after {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background: var(--go-gradient);
   clip-path: circle(0% at var(--fx, 50%) var(--fy, 50%));
-  transition: clip-path .55s var(--ease);
+  transition: clip-path 1s cubic-bezier(.25,.6,.3,1);
 }
 @media (hover: hover) {
   .btn:hover { color: var(--ink); box-shadow: none; }
@@ -276,13 +276,13 @@ body::after {
 .hero-hud .readout {
   grid-template-columns: auto 1fr; grid-template-areas: "top top" "score scale" "rows rows"; row-gap: .6rem;
   border: 0; border-radius: 16px; padding: 1rem 1.15rem;
-  background: color-mix(in srgb, #090d1c 78%, transparent); backdrop-filter: blur(12px) saturate(130%); -webkit-backdrop-filter: blur(12px) saturate(130%);
+  background: color-mix(in srgb, #090d1c 90%, transparent);   /* no backdrop blur: it would re-blur the moving 3D scene every frame */
   box-shadow: inset 0 0 0 1px var(--line);
 }
 .hero-hud .readout-rows { padding: .65rem 0 0; border-left: 0; border-top: 1px solid var(--line); }
 .hero-hud .score-num { color: var(--text); transition: color .2s; }
 .hero-hud .tabs { margin-top: .6rem; }
-.hero-hud .tabs button { background: color-mix(in srgb, #090d1c 70%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.hero-hud .tabs button { background: color-mix(in srgb, #090d1c 88%, transparent); }
 @media (min-width: 1000px) {
   .hero { min-height: min(900px, calc(100svh - 68px)); display: flex; }
   .hero-grid { position: static; width: 100%; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr auto; row-gap: 2rem; }
@@ -742,7 +742,7 @@ body::after {
 .cursor { position: fixed; left: 0; top: 0; z-index: 100; width: 0; height: 0; pointer-events: none; mix-blend-mode: difference; opacity: 0; transition: opacity .25s; }
 .cursor.on { opacity: 1; }
 .cursor::before {
-  content: ""; position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%;
+  content: ""; position: absolute; left: -10px; top: -10px; width: 20px; height: 20px; border-radius: 50%;
   border: 1.5px solid #fff; transition: left .3s var(--ease), top .3s var(--ease), width .3s var(--ease), height .3s var(--ease), background .3s, transform .2s;
 }
 .cursor.is-link::before { left: -22px; top: -22px; width: 44px; height: 44px; }
@@ -753,17 +753,10 @@ body::after {
   font-family: var(--body); font-size: .8rem; font-weight: 700; transition: opacity .2s, transform .3s var(--ease);
 }
 .cursor.is-label .cursor-label { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-/* The dot is the pointer itself: exactly under the mouse, no lag. */
-.cursor-dot {
-  position: fixed; left: 0; top: 0; z-index: 101; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
-  background: #fff; mix-blend-mode: difference; pointer-events: none; opacity: 0; transition: opacity .2s;
-}
-.cursor-dot.on { opacity: 1; }
-.cursor-dot.is-label { opacity: 0; }
-/* The ring and dot replace the system pointer everywhere on the page... */
+/* The ring replaces the system pointer everywhere on the page... */
 html.has-cursor, html.has-cursor * { cursor: none !important; }
 /* ...except in an open popup, which sits above them: the system pointer is back there. */
-html:has(dialog[open]) :is(.cursor, .cursor-dot) { opacity: 0; }
+html:has(dialog[open]) .cursor { opacity: 0; }
 html.has-cursor dialog[open], html.has-cursor dialog[open] * { cursor: auto !important; }
 html.has-cursor dialog[open] :is(a, button, [role=button], label) { cursor: pointer !important; }
 html.has-cursor dialog[open] [data-cursor] { cursor: grab !important; }

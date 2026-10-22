@@ -1,13 +1,14 @@
 /**
- * cursor.js — a measuring ring that follows the pointer.
+ * cursor.js — the homepage's own pointer: one ring, exactly where the mouse
+ * is (moved on every pointer event, no easing, so it never lags or splits
+ * into two). Over links and buttons it opens up; over anything marked
+ * data-cursor it becomes a filled disc saying what you can do there
+ * ("Drag", "Open"). The size changes ease; the position never does. It
+ * blends with `difference`, so it reads on any colour.
  *
- * It replaces the system pointer on the homepage: a small dot sits exactly
- * where you point (so clicks stay precise) and a ring trails it, eased so
- * it settles like a needle. Over links and buttons the ring opens up; over
- * anything marked data-cursor it becomes a filled disc saying what you can
- * do there ("Drag", "Open"). It blends with `difference`, so it reads on
- * any colour. Popups sit above everything else on the page, where the ring
- * can't follow, so inside an open popup the system pointer comes back.
+ * It replaces the system pointer (css), except inside an open popup: popups
+ * sit above everything else on the page, where the ring can't follow, so
+ * the system pointer comes back there.
  *
  * Mouse and trackpad only; not on touch, and not with reduced motion.
  */
@@ -20,38 +21,22 @@ export function mountCursor() {
   ring.className = "cursor";
   ring.setAttribute("aria-hidden", "true");
   ring.innerHTML = `<span class="cursor-label"></span>`;
-  const dot = document.createElement("div");
-  dot.className = "cursor-dot";
-  dot.setAttribute("aria-hidden", "true");
-  document.body.append(ring, dot);
+  document.body.append(ring);
   document.documentElement.classList.add("has-cursor");
   const label = ring.firstElementChild;
 
-  let x = -100, y = -100, tx = -100, ty = -100, raf = 0, last = 0, shown = false;
-  const tick = (now) => {
-    const dt = last ? Math.min(50, now - last) : 16;
-    last = now;
-    const k = 1 - Math.pow(0.00002, dt / 1000);
-    x += (tx - x) * k; y += (ty - y) * k;
-    ring.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-    raf = Math.hypot(tx - x, ty - y) > 0.2 ? requestAnimationFrame(tick) : 0;
-    if (!raf) last = 0;
-  };
   addEventListener("pointermove", (e) => {
     if (e.pointerType !== "mouse") return;
-    tx = e.clientX; ty = e.clientY;
-    dot.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
-    if (!shown) { x = tx; y = ty; shown = true; ring.classList.add("on"); dot.classList.add("on"); }
+    ring.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+    ring.classList.add("on");
     const t = e.target instanceof Element ? e.target : null;
     const area = t?.closest("[data-cursor]");
     const link = !area && t?.closest("a, button, [role=tab], input[type=range], label");
     ring.classList.toggle("is-label", !!area);
-    dot.classList.toggle("is-label", !!area);
     ring.classList.toggle("is-link", !!link);
-    if (area) label.textContent = area.dataset.cursor;
-    raf ||= requestAnimationFrame(tick);
+    if (area && label.textContent !== area.dataset.cursor) label.textContent = area.dataset.cursor;
   }, { passive: true });
   addEventListener("pointerdown", () => ring.classList.add("down"));
   addEventListener("pointerup", () => ring.classList.remove("down"));
-  document.addEventListener("pointerleave", () => { ring.classList.remove("on"); dot.classList.remove("on"); shown = false; });
+  document.addEventListener("pointerleave", () => ring.classList.remove("on"));
 }

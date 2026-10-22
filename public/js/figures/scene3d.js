@@ -73,6 +73,23 @@ export function sceneFrames(clip, keep, scale = 1) {
     for (const [k, j] of Object.entries(at)) p[k] = [w[j * 3] / scale, -w[j * 3 + 1] / scale, -w[j * 3 + 2] / scale];
     return p;
   });
+  // Tracking noise makes the figure twitch. Smooth each joint's path over
+  // time (a 7-frame Gaussian, about ±0.2 s at 15 fps) before anything else.
+  // Display only: the engine scored the clip as it was recorded.
+  const K = [1, 6, 15, 20, 15, 6, 1].map((k) => k / 64);
+  const calm = raw.map((p, i) => {
+    const q = {};
+    for (const key in p) {
+      let x = 0, y = 0, z = 0, wsum = 0;
+      K.forEach((w, j) => {
+        const f = raw[Math.min(raw.length - 1, Math.max(0, i + j - 3))][key];
+        x += f[0] * w; y += f[1] * w; z += f[2] * w; wsum += w;
+      });
+      q[key] = [x / wsum, y / wsum, z / wsum];
+    }
+    return q;
+  });
+  raw.splice(0, raw.length, ...calm);
   const feet = ["heL", "heR", "toL", "toR"];
   const base = raw.map((p) => {
     const a = mid(p.anL, p.anR);
@@ -123,14 +140,24 @@ export function loadClips() {
   return loading;
 }
 
-/** The clip's pose at time t (ms), between its saved frames. */
+/**
+ * The clip's pose at time t (ms), between its saved frames: a Catmull-Rom
+ * curve through the frames on either side, so the motion flows instead of
+ * changing direction with a jolt at every saved frame.
+ */
 export function frameAt(clip, t) {
-  const T = clip.t;
-  let i = 0;
-  while (i < T.length - 2 && T[i + 1] <= t) i++;
+  const T = clip.t, F = clip.frames, n = T.length;
+  let i = clip._i ?? 0;                                // start from last time's frame (playback moves forward)
+  if (i > n - 2 || T[i] > t) i = 0;
+  while (i < n - 2 && T[i + 1] <= t) i++;
+  clip._i = i;
   const k = clamp((t - T[i]) / ((T[i + 1] - T[i]) || 1), 0, 1);
-  const a = clip.frames[i], b = clip.frames[i + 1] ?? a, out = {};
-  for (const key in a) out[key] = add(a[key], mul(sub(b[key], a[key]), k));
+  const p0 = F[Math.max(0, i - 1)], p1 = F[i], p2 = F[Math.min(n - 1, i + 1)], p3 = F[Math.min(n - 1, i + 2)];
+  const k2 = k * k, k3 = k2 * k, out = {};
+  for (const key in p1) {
+    const a = p0[key], b = p1[key], c = p2[key], d = p3[key];
+    out[key] = [0, 1, 2].map((j) => 0.5 * (2 * b[j] + (c[j] - a[j]) * k + (2 * a[j] - 5 * b[j] + 4 * c[j] - d[j]) * k2 + (3 * b[j] - a[j] - 3 * c[j] + d[j]) * k3));
+  }
   return out;
 }
 /** The rep a moment belongs to: the first rep that hasn't finished yet. */
@@ -161,17 +188,17 @@ export function deepestT(clip, n) {
  *   opts.at      where the target sits on the canvas, [x, y] as shares
  */
 export class Scene {
-  constructor(canvas, { target = [0, 0.68, 0], dist = 3.7, zoom = 1.55, at = [0.5, 0.5], ring = 0.8, bg = null } = {}) {
+  constructor(canvas, { target = [0, 0.68, 0], dist = 3.7, zoom = 1.55, at = [0.5, 0.5], ring = 0.8, bg = null, maxDpr = 2 } = {}) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    Object.assign(this, { target, dist, zoom, at, ring, bg });
+    Object.assign(this, { target, dist, zoom, at, ring, bg, maxDpr });
     this.w = 0; this.h = 0; this.dpr = 1;
   }
 
   /** Match the backing store to the element's size. Returns true if it changed. */
   fit() {
     const r = this.canvas.getBoundingClientRect();
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const dpr = Math.min(this.maxDpr, window.devicePixelRatio || 1);
     if (r.width === this.w && r.height === this.h && dpr === this.dpr) return false;
     this.w = r.width; this.h = r.height; this.dpr = dpr;
     this.canvas.width = Math.round(r.width * dpr);
@@ -238,15 +265,29 @@ export class Scene {
     const S = 0.25, N = size;
     ctx.lineCap = "butt";
     if (grid) {
+      // Grid squares fade toward the edge. Rather than one stroke per square
+      // edge (hundreds a frame), group them into five strengths and draw each
+      // group as one path.
+      const LEVELS = 5, paths = Array.from({ length: LEVELS }, () => []);
       for (let i = -N; i <= N; i++) {
         for (let j = -N; j < N; j++) {
           const fade = 1 - Math.hypot(i * S, (j + 0.5) * S) / (N * S);
           if (fade <= 0) continue;
-          const a = 0.13 * fade * alpha;
-          this.line(cam, [i * S, 0, j * S], [i * S, 0, (j + 1) * S], C.dim, 1, a);
-          this.line(cam, [j * S, 0, i * S], [(j + 1) * S, 0, i * S], C.dim, 1, a);
+          const g = paths[Math.min(LEVELS - 1, Math.floor(fade * LEVELS))];
+          g.push([i * S, 0, j * S], [i * S, 0, (j + 1) * S], [j * S, 0, i * S], [(j + 1) * S, 0, i * S]);
         }
       }
+      ctx.strokeStyle = C.dim; ctx.lineWidth = 1;
+      paths.forEach((pts, lvl) => {
+        if (!pts.length) return;
+        ctx.globalAlpha = 0.13 * ((lvl + 0.5) / LEVELS) * alpha;
+        ctx.beginPath();
+        for (let q = 0; q < pts.length; q += 2) {
+          const a = this.proj(cam, pts[q]), b = this.proj(cam, pts[q + 1]);
+          ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+        }
+        ctx.stroke();
+      });
     }
     if (!ring) return;
     const R = this.ring;

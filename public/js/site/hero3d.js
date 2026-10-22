@@ -66,7 +66,7 @@ export async function mountHero3d(root) {
 
   const reduced = reducedMotion();
   const wide = () => matchMedia("(min-width: 1000px)").matches;
-  const scene = new Scene(canvas, { at: [0.5, 0.5], zoom: 1.0, ring: 0.8 });
+  const scene = new Scene(canvas, { at: [0.5, 0.5], zoom: 1.0, ring: 0.8, maxDpr: 1.5 });
   // The body in real 3D (Three.js, figures/figure-gl.js) where WebGL works:
   // the floor stays on this canvas, the lit body goes on a WebGL canvas
   // above it, and the marks (points, protractor, notes) on a third canvas
@@ -79,7 +79,7 @@ export async function mountHero3d(root) {
     glCanvas.setAttribute("aria-hidden", "true"); top.setAttribute("aria-hidden", "true");
     canvas.after(glCanvas, top);
     gl = new GLFigure(glCanvas);
-    marks = new Scene(top, { ring: 0.8 });
+    marks = new Scene(top, { ring: 0.8, maxDpr: 1.5 });
     hero.classList.add("hero-gl");
     if (reduced) draw();
   }).catch(() => { /* no WebGL: keep the 2D figure */ });

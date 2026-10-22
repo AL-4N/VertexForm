@@ -38,7 +38,7 @@ export async function mountStory(section) {
   const steps = [...story.querySelectorAll("[data-step]")];
   const fill = story.querySelector(".story-fill");
   const chip = story.querySelector("[data-chip]");
-  const scene = new Scene(canvas, { target: [0, 0.72, 0], zoom: 1.32 });
+  const scene = new Scene(canvas, { target: [0, 0.72, 0], zoom: 1.32, maxDpr: 1.5 });
   const wide = () => matchMedia("(min-width: 900px)").matches;
 
   const st = { p: 0, shown: 0, t: 0, last: 0, raf: 0, visible: false, step: -1 };

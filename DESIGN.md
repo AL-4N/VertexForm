@@ -134,6 +134,8 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     a vertical motion blur (dashboard stats, the live rep counter).
   - **Gliding toggles** (`ui/segmented.js`): one highlight slides between a
     toggle group's options with a horizontal motion blur.
+  - **Path cards show their tree in small** (`miniTree` in `ui/skills.js`):
+    trunk, branches and the same blossoms, buds and twigs as the full tree.
   - **A path card zooms into its tree** (`zoomIntoTree` in `ui/skills.js`):
     a box with the card's little tree map lifts off the card and grows to
     cover it (a small overshoot), holds a beat, then takes the whole screen
@@ -183,7 +185,7 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   trainer): the inline `pagereveal` script in each page's head +
   `css/transitions.css` `vt-circle`.
 - **A custom cursor** (`site/cursor.js`, site only) replaces the system
-  pointer: a dot exactly under the mouse and a ring that trails it, opens
+  pointer: one ring exactly under the mouse (never eased, never two), opens
   over links, and over draggable or openable areas becomes a disc that
   says "Drag" or "Open". `difference` blend, mouse only. Inside an open
   popup (top layer, above the ring) the system pointer comes back.

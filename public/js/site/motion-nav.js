@@ -145,7 +145,9 @@ export function mountMotionNav() {
     const dt = Math.max(1, now - lastT);
     const speed = Math.abs(scrollY - lastY) / dt;     // px/ms
     lastY = scrollY; lastT = now;
-    if (frame || reduce.matches) return;
+    // Smooth scrolling (Lenis) already makes fast scrolls glide, and blurring
+    // whole sections every frame on top of it made scrolling stutter.
+    if (frame || reduce.matches || smooth()) return;
     target = Math.min(SCROLL_MAX, Math.max(0, speed - SCROLL_FLOOR) * SCROLL_GAIN);
     if (!loop && (target > 0 || shown > 0)) loop = requestAnimationFrame(settle);
   }, { passive: true });
