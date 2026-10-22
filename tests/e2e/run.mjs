@@ -154,13 +154,12 @@ await test("Site: 3D hero animates, nav glides, no overflow", async (make) => {
   const page = await make({ camera: false });
   await page.goto(`${BASE}/index.html`);
   await page.waitForSelector(".hero.hero-3d.ready");
-  // The canvas changes from frame to frame (the figure is mid-exercise), and the readout measures it.
-  const shot = () => page.$eval(".hero-canvas", (c) => c.toDataURL().length + ":" + c.toDataURL().slice(-200));
-  const a = await shot();
-  await page.waitForTimeout(600);
-  const b = await shot();
-  assert(a !== b, "hero figure isn't moving");
-  assert(/\d+°/.test(await page.$eval("[data-r=rows]", (e) => e.textContent)), "hero readout shows no measured angle");
+  // The figure is mid-exercise: the angle the readout measures on it keeps changing.
+  const angle = () => page.$eval("[data-r=rows] dd", (e) => e.textContent);
+  const a = await angle();
+  await page.waitForTimeout(700);
+  const b = await angle();
+  assert(/\d+°/.test(a) && a !== b, `hero figure isn't moving (${a} → ${b})`);
   await page.click('.nav nav a[href="#lab"]');
   await page.waitForTimeout(1100);
   assert((await page.evaluate(() => location.hash)) === "#lab", "nav link didn't go to #lab");

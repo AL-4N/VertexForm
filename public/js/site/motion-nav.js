@@ -12,6 +12,8 @@
  * a speed threshold, so normal reading stays sharp and fast flicks streak.
  */
 
+import { smooth } from "./smooth.js";
+
 const DURATION = 750;     // ms for a full glide
 const BLUR_PER_SPEED = 4.5; // px of blur per (px/ms) of scroll speed
 const MAX_BLUR = 14;      // px, vertical blur cap
@@ -64,6 +66,18 @@ export function mountMotionNav() {
   function glide(target) {
     stop();
     announce(`#${target.id}`);
+    // Smooth scrolling on (smooth.js): Lenis does the glide, and the hand-
+    // scrolling blur below follows its speed.
+    const lenis = smooth();
+    if (lenis) {
+      const pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+      lenis.scrollTo(target, { offset: -pad, duration: DURATION / 1000 * 1.4, easing: ease, onComplete: () => {
+        announce(null);
+        if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+        target.focus({ preventScroll: true });
+      } });
+      return;
+    }
     const pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
     const maxY = document.documentElement.scrollHeight - innerHeight;
     const from = scrollY;

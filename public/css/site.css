@@ -757,7 +757,15 @@ html.has-cursor [data-cursor] { cursor: none; }
 html:has(dialog[open]) .cursor { opacity: 0; }
 html.has-cursor dialog [data-cursor] { cursor: grab; }
 
-/* ── Headings rise in word by word (js/site/reveal.js) ── */
-.rw { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .14em; margin-bottom: -.14em; }
-.rw > span { display: inline-block; transform: translateY(110%); filter: blur(5px); transition: transform .9s cubic-bezier(.2,.75,.15,1), filter .9s; transition-delay: calc(var(--i) * 40ms); }
-.in .rw > span { transform: none; filter: none; }
+/* ── Scroll effects (js/site/scroll-fx.js, js/site/smooth.js) ── */
+/* Lenis drives the scrolling itself; the browser's smooth scroll would fight it. */
+html.lenis, html.lenis body { scroll-behavior: auto; }
+.split-line { padding-bottom: .08em; }
+html.split-wait .hero h1 { visibility: hidden; }
+
+/* The 3D hero's WebGL body and the marks above it (js/site/hero3d.js). */
+.hero-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+.hero:not(.hero-3d) .hero-layer { display: none; }
+
+/* Click sparks (js/site/sparks.js). */
+.sparks { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 99; pointer-events: none; }

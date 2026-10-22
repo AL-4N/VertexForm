@@ -67,6 +67,22 @@ export async function mountHero3d(root) {
   const reduced = reducedMotion();
   const wide = () => matchMedia("(min-width: 1000px)").matches;
   const scene = new Scene(canvas, { at: [0.5, 0.5], zoom: 1.0, ring: 0.8 });
+  // The body in real 3D (Three.js, figures/figure-gl.js) where WebGL works:
+  // the floor stays on this canvas, the lit body goes on a WebGL canvas
+  // above it, and the marks (points, protractor, notes) on a third canvas
+  // on top, all through the same camera. Until it loads, or without WebGL,
+  // the flat-shaded 2D figure draws instead.
+  let gl = null, marks = scene;
+  import("../figures/figure-gl.js").then(({ GLFigure }) => {
+    const glCanvas = document.createElement("canvas"), top = document.createElement("canvas");
+    glCanvas.className = top.className = "hero-layer";
+    glCanvas.setAttribute("aria-hidden", "true"); top.setAttribute("aria-hidden", "true");
+    canvas.after(glCanvas, top);
+    gl = new GLFigure(glCanvas);
+    marks = new Scene(top, { ring: 0.8 });
+    hero.classList.add("hero-gl");
+    if (reduced) draw();
+  }).catch(() => { /* no WebGL: keep the 2D figure */ });
   const st = {
     id: "full", t: 0, last: 0, raf: 0, visible: true, pinned: false,
     yaw: BASE.yaw, pitch: BASE.pitch, aimYaw: 0, aimPitch: 0, spin: 0, vSpin: 0, drag: null,
@@ -119,6 +135,7 @@ export async function mountHero3d(root) {
     if (scene.fit()) { scene.at = wide() ? [0.7, 0.4] : [0.5, 0.5]; scene.zoom = wide() ? 0.88 : 1.6; }
     const clip = clips[st.id];
     Object.assign(scene, { target: st.target, dist: st.dist });
+    if (marks !== scene) { marks.fit(); Object.assign(marks, { at: scene.at, zoom: scene.zoom, target: st.target, dist: st.dist }); }
     const cam = scene.camera(st.yaw + st.aimYaw + st.spin, clamp(st.pitch + st.aimPitch, 2, 60));
     const P = frameAt(clip, st.t);
     // The reduced-motion still sits at the bottom of rep 1 and shows that rep's score.
@@ -147,16 +164,20 @@ export async function mountHero3d(root) {
 
     scene.begin();
     scene.floor(cam, { size: 9 });
-    scene.figure(cam, P, st.colour, { grow, dots });
+    if (gl) {
+      gl.render(scene, cam, P, st.colour, { grow });
+      marks.begin();
+      if (grow < 1) marks.points(cam, P, dots);
+    } else scene.figure(cam, P, st.colour, { grow, dots });
     const [a, b, c] = clip.measure.joints(clip.side).map((k) => P[k]);
-    const a3 = scene.angle(cam, a, b, c, { alpha: grow >= 1 ? 1 : 0 });
+    const a3 = marks.angle(cam, a, b, c, { alpha: grow >= 1 ? 1 : 0 });
 
     // The note: penned in after a graded rep, gone before the next one ends.
     if (n >= 0 && grow >= 1) {
       const since = st.t - clip.reps[n].t;
       const [text, joint, which] = NOTES[st.id];
       const s = which === "other" ? (clip.side === "L" ? "R" : "L") : clip.side;
-      if (since >= 0 && since < 2200) scene.note(cam, P[joint + s], text, { write: reduced ? 1 : clamp(since / 900, 0, 1), side: 1 });
+      if (since >= 0 && since < 2200) marks.note(cam, P[joint + s], text, { write: reduced ? 1 : clamp(since / 900, 0, 1), side: 1 });
     }
 
     readout(clip, P, n, a3);

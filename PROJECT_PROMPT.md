@@ -66,8 +66,9 @@ clear message and the Co-Authored-By trailer, and push when asked.
     (`js/site/motion-nav.js`). Since Oct 2026 the user wants Awwwards-style
     UI (they studied the 3D sites there): a 3D hero, a pinned scroll story,
     popups that grow from what you click, blended section tones, a cursor
-    ring, heading reveals (DESIGN.md "Motion"). Still no libraries or CDNs:
-    the 3D is our own canvas renderer (`js/figures/scene3d.js`).
+    ring, heading reveals (DESIGN.md "Motion"). Self-hosted GSAP
+    (ScrollTrigger, SplitText), Lenis and Three.js live in `public/vendor/`
+    (CLAUDE.md "Motion libraries"); never load anything from a CDN.
   - Clickable buttons first; keyboard shortcuts only as extras.
   - Work autonomously in phases, run `npm test` after each, commit after each.
   - Brand: the grade gradient (coral F → green A) on navy; fonts Unbounded
@@ -76,7 +77,8 @@ clear message and the Co-Authored-By trailer, and push when asked.
 ## Ground rules (don't break these)
 
 1. Vanilla JS ES modules, no framework, no build step to run. `public/` must
-   stay deployable as static files.
+   stay deployable as static files. Libraries only as self-hosted files in
+   `public/vendor/` (GSAP, Lenis, Three.js), never from a CDN.
 2. All processing stays on-device. MediaPipe loads from jsDelivr and Google's
    model storage, then `sw.js` caches it.
 3. Pure logic (no DOM, unit-tested) stays pure: `session.js`, `filters.js`,
@@ -181,7 +183,8 @@ public/            index.html  app.html  404.html  sw.js  manifest.webmanifest  
      exercises/    squat, pushup, plank, lunge, jumpingjack (thresholds, measure, grade, faults, fixes, posture, guide)
      ui/           live.js ★ · overlay.js · motion.js · settings.js · results.js · stats.js · workouts.js
                    rest-screen.js · onboarding.js · camera-picker.js · camera-preview.js · menu.js · components.js
-     site/         website scripts (stage, lab, how, motion-nav, nav-spy, rail)
+     site/         website scripts (hero3d, story, expop, rep3d, lab, how, smooth, scroll-fx, sparks, magnet, cursor, tones, motion-nav, nav-spy, rail)
+  vendor/          self-hosted GSAP, Lenis, Three.js (vendor/README.md)
      figures/      stick-figure rig used by the site, the setup demo and the simulator
 tests/             *.test.mjs (npm test) · e2e/run.mjs · helpers/synth.mjs (simulated people) · fixtures/ · videos/ (git-ignored)
 scripts/build-voice.mjs   tools/update-sw.mjs   tools/make-synthetic-fixture.mjs

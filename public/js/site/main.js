@@ -7,7 +7,10 @@ import { mountStory } from "./story.js";
 import { mountExercisePopups } from "./expop.js";
 import { mountTones } from "./tones.js";
 import { mountCursor } from "./cursor.js";
-import { mountReveal } from "./reveal.js";
+import { mountSmooth } from "./smooth.js";
+import { mountScrollFx } from "./scroll-fx.js";
+import { mountSparks } from "./sparks.js";
+import { mountMagnets } from "./magnet.js";
 import { renderPictos } from "../figures/pictos.js";
 import { mountCoach } from "./coach.js";
 import { gradeColor } from "../grade.js";
@@ -46,6 +49,11 @@ function stickyNav() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // GSAP, ScrollTrigger, SplitText and Lenis are self-hosted (public/vendor)
+  // and load as plain scripts before this module; everything here still
+  // works if they didn't.
+  if (window.gsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger, ...(window.SplitText ? [SplitText] : []));
+  mountSmooth();
   stickyNav();
   mountHoverFill();
   headerCta();
@@ -59,12 +67,14 @@ document.addEventListener("DOMContentLoaded", () => {
   renderHow();
   mountTones();
   mountCursor();
-  mountReveal();
+  mountSparks();
   const hero = document.querySelector("[data-hero3d]");
   if (hero) mountHero3d(hero);
   const how = document.getElementById("how");
   if (how) mountStory(how);
   mountExercisePopups(document.querySelector(".ex-grid"), document.getElementById("ex-pop"));
+  mountScrollFx();
+  mountMagnets(".hero-actions .btn, .cta-band .btn");
   const r3 = document.querySelector("[data-r3]");
   if (r3) mountRep3d(r3);
   const lab = document.querySelector("[data-lab]");

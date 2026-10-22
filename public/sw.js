@@ -16,7 +16,7 @@
  * and old ones are deleted on activate. Updates are never stuck.
  */
 
-const VERSION = "992ba944057b";
+const VERSION = "7c83c10864d6";
 const PRECACHE = [
   "./",
   "404.html",
@@ -61,6 +61,7 @@ const PRECACHE = [
   "js/exercises/squat.js",
   "js/figures/annotate.js",
   "js/figures/draw.js",
+  "js/figures/figure-gl.js",
   "js/figures/lab.js",
   "js/figures/loop.js",
   "js/figures/pictos.js",
@@ -90,12 +91,15 @@ const PRECACHE = [
   "js/site/hero3d.js",
   "js/site/how.js",
   "js/site/lab.js",
+  "js/site/magnet.js",
   "js/site/main.js",
   "js/site/motion-nav.js",
   "js/site/nav-spy.js",
   "js/site/rail.js",
   "js/site/rep3d.js",
-  "js/site/reveal.js",
+  "js/site/scroll-fx.js",
+  "js/site/smooth.js",
+  "js/site/sparks.js",
   "js/site/story.js",
   "js/site/tones.js",
   "js/skills.js",
@@ -126,6 +130,16 @@ const PRECACHE = [
   "js/voice.js",
   "js/voices.js",
   "manifest.webmanifest",
+  "vendor/README.md",
+  "vendor/gsap/ScrollTrigger.min.js",
+  "vendor/gsap/SplitText.min.js",
+  "vendor/gsap/gsap.min.js",
+  "vendor/lenis/LICENSE",
+  "vendor/lenis/lenis.css",
+  "vendor/lenis/lenis.min.js",
+  "vendor/three/LICENSE",
+  "vendor/three/three.core.min.js",
+  "vendor/three/three.module.min.js",
 ];
 
 const SHELL = `vf-shell-${VERSION}`;

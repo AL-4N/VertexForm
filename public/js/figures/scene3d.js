@@ -21,7 +21,7 @@ export const DEG = Math.PI / 180;
 // Names for the joints the clip keeps (MediaPipe indices).
 const IDX = { nose: 0, earL: 7, earR: 8, shL: 11, shR: 12, elL: 13, elR: 14, wrL: 15, wrR: 16,
   hipL: 23, hipR: 24, knL: 25, knR: 26, anL: 27, anR: 28, heL: 29, heR: 30, toL: 31, toR: 32 };
-const BONES = [
+export const BONES = [
   ["shL", "elL"], ["elL", "wrL"], ["shR", "elR"], ["elR", "wrR"],
   ["shL", "shR"], ["shL", "hipL"], ["shR", "hipR"], ["hipL", "hipR"],
   ["hipL", "knL"], ["knL", "anL"], ["anL", "heL"], ["heL", "toL"], ["anL", "toL"],

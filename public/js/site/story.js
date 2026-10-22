@@ -111,12 +111,17 @@ export async function mountStory(section) {
     const dt = st.last ? Math.min(50, now - st.last) : 16;
     st.last = now;
     st.t = (st.t + dt) % clip.dur;
-    st.p = progress();
+    if (!trigger) st.p = progress();
     st.shown += (st.p - st.shown) * (1 - Math.pow(0.0005, dt / 1000));
     draw();
     if (st.visible) st.raf = requestAnimationFrame(tick);
     else st.last = 0;
   }
+  // With GSAP, ScrollTrigger tracks how far through the story you are (it
+  // also hears Lenis's smoothed scrolling); without it, measure it here.
+  const { ScrollTrigger } = window;
+  const trigger = ScrollTrigger?.create({ trigger: story, start: "top top", end: "bottom bottom", onUpdate: (s) => { st.p = s.progress; } }) ?? null;
+
   new IntersectionObserver(([e]) => {
     st.visible = e.isIntersecting;
     if (st.visible && !st.raf) st.raf = requestAnimationFrame(tick);

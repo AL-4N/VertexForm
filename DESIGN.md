@@ -150,8 +150,22 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **Tones blend** (`site/tones.js`): the page colour glides between the two
   navies to the tone of the section under the middle of the screen
   (registered custom properties), never a hard edge.
-- **Headings rise in** word by word from a mask (`site/reveal.js`): the
-  hero's on load, each section's the first time it comes on screen.
+- **Smooth scrolling** (Lenis, `site/smooth.js`): wheel and trackpad
+  scrolling glide; touch stays native. Paused while a popup is open.
+- **Headings rise in line by line** from a mask, with a little blur (GSAP
+  SplitText, `site/scroll-fx.js`): the hero's on load, each section's the
+  first time it comes on screen.
+- **Cards rise in** group by group as they enter (ScrollTrigger batch), and
+  the hero has depth on the way out: the copy drifts up faster than the
+  page while the 3D scene sinks and fades.
+- **The hero figure is lit 3D geometry** (Three.js, `figures/figure-gl.js`):
+  capsule limbs and head in the grade colour with a slight glow, a key
+  light casting a soft floor shadow, a rim light tinted by the grade. The
+  floor grid, protractors and notes stay drawing-board 2D on top.
+- **Click sparks** (`site/sparks.js`): eight short strokes in the amber to
+  green colours burst from where you click. **Magnetic buttons**
+  (`site/magnet.js`): the hero and closing buttons lean toward the pointer
+  and spring back. Both are React Bits ideas rebuilt in plain JS.
 - **Things grow out of what you clicked** (`ui/popup.js`): exercise-card
   popups, the trainer's confirms and onboarding (the page behind blurs and
   dims; closing runs back into the trigger); trainer screens grow out of

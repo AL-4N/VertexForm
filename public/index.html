@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="css/site.css" />
 <link rel="stylesheet" href="css/marks.css" />
 <link rel="stylesheet" href="css/popup.css" />
+<link rel="stylesheet" href="vendor/lenis/lenis.css" />
 <link rel="stylesheet" href="css/transitions.css" />
 <!-- A link click on the previous page saved where it was clicked: open this
      page as a circle from that point (css/transitions.css, js/page-transition.js). -->
@@ -523,7 +524,7 @@
 </main>
   <!-- One popup for every exercise card (js/site/expop.js): it grows out of
        the card you opened and shrinks back into it (js/ui/popup.js). -->
-  <dialog class="pop ex-pop" id="ex-pop" aria-labelledby="ex-pop-title">
+  <dialog class="pop ex-pop" id="ex-pop" aria-labelledby="ex-pop-title" data-lenis-prevent>
     <div class="pop-inner">
       <button type="button" class="pop-close" data-pop-close aria-label="Close"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
       <div class="ex-pop-stage">
@@ -567,6 +568,12 @@
 <script>
   if (location.protocol === "file:") document.getElementById("file-warn").hidden = false;
 </script>
+<!-- Self-hosted libraries (public/vendor/README.md), never from a CDN.
+     Plain deferred scripts run before the module below, in this order. -->
+<script defer src="vendor/gsap/gsap.min.js"></script>
+<script defer src="vendor/gsap/ScrollTrigger.min.js"></script>
+<script defer src="vendor/gsap/SplitText.min.js"></script>
+<script defer src="vendor/lenis/lenis.min.js"></script>
 <script type="module" src="js/site/main.js"></script>
 </body>
 </html>
