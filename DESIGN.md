@@ -137,11 +137,13 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   - **Path cards show their tree in small** (`miniTree` in `ui/skills.js`):
     trunk, branches and the same blossoms, buds and twigs as the full tree.
   - **A path card zooms into its tree** (`zoomIntoTree` in `ui/skills.js`):
-    a box with the card's little tree map lifts off the card and grows to
-    cover it (a small overshoot), holds a beat, then takes the whole screen
-    slow to fast (`cubic-bezier(.7, 0, .84, 0)`), and the tree screen
-    takes over as it fades. Use this card-to-full-screen zoom for any card
-    that opens a whole screen of its own.
+    a box with the card's little tree lifts off the card and grows to
+    cover it (a small overshoot) while the other cards fade, then expands
+    and travels to exactly where the tree's panel sits on the tree screen
+    (slow off the mark, settling in). It hands over to the real panel, the
+    rest of the screen lays out around it, and the tree blooms. Use this
+    for any card that opens a screen of its own: the card becomes the
+    thing it opens.
   - **The skill tree blooms** (`ui/skills.js`, `.tree.growing` in
     `app.css`): each path is drawn as a tree growing up from a trunk.
     Opening one grows the branches tier by tier, then flowers open on the

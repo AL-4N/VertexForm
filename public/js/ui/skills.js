@@ -75,11 +75,12 @@ export function renderSkills(train) {
 }
 
 /**
- * Opening a path from its card: a box holding the card's little tree map
- * lifts off the card and grows to cover it (with a small overshoot, the
- * dots scaling up), holds a beat, then takes the whole screen, slow at
- * first and fast at the end, the dots flying past. The tree screen opens
- * underneath and the box fades away as the tree starts to grow and bloom.
+ * Opening a path from its card: a box holding the card's little tree lifts
+ * off the card and grows to cover it (a small overshoot), the other cards
+ * fade away, then the box expands and travels to exactly where the tree's
+ * panel sits on the tree screen (slow off the mark, settling into place).
+ * There it hands over to the real panel, the rest of the screen (title,
+ * back button, detail panel) lays out around it, and the tree blooms.
  * Reduced motion: the tree just opens.
  */
 let zooming = false;
@@ -94,26 +95,44 @@ async function zoomIntoTree(card, id) {
   box.setAttribute("aria-hidden", "true");
   box.innerHTML = `<span class="path-map">${map.innerHTML}</span>`;
   document.body.appendChild(box);
-  const dots = box.firstElementChild;
+  const mini = box.firstElementChild;
+  const list = $("#screen-skills");
   const at = (r, radius) => ({ left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px`, borderRadius: radius });
   const over = { left: c.left - 8, top: c.top - 8, width: c.width + 16, height: c.height + 16 };
-  const whole = { left: 0, top: 0, width: innerWidth, height: innerHeight };
-  const SLOW_TO_FAST = "cubic-bezier(.7, 0, .84, 0)";
+  const POP = "cubic-bezier(.2,.9,.3,1.15)", TRAVEL = "cubic-bezier(.65,0,.2,1)";
+  let fade;
   try {
-    // 1. The box appears on the card: out of the map, over the whole card.
-    dots.animate([{ transform: "scale(1)" }, { transform: "scale(1.45)" }], { duration: 380, easing: "cubic-bezier(.2,.9,.3,1.15)", fill: "forwards" });
-    await box.animate([at(m, "6px"), at(over, "18px")], { duration: 380, easing: "cubic-bezier(.2,.9,.3,1.15)", fill: "forwards" }).finished;
-    await new Promise((r) => setTimeout(r, 110));
-    // 2. Then the whole screen: slow, then fast.
-    dots.animate([{ transform: "scale(1.45)", opacity: 1 }, { transform: "scale(3.2)", opacity: 0 }], { duration: 560, easing: SLOW_TO_FAST, fill: "forwards" });
-    await box.animate([at(over, "18px"), at(whole, "0px")], { duration: 600, easing: SLOW_TO_FAST, fill: "forwards" }).finished;
-    // 3. The tree takes over underneath; the box fades off it.
+    // 1. The box appears on the card; the other cards fade away behind it.
+    mini.animate([{ transform: "scale(1)" }, { transform: "scale(1.35)" }], { duration: 380, easing: POP, fill: "forwards" });
+    fade = list.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, delay: 120, easing: "ease-out", fill: "forwards" });
+    await box.animate([at(m, "6px"), at(over, "18px")], { duration: 380, easing: POP, fill: "forwards" }).finished;
+    await new Promise((r) => setTimeout(r, 90));
+
+    // 2. Lay the tree screen out unseen, find where its panel goes, fly there.
     openTree(id, null, { grow: false });
-    await box.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 280, easing: "ease-out", fill: "forwards" }).finished;
+    const screen = $("#screen-skilltree"), panel = screen.querySelector(".tree-scroll");
+    screen.style.visibility = "hidden";
+    const target = panel.getBoundingClientRect();
+    const radius = getComputedStyle(panel).borderRadius;
+    mini.animate([{ transform: "scale(1.35)", opacity: 1 }, { transform: "scale(2.2)", opacity: 0 }], { duration: 520, easing: TRAVEL, fill: "forwards" });
+    await box.animate([at(over, "18px"), at(target, radius)], { duration: 720, easing: TRAVEL, fill: "forwards" }).finished;
+
+    // 3. The real panel takes over where the box landed; the rest lays out
+    //    around it, and the tree grows and blooms.
+    screen.style.visibility = "";
+    const around = [...screen.querySelectorAll(".app-header > *"), screen.querySelector(".tree-detail")].filter(Boolean);
+    around.forEach((el, k) => el.animate(
+      [{ opacity: 0, transform: "translateY(22px)", filter: "blur(5px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
+      { duration: 520, delay: 60 + k * 70, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }));
+    grow = true;
+    drawEdges();
+    await box.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: "ease-out", fill: "forwards" }).finished;
   } finally {
     box.remove();
+    fade?.cancel();
+    $("#screen-skilltree").style.visibility = "";
     zooming = false;
-    if (!document.getElementById("screen-skilltree")?.classList.contains("active")) openTree(id);
+    if (!$("#screen-skilltree").classList.contains("active")) openTree(id);
   }
 }
 
