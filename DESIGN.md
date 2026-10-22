@@ -121,8 +121,10 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - The side rail's fill eases toward the scroll position every frame, so it
   never jumps.
 - Signature moments (each tied to what VertexForm does, not decoration):
-  - **"It finds you"** (`site/stage.js`): once per visit, the hero figure's
-    tracked points pop in, the bones join them, then the grade colour floods in.
+  - **"It finds you"** (`site/hero3d.js`): once per visit, the 3D hero
+    figure's tracked points pop in, then the bones grow out between them.
+    When the engine grades a rep, its score counts up the scale and the
+    figure takes that grade's colour.
   - **Written notes** (`coachNote` with `write`): the coach's note is penned
     in line by line, then its arrow draws to the body part. Only when the
     cue is new.
@@ -141,7 +143,26 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     unlocked skills (paper petals, green heart), the next skill shows an
     amber bud, untracked and locked ones are bare twigs. A small blossom
     sits on each branch between two unlocked skills.
-- No fade-in-on-scroll for sections, no looping decorative animation.
+- **The hero is a 3D scene** (`site/hero3d.js`, `figures/scene3d.js`): a
+  simulated person does each exercise on the drafting floor; the camera
+  leans toward the pointer and drag spins it. Every score shown is the
+  real engine's (`tools/make-rep3d.mjs`, `tests/rep3d.test.mjs`).
+- **"How it works" is a pinned scroll story** (`site/story.js`): the
+  section holds still while scrolling walks one 3D squat through the four
+  steps and moves the camera round it. Progress is eased, so a flick glides.
+- **Tones blend** (`site/tones.js`): sections are dark, paper or sage, and
+  the page colour glides to the tone of the section under the middle of
+  the screen (registered custom properties), never a hard edge.
+- **Headings rise in** word by word from a mask (`site/reveal.js`): the
+  hero's on load, each section's the first time it comes on screen.
+- **Popups grow out of what you clicked** (`ui/popup.js`): exercise cards,
+  the trainer's confirms and onboarding. The page behind blurs and dims;
+  closing runs back into the trigger.
+- **A cursor ring** (`site/cursor.js`, site only): trails the pointer,
+  opens over links, and over draggable or openable areas becomes a disc
+  that says "Drag" or "Open". `difference` blend, mouse only.
+- Nothing loops just for decoration: the figures are always doing an
+  exercise, and only while on screen.
 - `prefers-reduced-motion`: everything jumps straight to its end state.
 
 ## Layout

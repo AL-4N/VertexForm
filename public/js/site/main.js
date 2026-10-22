@@ -2,7 +2,12 @@
  * main.js — entry point for the marketing site (index.html).
  */
 
-import { mountStage } from "./stage.js";
+import { mountHero3d } from "./hero3d.js";
+import { mountStory } from "./story.js";
+import { mountExercisePopups } from "./expop.js";
+import { mountTones } from "./tones.js";
+import { mountCursor } from "./cursor.js";
+import { mountReveal } from "./reveal.js";
 import { renderPictos } from "../figures/pictos.js";
 import { mountCoach } from "./coach.js";
 import { gradeColor } from "../grade.js";
@@ -52,8 +57,14 @@ document.addEventListener("DOMContentLoaded", () => {
   renderPictos();
   mountCoach(document.querySelector("[data-coach]"));
   renderHow();
-  const stage = document.querySelector("[data-stage]");
-  if (stage) mountStage(stage);
+  mountTones();
+  mountCursor();
+  mountReveal();
+  const hero = document.querySelector("[data-hero3d]");
+  if (hero) mountHero3d(hero);
+  const how = document.getElementById("how");
+  if (how) mountStory(how);
+  mountExercisePopups(document.querySelector(".ex-grid"), document.getElementById("ex-pop"));
   const r3 = document.querySelector("[data-r3]");
   if (r3) mountRep3d(r3);
   const lab = document.querySelector("[data-lab]");

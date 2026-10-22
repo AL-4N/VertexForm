@@ -870,7 +870,7 @@ html:not(:has(#screen-live.active)) {
   --border: rgba(21,21,19,.14);
   --panel: rgba(21,21,19,.05); --panel-hi: rgba(21,21,19,.07); --panel-hi2: rgba(21,21,19,.13);
 }
-html:not(:has(#screen-live.active)) :is(.card, .ex-card, .mode-card, .path-card, .tree-scroll, .tree-node, .tree-ghost, .onboarding, .onb-card, .paused-box, .loading-box, .toast, .cal-day, .rep-chip, .saved-rep) {
+html:not(:has(#screen-live.active)) :is(.card, .ex-card, .mode-card, .path-card, .tree-scroll, .tree-node, .tree-ghost, .onboarding, .pop, .onb-card, .paused-box, .loading-box, .toast, .cal-day, .rep-chip, .saved-rep) {
   --bg: #0d0d0c; --text: #ecebe6; --text-dim: #a8a69e;
   --border: #2c2b28; --panel: #1a1a18; --panel-hi: #222220; --panel-hi2: #2c2b28;
   color: var(--text);
@@ -878,5 +878,5 @@ html:not(:has(#screen-live.active)) :is(.card, .ex-card, .mode-card, .path-card,
 html:not(:has(#screen-live.active)) :is(.card, .ex-card, .mode-card, .path-card, .tree-node, .onboarding, .onb-card) { background-color: var(--panel); }
 /* Primary buttons on the paper desk are ink; inside panels they stay paper. */
 html:not(:has(#screen-live.active)) .btn.primary { --btn-bg: var(--ink); color: var(--paper); }
-html:not(:has(#screen-live.active)) :is(.card, .ex-card, .mode-card, .path-card, .onboarding, .onb-card) .btn.primary { --btn-bg: var(--paper); color: var(--ink); }
+html:not(:has(#screen-live.active)) :is(.card, .ex-card, .mode-card, .path-card, .onboarding, .pop, .onb-card) .btn.primary { --btn-bg: var(--paper); color: var(--ink); }
 html:not(:has(#screen-live.active)) .btn.primary:hover { color: var(--ink); }

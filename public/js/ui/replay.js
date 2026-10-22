@@ -382,7 +382,7 @@ async function renderReplays(selectId = null) {
   };
   $("#replays-info").onclick = async (e) => {
     if (e.target.closest("[data-save]")) { await toggleSave(current); renderReplays(current.id); return; }
-    if (e.target.closest("[data-del]") && confirmAction("Delete this replay for good? This can't be undone.")) {
+    if (e.target.closest("[data-del]") && (await confirmAction("Delete this replay for good? This can't be undone.", { yes: "Delete replay", danger: true }))) {
       await removeClip(current.id);
       toast("Replay deleted");
       renderReplays();

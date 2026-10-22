@@ -16,7 +16,7 @@
  * and old ones are deleted on activate. Updates are never stuck.
  */
 
-const VERSION = "3546e2a11d64";
+const VERSION = "3a87d576ee9f";
 const PRECACHE = [
   "./",
   "404.html",
@@ -28,6 +28,7 @@ const PRECACHE = [
   "css/app.css",
   "css/fonts.css",
   "css/marks.css",
+  "css/popup.css",
   "css/site.css",
   "css/theme.css",
   "css/transitions.css",
@@ -65,6 +66,7 @@ const PRECACHE = [
   "js/figures/pictos.js",
   "js/figures/poses.js",
   "js/figures/rig.js",
+  "js/figures/scene3d.js",
   "js/filters.js",
   "js/geometry.js",
   "js/grade.js",
@@ -83,6 +85,9 @@ const PRECACHE = [
   "js/session.js",
   "js/site/coach-lines.js",
   "js/site/coach.js",
+  "js/site/cursor.js",
+  "js/site/expop.js",
+  "js/site/hero3d.js",
   "js/site/how.js",
   "js/site/lab.js",
   "js/site/main.js",
@@ -90,7 +95,9 @@ const PRECACHE = [
   "js/site/nav-spy.js",
   "js/site/rail.js",
   "js/site/rep3d.js",
-  "js/site/stage.js",
+  "js/site/reveal.js",
+  "js/site/story.js",
+  "js/site/tones.js",
   "js/skills.js",
   "js/speech.js",
   "js/storage.js",
@@ -106,6 +113,7 @@ const PRECACHE = [
   "js/ui/motion.js",
   "js/ui/onboarding.js",
   "js/ui/overlay.js",
+  "js/ui/popup.js",
   "js/ui/replay.js",
   "js/ui/rest-screen.js",
   "js/ui/results.js",

@@ -104,17 +104,17 @@ function renderChallenges() {
     ? log.map((l) => `<li><strong>${CHALLENGE_BY_ID[l.id]?.name ?? l.id}</strong> <span class="dim small">${dateText(l.start)} to ${dateText(l.end)}</span> <span class="ch-result ${l.result}">${l.result === "complete" ? "Completed" : "Ended early"}</span></li>`).join("")
     : `<li class="dim small">Challenges you finish or end show up here.</li>`;
 
-  $("#screen-challenges").onclick = (e) => {
+  $("#screen-challenges").onclick = async (e) => {
     const s = e.target.closest("[data-start]");
     if (s) {
       const live = store.challenge && challengeStatus(store.challenge, store.sessions)?.state !== "broken";
-      if (live && !confirmAction(`Switch challenges? Your current one (${CHALLENGE_BY_ID[store.challenge.id].name}) ends.`)) return;
+      if (live && !(await confirmAction(`Switch challenges? Your current one (${CHALLENGE_BY_ID[store.challenge.id].name}) ends.`, { yes: "Switch" }))) return;
       start(s.dataset.start);
       return;
     }
     if (e.target.closest("[data-quit]")) {
       const live = challengeStatus(store.challenge, store.sessions)?.state !== "broken";
-      if (live && !confirmAction("Quit this challenge? Your progress on it ends.")) return;
+      if (live && !(await confirmAction("Quit this challenge? Your progress on it ends.", { yes: "Quit challenge", danger: true }))) return;
       quit();
     }
   };

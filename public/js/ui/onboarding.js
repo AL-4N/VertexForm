@@ -6,6 +6,7 @@
  * Next / Back, swipe or drag, or the arrow keys.
  */
 
+import { openPopup, closePopup } from "./popup.js";
 import { $, $$ } from "./components.js";
 import { slide, settle, EASE } from "./motion.js";
 
@@ -39,7 +40,7 @@ export function showOnboarding(onDone = () => {}) {
     ui();
   };
 
-  const close = () => { dlg.close(); onDone(); };
+  const close = () => closePopup(dlg);
   $("#onb-next").onclick = () => (i < cards.length - 1 ? go(i + 1) : close());
   $("#onb-back").onclick = () => go(i - 1);
   $("#onb-skip").onclick = close;
@@ -68,7 +69,6 @@ export function showOnboarding(onDone = () => {}) {
 
   cards.forEach((c, k) => { c.hidden = k !== 0; c.style.transform = ""; c.style.opacity = ""; });
   ui();
-  dlg.showModal();
-  slide(dlg, { from: [0, 48], to: [0, 0], opacity: [0, 1], duration: 440, ease: EASE.outBack });
+  openPopup(dlg, null, { onClose: onDone });
   $("#onb-next").focus();
 }

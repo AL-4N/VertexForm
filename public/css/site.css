@@ -66,31 +66,55 @@ button { font: inherit; color: inherit; }
 
 .skip { position: absolute; left: -999px; z-index: 99; background: #fff; color: var(--ink); padding: .6rem 1rem; border-radius: 8px; font-weight: 700; }
 .skip:focus { left: 1rem; top: 1rem; }
-:focus-visible { outline: 2px solid var(--g85); outline-offset: 3px; border-radius: 6px; }
+:focus-visible { outline: 2px solid var(--focus, var(--g85)); outline-offset: 3px; border-radius: 6px; }
 
-/* ── Section tones ───────────────────────────────────
-   The page isn't one colour: sections alternate dark graphite, warm paper
-   and sage. On the light tones the section's own text turns dark, while
-   cards, figures and the 3D view stay dark panels ("islands") so the grade
-   colours keep their contrast. */
-.tone-paper, .tone-sage {
+/* ── Tones: the page blends from one colour to the next ──────────
+   Every section has a tone (data-tone="dark" | "paper" | "sage") and
+   js/site/tones.js puts the tone of the section under the middle of the
+   screen on <body>. These properties are registered, so the background and
+   text glide from one tone to the next instead of jumping at a hard edge.
+   Cards, figures, the 3D views and popups are dark panels ("islands")
+   whatever the tone around them, so the grade colours keep their contrast. */
+@property --tone       { syntax: "<color>"; inherits: true; initial-value: #0d0d0c; }
+@property --text       { syntax: "<color>"; inherits: true; initial-value: #ecebe6; }
+@property --text-dim   { syntax: "<color>"; inherits: true; initial-value: #a8a69e; }
+@property --text-faint { syntax: "<color>"; inherits: true; initial-value: #78766e; }
+@property --line       { syntax: "<color>"; inherits: true; initial-value: #2c2b28; }
+@property --line-2     { syntax: "<color>"; inherits: true; initial-value: #3c3b36; }
+@property --surface    { syntax: "<color>"; inherits: true; initial-value: #1a1a18; }
+@property --surface-2  { syntax: "<color>"; inherits: true; initial-value: #222220; }
+@property --accent-bg  { syntax: "<color>"; inherits: true; initial-value: #ecebe6; }
+@property --accent-fg  { syntax: "<color>"; inherits: true; initial-value: #0d0d0c; }
+body {
+  --tone: #0d0d0c; --accent-bg: var(--paper); --accent-fg: #0d0d0c; --focus: var(--g85);
+  background: var(--tone);
+  transition: --tone .9s var(--ease), --text .9s var(--ease), --text-dim .9s var(--ease), --text-faint .9s var(--ease),
+              --line .9s var(--ease), --line-2 .9s var(--ease), --surface .9s var(--ease), --surface-2 .9s var(--ease),
+              --accent-bg .9s var(--ease), --accent-fg .9s var(--ease);
+}
+body[data-tone="paper"], body[data-tone="sage"] {
   --text: #151513; --text-dim: #4a4843; --text-faint: #6f6c63;
   --line: rgba(21,21,19,.14); --line-2: rgba(21,21,19,.26);
   --surface: rgba(21,21,19,.06); --surface-2: rgba(21,21,19,.1);
-  background: var(--tone); color: var(--text); border-block: 0;
+  --accent-bg: #0d0d0c; --accent-fg: var(--paper); --focus: #151513;
 }
-.tone-paper { --tone: var(--paper); }
-.tone-sage  { --tone: #b9c1a6; --text-dim: #3c4234; --text-faint: #565d4b; }
-/* Dark islands inside a light section get the dark tokens back. */
-:is(.tone-paper, .tone-sage) :is(.ex-card, .r3-stage, .r3-panel, .cue, .mode, .panel, .calibration, .step-fig, .lab-stage, .lab-panel) {
+body[data-tone="paper"] { --tone: var(--paper); }
+body[data-tone="sage"]  { --tone: #b9c1a6; --text-dim: #3c4234; --text-faint: #565d4b; }
+@media (prefers-reduced-motion: reduce) { body { transition: none; } }
+/* Islands: always dark. */
+:is(.ex-card, .r3-stage, .r3-panel, .cue, .mode, .panel, .calibration, .step-fig, .lab-stage, .lab-panel, .hero-hud, .pop, .stage-frame) {
   --text: #ecebe6; --text-dim: #a8a69e; --text-faint: #78766e;
   --line: #2c2b28; --line-2: #3c3b36; --surface: #1a1a18; --surface-2: #222220;
+  --accent-bg: var(--paper); --accent-fg: #0d0d0c; --focus: var(--g85);
   color: var(--text);
 }
-:is(.tone-paper, .tone-sage) .btn-grad { --btn-bg: var(--ink); color: var(--paper); }
-:is(.tone-paper, .tone-sage) .tag { background: rgba(21,21,19,.07); color: var(--text-dim); box-shadow: inset 0 0 0 1px var(--line-2); }
-:is(.tone-paper, .tone-sage) .tag-live { color: #1d6b45; background: rgba(46,229,157,.18); box-shadow: inset 0 0 0 1px rgba(29,107,69,.35); }
-:is(.tone-paper, .tone-sage) :focus-visible { outline-color: var(--ink); }
+
+/* Film grain over everything, so flat colour doesn't read as flat digital fill. */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 90; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px; opacity: .09; mix-blend-mode: overlay;
+}
 
 /* ── Buttons ─────────────────────────────────────────── */
 /* Flat at rest. On hover the grade gradient grows as a circle from where the
@@ -116,7 +140,7 @@ button { font: inherit; color: inherit; }
   .btn:hover::before { clip-path: circle(150% at var(--fx, 50%) var(--fy, 50%)); }
 }
 @media (prefers-reduced-motion: reduce) { .btn, .btn::before { transition: none; } }
-.btn-grad { --btn-bg: var(--paper); color: var(--ink); }
+.btn-grad { --btn-bg: var(--accent-bg); color: var(--accent-fg); }
 .btn-ghost { color: var(--text); box-shadow: inset 0 0 0 1.5px var(--line-2); }
 .btn-dark { --btn-bg: var(--ink); color: var(--paper); }
 .btn-sm { font-size: .9rem; padding: .7rem 1.15rem; }
@@ -126,7 +150,7 @@ button { font: inherit; color: inherit; }
 .nav {
   position: sticky; top: 0; z-index: 40;
   padding-top: env(safe-area-inset-top, 0px);
-  background: rgba(13,13,12,.72); backdrop-filter: blur(14px) saturate(140%);
+  background: color-mix(in srgb, var(--tone) 74%, transparent); backdrop-filter: blur(14px) saturate(140%);
   -webkit-backdrop-filter: blur(14px) saturate(140%);
   border-bottom: 1px solid transparent; transition: border-color .2s;
 }
@@ -178,7 +202,7 @@ button { font: inherit; color: inherit; }
   .nav .btn { margin-left: .4rem; }
   .rail {
     display: block; position: fixed; z-index: 45; left: 0; top: 0; bottom: 0; width: var(--rail-w);
-    background: var(--ink); border-right: 1px solid var(--line);
+    background: var(--tone); border-right: 1px solid var(--line);
   }
   .rail-inner { position: absolute; left: 30px; right: 12px; top: 50%; transform: translateY(-50%); height: min(56vh, 400px); }
   /* The ruler: a hairline with a minor tick every 12px. */
@@ -228,9 +252,49 @@ button { font: inherit; color: inherit; }
 .tab-name { display: block; line-height: 1.2; text-align: center; }
 
 /* ── Hero ────────────────────────────────────────────── */
-.hero { position: relative; padding: clamp(2.5rem, 6vw, 5rem) 0 clamp(3rem, 7vw, 6rem); overflow: hidden; }
-.hero-grid { position: relative; display: grid; grid-template-columns: 1fr 1.08fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
-@media (max-width: 1000px) { .hero-grid { grid-template-columns: 1fr; } }
+/* The 3D figure (js/site/hero3d.js) fills the hero. On narrow screens it
+   sits between the copy and the readout instead. */
+.hero { position: relative; overflow: hidden; }
+.hero-grid { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; padding-block: clamp(2.5rem, 6vw, 4rem); }
+.hero-copy, .hero-hud { position: relative; z-index: 1; }
+.hero-scene { position: relative; height: clamp(360px, 80vw, 460px); margin-inline: calc(var(--gutter) * -1); }
+.hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: pan-y; cursor: grab; }
+.hero.dragging .hero-canvas { cursor: grabbing; }
+.hero:not(.hero-3d) .hero-canvas, .hero:not(.hero-3d) .hero-view { display: none; }
+.hero-fallback { position: absolute; inset: 0 var(--gutter); display: flex; align-items: center; border-radius: var(--r-lg); }
+.hero.hero-3d .hero-fallback { display: none; }
+.hero-view {
+  position: absolute; right: var(--gutter); top: .6rem; pointer-events: none;
+  font-family: var(--mono); font-size: .7rem; font-weight: 600; letter-spacing: .06em; color: var(--text-faint); font-variant-numeric: tabular-nums;
+}
+/* The readout floats over the scene as a dark instrument panel. */
+.hero-hud .readout {
+  grid-template-columns: auto 1fr; grid-template-areas: "top top" "score scale" "rows rows"; row-gap: .6rem;
+  border: 0; border-radius: 16px; padding: 1rem 1.15rem;
+  background: color-mix(in srgb, #0d0d0c 78%, transparent); backdrop-filter: blur(12px) saturate(130%); -webkit-backdrop-filter: blur(12px) saturate(130%);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.hero-hud .readout-rows { padding: .65rem 0 0; border-left: 0; border-top: 1px solid var(--line); }
+.hero-hud .score-num { color: var(--text); transition: color .2s; }
+.hero-hud .tabs { margin-top: .6rem; }
+.hero-hud .tabs button { background: color-mix(in srgb, #0d0d0c 70%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+@media (min-width: 1000px) {
+  .hero { min-height: min(900px, calc(100svh - 68px)); display: flex; }
+  .hero-grid { position: static; width: 100%; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr auto; row-gap: 2rem; }
+  .hero-copy { grid-row: 1; align-self: center; max-width: 520px; }
+  /* A strip along the bottom: the exercise switch under the copy, the readout under the figure. */
+  .hero-hud { grid-row: 2; display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; }
+  .hero-hud .tabs { order: -1; flex: 0 1 470px; margin: 0; }
+  .hero-hud .readout { flex: 0 0 340px; }
+  .hero-scene { position: absolute; inset: 0; height: auto; margin: 0; }
+  /* Blend the scene into the page: fade behind the copy and into the next section. */
+  .hero-scene::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(90deg, var(--tone) 12%, transparent 46%), linear-gradient(0deg, var(--tone), transparent 14%);
+  }
+  .hero-view { top: 1.1rem; }
+  .hero-fallback { inset: 6% 4% 18% 52%; }
+}
 
 .hero h1 { font-size: clamp(2.3rem, 4.6vw, 3.75rem); line-height: 1.06; margin-bottom: 1.4rem; max-width: 15ch; text-wrap: balance; }
 .lede { color: var(--text-dim); font-size: clamp(1.05rem, 1.5vw, 1.18rem); max-width: 47ch; margin-bottom: 2rem; }
@@ -339,7 +403,6 @@ button { font: inherit; color: inherit; }
 
 /* ── Sections ────────────────────────────────────────── */
 .section { padding: clamp(4rem, 9vw, 7rem) 0; }
-.section-alt { background: var(--ink-2); border-block: 1px solid var(--line); }
 .section-head { max-width: 60ch; margin-bottom: clamp(2rem, 4vw, 3rem); }
 .section-head h2 { font-size: clamp(1.75rem, 3.4vw, 2.6rem); line-height: 1.1; margin-bottom: 1rem; }
 .section-head p { color: var(--text-dim); font-size: 1.06rem; }
@@ -348,7 +411,18 @@ button { font: inherit; color: inherit; }
 
 /* Exercises */
 .ex-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; }
-.ex-card { grid-column: span 2; display: flex; flex-direction: column; background: var(--surface); border-radius: var(--r-lg); overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+.ex-card { position: relative; grid-column: span 2; display: flex; flex-direction: column; background: var(--surface); border-radius: var(--r-lg); overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); cursor: pointer; transition: box-shadow .3s var(--ease); }
+.ex-card:hover { box-shadow: inset 0 0 0 1px var(--text-faint); }
+.ex-card .picto svg { transition: transform .5s var(--ease); }
+.ex-card:hover .picto svg { transform: scale(1.05); }
+/* The whole card is the button's hit area. */
+.ex-open {
+  display: inline-flex; align-items: center; gap: .4rem; margin-top: .9rem; padding: 0; border: 0; background: none; cursor: pointer;
+  font: inherit; font-size: .88rem; font-weight: 700; color: var(--text);
+}
+.ex-open::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.ex-open span { transition: transform .3s var(--ease); }
+.ex-card:hover .ex-open span { transform: translateX(4px); }
 .ex-card.ex-wide { grid-column: span 3; }
 @media (max-width: 900px) { .ex-card, .ex-card.ex-wide { grid-column: span 3; } }
 @media (max-width: 620px) { .ex-card, .ex-card.ex-wide { grid-column: span 6; } }
@@ -599,3 +673,86 @@ button { font: inherit; color: inherit; }
 .file-warn { position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%); z-index: 50; width: min(680px, calc(100% - 2rem)); display: grid; gap: .3rem; padding: 1rem 1.2rem; border-radius: var(--r-md); background: #2a1420; color: var(--text); box-shadow: inset 0 0 0 1.5px var(--g0), 0 20px 50px -10px rgba(0,0,0,.7); font-size: .93rem; }
 .file-warn[hidden] { display: none; }
 .file-warn strong { color: #ffb3c1; }
+
+/* ── How it works: the pinned 3D story (js/site/story.js) ── */
+.story { position: relative; height: 430vh; margin-top: clamp(1rem, 3vw, 2rem); }
+.story[hidden] { display: none; }
+.has-story .steps { display: none; }
+.story-pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+.story-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.story-steps { list-style: none; margin: 0; padding: 0; position: absolute; left: 0; top: 52%; width: min(430px, 40%); }
+.story-steps li { position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0; visibility: hidden; transition: opacity .3s, visibility 0s .3s; }
+.story-steps li.on { opacity: 1; visibility: visible; transition: opacity .3s; }
+.story-n { display: block; font-family: var(--mono); font-size: .8rem; font-weight: 600; letter-spacing: .08em; color: var(--text-faint); margin-bottom: .8rem; }
+.story-steps h3 { font-size: clamp(1.9rem, 3.4vw, 3rem); line-height: 1.05; margin-bottom: 1rem; }
+.story-steps p { color: var(--text-dim); font-size: 1.08rem; max-width: 34ch; }
+.story-chip {
+  position: absolute; left: 0; bottom: clamp(1.25rem, 4vh, 2.5rem); margin: 0; padding: .45rem .7rem;
+  font-family: var(--mono); font-size: .72rem; font-weight: 600; letter-spacing: .06em; font-variant-numeric: tabular-nums;
+  color: var(--c, var(--text-dim)); box-shadow: inset 0 0 0 1px var(--c, var(--line-2)); border-radius: 6px;
+}
+.story-chip:empty { display: none; }
+.story-meter { position: absolute; right: 0; top: 50%; transform: translateY(-50%); display: grid; gap: 1.6rem; padding-left: 14px; }
+.story-track { position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--line-2); }
+.story-fill { position: absolute; inset: 0; background: linear-gradient(180deg, var(--g70), var(--g85) 50%, var(--g100)); transform-origin: top; transform: scaleY(0); }
+.story-meter button { border: 0; background: none; padding: .2rem .3rem; cursor: pointer; font-family: var(--mono); font-size: .75rem; font-weight: 600; color: var(--text-faint); text-align: left; }
+.story-meter button:hover { color: var(--text); }
+@media (max-width: 899px) {
+  .story-steps { top: auto; bottom: 4.4rem; width: 100%; }
+  .story-steps li { top: auto; bottom: 0; transform: none; }
+  .story-steps h3 { font-size: 1.7rem; margin-bottom: .5rem; }
+  .story-steps p { font-size: 1rem; }
+  .story-chip { bottom: 1rem; }
+  .story-meter { top: 5.5rem; transform: none; gap: 1rem; }
+}
+
+/* ── The exercise popup (js/site/expop.js; base in css/popup.css) ── */
+.pop.ex-pop { width: min(1100px, calc(100vw - 2rem)); }
+.ex-pop .pop-inner { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); min-height: min(600px, calc(100svh - 2rem)); }
+.ex-pop-stage { position: relative; min-height: 340px; background: #0f0f0e; border-right: 1px solid var(--line); }
+.ex-pop-stage::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(168,166,158,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(168,166,158,.05) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; }
+.ex-pop-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; }
+.ex-pop.no-3d .ex-pop-stage { display: none; }
+.ex-pop.no-3d .pop-inner { grid-template-columns: 1fr; }
+.ex-pop-hint { position: absolute; left: 1rem; bottom: .9rem; font-family: var(--mono); font-size: .68rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-faint); pointer-events: none; }
+.ex-pop-body { display: grid; gap: 1.05rem; align-content: start; padding: clamp(1.5rem, 3vw, 2.4rem); padding-top: clamp(2.5rem, 4vw, 3rem); }
+.ex-pop h2 { font-size: clamp(2rem, 3.6vw, 3rem); line-height: 1; }
+.ex-pop-lede { color: var(--text-dim); font-size: 1.05rem; }
+.ex-pop-mini { font-family: var(--mono); font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-faint); margin: 0 0 .45rem; }
+.ex-pop-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: .93rem; }
+.ex-pop-cols ul { margin: 0; padding-left: 1.1rem; color: var(--text-dim); display: grid; gap: .3rem; }
+.ex-pop-cols p { color: var(--text-dim); }
+.ex-pop-reps { display: flex; flex-wrap: wrap; gap: .5rem; }
+.ex-pop-rep { display: grid; grid-template-columns: auto auto; align-items: baseline; column-gap: .35rem; padding: .45rem .7rem; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--c); font-weight: 700; color: var(--text-dim); }
+.ex-pop-rep b { font-family: var(--display); font-size: 1.15rem; color: var(--c); }
+.ex-pop-rep small { grid-column: 1 / -1; font-family: var(--mono); font-size: .64rem; font-weight: 600; color: var(--text-faint); text-transform: uppercase; letter-spacing: .06em; }
+.ex-pop-note { margin-top: .5rem; font-size: .8rem; color: var(--text-faint); }
+@media (max-width: 760px) {
+  .ex-pop .pop-inner { grid-template-columns: 1fr; min-height: 0; }
+  .ex-pop-stage { min-height: 300px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .ex-pop-cols { grid-template-columns: 1fr; }
+}
+
+/* ── The cursor ring (js/site/cursor.js) ── */
+.cursor { position: fixed; left: 0; top: 0; z-index: 100; width: 0; height: 0; pointer-events: none; mix-blend-mode: difference; opacity: 0; transition: opacity .25s; }
+.cursor.on { opacity: 1; }
+.cursor::before {
+  content: ""; position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%;
+  border: 1.5px solid #fff; transition: left .3s var(--ease), top .3s var(--ease), width .3s var(--ease), height .3s var(--ease), background .3s, transform .2s;
+}
+.cursor.is-link::before { left: -22px; top: -22px; width: 44px; height: 44px; }
+.cursor.is-label::before { left: -40px; top: -40px; width: 80px; height: 80px; background: #fff; }
+.cursor.down::before { transform: scale(.82); }
+.cursor-label {
+  position: absolute; left: 0; top: 0; transform: translate(-50%, -50%) scale(.6); opacity: 0; color: #000; white-space: nowrap;
+  font-family: var(--body); font-size: .8rem; font-weight: 700; transition: opacity .2s, transform .3s var(--ease);
+}
+.cursor.is-label .cursor-label { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+html.has-cursor [data-cursor] { cursor: none; }
+html:has(dialog[open]) .cursor { opacity: 0; }
+html.has-cursor dialog [data-cursor] { cursor: grab; }
+
+/* ── Headings rise in word by word (js/site/reveal.js) ── */
+.rw { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .14em; margin-bottom: -.14em; }
+.rw > span { display: inline-block; transform: translateY(110%); filter: blur(5px); transition: transform .9s cubic-bezier(.2,.75,.15,1), filter .9s; transition-delay: calc(var(--i) * 40ms); }
+.in .rw > span { transform: none; filter: none; }

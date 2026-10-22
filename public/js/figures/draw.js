@@ -3,7 +3,7 @@
  *
  * Everything is styled inline so the same figure works on the marketing site,
  * in the app, and in exported images without any CSS. The hero demo has its
- * own optimised renderer (site/stage.js); everything else uses this one.
+ * 3D renderer (figures/scene3d.js); everything else uses this one.
  */
 
 import { GROUND } from "./poses.js";

@@ -1,5 +1,6 @@
 /** components.js — small shared UI helpers. */
 
+import { askPopup } from "./popup.js";
 import { gradeVar } from "../geometry.js";
 import { slide, EASE } from "./motion.js";
 
@@ -81,9 +82,13 @@ export function renderBars(host, bars, cls = "bar-row") {
   });
 }
 
-/** Simple confirm dialog built on the native one — honest and accessible. */
-export function confirmAction(message) {
-  return window.confirm(message);
+/**
+ * Ask before doing something that can't be undone. A popup grows out of the
+ * button that asked (ui/popup.js); resolves true only for the confirm button.
+ * opts: { yes, danger } — button text, and red for destructive actions.
+ */
+export function confirmAction(message, opts = {}) {
+  return askPopup(message, { yes: "Yes", ...opts });
 }
 
 /** Draw a small rep-by-rep bar chart onto a canvas. */

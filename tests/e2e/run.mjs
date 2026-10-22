@@ -150,13 +150,17 @@ const V1_DATA = {
 
 /* ═══════════════════════ Website ═══════════════════════ */
 
-await test("Site: hero demo animates, nav glides, no overflow", async (make) => {
+await test("Site: 3D hero animates, nav glides, no overflow", async (make) => {
   const page = await make({ camera: false });
   await page.goto(`${BASE}/index.html`);
-  const a = await page.$eval("[data-stage] .stage-svg", (s) => s.innerHTML.length && s.querySelector("polyline")?.getAttribute("points"));
+  await page.waitForSelector(".hero.hero-3d.ready");
+  // The canvas changes from frame to frame (the figure is mid-exercise), and the readout measures it.
+  const shot = () => page.$eval(".hero-canvas", (c) => c.toDataURL().length + ":" + c.toDataURL().slice(-200));
+  const a = await shot();
   await page.waitForTimeout(600);
-  const b = await page.$eval("[data-stage] .stage-svg", (s) => s.querySelector("polyline")?.getAttribute("points"));
-  assert(a && b && a !== b, "hero figure isn't moving");
+  const b = await shot();
+  assert(a !== b, "hero figure isn't moving");
+  assert(/\d+°/.test(await page.$eval("[data-r=rows]", (e) => e.textContent)), "hero readout shows no measured angle");
   await page.click('.nav nav a[href="#lab"]');
   await page.waitForTimeout(1100);
   assert((await page.evaluate(() => location.hash)) === "#lab", "nav link didn't go to #lab");
@@ -205,6 +209,8 @@ await test("Onboarding: shown on first visit, skippable, not shown again", async
   await page.click("#onb-next");
   await page.click("#onb-back");
   await page.click("#onb-skip");
+  // It shrinks away (ui/popup.js) before it closes.
+  await page.waitForSelector("#onboarding:not([open])", { state: "attached", timeout: 2000 }).catch(() => {});
   assert(!(await page.$("#onboarding[open]")), "Skip didn't close it");
   await page.reload();
   await page.waitForTimeout(400);

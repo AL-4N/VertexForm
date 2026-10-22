@@ -38,11 +38,11 @@ export function renderMenu(onPick) {
         : `<span class="best dim">No best yet</span>`}
     `;
 
-    card.addEventListener("click", (e) => {
+    card.addEventListener("click", async (e) => {
       // The reset button lives inside the card; don't launch the exercise.
       if (e.target.classList.contains("reset")) {
         e.stopPropagation();
-        if (confirmAction(`Reset your best score for ${name}? (currently ${best})`)) {
+        if (await confirmAction(`Reset your best score for ${name}? (currently ${best})`, { yes: "Reset best", danger: true })) {
           resetExercise(name);
           toast(`${name} best cleared`);
           renderMenu(onPick);

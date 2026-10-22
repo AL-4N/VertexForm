@@ -69,14 +69,14 @@ export function wireWorkouts(start) {
     showError("");
     onStart({ ...draft, name, steps: draft.steps.map(normalizeStep) });
   });
-  $("#routine-list").addEventListener("click", (e) => {
+  $("#routine-list").addEventListener("click", async (e) => {
     const b = e.target.closest("button[data-act]");
     if (!b) return;
     const r = (store.routines ?? [])[Number(b.dataset.i)];
     if (!r) return;
     if (b.dataset.act === "start") onStart(r);
     else if (b.dataset.act === "edit") { draft = structuredClone(r); renderBuilder(); $("#routine-name").focus(); }
-    else if (b.dataset.act === "delete" && confirmAction(`Delete the routine "${r.name}"?`)) {
+    else if (b.dataset.act === "delete" && (await confirmAction(`Delete the routine "${r.name}"?`, { yes: "Delete routine", danger: true }))) {
       store.routines = deleteRoutine(store.routines, r.name);
       save();
       renderRoutines();

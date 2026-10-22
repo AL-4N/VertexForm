@@ -98,8 +98,8 @@ function historyChart(points, name) {
 }
 
 export function wireStatsReset(onDone) {
-  $("#btn-reset-all").addEventListener("click", () => {
-    if (confirmAction("Erase ALL bests, history, achievements, skills and saved replays? This cannot be undone.")) {
+  $("#btn-reset-all").addEventListener("click", async () => {
+    if (await confirmAction("Erase ALL bests, history, achievements, skills and saved replays? This cannot be undone.", { yes: "Erase everything", danger: true })) {
       resetAll();
       removeAllReplays().catch(() => {});
       toast("All data cleared");

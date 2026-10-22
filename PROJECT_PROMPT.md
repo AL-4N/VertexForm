@@ -63,7 +63,11 @@ clear message and the Co-Authored-By trailer, and push when asked.
     SVG), no em dashes in visible text, no fake reviews or made-up metrics
     (every number shown must be real or labelled as an example), no "made
     with AI" tag. Scrolling: in-page links glide with a vertical motion blur
-    (`js/site/motion-nav.js`); no other scroll-triggered animations.
+    (`js/site/motion-nav.js`). Since Oct 2026 the user wants Awwwards-style
+    UI (they studied the 3D sites there): a 3D hero, a pinned scroll story,
+    popups that grow from what you click, blended section tones, a cursor
+    ring, heading reveals (DESIGN.md "Motion"). Still no libraries or CDNs:
+    the 3D is our own canvas renderer (`js/figures/scene3d.js`).
   - Clickable buttons first; keyboard shortcuts only as extras.
   - Work autonomously in phases, run `npm test` after each, commit after each.
   - Brand: the grade gradient (coral F → green A) on navy; fonts Unbounded

@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="css/fonts.css" />
 <link rel="stylesheet" href="css/site.css" />
 <link rel="stylesheet" href="css/marks.css" />
+<link rel="stylesheet" href="css/popup.css" />
 <link rel="stylesheet" href="css/transitions.css" />
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <link rel="manifest" href="manifest.webmanifest" />
@@ -22,7 +23,7 @@
      waiting until you scroll past the hero's) never hide anything without them. -->
 <script>document.documentElement.classList.add("js");</script>
 </head>
-<body>
+<body data-tone="dark">
 
 <a class="skip" href="#main">Skip to content</a>
 
@@ -41,7 +42,7 @@
   <symbol id="mark" viewBox="0 0 32 32">
     <path d="M5 26 H28 M5 26 L19 5" fill="none" stroke="url(#brand-grad)" stroke-width="3.2" stroke-linecap="round"/>
     <path d="M14.5 26 A9.5 9.5 0 0 0 10.3 18.1" fill="none" stroke="url(#brand-grad)" stroke-width="2.2" stroke-linecap="round"/>
-    <circle cx="5" cy="26" r="3.6" fill="#fff"/>
+    <circle cx="5" cy="26" r="3.6" style="fill: var(--text, #fff)"/>
   </symbol>
 </svg>
 
@@ -53,8 +54,8 @@
     </a>
     <nav aria-label="Primary">
       <a href="#exercises">Exercises</a>
-      <a href="#lab">Form Lab</a>
       <a href="#how">How it works</a>
+      <a href="#lab">Form Lab</a>
       <a href="#coach">Coaching</a>
     </nav>
     <a class="nav-settings" href="app.html#settings" aria-label="Settings">
@@ -74,8 +75,8 @@
     <span class="rail-marker on" aria-hidden="true"></span>
     <ol>
       <li><a href="#exercises" class="active" aria-current="location"><span class="rail-n">01</span><span class="rail-label">Exercises</span></a></li>
-      <li><a href="#lab"><span class="rail-n">02</span><span class="rail-label">Form Lab</span></a></li>
-      <li><a href="#how"><span class="rail-n">03</span><span class="rail-label">How it works</span></a></li>
+      <li><a href="#how"><span class="rail-n">02</span><span class="rail-label">How it works</span></a></li>
+      <li><a href="#lab"><span class="rail-n">03</span><span class="rail-label">Form Lab</span></a></li>
       <li><a href="#coach"><span class="rail-n">04</span><span class="rail-label">Coaching</span></a></li>
     </ol>
   </div>
@@ -84,10 +85,10 @@
 <main id="main">
 
   <!-- ═════════════ HERO ═════════════ -->
-  <section class="hero">
+  <section class="hero" data-tone="dark">
     <div class="wrap hero-grid">
       <div class="hero-copy">
-        <h1>Your webcam grades every rep from 0 to 100.</h1>
+        <h1 data-reveal>Your webcam grades every rep from 0 to 100.</h1>
         <p class="lede">
           Point your webcam at yourself and VertexForm tracks 33 points on your body,
           measures the angles that matter for each exercise, and grades every rep as
@@ -103,28 +104,35 @@
         </ul>
       </div>
 
-      <div class="stage" data-stage>
-        <div class="stage-frame">
+      <!-- The 3D figure (js/site/hero3d.js) fills the hero behind the copy on
+           wide screens. Until it loads (or without JavaScript) the flat
+           figure shows instead. -->
+      <div class="hero-scene" data-hero3d>
+        <canvas class="hero-canvas" role="img" data-cursor="Drag"
+                aria-label="A figure doing each exercise in 3D. It turns the colour of each rep's score when the rep ends. Move the pointer to look around it, or drag to spin it."></canvas>
+        <div class="hero-fallback stage-frame">
           <svg class="stage-svg" viewBox="0 18 600 482" role="img"
                aria-label="A figure demonstrating each exercise. It changes colour from coral to green as its form score rises."><line x1="30" y1="470" x2="570" y2="470" stroke="#3c3b36" stroke-width="2"/><g class="stage-fallback"><g opacity="0.38"><polyline points="215.6,373.5 327.4,367.4 294.0,468.0 322.0,468.0" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><polyline points="281.6,259.2 337.9,245.2 391.4,237.6" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g><polyline points="215.6,373.5 281.6,259.2" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><polyline points="215.6,373.5 327.4,367.6 300.0,470.0 328.0,470.0" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><polyline points="281.6,259.2 339.0,251.1 392.9,247.3" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="299.1" cy="223.2" r="19" fill="#141413" stroke="#4ce78d" stroke-width="6.02"/><path d="M297.5 369.2 A30 30 0 0 0 319.7 396.6" fill="none" stroke="#fff" stroke-width="2.5" opacity=".85"/></g></svg>
+        </div>
+        <span class="hero-view" data-hero-view aria-hidden="true">VIEW 32° FROM WEBCAM</span>
+      </div>
 
-          <div class="readout" aria-hidden="true">
-            <div class="readout-top">
-              <span class="readout-name" data-r="name">Squat</span>
-              <span class="readout-live">live</span>
-            </div>
-            <div class="readout-score">
-              <span class="score-num" data-r="score">97</span>
-              <span class="score-letter" data-r="letter">A</span>
-            </div>
-            <dl class="readout-rows" data-r="rows"><div><dt>Knee angle</dt><dd>72°</dd></div><div><dt>Depth</dt><dd>3° below parallel</dd></div></dl>
-            <div class="scale" aria-hidden="true">
-              <div class="scale-bar"><span class="scale-marker" data-r="marker" style="left:97%"></span></div>
-              <div class="scale-labels"><span style="left:30%">F</span><span style="left:65%">D</span><span style="left:75%">C</span><span style="left:85%">B</span><span style="left:95%">A</span></div>
-            </div>
+      <div class="hero-hud">
+        <div class="readout" aria-hidden="true">
+          <div class="readout-top">
+            <span class="readout-name" data-r="name">Squat</span>
+            <span class="readout-live">simulated, scored by the engine</span>
+          </div>
+          <div class="readout-score">
+            <span class="score-num" data-r="score">99</span>
+            <span class="score-letter" data-r="letter">A</span>
+          </div>
+          <dl class="readout-rows" data-r="rows"><div><dt>Knee angle</dt><dd>72°</dd></div><div><dt>Rep</dt><dd>1 of 3</dd></div></dl>
+          <div class="scale" aria-hidden="true">
+            <div class="scale-bar"><span class="scale-marker" data-r="marker" style="left:99%"></span></div>
+            <div class="scale-labels"><span style="left:30%">F</span><span style="left:65%">D</span><span style="left:75%">C</span><span style="left:85%">B</span><span style="left:95%">A</span></div>
           </div>
         </div>
-
         <div class="tabs" role="tablist" aria-label="Choose an exercise to demo">
           <button role="tab" data-ex="squat"  aria-selected="true"><span class="tab-picto" data-picto="squat" data-picto-plain></span><span class="tab-name">Squat</span></button>
           <button role="tab" data-ex="pushup" aria-selected="false"><span class="tab-picto" data-picto="pushup" data-picto-plain></span><span class="tab-name">Push-up</span></button>
@@ -136,8 +144,125 @@
     </div>
   </section>
 
+  <!-- ═════════════ EXERCISES ═════════════ -->
+  <section id="exercises" class="section" data-tone="paper">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Five exercises, each measured its own way.</h2>
+        <p>A squat is judged on how low your thighs get and how far you lean; a push-up on your
+           elbow angle and whether your body stays in one line. Pull-ups and the L-sit are next.
+           Open any exercise to see it in 3D.</p>
+      </div>
+
+      <div class="ex-grid">
+        <article class="ex-card ex-wide" data-cursor="Open">
+          <div class="picto" data-picto="squat"></div>
+          <div class="ex-body">
+            <div class="ex-title"><h3>Squat</h3><span class="tag">Side-on</span></div>
+            <p class="ex-measures">Thigh angle to the ground, torso lean, how steady you hold the bottom.</p>
+            <p class="ex-flags"><strong>Flags:</strong> cutting depth, folding forward, knees drifting, bouncing.</p>
+            <button type="button" class="ex-open" aria-haspopup="dialog">See it in 3D <span aria-hidden="true">&rarr;</span></button>
+          </div>
+        </article>
+        <article class="ex-card ex-wide" data-cursor="Open">
+          <div class="picto" data-picto="pushup"></div>
+          <div class="ex-body">
+            <div class="ex-title"><h3>Push-up</h3><span class="tag">Side-on</span></div>
+            <p class="ex-measures">Elbow angle at the bottom and the line from shoulders to ankles.</p>
+            <p class="ex-flags"><strong>Flags:</strong> half reps, sagging hips, piking, dropping the head.</p>
+            <button type="button" class="ex-open" aria-haspopup="dialog">See it in 3D <span aria-hidden="true">&rarr;</span></button>
+          </div>
+        </article>
+        <article class="ex-card" data-cursor="Open">
+          <div class="picto" data-picto="plank"></div>
+          <div class="ex-body">
+            <div class="ex-title"><h3>Plank</h3><span class="tag">Hold</span></div>
+            <p class="ex-measures">How far your hips drift off a straight body line.</p>
+            <p class="ex-flags"><strong>Flags:</strong> sagging, piking, swaying.</p>
+            <button type="button" class="ex-open" aria-haspopup="dialog">See it in 3D <span aria-hidden="true">&rarr;</span></button>
+          </div>
+        </article>
+        <article class="ex-card" data-cursor="Open">
+          <div class="picto" data-picto="lunge"></div>
+          <div class="ex-body">
+            <div class="ex-title"><h3>Lunge</h3><span class="tag">Side-on</span></div>
+            <p class="ex-measures">Front-knee angle and how upright you stay.</p>
+            <p class="ex-flags"><strong>Flags:</strong> shallow depth, leaning over the front leg.</p>
+            <button type="button" class="ex-open" aria-haspopup="dialog">See it in 3D <span aria-hidden="true">&rarr;</span></button>
+          </div>
+        </article>
+        <article class="ex-card" data-cursor="Open">
+          <div class="picto" data-picto="jack"></div>
+          <div class="ex-body">
+            <div class="ex-title"><h3>Jumping jack</h3><span class="tag">Front-on</span></div>
+            <p class="ex-measures">How high your hands get and how wide your feet go.</p>
+            <p class="ex-flags"><strong>Flags:</strong> short arms, lazy feet.</p>
+            <button type="button" class="ex-open" aria-haspopup="dialog">See it in 3D <span aria-hidden="true">&rarr;</span></button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ HOW IT WORKS (pinned 3D story) ═════════════ -->
+  <section id="how" class="section" data-tone="dark">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>From camera to coaching in four steps.</h2>
+        <p>All of it happens on your device, on every frame from your camera.</p>
+      </div>
+      <!-- The pinned 3D story (js/site/story.js). Hidden until it runs; with
+           reduced motion or no JavaScript the four cards below show instead. -->
+      <div class="story" data-story hidden>
+        <div class="story-pin">
+          <canvas class="story-canvas" role="img" aria-label="One squat in 3D, shown step by step: tracked points, then angles, then the grade, then the coach's note."></canvas>
+          <ol class="story-steps">
+            <li data-step="0"><span class="story-n">01</span><h3>It finds you</h3><p>A pose model running in your browser places 33 points on your body in every frame of the webcam feed.</p></li>
+            <li data-step="1"><span class="story-n">02</span><h3>It measures angles</h3><p>Points become joint angles. An angle is the same whether you're tall or short, close to the camera or far away.</p></li>
+            <li data-step="2"><span class="story-n">03</span><h3>It grades the rep</h3><p>When a rep finishes, it's scored across the whole bottom of the movement, split into parts like depth and posture.</p></li>
+            <li data-step="3"><span class="story-n">04</span><h3>It tells you</h3><p>You hear the score and the single most important fix, then go again.</p></li>
+          </ol>
+          <p class="story-chip" data-chip aria-hidden="true"></p>
+          <div class="story-meter" aria-label="Steps">
+            <span class="story-track" aria-hidden="true"><span class="story-fill"></span></span>
+            <button type="button" data-goto="0">01</button><button type="button" data-goto="1">02</button><button type="button" data-goto="2">03</button><button type="button" data-goto="3">04</button>
+          </div>
+        </div>
+      </div>
+      <ol class="steps">
+        <li>
+          <span class="step-n">1</span>
+          <div class="step-fig" data-howfig="1"></div>
+          <h3>It finds you</h3>
+          <p>A pose model running in your browser places 33 points on your body in
+             every frame of the webcam feed.</p>
+        </li>
+        <li>
+          <span class="step-n">2</span>
+          <div class="step-fig" data-howfig="2"></div>
+          <h3>It measures angles</h3>
+          <p>Points become joint angles. An angle is the same whether you're tall or
+             short, close to the camera or far away.</p>
+        </li>
+        <li>
+          <span class="step-n">3</span>
+          <div class="step-fig" data-howfig="3"></div>
+          <h3>It grades the rep</h3>
+          <p>When a rep finishes, it's scored across the whole bottom of the movement,
+             split into parts like depth and posture.</p>
+        </li>
+        <li>
+          <span class="step-n">4</span>
+          <div class="step-fig" data-howfig="4"></div>
+          <h3>It tells you</h3>
+          <p>You hear the score and the single most important fix, then go again.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
   <!-- ═════════════ 3D REP VIEWER (js/site/rep3d.js) ═════════════ -->
-  <section class="section tone-sage r3-section" aria-labelledby="r3-title">
+  <section class="section r3-section" data-tone="sage" aria-labelledby="r3-title">
     <div class="wrap">
       <div class="section-head">
         <span class="tag">Drag the figure to turn it</span>
@@ -193,63 +318,8 @@
     </div>
   </section>
 
-  <!-- ═════════════ EXERCISES ═════════════ -->
-  <section id="exercises" class="section tone-paper">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>Five exercises, each measured its own way.</h2>
-        <p>A squat is judged on how low your thighs get and how far you lean; a push-up on your
-           elbow angle and whether your body stays in one line. Pull-ups and the L-sit are next.</p>
-      </div>
-
-      <div class="ex-grid">
-        <article class="ex-card ex-wide">
-          <div class="picto" data-picto="squat"></div>
-          <div class="ex-body">
-            <div class="ex-title"><h3>Squat</h3><span class="tag">Side-on</span></div>
-            <p class="ex-measures">Thigh angle to the ground, torso lean, how steady you hold the bottom.</p>
-            <p class="ex-flags"><strong>Flags:</strong> cutting depth, folding forward, knees drifting, bouncing.</p>
-          </div>
-        </article>
-        <article class="ex-card ex-wide">
-          <div class="picto" data-picto="pushup"></div>
-          <div class="ex-body">
-            <div class="ex-title"><h3>Push-up</h3><span class="tag">Side-on</span></div>
-            <p class="ex-measures">Elbow angle at the bottom and the line from shoulders to ankles.</p>
-            <p class="ex-flags"><strong>Flags:</strong> half reps, sagging hips, piking, dropping the head.</p>
-          </div>
-        </article>
-        <article class="ex-card">
-          <div class="picto" data-picto="plank"></div>
-          <div class="ex-body">
-            <div class="ex-title"><h3>Plank</h3><span class="tag">Hold</span></div>
-            <p class="ex-measures">How far your hips drift off a straight body line.</p>
-            <p class="ex-flags"><strong>Flags:</strong> sagging, piking, swaying.</p>
-          </div>
-        </article>
-        <article class="ex-card">
-          <div class="picto" data-picto="lunge"></div>
-          <div class="ex-body">
-            <div class="ex-title"><h3>Lunge</h3><span class="tag">Side-on</span></div>
-            <p class="ex-measures">Front-knee angle and how upright you stay.</p>
-            <p class="ex-flags"><strong>Flags:</strong> shallow depth, leaning over the front leg.</p>
-          </div>
-        </article>
-        <article class="ex-card">
-          <div class="picto" data-picto="jack"></div>
-          <div class="ex-body">
-            <div class="ex-title"><h3>Jumping jack</h3><span class="tag">Front-on</span></div>
-            <p class="ex-measures">How high your hands get and how wide your feet go.</p>
-            <p class="ex-flags"><strong>Flags:</strong> short arms, lazy feet.</p>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-
   <!-- ═════════════ FORM LAB ═════════════ -->
-  <section id="lab" class="section section-alt">
+  <section id="lab" class="section" data-tone="dark">
     <div class="wrap">
       <div class="section-head">
         <span class="tag tag-live">Try it now. No camera needed.</span>
@@ -298,47 +368,8 @@
     </div>
   </section>
 
-  <!-- ═════════════ HOW IT WORKS (a real sequence) ═════════════ -->
-  <section id="how" class="section tone-paper">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>From camera to coaching in four steps.</h2>
-        <p>All of it happens on your device, on every frame from your camera.</p>
-      </div>
-      <ol class="steps">
-        <li>
-          <span class="step-n">1</span>
-          <div class="step-fig" data-howfig="1"></div>
-          <h3>It finds you</h3>
-          <p>A pose model running in your browser places 33 points on your body in
-             every frame of the webcam feed.</p>
-        </li>
-        <li>
-          <span class="step-n">2</span>
-          <div class="step-fig" data-howfig="2"></div>
-          <h3>It measures angles</h3>
-          <p>Points become joint angles. An angle is the same whether you're tall or
-             short, close to the camera or far away.</p>
-        </li>
-        <li>
-          <span class="step-n">3</span>
-          <div class="step-fig" data-howfig="3"></div>
-          <h3>It grades the rep</h3>
-          <p>When a rep finishes, it's scored across the whole bottom of the movement,
-             split into parts like depth and posture.</p>
-        </li>
-        <li>
-          <span class="step-n">4</span>
-          <div class="step-fig" data-howfig="4"></div>
-          <h3>It tells you</h3>
-          <p>You hear the score and the single most important fix, then go again.</p>
-        </li>
-      </ol>
-    </div>
-  </section>
-
   <!-- ═════════════ TRUST / THE SCALE ═════════════ -->
-  <section class="section section-alt">
+  <section class="section" data-tone="paper">
     <div class="wrap trust-grid">
       <div>
         <div class="section-head">
@@ -378,7 +409,7 @@
   </section>
 
   <!-- ═════════════ VOICE COACH ═════════════ -->
-  <section id="coach" class="section tone-sage">
+  <section id="coach" class="section" data-tone="dark">
     <div class="wrap coach-grid" data-coach>
       <div class="section-head">
         <h2>It talks, so you don't have to read mid&#8209;rep.</h2>
@@ -403,9 +434,8 @@
     </div>
   </section>
 
-
   <!-- ═════════════ MODES + PROGRESS ═════════════ -->
-  <section id="progress" class="section tone-paper">
+  <section id="progress" class="section" data-tone="sage">
     <div class="wrap">
       <div class="section-head">
         <h2>Train rep by rep, or in sets.</h2>
@@ -459,7 +489,7 @@
   </section>
 
   <!-- ═════════════ PRIVACY + LIMITS ═════════════ -->
-  <section class="section">
+  <section class="section" data-tone="dark">
     <div class="wrap two-col">
       <div class="panel">
         <h2>What stays on your device</h2>
@@ -478,7 +508,7 @@
   </section>
 
   <!-- ═════════════ CLOSE ═════════════ -->
-  <section class="cta-band">
+  <section class="cta-band" data-tone="paper">
     <div class="wrap">
       <h2>Try it on your next set.</h2>
       <p>Allow the camera, then step back until your whole body is in the frame.</p>
@@ -487,8 +517,34 @@
   </section>
 
 </main>
+  <!-- One popup for every exercise card (js/site/expop.js): it grows out of
+       the card you opened and shrinks back into it (js/ui/popup.js). -->
+  <dialog class="pop ex-pop" id="ex-pop" aria-labelledby="ex-pop-title">
+    <div class="pop-inner">
+      <button type="button" class="pop-close" data-pop-close aria-label="Close"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
+      <div class="ex-pop-stage">
+        <canvas class="ex-pop-canvas" data-cursor="Drag" role="img" aria-label="The exercise in 3D. Drag to turn it."></canvas>
+        <span class="ex-pop-hint" aria-hidden="true">Drag to turn · <span data-x="label"></span> measured in 3D</span>
+      </div>
+      <div class="ex-pop-body">
+        <div data-pop-item><span class="tag" data-x="tag"></span></div>
+        <h2 id="ex-pop-title" data-pop-item data-x="name"></h2>
+        <p class="ex-pop-lede" data-pop-item data-x="measures"></p>
+        <div class="ex-pop-cols" data-pop-item>
+          <div><h3 class="ex-pop-mini">It flags</h3><p data-x="flags"></p></div>
+          <div><h3 class="ex-pop-mini">Set up the camera</h3><ul data-x="tips"></ul></div>
+        </div>
+        <div class="ex-pop-score" data-pop-item>
+          <h3 class="ex-pop-mini">This clip, scored by the engine</h3>
+          <div class="ex-pop-reps" data-x="reps"></div>
+          <p class="ex-pop-note">A simulated person, graded by the same code as the trainer.</p>
+        </div>
+        <div data-pop-item><a class="btn btn-grad" href="app.html">Start training</a></div>
+      </div>
+    </div>
+  </dialog>
 
-<footer class="foot">
+<footer class="foot" data-tone="dark">
   <div class="wrap foot-row">
     <a class="logo logo-sm" href="index.html">
       <svg class="logo-mark" aria-hidden="true"><use href="#mark"/></svg><span>Vertex<em>Form</em></span>
