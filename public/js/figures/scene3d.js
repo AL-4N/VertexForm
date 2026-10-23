@@ -315,6 +315,32 @@ export class Scene {
   }
 
   /**
+   * The floor, but drawn once into an offscreen canvas and copied each frame
+   * until the camera (or the floor's options) change: the grid is the most
+   * expensive thing on these canvases, and the camera is usually still.
+   */
+  floorCached(cam, opts = {}) {
+    const key = [...cam.C, ...cam.f, cam.focal, cam.cx, cam.cy, this.w, this.h, this.dpr, opts.alpha ?? 1, opts.size ?? 7]
+      .map((v) => (typeof v === "number" ? v.toFixed(3) : v)).join();
+    const off = (this._floor ??= document.createElement("canvas"));
+    if (key !== this._floorKey) {
+      this._floorKey = key;
+      off.width = this.canvas.width; off.height = this.canvas.height;
+      const real = this.ctx;
+      this.ctx = off.getContext("2d");
+      this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+      this.ctx.clearRect(0, 0, this.w, this.h);
+      try { this.floor(cam, opts); } finally { this.ctx = real; }
+    }
+    const { ctx } = this;
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.drawImage(off, 0, 0);
+    ctx.restore();
+  }
+
+  /**
    * The figure. colour: its grade colour. grow 0..1 draws each bone out
    * from its first joint ("it finds you"); dots 0..1 pops the tracked
    * points in one after another; shadow drops every bone onto the floor.

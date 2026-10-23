@@ -148,8 +148,8 @@ body::after {
 .nav {
   position: sticky; top: 0; z-index: 40;
   padding-top: env(safe-area-inset-top, 0px);
-  background: color-mix(in srgb, var(--tone) 74%, transparent); backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  background: color-mix(in srgb, var(--tone) 82%, transparent); backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid transparent; transition: border-color .2s;
 }
 .nav.scrolled { border-bottom-color: var(--line); }
@@ -790,7 +790,8 @@ html.split-wait .hero h1 { visibility: hidden; }
 .sparks { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 99; pointer-events: none; }
 
 /* ── Cards that lean toward the pointer (js/site/tilt.js) ── */
-.tilt { transform-style: preserve-3d; will-change: transform; }
+.tilt { transform-style: preserve-3d; }
+.tilt:hover { will-change: transform; }      /* a GPU layer only while it moves */
 .tilt::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s;
   background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(238,241,251,.07), transparent 45%);

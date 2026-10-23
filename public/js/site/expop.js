@@ -45,7 +45,7 @@ export function mountExercisePopups(grid, dlg) {
     const P = frameAt(clip, st.t);
     const rep = clip.reps[repAt(clip, st.t)];
     scene.begin();
-    if (st.floor > 0) scene.floor(cam, { alpha: st.floor });
+    if (st.floor > 0) scene.floorCached(cam, { alpha: +st.floor.toFixed(2) });
     if (st.show > 0) scene.figure(cam, P, gradeColor(rep.score), { alpha: st.show, shadow: st.floor > 0.3 });
     scene.angle(cam, ...clip.measure.joints(clip.side).map((k) => P[k]), { alpha: st.floor * st.show });
   }

@@ -118,7 +118,7 @@ export async function mountStory(section) {
     const colour = mixColor(PAPER, gradeColor(score), flood);
 
     scene.begin();
-    scene.floor(cam, { size: 9, alpha: 0.6 + 0.4 * smooth(0.6, 1.2, c) });
+    scene.floorCached(cam, { size: 9, alpha: +(0.6 + 0.4 * smooth(0.6, 1.2, c)).toFixed(2) });
     if (grow < 1) scene.points(cam, P, pts * (1 - grow));
     scene.figure(cam, P, colour, { grow, dots: grow, shadow: grow > 0 });
     const [a, b, k] = ["hipL", "knL", "anL"].map((x) => P[x.replace("L", clip.side)]);

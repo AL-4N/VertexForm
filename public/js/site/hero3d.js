@@ -162,8 +162,14 @@ export async function mountHero3d(root) {
       if (e > pts * 0.75 + bones) st.intro = null;
     }
 
-    scene.begin();
-    scene.floor(cam, { size: 9 });
+    // With the WebGL body, this canvas only holds the floor: repaint it only
+    // when the camera has actually moved (most frames it hasn't).
+    const camKey = gl ? [st.yaw + st.aimYaw + st.spin, st.pitch + st.aimPitch, st.dist, ...st.target, scene.w, scene.h].map((v) => v.toFixed(2)).join() : null;
+    if (!gl || camKey !== st.floorKey) {
+      st.floorKey = camKey;
+      scene.begin();
+      scene.floor(cam, { size: 9 });
+    }
     if (gl) {
       gl.render(scene, cam, P, st.colour, { grow });
       marks.begin();

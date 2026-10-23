@@ -63,7 +63,7 @@ export async function mountRep3d(root) {
     const [a, b, c] = clip.measure.joints(clip.side).map((k) => P[k]);
 
     scene.begin();
-    scene.floor(cam);
+    scene.floorCached(cam);
     scene.figure(cam, P, colour);
     const k3 = scene.angle(cam, a, b, c);
     const flat = scene.flatAngle(cam, a, b, c);
