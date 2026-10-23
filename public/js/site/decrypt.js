@@ -26,7 +26,7 @@ function run(el) {
   requestAnimationFrame(step);
 }
 
-export function mountDecrypt(selector = "main .tag, .ex-pop-mini, .lab-mini, .cal-caption, .r3-hud-src") {
+export function mountDecrypt(selector = "main .tag, .ex-pop-mini, .lab-mini, .cal-caption, .r3-hud-src, .sec-index span") {
   if (reducedMotion()) return;
   const io = new IntersectionObserver((entries) => {
     for (const e of entries) if (e.isIntersecting) { io.unobserve(e.target); run(e.target); }

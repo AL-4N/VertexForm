@@ -13,6 +13,7 @@ import { mountMagnets } from "./magnet.js";
 import { mountTickers } from "./ticker.js";
 import { mountTilt } from "./tilt.js";
 import { mountDecrypt } from "./decrypt.js";
+import { mountSectionIndex } from "./sections.js";
 import { renderPictos } from "../figures/pictos.js";
 import { mountCoach } from "./coach.js";
 import { gradeColor } from "../grade.js";
@@ -76,6 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
   mountExercisePopups(document.querySelector(".ex-grid"), document.getElementById("ex-pop"));
   mountTickers();
   mountTilt();
+  mountSectionIndex();
   mountDecrypt();
   mountScrollFx();
   mountMagnets(".hero-actions .btn, .cta-band .btn");

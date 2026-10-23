@@ -808,3 +808,16 @@ html.split-wait .hero h1 { visibility: hidden; }
 .cue-wave i { width: 3px; height: 18px; border-radius: 2px; background: var(--cue, var(--text)); transform: scaleY(.2); transform-origin: center; }
 .cue.speaking .cue-play svg { display: none; }
 .cue.speaking .cue-wave { display: flex; }
+
+/* ── Section index numbers (js/site/sections.js) ── */
+.section > .wrap { position: relative; }
+.sec-index { display: none; }
+@media (min-width: 1000px) {
+  .sec-index { display: grid; justify-items: end; gap: .4rem; position: absolute; right: var(--gutter); top: -1rem; pointer-events: none; }
+  .sec-index b { display: block; overflow: hidden; line-height: .9; padding-bottom: .04em; }
+  .sec-index i {
+    display: block; font-style: normal; font-family: var(--display); font-weight: 800; font-size: clamp(6rem, 11vw, 10rem); letter-spacing: -.05em;
+    color: transparent; -webkit-text-stroke: 1.5px rgba(166,174,203,.22); font-variant-numeric: tabular-nums;
+  }
+  .sec-index span { font-family: var(--mono); font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); }
+}

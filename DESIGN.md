@@ -221,6 +221,11 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **Scores count up the scale on the homepage too** (`scroll-fx.js`): the
   scoring test results and example chips climb from 0 through each grade
   colour as they come into view; the example chart's bars grow up in turn.
+- **Section index numbers** (`site/sections.js`): on wide screens, sections
+  whose heading has its row to itself get a big outlined number (01, 02…)
+  and a mono label in the empty space to the right; the digits roll up as
+  the section arrives, the label decodes, and the number drifts slower
+  than the page.
 - **A drawing becomes the 3D model** (`site/expop.js`): opening an
   exercise card, its flat figure flies into the popup and lands on the 3D
   figure, which waits in the same pose seen from the side (the webcam's
