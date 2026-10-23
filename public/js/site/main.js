@@ -15,6 +15,7 @@ import { mountTilt } from "./tilt.js";
 import { mountDecrypt } from "./decrypt.js";
 import { mountSectionIndex } from "./sections.js";
 import { mountCardReps } from "./card-reps.js";
+import { mountGlow } from "./glow.js";
 import { renderPictos } from "../figures/pictos.js";
 import { mountCoach } from "./coach.js";
 import { gradeColor } from "../grade.js";
@@ -58,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // works if they didn't.
   if (window.gsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger, ...(window.SplitText ? [SplitText] : []));
   mountSmooth();
+  mountGlow();
   stickyNav();
   mountHoverFill();
   headerCta();

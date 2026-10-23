@@ -31,8 +31,14 @@ html.vt-circle::view-transition-old(root) { animation: vf-hold 1.1s cubic-bezier
 html.vt-circle::view-transition-new(root) { animation: vf-circle 1.1s cubic-bezier(.7, 0, .84, 0) both; will-change: clip-path; }
 @keyframes vf-hold { to { filter: blur(14px) brightness(.55); transform: scale(.96); } }
 @keyframes vf-circle {
-  from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 50%)); }
-  to   { clip-path: circle(var(--vt-r, 150vmax) at var(--vt-x, 50%) var(--vt-y, 50%)); }   /* --vt-r: just reaches the farthest corner */
+  from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 50%)); transform: scale(1.08); filter: blur(10px); }
+  to   { clip-path: circle(var(--vt-r, 150vmax) at var(--vt-x, 50%) var(--vt-y, 50%)); transform: none; filter: blur(0); }   /* --vt-r: just reaches the farthest corner */
+}
+/* The circle's glowing rim: a ring on the new page the same size as the
+   circle, so only its inner glow shows, riding the edge as it grows. */
+.vt-ring {
+  position: fixed; z-index: 2147483647; pointer-events: none; border-radius: 50%;
+  box-shadow: inset 0 0 0 2px rgba(198,239,78,.9), inset 0 0 60px 10px rgba(46,229,157,.45);
 }
 
 /* In-app screen changes: quicker and lighter. */

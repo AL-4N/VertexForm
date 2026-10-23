@@ -572,7 +572,12 @@ body::after {
 .foot-row > a:last-child:hover { color: var(--text); }
 
 /* ── Live tag ───────────────────────────────────────── */
-.tag-live { margin-bottom: 1.1rem; color: var(--g85); background: rgba(198,239,78,.1); box-shadow: inset 0 0 0 1px rgba(198,239,78,.35); }
+/* The lime chip over a section: tinted, outlined, and glowing softly. */
+.tag-live, .section-head .tag {
+  margin-bottom: 1.1rem; color: var(--g85); background: rgba(198,239,78,.1);
+  box-shadow: inset 0 0 0 1px rgba(198,239,78,.38), 0 0 26px -6px rgba(198,239,78,.45);
+  text-shadow: 0 0 14px rgba(198,239,78,.45);
+}
 
 /* ── How it works: step figures ─────────────────────── */
 .step-fig { margin: 1.1rem 0 1rem; background: var(--surface); border-radius: var(--r-md); box-shadow: inset 0 0 0 1px var(--line); padding: .6rem .4rem 0; }
@@ -832,3 +837,18 @@ html.split-wait .hero h1 { visibility: hidden; }
 }
 .nav nav a:hover::after, .foot-row > a:last-child:hover::after { transform: scaleX(1); transform-origin: left; }
 @media (prefers-reduced-motion: reduce) { .nav nav a::after, .foot-row > a:last-child::after { transition: none; } }
+
+/* ── Light and glow ──
+   A soft radial light follows the pointer behind the content (js/site/glow.js). */
+.pointer-glow {
+  position: fixed; left: 0; top: 0; width: 900px; height: 900px; margin: -450px 0 0 -450px; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(46,229,157,.10), rgba(255,190,61,.045) 45%, transparent 72%);
+  opacity: 0; transition: opacity .6s;
+}
+.pointer-glow.on { opacity: 1; }
+/* Scores glow in their own colour. */
+.score-num, .lab-num, .score-big, .grade-big, .story-big span { text-shadow: 0 0 34px color-mix(in srgb, currentColor 45%, transparent); }
+/* Exercise cards light up green on hover. */
+.ex-card:hover { box-shadow: inset 0 0 0 1px rgba(46,229,157,.4), 0 26px 70px -34px rgba(46,229,157,.55); }
+/* The footer's gradient "Form" and the section numbers carry a faint halo. */
+.foot-mark em { filter: drop-shadow(0 0 28px rgba(46,229,157,.35)); }

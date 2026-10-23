@@ -115,6 +115,10 @@ async function zoomIntoTree(card, id) {
     const target = panel.getBoundingClientRect();
     const radius = getComputedStyle(panel).borderRadius;
     mini.animate([{ transform: "scale(1.35)", opacity: 1 }, { transform: "scale(2.2)", opacity: 0 }], { duration: 520, easing: TRAVEL, fill: "forwards" });
+    // Motion blur peaks at the fastest point of the flight, and the box glows green on the way.
+    box.animate([{ filter: "blur(0)", boxShadow: "0 30px 80px -20px rgba(0,0,0,.7)" },
+      { filter: "blur(7px)", boxShadow: "0 0 70px 6px rgba(46,229,157,.35)", offset: 0.5 },
+      { filter: "blur(0)", boxShadow: "0 0 0 0 rgba(46,229,157,0)" }], { duration: 720, easing: "linear" });
     await box.animate([at(over, "18px"), at(target, radius)], { duration: 720, easing: TRAVEL, fill: "forwards" }).finished;
 
     // 3. The real panel takes over where the box landed; the rest lays out

@@ -51,8 +51,13 @@ its exact colour):
 - A score is always drawn in its own colour (`gradeColor(score)`), never a
   fixed "good" or "bad" colour. Colour is never the only signal: the number
   or letter is always shown too.
-- No purple, no blue-to-purple gradients. Glows stay limited to the ones that
-  exist (behind the hero and Form Lab figures, under the primary button).
+- No purple, no blue-to-purple gradients.
+- Light and glow (Oct 2026, the owner wants more of it): a soft radial light
+  follows the pointer behind the content (`site/glow.js`, green fading
+  through amber); section chips are lime, tinted and glowing (the "Try it
+  now" chip is the model); score numbers glow in their own colour;
+  exercise cards glow green on hover; glows behind the hero and Form Lab
+  figures and under the primary button stay.
 - Buttons: on hover a circle grows from where the pointer came in until it
   fills the button, and shrinks back toward where it left
   (`js/ui/hover-fill.js` + `.btn::before` clip-path). Primary buttons (the
@@ -258,7 +263,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   folds into the card (`openPopup(..., { beforeClose })`).
 - **Page changes open as a circle** from where you clicked (home ↔
   trainer), over 1.1 s on a slow-to-fast curve, sized to just reach the
-  farthest corner: the inline `pagereveal` script in each page's head +
+  farthest corner, with a glowing green rim riding its edge; the new page
+  settles in from slightly enlarged and blurred while the old one sinks
+  back and blurs: the inline `pagereveal` script in each page's head +
   `css/transitions.css` `vt-circle`.
 - **No custom cursor.** Tried twice in Oct 2026 and removed at the owner's
   request: the Mac pointer kept showing alongside it. Use the system pointer;

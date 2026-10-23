@@ -904,3 +904,6 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .week.fresh li { animation: week-pop .45s cubic-bezier(.2,.9,.3,1.25) calc(var(--i) * 55ms + .15s) backwards; }
 @keyframes week-pop { from { transform: scale(.3) translateY(8px); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .week.fresh li { animation: none; } }
+
+/* Scores glow in their own colour (as on the site). */
+.grade-big, .score-big, .big-stat { text-shadow: 0 0 30px color-mix(in srgb, currentColor 40%, transparent); }

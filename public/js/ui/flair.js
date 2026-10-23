@@ -61,6 +61,8 @@ export async function morphInto({ from, figure, open, screen, target, targetFigu
     const t = target.getBoundingClientRect();
     const tf = targetFigure?.getBoundingClientRect();
     const tRadius = getComputedStyle(target).borderRadius;
+    box.animate([{ filter: "blur(0)" }, { filter: "blur(6px)", boxShadow: "0 0 60px 4px rgba(46,229,157,.3)", offset: 0.5 }, { filter: "blur(0)" }], { duration: 680, easing: "linear" });
+    fly?.animate([{ filter: "blur(0)" }, { filter: "blur(4px) drop-shadow(0 0 18px rgba(46,229,157,.6))", offset: 0.5 }, { filter: "blur(0)" }], { duration: 760, easing: "linear" });
     const moves = [box.animate([rect(lifted, radius), rect(t, tRadius)], { duration: 680, easing: TRAVEL, fill: "forwards" }).finished];
     if (fly && tf?.width) {
       // The figure arcs up a little on its way (a hop), then lands.
