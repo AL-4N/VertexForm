@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="css/transitions.css" />
 <!-- A link click on the previous page saved where it was clicked: open this
      page as a circle from that point (css/transitions.css, js/page-transition.js). -->
-<script>addEventListener("pagereveal",function(e){try{var o=JSON.parse(sessionStorage.getItem("vf-vt")||"null");sessionStorage.removeItem("vf-vt");if(!e.viewTransition||!o)return;var d=document.documentElement;d.style.setProperty("--vt-x",o.x+"px");d.style.setProperty("--vt-y",o.y+"px");d.classList.add("vt-circle");e.viewTransition.finished.finally(function(){d.classList.remove("vt-circle")})}catch(_){}});</script>
+<script>addEventListener("pagereveal",function(e){try{var o=JSON.parse(sessionStorage.getItem("vf-vt")||"null");sessionStorage.removeItem("vf-vt");if(!e.viewTransition||!o)return;var d=document.documentElement;d.style.setProperty("--vt-x",o.x+"px");d.style.setProperty("--vt-y",o.y+"px");d.style.setProperty("--vt-r",Math.ceil(Math.hypot(Math.max(o.x,innerWidth-o.x),Math.max(o.y,innerHeight-o.y)))+"px");d.classList.add("vt-circle");e.viewTransition.finished.finally(function(){d.classList.remove("vt-circle")})}catch(_){}});</script>
 
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <link rel="manifest" href="manifest.webmanifest" />

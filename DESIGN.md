@@ -197,7 +197,8 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   the skill you picked; "Target reached" bursts out as a circle; toasts pop
   open from a dot and close back into one.
 - **Page changes open as a circle** from where you clicked (home ↔
-  trainer): the inline `pagereveal` script in each page's head +
+  trainer), over 1.1 s on a slow-to-fast curve, sized to just reach the
+  farthest corner: the inline `pagereveal` script in each page's head +
   `css/transitions.css` `vt-circle`.
 - **A custom cursor** (`site/cursor.js`, site only) replaces the system
   pointer: one ring exactly under the mouse (never eased, never two), opens
