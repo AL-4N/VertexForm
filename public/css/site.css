@@ -797,3 +797,13 @@ html.split-wait .hero h1 { visibility: hidden; }
 }
 .tilt:hover::after { opacity: 1; }
 .cue.tilt, .mode.tilt, .panel.tilt { position: relative; }
+
+/* ── A cue that's speaking (js/site/coach.js): its card lights in its score
+   colour and the play button turns into bars moved by the voice. ── */
+.cue { transition: box-shadow .3s var(--ease), background .3s var(--ease); }
+.cue.speaking { box-shadow: inset 0 0 0 1.5px var(--cue); background: color-mix(in srgb, var(--cue) 8%, var(--surface)); }
+.cue-play { position: relative; }
+.cue-wave { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; gap: 3px; }
+.cue-wave i { width: 3px; height: 18px; border-radius: 2px; background: var(--cue, var(--text)); transform: scaleY(.2); transform-origin: center; }
+.cue.speaking .cue-play svg { display: none; }
+.cue.speaking .cue-wave { display: flex; }

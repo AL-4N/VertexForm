@@ -212,6 +212,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **Stages open out of a frame** (`scroll-fx.js`): the 3D view and the Form
   Lab stage grow from a narrow, rounder frame to full size as you scroll
   to them (clip-path, scrubbed).
+- **Coach cues show the voice** (`site/coach.js`): while a cue plays, its
+  card lights in its score's colour and the play button becomes five bars
+  moved by the real audio (an analyser on the coach's output).
 - **A drawing becomes the 3D model** (`site/expop.js`): opening an
   exercise card, its flat figure flies into the popup and lands on the 3D
   figure, which waits in the same pose seen from the side (the webcam's
