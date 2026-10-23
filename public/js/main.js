@@ -14,7 +14,7 @@ import { runLive, stopLive, switchCamera, togglePause, toggleMute, toggleFullscr
 import { refreshCameraPickers, onCameraPicked } from "./ui/camera-picker.js";
 import { renderResults } from "./ui/results.js";
 import { renderStats, wireStatsReset } from "./ui/stats.js";
-import { renderSkills } from "./ui/skills.js";
+import { renderSkills, openTree } from "./ui/skills.js";
 import { openReplays, wireReplays } from "./ui/replay.js";
 import { purgeExpired } from "./replay-store.js";
 import { wireWorkouts, renderWorkouts } from "./ui/workouts.js";
@@ -62,6 +62,13 @@ function boot() {
   // The homepage's Settings link (app.html#settings) opens straight on Settings.
   if (location.hash === "#settings") {
     $("#btn-settings").click();
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+  // The homepage's skill path cards (app.html#tree-push etc.) open on that tree.
+  const tree = location.hash.match(/^#tree-(\w+)$/);
+  if (tree && ["push", "pull", "legs", "core", "cardio"].includes(tree[1])) {
+    renderSkills(openMode);
+    openTree(tree[1], null, { grow: false });
     history.replaceState(null, "", location.pathname + location.search);
   }
   wireStatsReset(() => renderMenu(openMode));

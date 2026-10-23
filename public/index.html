@@ -83,8 +83,9 @@
       <li><a href="#how"><span class="rail-n">02</span><span class="rail-label">How it works</span></a></li>
       <li><a href="#lab"><span class="rail-n">03</span><span class="rail-label">Form Lab</span></a></li>
       <li><a href="#coach"><span class="rail-n">04</span><span class="rail-label">Coaching</span></a></li>
-      <li><a href="#setup"><span class="rail-n">05</span><span class="rail-label">Setup</span></a></li>
-      <li><a href="#faq"><span class="rail-n">06</span><span class="rail-label">Questions</span></a></li>
+      <li><a href="#paths"><span class="rail-n">05</span><span class="rail-label">Skill paths</span></a></li>
+      <li><a href="#setup"><span class="rail-n">06</span><span class="rail-label">Setup</span></a></li>
+      <li><a href="#faq"><span class="rail-n">07</span><span class="rail-label">Questions</span></a></li>
     </ol>
   </div>
 </nav>
@@ -494,11 +495,25 @@
 
       <dl class="also">
         <div><dt>Workouts</dt><dd>Circuits of up to 10 exercises with rest in between. Save up to 3 routines.</dd></div>
-        <div><dt>Skill tree</dt><dd>Four paths toward the muscle-up, V-sit, pistol squat and handstand push-up. A skill unlocks when one of your real sets meets its goal.</dd></div>
+        <div><dt>Skill tree</dt><dd>Five paths toward the handstand push-up, muscle-up, pistol squat, V-sit and burpee. A skill unlocks when one of your real sets meets its goal.</dd></div>
         <div><dt>Rep replay</dt><dd>Watch your skeleton replay each rep beside the ideal form. Save the reps you want; unsaved ones are deleted after 7 days.</dd></div>
         <div><dt>Challenges</dt><dd>One goal a day for 7, 14 or 30 days. Miss a day and the run starts over.</dd></div>
       </dl>
     </div>
+  </section>
+
+  <!-- ═════════════ SKILL PATHS (site/paths.js rolls through them as you scroll) ═════════════ -->
+  <section id="paths" class="section paths-sec" data-tone="dark" aria-labelledby="paths-title">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="tag">Skill path</span>
+        <h2 id="paths-title">Five paths, each grown as a tree.</h2>
+        <p>Every path builds to one calisthenics skill. Skills the trainer can grade unlock from
+           your real sets; the rest are marked as not tracked yet. If you've trained in this
+           browser, these trees show your own progress.</p>
+      </div>
+    </div>
+    <div class="paths" data-paths></div>
   </section>
 
   <!-- ═════════════ SETUP (the trainer's own onboarding steps) ═════════════ -->

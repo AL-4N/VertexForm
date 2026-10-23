@@ -10,7 +10,7 @@
 
 import { reducedMotion } from "../ui/motion.js";
 
-const LABEL = { exercises: "Exercises", how: "How it works", lab: "Form Lab", progress: "Training modes", setup: "Setup", faq: "Questions" };
+const LABEL = { exercises: "Exercises", how: "How it works", lab: "Form Lab", progress: "Training modes", paths: "Skill paths", setup: "Setup", faq: "Questions" };
 
 export function mountSectionIndex() {
   const sections = [...document.querySelectorAll("main > section.section")];

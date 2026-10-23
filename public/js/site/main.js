@@ -17,6 +17,7 @@ import { mountSectionIndex } from "./sections.js";
 import { mountCardReps } from "./card-reps.js";
 import { mountGlow } from "./glow.js";
 import { mountFaq } from "./faq.js";
+import { mountPaths } from "./paths.js";
 import { renderPictos } from "../figures/pictos.js";
 import { mountCoach } from "./coach.js";
 import { gradeColor } from "../grade.js";
@@ -81,6 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
   mountExercisePopups(document.querySelector(".ex-grid"), document.getElementById("ex-pop"));
   mountTickers();
   mountTilt();
+  mountPaths();
   mountSectionIndex();
   mountCardReps(document.querySelector(".ex-grid"));
   mountDecrypt();

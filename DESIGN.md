@@ -195,6 +195,16 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   navies to the tone of the section under the middle of the screen. The
   alternate navy is a fixed layer whose opacity fades (GPU only, no page
   repaint), so section boundaries never stutter.
+- **Skill paths roll past like a project carousel** (`site/paths.js`):
+  the section pins and scrolling rolls through the five paths one at a
+  time. A big card holding the path's real tree (the trainer's `miniTree`,
+  this browser's progress if any) tips back over a drum, bending with
+  scroll speed (its top and bottom edges bow in) and blurring as it goes;
+  the middle column ("N°01 / 05", the name, real counts, a button into
+  that tree via `app.html#tree-<id>`) swaps with it; a glossy tile with a
+  grade-colour rim shows the goal skill's flower, tumbles past the other
+  way and leans toward the pointer. When scrolling stops between two
+  paths it glides to the nearer one. Reduced motion: a plain list.
 - **Homepage setup and questions**: the trainer's three camera-setup
   steps, each a small plan drawn in stroke by stroke as it arrives; the
   questions open with a height glide while the answer unblurs (`site/faq.js`).

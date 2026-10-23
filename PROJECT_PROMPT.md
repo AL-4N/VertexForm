@@ -188,7 +188,7 @@ public/            index.html  app.html  404.html  sw.js  manifest.webmanifest  
      exercises/    squat, pushup, plank, lunge, jumpingjack (thresholds, measure, grade, faults, fixes, posture, guide)
      ui/           live.js ★ · overlay.js · motion.js · settings.js · results.js · stats.js · workouts.js
                    rest-screen.js · onboarding.js · camera-picker.js · camera-preview.js · menu.js · components.js
-     site/         website scripts (hero3d, story, expop, rep3d, lab, how, smooth, scroll-fx, ticker, sections, tilt, decrypt, card-reps, sparks, magnet, tones, motion-nav, nav-spy, rail)
+     site/         website scripts (hero3d, story, expop, rep3d, lab, how, smooth, scroll-fx, ticker, sections, tilt, decrypt, card-reps, paths, faq, sparks, magnet, tones, motion-nav, nav-spy, rail)
   vendor/          self-hosted GSAP, Lenis, Three.js (vendor/README.md)
      figures/      stick-figure rig used by the site, the setup demo and the simulator
 tests/             *.test.mjs (npm test) · e2e/run.mjs · helpers/synth.mjs (simulated people) · fixtures/ · videos/ (git-ignored)
