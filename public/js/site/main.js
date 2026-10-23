@@ -14,6 +14,7 @@ import { mountTickers } from "./ticker.js";
 import { mountTilt } from "./tilt.js";
 import { mountDecrypt } from "./decrypt.js";
 import { mountSectionIndex } from "./sections.js";
+import { mountCardReps } from "./card-reps.js";
 import { renderPictos } from "../figures/pictos.js";
 import { mountCoach } from "./coach.js";
 import { gradeColor } from "../grade.js";
@@ -78,6 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
   mountTickers();
   mountTilt();
   mountSectionIndex();
+  mountCardReps(document.querySelector(".ex-grid"));
   mountDecrypt();
   mountScrollFx();
   mountMagnets(".hero-actions .btn, .cta-band .btn");

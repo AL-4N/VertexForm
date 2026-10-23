@@ -226,6 +226,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   and a mono label in the empty space to the right; the digits roll up as
   the section arrives, the label decodes, and the number drifts slower
   than the page.
+- **Exercise cards do their rep on hover** (`site/card-reps.js`): the
+  still figure is swapped for the trainer's live loop, coloured by its live
+  score (coral at the top, green at depth), and swapped back on leave.
 - **A drawing becomes the 3D model** (`site/expop.js`): opening an
   exercise card, its flat figure flies into the popup and lands on the 3D
   figure, which waits in the same pose seen from the side (the webcam's
