@@ -163,7 +163,8 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     sits on each branch between two unlocked skills.
 - **The hero is a 3D scene** (`site/hero3d.js`, `figures/scene3d.js`): a
   simulated person does each exercise on the drafting floor; the camera
-  leans toward the pointer and drag spins it. Every score shown is the
+  leans toward the pointer and drag spins it; picking an exercise whips
+  the camera round (about 100°) and lets it coast to a stop. Every score shown is the
   real engine's (`tools/make-rep3d.mjs`, `tests/rep3d.test.mjs`).
 - **"How it works" is a pinned scroll story** (`site/story.js`): the
   section holds still while scrolling walks one 3D squat through the four

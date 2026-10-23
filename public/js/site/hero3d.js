@@ -221,6 +221,9 @@ export async function mountHero3d(root) {
     st.id = id;
     st.t = 0; st.done = -2;
     if (byUser) st.pinned = true;
+    // Picking an exercise whips the camera round about 100° and lets it
+    // coast to a stop while the new figure is found and drawn.
+    if (byUser && !reduced) st.vSpin = 0.55;
     tabs.forEach((t) => t.setAttribute("aria-selected", String(t.dataset.ex === TAB_FOR[id])));
     if (reduced) {
       // A still: the bottom of the first rep, in that rep's colour.
