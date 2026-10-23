@@ -852,3 +852,48 @@ html.split-wait .hero h1 { visibility: hidden; }
 .ex-card:hover { box-shadow: inset 0 0 0 1px rgba(46,229,157,.4), 0 26px 70px -34px rgba(46,229,157,.55); }
 /* The footer's gradient "Form" and the section numbers carry a faint halo. */
 .foot-mark em { filter: drop-shadow(0 0 28px rgba(46,229,157,.35)); }
+
+/* ── Setup: the trainer's three onboarding steps, drawn as plans ── */
+.setup { list-style: none; margin: 2.4rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; counter-reset: none; }
+.setup-step {
+  position: relative; padding: 1.3rem 1.3rem 1.5rem; border-radius: var(--r-lg); background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--line);
+  background-image: linear-gradient(rgba(238,241,251,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(238,241,251,.06) 1px, transparent 1px);
+  background-size: 24px 24px; background-position: -1px -1px;
+}
+.setup-step svg { display: block; width: 100%; height: auto; margin-bottom: 1rem; overflow: visible; }
+.setup-step h3 { font-family: var(--display); font-size: 1.08rem; letter-spacing: -.02em; margin: .2rem 0 .5rem; }
+.setup-step p { margin: 0; color: var(--text-dim); max-width: 42ch; }
+.setup-n { font-family: var(--mono); font-size: .72rem; font-weight: 600; letter-spacing: .12em; color: var(--g85); }
+.su-floor { stroke: var(--line-2); stroke-width: 2; fill: none; stroke-linecap: round; }
+.su-cam { fill: var(--surface-2); stroke: var(--text-dim); stroke-width: 2; }
+.su-lens { fill: var(--ink); stroke: var(--g100); stroke-width: 2; }
+.su-ray { stroke: var(--g70); stroke-width: 1.6; stroke-dasharray: 5 5; fill: none; stroke-linecap: round; opacity: .85; }
+.su-body { stroke: var(--g100); stroke-width: 5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+circle.su-body { fill: var(--ink-2); }
+.su-sun { stroke: var(--g70); stroke-width: 2.4; fill: none; stroke-linecap: round; filter: drop-shadow(0 0 10px rgba(255,190,61,.55)); }
+.su-text { font-family: var(--mono); font-size: 11px; font-weight: 600; fill: var(--text-dim); letter-spacing: .06em; }
+.setup-step:hover .su-body { filter: drop-shadow(0 0 8px rgba(46,229,157,.5)); }
+@media (max-width: 860px) { .setup { grid-template-columns: 1fr; } .setup-step svg { max-width: 360px; } }
+
+/* ── Questions: a ruled list; answers open with a height glide and unblur ── */
+.faq { margin: 2rem 0 0; border-top: 1px solid var(--line); max-width: 860px; }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 1.15rem .2rem; font-family: var(--display); font-weight: 700; font-size: 1.02rem; letter-spacing: -.01em;
+  transition: color .3s;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: ""; flex: none; width: 14px; height: 14px; transition: transform .5s cubic-bezier(.22,.61,.36,1);
+  background:
+    linear-gradient(currentColor, currentColor) center / 14px 2px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 2px 14px no-repeat;
+}
+.faq details[open] summary::after { transform: rotate(135deg); }
+.faq summary:hover, .faq details[open] summary { color: var(--g100); }
+.faq summary:focus-visible { outline: 2px solid var(--g100); outline-offset: 3px; border-radius: 6px; }
+.faq-a { overflow: hidden; }
+.faq-a p { margin: 0; padding: 0 .2rem 1.3rem; color: var(--text-dim); max-width: 66ch; }
+@media (prefers-reduced-motion: reduce) { .faq summary::after { transition: none; } }

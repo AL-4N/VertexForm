@@ -226,11 +226,12 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   sheen that follows the pointer, and settle back on leave. Mouse only.
 - **Text decodes** (`ui/scramble.js`, `site/decrypt.js`; React Bits'
   "Decrypted Text" idea): letters start as random measuring glyphs (digits,
-  °, ±, ×) and settle left to right with a blur that clears. Labels, tags,
-  card titles, readouts and fact strips decode the first time they appear;
-  nav links, buttons and switches decode on hover (width held so nothing
-  twitches); the story's step title and the exercise popup's name decode
-  as they change; trainer screen labels decode as a screen opens.
+  °, ±, ×) and settle left to right with a blur that clears. Use it
+  sparingly, only when a string first loads: the small tags, section-number
+  labels and the 3D view's source line on the homepage, the exercise
+  popup's name as it opens, and trainer screen labels the first time each
+  screen opens. **Never on hover** (the owner found it repetitive), and not
+  on headings or card titles, which already rise in.
 - **Blur is part of every arrival**: headings rise through up to 14 px of
   blur, cards through 12 px, story words through 10 to 14 px, the rolling
   numbers through 16 px, fact strips smear with scroll speed. Only for the

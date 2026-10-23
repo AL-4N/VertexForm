@@ -42,8 +42,11 @@ export function showScreen(id, { focus = null, dir = "forward", grow = true } = 
       growFrom(next, recent, { items: [...next.children].slice(0, 8) });
     }
     pressed = null;
-    // The screen's small labels decode as it opens.
-    next.querySelectorAll(".label").forEach((l, i) => setTimeout(() => scramble(l), 120 + i * 60));
+    // The screen's small labels decode the first time it opens, not every time.
+    if (!next.dataset.decoded) {
+      next.dataset.decoded = "1";
+      next.querySelectorAll(".label").forEach((l, i) => setTimeout(() => scramble(l), 120 + i * 60));
+    }
   }
 }
 

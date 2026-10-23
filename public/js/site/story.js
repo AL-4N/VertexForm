@@ -20,7 +20,6 @@
 import { gradeColor, gradeLetter } from "../grade.js";
 import { slide, EASE, reducedMotion } from "../ui/motion.js";
 import { smooth as smoothScroll } from "./smooth.js";
-import { scramble } from "../ui/scramble.js";
 import { Scene, loadClips, frameAt, mixColor, clamp, smooth } from "../figures/scene3d.js";
 
 const PAPER = "#eef1fb";
@@ -102,7 +101,6 @@ export async function mountStory(section) {
       G.fromTo(n, { yPercent: 100 * dir, filter: "blur(16px)" }, { yPercent: 0, filter: "blur(0px)", duration: 0.85, ease: "expo.out", delay: 0.1 });
       if (old) G.to(old, { yPercent: -100 * dir, filter: "blur(16px)", opacity: 0, duration: 0.5, ease: "power3.in", onComplete: () => old.remove() });
     }
-    scramble(steps[i].querySelector("h3"), { speed: 30, base: 300, blur: 0 });
     G.fromTo(chip, { rotateX: -90 * dir, opacity: 0 }, { rotateX: 0, opacity: 1, duration: 0.55, ease: "back.out(1.7)", delay: 0.3 });
   }
 

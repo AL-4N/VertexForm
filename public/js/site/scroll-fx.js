@@ -44,7 +44,7 @@ export function mountScrollFx() {
   }
 
   /* ── Cards rise in, group by group ──────────────────── */
-  const groups = [".ex-grid > .ex-card", ".steps > li", ".modes > .mode", ".cues > .cue", ".principles > li", ".cal-rows > li", ".two-col > .panel", ".also > div", ".lab", ".r3"];
+  const groups = [".ex-grid > .ex-card", ".steps > li", ".modes > .mode", ".cues > .cue", ".principles > li", ".cal-rows > li", ".two-col > .panel", ".also > div", ".lab", ".r3", ".setup > li", ".faq > details"];
   groups.forEach((sel) => {
     const items = gsap.utils.toArray(sel);
     if (!items.length) return;
@@ -52,6 +52,21 @@ export function mountScrollFx() {
       start: "top 90%", once: true,
       onEnter: (batch) => gsap.from(batch, { y: 56, opacity: 0, scale: 0.96, filter: "blur(12px)", duration: 1, ease: "power3.out", stagger: 0.08, clearProps: "transform,opacity,filter" }),
     });
+  });
+
+  /* ── Setup plans draw themselves in ─────────────────── */
+  // Each step's little plan is penned stroke by stroke as its card arrives:
+  // floor, camera, the rays, then the person.
+  gsap.utils.toArray(".setup-step svg").forEach((svg) => {
+    const strokes = [...svg.querySelectorAll("path, line, circle, rect")];
+    strokes.forEach((s) => s.setAttribute("pathLength", "1"));
+    gsap.set(strokes, { strokeDasharray: "1 1", strokeDashoffset: 1 });
+    const text = svg.querySelectorAll("text");
+    gsap.set(text, { opacity: 0 });
+    gsap.timeline({ scrollTrigger: { trigger: svg, start: "top 85%", once: true }, delay: 0.25 })
+      .to(strokes, { strokeDashoffset: 0, duration: 0.9, ease: "power2.inOut", stagger: 0.09 })
+      .to(text, { opacity: 1, duration: 0.4 }, "-=0.3")
+      .add(() => strokes.forEach((s) => { s.removeAttribute("pathLength"); s.style.strokeDasharray = ""; s.style.strokeDashoffset = ""; }));
   });
 
   /* ── Hero depth on the way out ──────────────────────── */

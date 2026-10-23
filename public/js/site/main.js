@@ -16,6 +16,7 @@ import { mountDecrypt } from "./decrypt.js";
 import { mountSectionIndex } from "./sections.js";
 import { mountCardReps } from "./card-reps.js";
 import { mountGlow } from "./glow.js";
+import { mountFaq } from "./faq.js";
 import { renderPictos } from "../figures/pictos.js";
 import { mountCoach } from "./coach.js";
 import { gradeColor } from "../grade.js";
@@ -84,6 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
   mountCardReps(document.querySelector(".ex-grid"));
   mountDecrypt();
   mountScrollFx();
+  mountFaq();
   mountMagnets(".hero-actions .btn, .cta-band .btn");
   const r3 = document.querySelector("[data-r3]");
   if (r3) mountRep3d(r3);

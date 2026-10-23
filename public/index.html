@@ -83,6 +83,8 @@
       <li><a href="#how"><span class="rail-n">02</span><span class="rail-label">How it works</span></a></li>
       <li><a href="#lab"><span class="rail-n">03</span><span class="rail-label">Form Lab</span></a></li>
       <li><a href="#coach"><span class="rail-n">04</span><span class="rail-label">Coaching</span></a></li>
+      <li><a href="#setup"><span class="rail-n">05</span><span class="rail-label">Setup</span></a></li>
+      <li><a href="#faq"><span class="rail-n">06</span><span class="rail-label">Questions</span></a></li>
     </ol>
   </div>
 </nav>
@@ -496,6 +498,79 @@
         <div><dt>Rep replay</dt><dd>Watch your skeleton replay each rep beside the ideal form. Save the reps you want; unsaved ones are deleted after 7 days.</dd></div>
         <div><dt>Challenges</dt><dd>One goal a day for 7, 14 or 30 days. Miss a day and the run starts over.</dd></div>
       </dl>
+    </div>
+  </section>
+
+  <!-- ═════════════ SETUP (the trainer's own onboarding steps) ═════════════ -->
+  <section id="setup" class="section" data-tone="dark" aria-labelledby="setup-title">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="tag">Takes about a minute</span>
+        <h2 id="setup-title">Set up your camera first.</h2>
+        <p>The same three steps the trainer shows the first time you open it. Get these
+           right and the tracking has a clear view of every joint it measures.</p>
+      </div>
+      <ol class="setup" data-setup>
+        <li class="setup-step">
+          <svg viewBox="0 0 220 120" aria-hidden="true">
+            <line x1="10" y1="108" x2="210" y2="108" class="su-floor"/>
+            <rect x="18" y="62" width="26" height="18" rx="4" class="su-cam"/><circle cx="31" cy="71" r="5" class="su-lens"/>
+            <line x1="31" y1="80" x2="31" y2="108" class="su-floor"/>
+            <path d="M44 71 L160 40 M44 71 L160 104" class="su-ray"/>
+            <circle cx="160" cy="28" r="9" class="su-body"/><path d="M160 37 v34 l-12 37 M160 71 l12 37 M160 46 l16 14" class="su-body"/>
+          </svg>
+          <span class="setup-n">01</span>
+          <h3>Camera side-on, at hip height</h3>
+          <p>Put your laptop or phone level with your hips and stand side-on to it. For jumping jacks, face it instead.</p>
+        </li>
+        <li class="setup-step">
+          <svg viewBox="0 0 220 120" aria-hidden="true">
+            <line x1="10" y1="108" x2="210" y2="108" class="su-floor"/>
+            <rect x="18" y="62" width="26" height="18" rx="4" class="su-cam"/><circle cx="31" cy="71" r="5" class="su-lens"/>
+            <path d="M50 96 H150" class="su-ray"/><path d="M50 96 l8 -5 M50 96 l8 5 M150 96 l-8 -5 M150 96 l-8 5" class="su-ray"/>
+            <text x="100" y="88" text-anchor="middle" class="su-text">2–3 m</text>
+            <circle cx="175" cy="28" r="9" class="su-body"/><path d="M175 37 v34 l-10 37 M175 71 l10 37" class="su-body"/>
+          </svg>
+          <span class="setup-n">02</span>
+          <h3>Step back 2–3 metres</h3>
+          <p>Your whole body, head to toe, in the picture with a little space around it. The trainer shows a guide box and tells you which way to move.</p>
+        </li>
+        <li class="setup-step">
+          <svg viewBox="0 0 220 120" aria-hidden="true">
+            <circle cx="60" cy="34" r="16" class="su-sun"/>
+            <path d="M60 8v-4M60 64v-4M34 34h-4M90 34h-4M42 16l-3-3M78 52l3 3M78 16l3-3M42 52l-3 3" class="su-sun"/>
+            <circle cx="160" cy="34" r="9" class="su-body"/><path d="M160 43 v34 l-10 31 M160 77 l10 31" class="su-body"/>
+            <line x1="10" y1="108" x2="210" y2="108" class="su-floor"/>
+          </svg>
+          <span class="setup-n">03</span>
+          <h3>Light in front of you</h3>
+          <p>Face a window or lamp, not away from it. A bright window behind you turns you into a silhouette and makes tracking guess.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═════════════ QUESTIONS ═════════════ -->
+  <section id="faq" class="section" data-tone="sage" aria-labelledby="faq-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="faq-title">Questions people ask first.</h2>
+        <p>Short answers. Anything not here is in the trainer's Settings, or in the notes under "What it can't do".</p>
+      </div>
+      <div class="faq" data-faq>
+        <details><summary>Does my video go anywhere?</summary>
+          <div class="faq-a"><p>No. The pose model runs in your browser and the video never leaves your device. The model files are downloaded once from Google's and jsDelivr's servers, then kept so later visits don't need them again.</p></div></details>
+        <details><summary>Do I need an account?</summary>
+          <div class="faq-a"><p>No. Your scores, bests, history, skills and saved replays stay in this browser. Your workout history can be saved as a CSV file with Export CSV.</p></div></details>
+        <details><summary>Does it work offline?</summary>
+          <div class="faq-a"><p>After your first visit to the trainer, yes: it keeps its own files and the pose model. Coach voice clips are kept as they're first played.</p></div></details>
+        <details><summary>Can I use my phone?</summary>
+          <div class="faq-a"><p>Yes. Open the trainer in your phone's browser; it works in portrait, can flip between front and back cameras, keeps the screen awake and can be installed like an app. Prop the phone at hip height, side-on.</p></div></details>
+        <details><summary>Which browsers work?</summary>
+          <div class="faq-a"><p>A current browser with camera access. It's tested most in Chromium browsers (Chrome, Edge, Opera). The camera needs a secure (https) page, which the live site is.</p></div></details>
+        <details><summary>How accurate is the grading?</summary>
+          <div class="faq-a"><p>The scoring is checked against simulated reps with known angles (see "How the scoring is tested"), and a side-on view at hip height in good light gives it the clearest picture. It measures angles in 2D and blends in 3D estimates as you turn toward the camera. It can't see things a side-on camera hides, like knees caving inward.</p></div></details>
+      </div>
     </div>
   </section>
 
