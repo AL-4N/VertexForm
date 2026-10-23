@@ -554,7 +554,27 @@ body::after {
 .cta-band p { font-size: 1.1rem; margin-bottom: 2rem; font-weight: 500; }
 
 /* Footer */
-.foot { padding: 2rem 0 calc(2rem + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); }
+.foot { padding: 2rem 0 0; border-top: 1px solid var(--line); overflow: hidden; }
+/* The wordmark, edge to edge, cut off by the bottom of the page like it's standing on it. */
+.foot-mark { margin-top: 2.5rem; height: 9.6vw; overflow: hidden; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.foot-mark span {
+  display: block; font-family: var(--display); font-weight: 800; font-size: 12.4vw; line-height: .9; letter-spacing: -.05em;
+  white-space: nowrap; text-align: center; color: transparent; -webkit-text-stroke: 1.5px var(--line-2);
+}
+.foot-mark em { font-style: normal; background: var(--go-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-stroke: 0; }
+
+/* ── Fact strips (js/site/ticker.js) ── */
+.ticker { overflow: hidden; border-block: 1px solid var(--line); padding: 1.1rem 0; white-space: nowrap; }
+.ticker-track { display: inline-flex; align-items: center; gap: 2rem; will-change: transform; }
+.ticker-track span { font-family: var(--mono); font-size: .95rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); }
+.ticker-track i { width: 8px; height: 8px; border-radius: 50%; background: var(--go-gradient); flex: none; }
+.ticker-big { border: 0; padding: 2.5rem 0; }
+.ticker-big .ticker-track { gap: 3rem; }
+.ticker-big .ticker-outline {
+  font-family: var(--display); font-size: clamp(3rem, 9vw, 7.5rem); font-weight: 800; letter-spacing: -.03em; text-transform: none;
+  color: transparent; -webkit-text-stroke: 1.5px var(--line-2); transition: color .3s, -webkit-text-stroke-color .3s;
+}
+.ticker-big i { width: 18px; height: 18px; }
 .foot-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
 .foot p { color: var(--text-faint); font-size: .88rem; }
 .foot-row > a:last-child { color: var(--text-dim); font-size: .9rem; font-weight: 600; text-decoration: none; }

@@ -196,6 +196,13 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   of the middle when nothing was pressed; the skill-tree panel grows out of
   the skill you picked; "Target reached" bursts out as a circle; toasts pop
   open from a dot and close back into one.
+- **Fact strips** (`site/ticker.js`): rows of true facts (mono, small) and
+  the exercise names (huge, outlined) slide sideways only as you scroll,
+  alternate rows opposite ways, leaning with scroll speed. Decorative
+  (`aria-hidden`): the same facts are in the page.
+- **The footer wordmark** is as wide as the page, outlined "Vertex" and a
+  gradient "Form", cut off by the bottom edge, and rises into view as you
+  reach the end (scrubbed by scroll).
 - **A drawing becomes the 3D model** (`site/expop.js`): opening an
   exercise card, its flat figure flies into the popup and lands on the 3D
   figure, which waits in the same pose seen from the side (the webcam's

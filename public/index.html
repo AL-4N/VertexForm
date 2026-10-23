@@ -149,6 +149,10 @@
     </div>
   </section>
 
+  <!-- Facts that slide as you scroll (js/site/ticker.js). Decorative: the
+       same facts are in the page, so screen readers skip these. -->
+  <div class="ticker" data-ticker="left" aria-hidden="true"><div class="ticker-track"><span>33 points tracked every frame</span><i aria-hidden="true"></i><span>Every rep graded 0 to 100</span><i aria-hidden="true"></i><span>5 exercises</span><i aria-hidden="true"></i><span>Nothing uploaded</span><i aria-hidden="true"></i><span>No account</span><i aria-hidden="true"></i><span>3 coach voices</span><i aria-hidden="true"></i><span>1,605 recorded coach clips</span><i aria-hidden="true"></i><span>Works offline</span><i aria-hidden="true"></i></div></div>
+
   <!-- ═════════════ EXERCISES ═════════════ -->
   <section id="exercises" class="section" data-tone="paper">
     <div class="wrap">
@@ -513,6 +517,8 @@
     </div>
   </section>
 
+  <div class="ticker ticker-big" data-ticker="right" aria-hidden="true"><div class="ticker-track"><span class="ticker-outline">Squat</span><i aria-hidden="true"></i><span class="ticker-outline">Push-up</span><i aria-hidden="true"></i><span class="ticker-outline">Plank</span><i aria-hidden="true"></i><span class="ticker-outline">Lunge</span><i aria-hidden="true"></i><span class="ticker-outline">Jumping jack</span><i aria-hidden="true"></i></div></div>
+
   <!-- ═════════════ CLOSE ═════════════ -->
   <section class="cta-band" data-tone="paper">
     <div class="wrap">
@@ -558,6 +564,8 @@
     <p>Pose tracking by MediaPipe. Hosted on Cloudflare.</p>
     <a href="app.html">Open the trainer</a>
   </div>
+  <!-- The wordmark, as big as the page is wide; it rises into view (scroll-fx.js). -->
+  <div class="foot-mark" aria-hidden="true"><span>Vertex<em>Form</em></span></div>
 </footer>
 
 <div class="file-warn" id="file-warn" role="alert" hidden>

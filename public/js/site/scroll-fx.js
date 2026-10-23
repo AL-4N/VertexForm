@@ -62,6 +62,11 @@ export function mountScrollFx() {
       .to(".hero-hud", { yPercent: -10, opacity: 0, ease: "none" }, 0);
   }
 
+  /* ── The footer wordmark rises out of the floor ───────── */
+  const mark = document.querySelector(".foot-mark span");
+  if (mark) gsap.fromTo(mark, { yPercent: 70, opacity: 0.2 }, { yPercent: 0, opacity: 1, ease: "none",
+    scrollTrigger: { trigger: ".foot", start: "top bottom", end: "bottom bottom", scrub: 0.5 } });
+
   // Layout settles once fonts are in; measure again then.
   document.fonts?.ready.then(() => ScrollTrigger.refresh());
 }

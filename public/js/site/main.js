@@ -10,6 +10,7 @@ import { mountSmooth } from "./smooth.js";
 import { mountScrollFx } from "./scroll-fx.js";
 import { mountSparks } from "./sparks.js";
 import { mountMagnets } from "./magnet.js";
+import { mountTickers } from "./ticker.js";
 import { renderPictos } from "../figures/pictos.js";
 import { mountCoach } from "./coach.js";
 import { gradeColor } from "../grade.js";
@@ -71,6 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const how = document.getElementById("how");
   if (how) mountStory(how);
   mountExercisePopups(document.querySelector(".ex-grid"), document.getElementById("ex-pop"));
+  mountTickers();
   mountScrollFx();
   mountMagnets(".hero-actions .btn, .cta-band .btn");
   const r3 = document.querySelector("[data-r3]");
