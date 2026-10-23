@@ -85,21 +85,38 @@ export async function mountStory(section) {
       return;
     }
     const dir = down ? 1 : -1;
+    // Only the step leaving and the step arriving may show. Anything else
+    // still mid-flight from a fast scroll is put away at once, so steps
+    // never pile up on top of each other.
+    steps.forEach((s, k) => {
+      if (k === i || k === prev) return;
+      G.killTweensOf(words[k]);
+      G.set(words[k], { yPercent: 115, opacity: 0, filter: "none" });
+      s.classList.remove("leaving");
+    });
     if (prev >= 0) {
+      const leaving = steps[prev];
+      leaving.classList.add("leaving");
       G.killTweensOf(words[prev]);
-      G.to(words[prev], { yPercent: -115 * dir, opacity: 0, filter: "blur(10px)", duration: 0.42, ease: "power3.in", stagger: 0.012 });
+      G.to(words[prev], { yPercent: -115 * dir, opacity: 0, filter: "blur(10px)", duration: 0.42, ease: "power3.in", stagger: 0.012,
+        onComplete: () => leaving.classList.remove("leaving") });
     }
+    steps[i].classList.remove("leaving");
     G.killTweensOf(words[i]);
     G.fromTo(words[i], { yPercent: 115 * dir, opacity: 0, filter: "blur(14px)" },
       { yPercent: 0, opacity: 1, filter: "blur(0px)", duration: 0.8, ease: "expo.out", stagger: 0.022, delay: prev >= 0 ? 0.2 : 0 });
     // The big number rolls: the old one flies off, the new one comes up behind it.
     if (big) {
-      const old = big.firstElementChild;
+      // Every number already there leaves (a fast scroll can stack several);
+      // the newest of them flies off, older ones just go.
+      const olds = [...big.children];
+      olds.slice(0, -1).forEach((o) => { G.killTweensOf(o); o.remove(); });
+      const old = olds.at(-1);
       const n = document.createElement("span");
       n.textContent = String(i + 1).padStart(2, "0");
       big.appendChild(n);
       G.fromTo(n, { yPercent: 100 * dir, filter: "blur(16px)" }, { yPercent: 0, filter: "blur(0px)", duration: 0.85, ease: "expo.out", delay: 0.1 });
-      if (old) G.to(old, { yPercent: -100 * dir, filter: "blur(16px)", opacity: 0, duration: 0.5, ease: "power3.in", onComplete: () => old.remove() });
+      if (old) { G.killTweensOf(old); G.to(old, { yPercent: -100 * dir, filter: "blur(16px)", opacity: 0, duration: 0.5, ease: "power3.in", onComplete: () => old.remove() }); }
     }
     G.fromTo(chip, { rotateX: -90 * dir, opacity: 0 }, { rotateX: 0, opacity: 1, duration: 0.55, ease: "back.out(1.7)", delay: 0.3 });
   }

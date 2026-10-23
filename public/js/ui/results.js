@@ -7,7 +7,7 @@ import { faultLabel, faultPhrase } from "../coaching.js";
 import { getExercise } from "../exercises/index.js";
 import { slide, tween, EASE } from "./motion.js";
 import { gradeColor } from "../grade.js";
-import { stamp } from "./flair.js";
+import { stamp, bestBadge } from "./flair.js";
 
 /**
  * The score counts up from 0, and the number and letter take each colour of
@@ -47,7 +47,9 @@ export function renderResults(r) {
     : r.reps.length > 1
       ? `Best of ${r.reps.length} reps · average ${r.average}`
       : "Single rep";
-  $("#res-best-badge").hidden = !r.isBest;
+  // A new best lands after the grade's stamp.
+  if (r.isBest) bestBadge($("#res-best-badge"));
+  else { clearTimeout(bestBadge.t); $("#res-best-badge").hidden = true; }
 
   // Component bars from the best rep's grade shape, if we have one.
   const ex = getExercise(r.exercise);

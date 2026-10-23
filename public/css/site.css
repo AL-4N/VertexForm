@@ -721,6 +721,7 @@ body::after {
 .story-meter button.on { color: var(--text); }
 /* GSAP drives the step text (story.js): every step stays laid out, words animate in and out. */
 .story.fx .story-steps li { opacity: 1; visibility: visible; transition: none; }
+.story.fx .story-steps li:not(.on):not(.leaving) { visibility: hidden; }
 .story.fx .story-n { display: none; }     /* the big rolling number says it */
 .story-chip { transform-origin: 50% 50% -10px; backface-visibility: hidden; }
 .story-pin { perspective: 900px; }

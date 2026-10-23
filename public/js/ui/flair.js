@@ -14,6 +14,10 @@
  *               (history).
  *   dealCards   option cards start stacked like a deck and deal out to their
  *               places, and a calendar's days pop in as a wave (challenges).
+ *   sparkle     short strokes in the amber to green colours burst out of an
+ *               element: a new best, a skill unlocked.
+ *   bestBadge   "New best!" waits for the grade's stamp, then pops in with
+ *               a glow and sparks (results).
  *
  * All Web Animations, no libraries. Reduced motion: none of it runs.
  */
@@ -151,4 +155,44 @@ export function dealCards(cards, calendar = []) {
   [...calendar].forEach((d, i) => d.animate(
     [{ transform: "scale(.3) translateY(10px)", opacity: 0 }, { transform: "scale(1) translateY(0)", opacity: 1 }],
     { duration: 420, delay: 200 + i * 35, easing: POP, fill: "backwards" }));
+}
+
+/** Short amber-to-green strokes burst out from an element's centre. */
+const SPARK = ["#ffbe3d", "#c6ef4e", "#2ee59d"];
+export function sparkle(el, { count = 10, reach = 46 } = {}) {
+  if (!ok() || !el) return;
+  const r = el.getBoundingClientRect();
+  const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  const turn = Math.random() * Math.PI;
+  for (let i = 0; i < count; i++) {
+    const a = turn + (i / count) * Math.PI * 2;
+    const s = document.createElement("span");
+    s.className = "flair-spark";
+    s.setAttribute("aria-hidden", "true");
+    Object.assign(s.style, { left: `${cx}px`, top: `${cy}px`, background: SPARK[i % SPARK.length], rotate: `${a}rad` });
+    document.body.appendChild(s);
+    const d = reach * (0.8 + Math.random() * 0.4);
+    s.animate([
+      { transform: `translateX(${Math.max(r.width, r.height) * 0.3}px) scaleX(1)`, opacity: 1 },
+      { transform: `translateX(${d}px) scaleX(.2)`, opacity: 0 },
+    ], { duration: 520, easing: OUT, fill: "both" }).finished.then(() => s.remove());
+  }
+}
+
+/** "New best!" lands after the grade's stamp: it pops in, glows, and sparks fly. */
+export function bestBadge(el, delay = 1350) {
+  if (!el) return;
+  if (!ok()) { el.hidden = false; return; }
+  el.hidden = true;
+  clearTimeout(bestBadge.t);
+  bestBadge.t = setTimeout(() => {
+    el.hidden = false;
+    el.animate([
+      { transform: "scale(.2) rotate(-8deg)", opacity: 0, filter: "blur(8px)" },
+      { transform: "scale(1.18) rotate(2deg)", opacity: 1, filter: "blur(0)", offset: 0.6 },
+      { transform: "scale(1) rotate(0)" },
+    ], { duration: 520, easing: OUT });
+    el.animate([{ boxShadow: "0 0 0 0 rgba(46,229,157,.7)" }, { boxShadow: "0 0 0 18px rgba(46,229,157,0)" }], { duration: 900, delay: 250, easing: "ease-out" });
+    setTimeout(() => sparkle(el, { count: 12, reach: 60 }), 260);
+  }, delay);
 }

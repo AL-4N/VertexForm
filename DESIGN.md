@@ -164,6 +164,10 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     lines and pop their dots, unlocked achievements catch a glint); and
     **challenges deal out** from a stacked deck while the calendar's days pop
     in as a wave.
+    A **new best** lands just after the grade's stamp ("New best!" pops in
+    with a green pulse and amber-to-green sparks, `bestBadge`), and each
+    **skill unlocked** toast carries the tree's blossom and a spark burst
+    (`sparkle`).
   - **Results bars grow in** one after another, numbers counting up with them;
     the **menu's exercise cards rise in** the first time it shows; the **rest
     ring** refills with a spring on "+15 s" and its last 3 seconds stamp.
@@ -191,6 +195,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   navies to the tone of the section under the middle of the screen. The
   alternate navy is a fixed layer whose opacity fades (GPU only, no page
   repaint), so section boundaries never stutter.
+- **Homepage setup and questions**: the trainer's three camera-setup
+  steps, each a small plan drawn in stroke by stroke as it arrives; the
+  questions open with a height glide while the answer unblurs (`site/faq.js`).
 - **Smooth scrolling** (Lenis, `site/smooth.js`): wheel and trackpad
   scrolling glide; touch stays native. Paused while a popup is open.
 - **Headings rise in line by line** from a mask, with a little blur (GSAP

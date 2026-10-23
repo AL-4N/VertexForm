@@ -909,3 +909,9 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 
 /* Scores glow in their own colour (as on the site). */
 .grade-big, .score-big, .big-stat { text-shadow: 0 0 30px color-mix(in srgb, currentColor 40%, transparent); }
+
+/* Sparks (flair.js sparkle): short strokes that fly out and shrink. */
+.flair-spark { position: fixed; z-index: 71; width: 12px; height: 2.5px; margin: -1.25px 0 0; border-radius: 2px; pointer-events: none; transform-origin: 0 50%; }
+/* A toast with an icon: the skill-unlock blossom. */
+.toast.has-icon { display: inline-flex; align-items: center; gap: .55rem; }
+.toast-icon { width: 20px; height: 20px; flex: none; filter: drop-shadow(0 0 6px rgba(46,229,157,.6)); }

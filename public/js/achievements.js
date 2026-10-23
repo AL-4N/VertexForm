@@ -4,6 +4,7 @@
 
 import { store, save, globalAverage, dayStreak } from "./storage.js";
 import { toast } from "./ui/components.js";
+import { sparkle } from "./ui/flair.js";
 import { beep } from "./voice.js";
 import { REGISTRY } from "./exercises/index.js";
 import { newSkills, skillName } from "./skills.js";
@@ -73,13 +74,20 @@ export function checkChallenge(now = new Date()) {
   }
 }
 
+const BLOSSOM = `<svg class="toast-icon" viewBox="-12 -12 24 24" aria-hidden="true">${[0, 72, 144, 216, 288]
+  .map((a) => `<ellipse cx="0" cy="-6" rx="4" ry="6" transform="rotate(${a})" fill="#eef1fb"/>`).join("")}<circle r="3.4" fill="#2ee59d"/></svg>`;
+
 /** Unlock any skill-path steps the saved sets now reach. */
 export function checkSkills() {
   const fresh = newSkills(store.sessions, store.skills);
   if (!fresh.length) return;
   store.skills.push(...fresh);
   save();
-  for (const id of fresh) toast(`Skill unlocked: ${skillName(id)}`);
+  // Each unlock gets a blossom (the skill tree's flower) and a burst of sparks.
+  fresh.forEach((id, k) => setTimeout(() => {
+    const el = toast(`Skill unlocked: ${skillName(id)}`, 3600, { icon: BLOSSOM });
+    if (el) setTimeout(() => sparkle(el.querySelector("svg") ?? el), 380);
+  }, k * 700));
   beep(988, 180, 0.06);
 }
 

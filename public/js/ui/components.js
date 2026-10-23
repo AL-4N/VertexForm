@@ -51,12 +51,13 @@ export function showScreen(id, { focus = null, dir = "forward", grow = true } = 
 }
 
 /** Transient notification at the top of the window. */
-export function toast(message, ms = 2800) {
+export function toast(message, ms = 2800, { icon = "" } = {}) {
   const host = $("#toasts");
-  if (!host) return;
+  if (!host) return null;
   const el = document.createElement("div");
-  el.className = "toast";
-  el.textContent = message;
+  el.className = icon ? "toast has-icon" : "toast";
+  el.innerHTML = icon;
+  el.append(message);
   host.appendChild(el);
   // Pops open from a dot in the middle, drops into place, and closes back
   // into a dot when it's done.
@@ -70,6 +71,7 @@ export function toast(message, ms = 2800) {
     el.animate([{ clipPath: open, opacity: 1 }, { clipPath: shut, opacity: 0 }], { duration: 300, easing: "cubic-bezier(.55,.06,.68,.19)", fill: "forwards" })
       .finished.then(() => el.remove());
   }, ms);
+  return el;
 }
 
 /** Build the markup for a labelled progress bar. */
