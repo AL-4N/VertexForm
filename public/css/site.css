@@ -821,3 +821,13 @@ html.split-wait .hero h1 { visibility: hidden; }
   }
   .hero-cue i { display: block; width: 1px; height: 42px; background: linear-gradient(var(--g70), var(--g100)); transform-origin: 50% 100%; }
 }
+
+/* Links in the nav and footer: an underline draws in from the left on hover
+   and leaves to the right. */
+.nav nav a, .foot-row > a:last-child { position: relative; }
+.nav nav a::after, .foot-row > a:last-child::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1.5px; border-radius: 1px;
+  background: var(--go-gradient); transform: scaleX(0); transform-origin: right; transition: transform .45s cubic-bezier(.22,.61,.36,1);
+}
+.nav nav a:hover::after, .foot-row > a:last-child:hover::after { transform: scaleX(1); transform-origin: left; }
+@media (prefers-reduced-motion: reduce) { .nav nav a::after, .foot-row > a:last-child::after { transition: none; } }
