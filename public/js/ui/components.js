@@ -1,6 +1,7 @@
 /** components.js — small shared UI helpers. */
 
 import { askPopup, growFrom } from "./popup.js";
+import { scramble } from "./scramble.js";
 import { gradeVar } from "../geometry.js";
 import { slide, tween, EASE } from "./motion.js";
 
@@ -41,6 +42,8 @@ export function showScreen(id, { focus = null, dir = "forward", grow = true } = 
       growFrom(next, recent, { items: [...next.children].slice(0, 8) });
     }
     pressed = null;
+    // The screen's small labels decode as it opens.
+    next.querySelectorAll(".label").forEach((l, i) => setTimeout(() => scramble(l), 120 + i * 60));
   }
 }
 

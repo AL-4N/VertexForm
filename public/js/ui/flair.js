@@ -72,8 +72,8 @@ export async function morphInto({ from, figure, open, screen, target, targetFigu
     // Hand over to the real screen; the rest drops in like dominoes.
     screen.style.visibility = "";
     rest.filter(Boolean).forEach((el, k) => el.animate(
-      [{ opacity: 0, transform: "perspective(800px) rotateX(-55deg) translateY(-12px)", transformOrigin: "50% 0" },
-       { opacity: 1, transform: "perspective(800px) rotateX(0) translateY(0)", transformOrigin: "50% 0" }],
+      [{ opacity: 0, transform: "perspective(800px) rotateX(-55deg) translateY(-12px)", transformOrigin: "50% 0", filter: "blur(10px)" },
+       { opacity: 1, transform: "perspective(800px) rotateX(0) translateY(0)", transformOrigin: "50% 0", filter: "blur(0)" }],
       { duration: 560, delay: 40 + k * 80, easing: POP, fill: "backwards" }));
     await Promise.all([box, fly].filter(Boolean).map((el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: "ease-out", fill: "forwards" }).finished));
   } finally {

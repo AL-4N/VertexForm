@@ -31,7 +31,7 @@ export function mountSectionIndex() {
   const { gsap, ScrollTrigger } = window;
   if (!gsap || !ScrollTrigger || reducedMotion()) return;
   for (const el of document.querySelectorAll(".sec-index")) {
-    gsap.from(el.querySelector("i"), { yPercent: 105, duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 85%", once: true } });
+    gsap.from(el.querySelector("i"), { yPercent: 105, filter: "blur(14px)", clearProps: "filter", duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 85%", once: true } });
     gsap.fromTo(el, { y: 50 }, { y: -50, ease: "none", scrollTrigger: { trigger: el.parentElement, start: "top bottom", end: "bottom top", scrub: 0.5 } });
   }
 }

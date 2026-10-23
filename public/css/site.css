@@ -138,8 +138,9 @@ body::after {
 .nav {
   position: sticky; top: 0; z-index: 40;
   padding-top: env(safe-area-inset-top, 0px);
-  background: color-mix(in srgb, var(--tone) 82%, transparent); backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  /* Near-opaque, no backdrop blur: re-blurring the page under the bar on
+     every scroll frame was the costliest thing the GPU did. */
+  background: color-mix(in srgb, var(--tone) 94%, transparent);
   border-bottom: 1px solid transparent; transition: border-color .2s;
 }
 .nav.scrolled { border-bottom-color: var(--line); }
