@@ -733,6 +733,10 @@ body::after {
 .ex-pop-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; }
 .ex-pop.no-3d .ex-pop-stage { display: none; }
 .ex-pop.no-3d .pop-inner { grid-template-columns: 1fr; }
+/* The card's flat figure flying in to become the 3D model (expop.js). */
+.ex-pop-fly, .ex-pop-fly.picto { position: fixed; z-index: 5; pointer-events: none; display: grid; place-items: center; padding: 0; background: none; height: auto; }
+.ex-pop-fly svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.ex-pop-fly .picto-floor { opacity: 0; }
 .ex-pop-hint { position: absolute; left: 1rem; bottom: .9rem; font-family: var(--mono); font-size: .68rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-faint); pointer-events: none; }
 .ex-pop-body { display: grid; gap: 1.05rem; align-content: start; padding: clamp(1.5rem, 3vw, 2.4rem); padding-top: clamp(2.5rem, 4vw, 3rem); }
 .ex-pop h2 { font-size: clamp(2rem, 3.6vw, 3rem); line-height: 1; }

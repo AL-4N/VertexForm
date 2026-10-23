@@ -196,6 +196,11 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   of the middle when nothing was pressed; the skill-tree panel grows out of
   the skill you picked; "Target reached" bursts out as a circle; toasts pop
   open from a dot and close back into one.
+- **A drawing becomes the 3D model** (`site/expop.js`): opening an
+  exercise card, its flat figure flies into the popup and lands on the 3D
+  figure, which waits in the same pose seen from the side (the webcam's
+  view), dissolves into it, then the camera swings round as the floor and
+  protractor come up and it starts moving.
 - **Page changes open as a circle** from where you clicked (home ↔
   trainer), over 1.1 s on a slow-to-fast curve, sized to just reach the
   farthest corner: the inline `pagereveal` script in each page's head +
