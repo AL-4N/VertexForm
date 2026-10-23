@@ -19,8 +19,10 @@ run it.
 - **Modes:** Practice (rep by rep until you hit a target grade), Analyze a set
   (N reps or seconds, then a breakdown), and Workouts (circuits of up to 10
   steps with rest; 3 saved routines).
-- **Website** (`index.html`): a hero demo, the Form Lab (sliders that drive the
-  real scoring engine).
+- **Website** (`index.html`): a 3D hero, a pinned 3D story, exercise popups,
+  the Form Lab (sliders that drive the real scoring engine).
+- **Skill path:** five paths (Push, Pull, Legs, Core, Conditioning), 32 skills,
+  drawn as blooming trees; tracked skills unlock from real saved sets.
 
 ## Links and places
 

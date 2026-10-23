@@ -192,7 +192,7 @@ function nextLine(p) {
 /* ── Tree ──────────────────────────────────────────────── */
 
 let current = null, selected = null, resizeObs = null, grow = false;
-const BARK = 9;                                   // trunk width; branches thin out as they climb
+const BARK = 12;                                  // trunk width; branches thin out as they climb
 
 export function openTree(pathId, focusId = null, { grow: growScreen = true } = {}) {
   paths = skillPath(store.sessions, store.skills);

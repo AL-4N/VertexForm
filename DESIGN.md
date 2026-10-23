@@ -140,6 +140,11 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     a vertical motion blur (dashboard stats, the live rep counter).
   - **Gliding toggles** (`ui/segmented.js`): one highlight slides between a
     toggle group's options with a horizontal motion blur.
+  - **Five skill paths** (`js/skills.js`): Push, Pull, Legs, Core and
+    Conditioning, 32 skills. Tracked ones unlock from real saved sets
+    (push-ups, squats, lunges, planks, jumping jacks); the rest say "Not
+    tracked yet". Tree cards are large (236 px, 42 px flowers) on a wide
+    screen (up to 1600 px), with a thicker trunk.
   - **Path cards show their tree in small** (`miniTree` in `ui/skills.js`):
     trunk, branches and the same blossoms, buds and twigs as the full tree.
   - **A path card zooms into its tree** (`zoomIntoTree` in `ui/skills.js`):

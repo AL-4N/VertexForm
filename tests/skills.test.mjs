@@ -17,7 +17,9 @@ const step = (paths, id) => paths.flatMap((p) => p.steps).find((s) => s.id === i
 
 /* ── The paths themselves ─────────────────────────────── */
 const all = PATHS.flatMap((p) => p.steps);
-check("Four paths: Push, Pull, Legs, Core", PATHS.map((p) => p.name).join() === "Push,Pull,Legs,Core");
+check("Five paths: Push, Pull, Legs, Core, Conditioning", PATHS.map((p) => p.name).join() === "Push,Pull,Legs,Core,Conditioning");
+check("New tracked skills: 20 push-ups, 20 deep squats, clean lunges, two-minute plank, jacks",
+  ["pushup_20", "squat_20", "lunge_clean", "plank_2min", "jacks", "jacks_clean"].every((id) => STEP_BY_ID[id]?.test));
 check("Step ids are unique", new Set(all.map((s) => s.id)).size === all.length);
 check("Every tracked step uses an exercise the app can grade", all.filter((s) => s.test).every((s) => REGISTRY[s.test.exercise]));
 check("Every step says what it takes", all.every((s) => s.name && s.goal));
@@ -84,6 +86,14 @@ check("Kept skills stay unlocked after history is trimmed", step(p, "pushup_clea
 check("newSkills lists only fresh unlocks, in path order", JSON.stringify(newSkills([set("Push-up", 15, 92), set("Squat", 10, 85)], ["pushup"])) === JSON.stringify(["pushup_clean", "squat"]));
 check("newSkills is empty when nothing changed", newSkills([set("Push-up", 15, 92)], ["pushup", "pushup_clean"]).length === 0);
 check("Legacy one-score saves never unlock a set step", newSkills([{ exercise: "Squat", reps: [99], average: 99, legacy: true }]).length === 0);
+
+{
+  const p = skillPath([set("Jumping Jack", 60, 93), plank(120, 91), set("Squat", 20, 95)]);
+  check("60 clean jacks unlock both Conditioning steps", step(p, "jacks").status === "done" && step(p, "jacks_clean").status === "done");
+  check("A 120 s plank at 91 unlocks the two-minute plank", step(p, "plank_2min").status === "done");
+  check("20 squats at 95 unlock squat, full-depth and 20 deep squats", ["squat", "squat_deep", "squat_20"].every((id) => step(p, id).status === "done"));
+  check("Burpee waits on mountain climbers (untracked) and clean push-ups", step(p, "burpee").status === "planned" && !step(p, "burpee").ready);
+}
 
 console.log(`\n${fail ? `${fail} skill check(s) FAILED` : "All skill checks pass"} (${pass} passed)`);
 process.exit(fail ? 1 : 0);
