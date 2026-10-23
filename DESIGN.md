@@ -155,6 +155,14 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     rest of the screen lays out around it, and the tree blooms. Use this
     for any card that opens a screen of its own: the card becomes the
     thing it opens.
+  - **The exercise picker is an instrument** (`ui/menu.js`), not a list of
+    cards: a drafting-board stage where the exercise you point at does its
+    rep live (big outlined index number rolling, a gauge of your best in
+    its grade colour, a Train button), beside a dial of huge outlined names
+    on a ruler. The pointed-at name fills with the go gradient and shows
+    its hint while a glowing marker springs to it; the others tip back and
+    fade by distance like a drum. Clicking a name trains it at once, and
+    its stage becomes the setup panel.
   - **Trainer screen moments** (`ui/flair.js`), each different:
     an **exercise card becomes its setup panel** (the card stretches to the
     demo panel while its stick figure hops into the demo figure, then the
