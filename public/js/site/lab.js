@@ -12,6 +12,8 @@ import { figureMarkup } from "../figures/draw.js";
 import { angleMark, levelLine, offsetMark, coachNote, jointAngle } from "../figures/annotate.js";
 import { gradeColor, gradeLetter } from "../grade.js";
 import { slide, spring, EASE } from "../ui/motion.js";
+import { stamp } from "../ui/flair.js";
+import { burst } from "./sparks.js";
 import { voice, configureVoice } from "../voice.js";
 
 /**
@@ -51,6 +53,7 @@ export function mountLab(root) {
   let id = "squat";
   let v = {};
   let cueParts = [];             // what the play button says after the score
+  let lastScore = null;          // to notice the moment the score reaches an A
   let lastNote = null;           // the cue the coach last wrote (so it's only penned in when it changes)
   let swinging = false, stopSwing = null;
 
@@ -113,6 +116,14 @@ export function mountLab(root) {
 
     ui.score.textContent = score;
     ui.letter.textContent = gradeLetter(score);
+    // Reaching an A (from below, by your own hand or once a preset settles):
+    // the score stamps down, rings out green and throws a burst of sparks.
+    if (!swinging && score >= 90 && lastScore != null && lastScore < 90) {
+      stamp(ui.score, c, null);
+      const r = ui.score.getBoundingClientRect();
+      setTimeout(() => burst(r.left + r.width / 2, r.top + r.height / 2, 1.8), 320);
+    }
+    if (!swinging) lastScore = score;
     ui.rows.innerHTML = m.rows.map(([k, val]) => `<div><dt>${k}</dt><dd>${val}</dd></div>`).join("");
     ui.parts.innerHTML = m.parts.map(([k, val]) => {
       const n = Math.round(val);

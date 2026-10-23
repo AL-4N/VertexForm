@@ -229,6 +229,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **Exercise cards do their rep on hover** (`site/card-reps.js`): the
   still figure is swapped for the trainer's live loop, coloured by its live
   score (coral at the top, green at depth), and swapped back on leave.
+- **Reaching an A in the Form Lab** (`site/lab.js`): the moment your
+  sliders take the score from below 90 into an A, the number stamps down,
+  a green ring shocks out and a burst of sparks flies off it.
 - **A drawing becomes the 3D model** (`site/expop.js`): opening an
   exercise card, its flat figure flies into the popup and lands on the 3D
   figure, which waits in the same pose seen from the side (the webcam's

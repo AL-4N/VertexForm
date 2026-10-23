@@ -9,8 +9,12 @@
 import { reducedMotion } from "../ui/motion.js";
 import { GRADE_STOPS } from "../grade.js";
 
+let fire = null;
+/** Burst sparks at a point on screen (e.g. a score reaching an A). No-op until mounted. */
+export function burst(x, y, size = 1) { fire?.(x, y, size); }
+
 export function mountSparks() {
-  if (reducedMotion() || !matchMedia("(pointer: fine)").matches) return;
+  if (reducedMotion()) return;
   const canvas = document.createElement("canvas");
   canvas.className = "sparks";
   canvas.setAttribute("aria-hidden", "true");
@@ -34,7 +38,7 @@ export function mountSparks() {
       const k = (now - b.at) / 420, e = 1 - Math.pow(1 - k, 3);
       for (let i = 0; i < 8; i++) {
         const a = b.turn + (i / 8) * Math.PI * 2;
-        const r0 = 6 + e * 26, r1 = r0 + 10 * (1 - k);
+        const r0 = (6 + e * 26) * b.size, r1 = r0 + 10 * b.size * (1 - k);
         ctx.strokeStyle = colours[i % colours.length];
         ctx.globalAlpha = 1 - k;
         ctx.lineWidth = 2; ctx.lineCap = "round";
@@ -48,9 +52,13 @@ export function mountSparks() {
     raf = bursts.length ? requestAnimationFrame(draw) : 0;
   };
 
+  fire = (x, y, size = 1) => {
+    bursts.push({ x, y, size, at: performance.now(), turn: Math.random() * Math.PI });
+    raf ||= requestAnimationFrame(draw);
+  };
+  if (!matchMedia("(pointer: fine)").matches) return;           // click sparks: mouse only
   addEventListener("pointerdown", (e) => {
     if (e.pointerType !== "mouse" || e.button !== 0) return;
-    bursts.push({ x: e.clientX, y: e.clientY, at: performance.now(), turn: Math.random() * Math.PI });
-    raf ||= requestAnimationFrame(draw);
+    fire(e.clientX, e.clientY);
   }, { passive: true });
 }
