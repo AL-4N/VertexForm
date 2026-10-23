@@ -16,7 +16,7 @@
  * and old ones are deleted on activate. Updates are never stuck.
  */
 
-const VERSION = "8cb91dcb0e51";
+const VERSION = "3288307a2fd4";
 const PRECACHE = [
   "./",
   "404.html",
@@ -86,7 +86,6 @@ const PRECACHE = [
   "js/session.js",
   "js/site/coach-lines.js",
   "js/site/coach.js",
-  "js/site/cursor.js",
   "js/site/expop.js",
   "js/site/hero3d.js",
   "js/site/how.js",

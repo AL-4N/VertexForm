@@ -68,8 +68,8 @@ local). `npm test` must pass first, as always.
     with AI" tag. Scrolling: in-page links glide with a vertical motion blur
     (`js/site/motion-nav.js`). Since Oct 2026 the user wants Awwwards-style
     UI (they studied the 3D sites there): a 3D hero, a pinned scroll story,
-    popups that grow from what you click, blended section tones, a cursor
-    ring, heading reveals (DESIGN.md "Motion"). Self-hosted GSAP
+    popups that grow from what you click, blended section tones, heading
+    reveals (no custom cursor: removed at the owner's request) (DESIGN.md "Motion"). Self-hosted GSAP
     (ScrollTrigger, SplitText), Lenis and Three.js live in `public/vendor/`
     (CLAUDE.md "Motion libraries"); never load anything from a CDN.
   - Clickable buttons first; keyboard shortcuts only as extras.
@@ -186,7 +186,7 @@ public/            index.html  app.html  404.html  sw.js  manifest.webmanifest  
      exercises/    squat, pushup, plank, lunge, jumpingjack (thresholds, measure, grade, faults, fixes, posture, guide)
      ui/           live.js ★ · overlay.js · motion.js · settings.js · results.js · stats.js · workouts.js
                    rest-screen.js · onboarding.js · camera-picker.js · camera-preview.js · menu.js · components.js
-     site/         website scripts (hero3d, story, expop, rep3d, lab, how, smooth, scroll-fx, sparks, magnet, cursor, tones, motion-nav, nav-spy, rail)
+     site/         website scripts (hero3d, story, expop, rep3d, lab, how, smooth, scroll-fx, sparks, magnet, tones, motion-nav, nav-spy, rail)
   vendor/          self-hosted GSAP, Lenis, Three.js (vendor/README.md)
      figures/      stick-figure rig used by the site, the setup demo and the simulator
 tests/             *.test.mjs (npm test) · e2e/run.mjs · helpers/synth.mjs (simulated people) · fixtures/ · videos/ (git-ignored)

@@ -6,7 +6,6 @@ import { mountHero3d } from "./hero3d.js";
 import { mountStory } from "./story.js";
 import { mountExercisePopups } from "./expop.js";
 import { mountTones } from "./tones.js";
-import { mountCursor } from "./cursor.js";
 import { mountSmooth } from "./smooth.js";
 import { mountScrollFx } from "./scroll-fx.js";
 import { mountSparks } from "./sparks.js";
@@ -66,7 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
   mountCoach(document.querySelector("[data-coach]"));
   renderHow();
   mountTones();
-  mountCursor();
   mountSparks();
   const hero = document.querySelector("[data-hero3d]");
   if (hero) mountHero3d(hero);

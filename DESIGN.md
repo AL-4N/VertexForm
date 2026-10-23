@@ -200,11 +200,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   trainer), over 1.1 s on a slow-to-fast curve, sized to just reach the
   farthest corner: the inline `pagereveal` script in each page's head +
   `css/transitions.css` `vt-circle`.
-- **A custom cursor** (`site/cursor.js`, site only) replaces the system
-  pointer: one ring exactly under the mouse (never eased, never two), opens
-  over links, and over draggable or openable areas becomes a disc that
-  says "Drag" or "Open". `difference` blend, mouse only. Inside an open
-  popup (top layer, above the ring) the system pointer comes back.
+- **No custom cursor.** Tried twice in Oct 2026 and removed at the owner's
+  request: the Mac pointer kept showing alongside it. Use the system pointer;
+  `cursor: grab` on things you can drag.
 - Nothing loops just for decoration: the figures are always doing an
   exercise, and only while on screen.
 - `prefers-reduced-motion`: everything jumps straight to its end state.

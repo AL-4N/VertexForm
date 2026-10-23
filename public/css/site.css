@@ -752,29 +752,6 @@ body::after {
   .ex-pop-cols { grid-template-columns: 1fr; }
 }
 
-/* ── The cursor ring (js/site/cursor.js) ── */
-.cursor { position: fixed; left: 0; top: 0; z-index: 100; width: 0; height: 0; pointer-events: none; mix-blend-mode: difference; opacity: 0; transition: opacity .25s; }
-.cursor.on { opacity: 1; }
-.cursor::before {
-  content: ""; position: absolute; left: -10px; top: -10px; width: 20px; height: 20px; border-radius: 50%;
-  border: 1.5px solid #fff; transition: left .3s var(--ease), top .3s var(--ease), width .3s var(--ease), height .3s var(--ease), background .3s, transform .2s;
-}
-.cursor.is-link::before { left: -22px; top: -22px; width: 44px; height: 44px; }
-.cursor.is-label::before { left: -40px; top: -40px; width: 80px; height: 80px; background: #fff; }
-.cursor.down::before { transform: scale(.82); }
-.cursor-label {
-  position: absolute; left: 0; top: 0; transform: translate(-50%, -50%) scale(.6); opacity: 0; color: #000; white-space: nowrap;
-  font-family: var(--body); font-size: .8rem; font-weight: 700; transition: opacity .2s, transform .3s var(--ease);
-}
-.cursor.is-label .cursor-label { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-/* The ring replaces the system pointer everywhere on the page... */
-html.has-cursor, html.has-cursor * { cursor: none !important; }
-/* ...except in an open popup, which sits above them: the system pointer is back there. */
-html:has(dialog[open]) .cursor { opacity: 0; }
-html.has-cursor dialog[open], html.has-cursor dialog[open] * { cursor: auto !important; }
-html.has-cursor dialog[open] :is(a, button, [role=button], label) { cursor: pointer !important; }
-html.has-cursor dialog[open] [data-cursor] { cursor: grab !important; }
-
 /* ── Scroll effects (js/site/scroll-fx.js, js/site/smooth.js) ── */
 /* Lenis drives the scrolling itself; the browser's smooth scroll would fight it. */
 html.lenis, html.lenis body { scroll-behavior: auto; }
