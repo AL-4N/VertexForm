@@ -320,6 +320,7 @@ export class Scene {
    * expensive thing on these canvases, and the camera is usually still.
    */
   floorCached(cam, opts = {}) {
+    if (!this.canvas.width || !this.canvas.height) return;        // not laid out yet (hidden, or a tab with no size)
     const key = [...cam.C, ...cam.f, cam.focal, cam.cx, cam.cy, this.w, this.h, this.dpr, opts.alpha ?? 1, opts.size ?? 7]
       .map((v) => (typeof v === "number" ? v.toFixed(3) : v)).join();
     const off = (this._floor ??= document.createElement("canvas"));
