@@ -7,6 +7,8 @@ import { $, showScreen } from "./components.js";
 import { speech, beep } from "../voice.js";
 import { restCue, mmss } from "../rest.js";
 import { SYSTEM, REST_SECONDS } from "../coaching.js";
+import { stamp } from "./flair.js";
+import { reducedMotion } from "./motion.js";
 
 let timer = 0;
 
@@ -24,8 +26,13 @@ export function showRest({ seconds, next, nextExercise = null, kicker = "Rest", 
   $("#rest-go").classList.remove("pulse");
   showScreen("rest", { focus: "#rest-go" });
 
+  // The last three seconds stamp down like the countdown (amber, lime, green).
+  const RING = { 3: "#ffbe3d", 2: "#c6ef4e", 1: "#2ee59d" };
+  let shownSec = null;
   const draw = () => {
     $("#rest-time").textContent = mmss(left);
+    const sec = Math.ceil(left);
+    if (sec !== shownSec) { if (shownSec != null && RING[sec]) stamp($("#rest-time"), RING[sec], null); shownSec = sec; }
     $("#rest-prog").style.strokeDashoffset = String(100 - (left / total) * 100);
   };
   draw();
@@ -38,7 +45,15 @@ export function showRest({ seconds, next, nextExercise = null, kicker = "Rest", 
   const end = () => { stopRest(); speech.clear(); onEnd?.(); };
   $("#rest-go").onclick = go;
   $("#rest-end").onclick = end;
-  $("#rest-add").onclick = () => { endAt += 15000; total += 15; left += 15; draw(); };
+  // +15 s: the ring refills with a little spring instead of the usual steady drain.
+  $("#rest-add").onclick = () => {
+    const prog = $("#rest-prog");
+    if (!reducedMotion()) {
+      prog.style.transition = "stroke-dashoffset .7s cubic-bezier(.2,.9,.3,1.3)";
+      setTimeout(() => { prog.style.transition = ""; }, 750);
+    }
+    endAt += 15000; total += 15; left += 15; draw();
+  };
 
   if (seconds <= 0) { if (auto) go(); return; }
   timer = setInterval(() => {

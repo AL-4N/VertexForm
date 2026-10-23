@@ -153,6 +153,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     lines and pop their dots, unlocked achievements catch a glint); and
     **challenges deal out** from a stacked deck while the calendar's days pop
     in as a wave.
+  - **Results bars grow in** one after another, numbers counting up with them;
+    the **menu's exercise cards rise in** the first time it shows; the **rest
+    ring** refills with a spring on "+15 s" and its last 3 seconds stamp.
   - **The countdown stamps** (`ui/live.js`): 3, 2 and 1 land like the results
     grade, each with a ring climbing the scale (amber, lime, green).
   - **The skill tree blooms** (`ui/skills.js`, `.tree.growing` in

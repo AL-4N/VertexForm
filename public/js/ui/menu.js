@@ -55,6 +55,13 @@ export function renderMenu(onPick) {
     list.appendChild(card);
   });
   renderPictos(list);
+  // The first time the menu shows, the exercise cards rise in one after another.
+  if (!renderMenu.shown && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    [...list.children].forEach((c, i) => c.animate(
+      [{ opacity: 0, transform: "translateY(18px) scale(.98)" }, { opacity: 1, transform: "none" }],
+      { duration: 520, delay: 80 + i * 70, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }));
+  }
+  renderMenu.shown = true;
 
   renderSidebar();
 }

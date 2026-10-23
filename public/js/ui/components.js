@@ -2,7 +2,7 @@
 
 import { askPopup, growFrom } from "./popup.js";
 import { gradeVar } from "../geometry.js";
-import { slide, EASE } from "./motion.js";
+import { slide, tween, EASE } from "./motion.js";
 
 export const $  = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
@@ -89,6 +89,19 @@ export function renderBars(host, bars, cls = "bar-row") {
   if (host.dataset.bars !== key) {
     host.innerHTML = bars.map((b) => barHTML(b, cls)).join("");
     host.dataset.bars = key;
+    // Results: new bars grow in one after another, their numbers counting up
+    // with them. (Not the live HUD's bars: those update every rep.)
+    if (cls === "res-bar" && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      [...host.children].forEach((row, i) => {
+        const v = Math.round(bars[i].value), fill = row.querySelector(".bar-fill"), num = row.querySelector(".bar-label span:last-child");
+        const delay = 250 + i * 110;
+        fill?.animate([{ width: "0%" }, { width: `${v}%` }], { duration: 900, delay, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" });
+        if (num) {
+          num.textContent = "0";
+          setTimeout(() => tween(0, v, (x) => { num.textContent = Math.round(x); }, { duration: 900 }), delay);
+        }
+      });
+    }
     return;
   }
   const rows = host.children;
