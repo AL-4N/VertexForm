@@ -133,7 +133,21 @@ export function mountExercisePopups(grid, dlg) {
       else Object.assign(st, { yaw: 0, pitch: 0, show: 0, floor: 0, playing: false });
     }
     const run = ++st.run;
-    openPopup(dlg, card, { onClose: () => { st.run++; dlg.querySelectorAll(".ex-pop-fly").forEach((f) => f.remove()); } });
+    openPopup(dlg, card, {
+      onClose: () => { st.run++; dlg.querySelectorAll(".ex-pop-fly").forEach((f) => f.remove()); },
+      // Closing runs the opening backwards: the figure turns back to the flat
+      // side view and the floor fades, then the popup folds into the card.
+      beforeClose: () => (st.clip ? new Promise((resolve) => {
+        st.run++;
+        st.playing = false;
+        const y0 = st.yaw, p0 = st.pitch, f0 = st.floor;
+        const back = ((((y0 % 360) + 540) % 360) - 180);       // the short way round to 0
+        tween(0, 1, (k) => {
+          st.yaw = back * (1 - k); st.pitch = p0 * (1 - k); st.floor = f0 * (1 - k);
+          if (k >= 1) resolve();
+        }, { duration: 480, ease: EASE.inOut });
+      }) : Promise.resolve()),
+    });
     if (st.clip) {
       draw();
       if (!reducedMotion()) { st.raf ||= requestAnimationFrame(tick); becomeModel(card, run); }

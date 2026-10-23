@@ -48,9 +48,10 @@ export function growFrom(el, rect, { radius = 14, duration = 560, items = [] } =
   ));
 }
 
-export function openPopup(dlg, from = null, { onClose } = {}) {
+export function openPopup(dlg, from = null, { onClose, beforeClose } = {}) {
   dlg._from = from;
   dlg._onClose = onClose;
+  dlg._beforeClose = beforeClose;     // optional: an animation (Promise) to finish before folding away
   if (!dlg._wired) wire(dlg);
   dlg.classList.remove("closing");
   dlg.showModal();
@@ -69,18 +70,24 @@ export function openPopup(dlg, from = null, { onClose } = {}) {
   });
 }
 
-export function closePopup(dlg) {
+export async function closePopup(dlg) {
   if (!dlg.open || dlg.classList.contains("closing")) return;
   const done = () => { dlg.classList.remove("closing"); dlg.close(); dlg._onClose?.(); };
   if (reducedMotion()) { done(); return; }
   dlg.classList.add("closing");
+  if (dlg._beforeClose) { try { await dlg._beforeClose(); } catch { /* close anyway */ } }
   const radius = parseFloat(getComputedStyle(dlg).borderRadius) || 22;
   dlg._anim?.cancel();
   dlg._anim = dlg.animate(
     [{ clipPath: `inset(0px 0px 0px 0px round ${radius}px)` }, { clipPath: shapeOf(dlg, dlg._from, 14) }],
     { duration: 420, easing: EASE_IN, fill: "forwards" },
   );
-  dlg._anim.onfinish = () => { dlg._anim.cancel(); done(); };
+  // Close when the animation ends; the timer covers a page that isn't
+  // rendering (a background tab), where the finish event never comes.
+  let closed = false;
+  const finish = () => { if (closed) return; closed = true; dlg._anim?.cancel(); done(); };
+  dlg._anim.onfinish = finish;
+  setTimeout(finish, 470);
 }
 
 function wire(dlg) {

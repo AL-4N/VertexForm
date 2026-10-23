@@ -244,7 +244,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   exercise card, its flat figure flies into the popup and lands on the 3D
   figure, which waits in the same pose seen from the side (the webcam's
   view), dissolves into it, then the camera swings round as the floor and
-  protractor come up and it starts moving.
+  protractor come up and it starts moving. Closing runs it backwards: the figure
+  turns back to the flat side view and the floor fades, then the popup
+  folds into the card (`openPopup(..., { beforeClose })`).
 - **Page changes open as a circle** from where you clicked (home ↔
   trainer), over 1.1 s on a slow-to-fast curve, sized to just reach the
   farthest corner: the inline `pagereveal` script in each page's head +
