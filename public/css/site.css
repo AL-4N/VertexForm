@@ -811,3 +811,13 @@ html.split-wait .hero h1 { visibility: hidden; }
   }
   .sec-index span { font-family: var(--mono); font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); }
 }
+
+/* The hero's scroll cue: a line that empties as you scroll out (scroll-fx.js). */
+.hero-cue { display: none; }
+@media (min-width: 1280px) {          /* only where the gap between the switch and the readout fits it */
+  .hero-cue {
+    display: grid; justify-items: center; gap: .5rem; position: absolute; left: 50%; bottom: 1.4rem; transform: translateX(-50%); z-index: 1;
+    font-family: var(--mono); font-size: .66rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint); pointer-events: none;
+  }
+  .hero-cue i { display: block; width: 1px; height: 42px; background: linear-gradient(var(--g70), var(--g100)); transform-origin: 50% 100%; }
+}

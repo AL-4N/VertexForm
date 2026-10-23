@@ -237,6 +237,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **Reaching an A in the Form Lab** (`site/lab.js`): the moment your
   sliders take the score from below 90 into an A, the number stamps down,
   a green ring shocks out and a burst of sparks flies off it.
+- **The story hands over**: as "How it works" ends, its pinned scene shrinks
+  back and fades while the next section comes up. **The hero's scroll cue**
+  is a short gradient line that empties as you scroll out (wide screens).
 - **A drawing becomes the 3D model** (`site/expop.js`): opening an
   exercise card, its flat figure flies into the popup and lands on the 3D
   figure, which waits in the same pose seen from the side (the webcam's

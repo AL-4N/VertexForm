@@ -91,6 +91,15 @@ export function mountScrollFx() {
     });
   }
 
+  /* ── The story hands over: its scene shrinks back and fades ── */
+  const pin = document.querySelector(".story:not([hidden]) .story-pin");
+  if (pin) gsap.to(pin, { scale: 0.93, opacity: 0.25, ease: "none",
+    scrollTrigger: { trigger: ".story", start: "bottom 100%", end: "bottom 55%", scrub: 0.5 } });
+
+  /* ── The hero's scroll cue empties as you leave ─────────── */
+  const cue = document.querySelector(".hero-cue i");
+  if (cue) gsap.to(cue, { scaleY: 0, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "40% top", scrub: 0.3 } });
+
   /* ── The footer wordmark rises out of the floor ───────── */
   const mark = document.querySelector(".foot-mark span");
   if (mark) gsap.fromTo(mark, { yPercent: 70, opacity: 0.2 }, { yPercent: 0, opacity: 1, ease: "none",
