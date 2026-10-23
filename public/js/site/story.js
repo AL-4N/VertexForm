@@ -57,16 +57,50 @@ export async function mountStory(section) {
     return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
   }
 
+  /*
+   * Changing step, so you can't miss it (GSAP + SplitText when loaded):
+   * the old step's words fly up out of their line masks one after another
+   * while the new step's rise in from below (the other way when scrolling
+   * back), the big outlined step number rolls over like an odometer, the
+   * fact chip flips to its new fact, and the step lights up on the meter.
+   * Without GSAP: a plain slide.
+   */
+  const { gsap: G, SplitText: Split } = window;
+  const big = story.querySelector(".story-big");
+  const marks = [...story.querySelectorAll("[data-goto]")];
+  const words = Split && G ? steps.map((s) => Split.create(s.querySelectorAll(".story-n, h3, p"), { type: "lines,words", mask: "lines" }).words) : null;
+  if (words) {
+    story.classList.add("fx");
+    words.forEach((w) => G.set(w, { yPercent: 115, opacity: 0 }));
+  }
   function setStep(i) {
     if (i === st.step) return;
-    const down = i > st.step;
+    const prev = st.step, down = i > prev;
     st.step = i;
-    steps.forEach((s, k) => {
-      const on = k === i;
-      s.classList.toggle("on", on);
-      s.setAttribute("aria-hidden", String(!on));
-      if (on) slide(s, { from: [0, down ? 40 : -40], to: [0, 0], opacity: [0, 1], duration: 520, ease: EASE.out, strength: 0.9 });
-    });
+    steps.forEach((s, k) => { s.classList.toggle("on", k === i); s.setAttribute("aria-hidden", String(k !== i)); });
+    marks.forEach((m, k) => m.classList.toggle("on", k === i));
+    if (!words) {
+      slide(steps[i], { from: [0, down ? 40 : -40], to: [0, 0], opacity: [0, 1], duration: 520, ease: EASE.out, strength: 0.9 });
+      return;
+    }
+    const dir = down ? 1 : -1;
+    if (prev >= 0) {
+      G.killTweensOf(words[prev]);
+      G.to(words[prev], { yPercent: -115 * dir, opacity: 0, filter: "blur(4px)", duration: 0.42, ease: "power3.in", stagger: 0.012 });
+    }
+    G.killTweensOf(words[i]);
+    G.fromTo(words[i], { yPercent: 115 * dir, opacity: 0, filter: "blur(6px)" },
+      { yPercent: 0, opacity: 1, filter: "blur(0px)", duration: 0.8, ease: "expo.out", stagger: 0.022, delay: prev >= 0 ? 0.2 : 0 });
+    // The big number rolls: the old one flies off, the new one comes up behind it.
+    if (big) {
+      const old = big.firstElementChild;
+      const n = document.createElement("span");
+      n.textContent = String(i + 1).padStart(2, "0");
+      big.appendChild(n);
+      G.fromTo(n, { yPercent: 100 * dir, filter: "blur(8px)" }, { yPercent: 0, filter: "blur(0px)", duration: 0.85, ease: "expo.out", delay: 0.1 });
+      if (old) G.to(old, { yPercent: -100 * dir, filter: "blur(8px)", opacity: 0, duration: 0.5, ease: "power3.in", onComplete: () => old.remove() });
+    }
+    G.fromTo(chip, { rotateX: -90 * dir, opacity: 0 }, { rotateX: 0, opacity: 1, duration: 0.55, ease: "back.out(1.7)", delay: 0.3 });
   }
 
   function draw() {

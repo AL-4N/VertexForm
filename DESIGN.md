@@ -157,6 +157,10 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **"How it works" is a pinned scroll story** (`site/story.js`): the
   section holds still while scrolling walks one 3D squat through the four
   steps and moves the camera round it. Progress is eased, so a flick glides.
+  Changing step is impossible to miss: the old step's words fly up out of
+  their line masks while the new step's rise in (reversed when scrolling
+  back), a big outlined step number rolls over like an odometer, the fact
+  chip flips, and the meter lights the step. About 3.3 screens of scroll.
 - **Tones blend** (`site/tones.js`): the page colour glides between the two
   navies to the tone of the section under the middle of the screen
   (registered custom properties), never a hard edge.

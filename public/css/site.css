@@ -680,7 +680,7 @@ body::after {
 .file-warn strong { color: #ffb3c1; }
 
 /* ── How it works: the pinned 3D story (js/site/story.js) ── */
-.story { position: relative; height: 430vh; margin-top: clamp(1rem, 3vw, 2rem); }
+.story { position: relative; height: 330vh; margin-top: clamp(1rem, 3vw, 2rem); }
 .story[hidden] { display: none; }
 .has-story .steps { display: none; }
 .story-pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
@@ -702,6 +702,19 @@ body::after {
 .story-fill { position: absolute; inset: 0; background: linear-gradient(180deg, var(--g70), var(--g85) 50%, var(--g100)); transform-origin: top; transform: scaleY(0); }
 .story-meter button { border: 0; background: none; padding: .2rem .3rem; cursor: pointer; font-family: var(--mono); font-size: .75rem; font-weight: 600; color: var(--text-faint); text-align: left; }
 .story-meter button:hover { color: var(--text); }
+.story-meter button.on { color: var(--text); }
+/* GSAP drives the step text (story.js): every step stays laid out, words animate in and out. */
+.story.fx .story-steps li { opacity: 1; visibility: visible; transition: none; }
+.story.fx .story-n { display: none; }     /* the big rolling number says it */
+.story-chip { transform-origin: 50% 50% -10px; backface-visibility: hidden; }
+.story-pin { perspective: 900px; }
+/* The big outlined step number behind the text; it rolls between steps. */
+.story-big {
+  position: absolute; left: -.04em; top: calc(52% - .78em - 6rem); height: 1em; width: 2.4ch; overflow: hidden; pointer-events: none;
+  font-family: var(--display); font-weight: 800; font-size: clamp(6rem, 13vw, 11rem); line-height: 1; letter-spacing: -.04em;
+  color: rgba(166,174,203,.05); -webkit-text-stroke: 1.5px rgba(166,174,203,.38); font-variant-numeric: tabular-nums;
+}
+.story-big span { position: absolute; left: 0; top: 0; }
 @media (max-width: 899px) {
   .story-steps { top: auto; bottom: 4.4rem; width: 100%; }
   .story-steps li { top: auto; bottom: 0; transform: none; }
@@ -709,6 +722,7 @@ body::after {
   .story-steps p { font-size: 1rem; }
   .story-chip { bottom: 1rem; }
   .story-meter { top: 5.5rem; transform: none; gap: 1rem; }
+  .story-big { top: 5rem; font-size: 5.5rem; }
 }
 
 /* ── The exercise popup (js/site/expop.js; base in css/popup.css) ── */
