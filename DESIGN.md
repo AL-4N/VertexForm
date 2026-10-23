@@ -153,6 +153,8 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     lines and pop their dots, unlocked achievements catch a glint); and
     **challenges deal out** from a stacked deck while the calendar's days pop
     in as a wave.
+  - **The countdown stamps** (`ui/live.js`): 3, 2 and 1 land like the results
+    grade, each with a ring climbing the scale (amber, lime, green).
   - **The skill tree blooms** (`ui/skills.js`, `.tree.growing` in
     `app.css`): each path is drawn as a tree growing up from a trunk.
     Opening one grows the branches tier by tier, then flowers open on the

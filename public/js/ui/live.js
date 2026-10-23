@@ -17,6 +17,7 @@
  */
 
 import { growFrom } from "./popup.js";
+import { stamp } from "./flair.js";
 import { getExercise } from "../exercises/index.js";
 import {
   initPose, detect, poseDelegate, poseModel, MODEL_NAMES,
@@ -914,10 +915,13 @@ function countdown(ctl, seconds) {
     const span = el.querySelector("span");
     let n = seconds;
     el.hidden = false;
-    // Each number drops in with a vertical motion blur.
+    // Each number drops in with a vertical motion blur; the last three stamp
+    // down with a ring that climbs the grade scale (amber, lime, green: go).
+    const RING = { 3: "#ffbe3d", 2: "#c6ef4e", 1: "#2ee59d" };
     const show = () => {
       span.textContent = n;
-      slide(span, { from: [0, -90], to: [0, 0], opacity: [0, 1], duration: 420, ease: EASE.outBack, strength: 1.2, maxBlur: 30 });
+      if (RING[n]) stamp(span, RING[n], null);
+      else slide(span, { from: [0, -90], to: [0, 0], opacity: [0, 1], duration: 420, ease: EASE.outBack, strength: 1.2, maxBlur: 30 });
       if (n <= 3) speech.say([n], { anytime: true, priority: 4, maxAgeMs: 800, key: "count" });
     };
     show();
