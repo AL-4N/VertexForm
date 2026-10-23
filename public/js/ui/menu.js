@@ -1,7 +1,7 @@
 /** menu.js — exercise list, session log, bests, and reset controls. */
 
 import { EXERCISES, EXERCISE_META } from "../config.js";
-import { store, globalAverage, resetExercise, dayStreak } from "../storage.js";
+import { store, globalAverage, resetExercise, dayStreak, lastWeek } from "../storage.js";
 import { $, showScreen, confirmAction, toast } from "./components.js";
 import { gradeVar } from "../geometry.js";
 import { renderPictos } from "../figures/pictos.js";
@@ -80,6 +80,13 @@ function renderSidebar() {
   rollTo($("#total-reps"), store.stats.totalReps ?? 0);
   const streak = dayStreak();
   $("#day-streak").textContent = streak ? `${streak} day${streak === 1 ? "" : "s"}` : "0";
+  // The week under it: a dot for each of the last 7 days, filled on days you
+  // trained. The first time it shows, the days pop in one after another.
+  const week = $("#day-week");
+  if (week) {
+    const html = lastWeek().map((d, i) => `<li class="${d.trained ? "on" : ""}${d.today ? " today" : ""}" style="--i:${i}" title="${d.key}${d.trained ? ": trained" : ""}"><i></i><span>${d.label}</span></li>`).join("");
+    if (week.innerHTML !== html) { week.classList.toggle("fresh", !week.childElementCount); week.innerHTML = html; }
+  }
   renderChallengeCard();
 }
 

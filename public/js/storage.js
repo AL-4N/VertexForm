@@ -148,6 +148,16 @@ export function markDay(date = new Date()) {
 }
 
 /** Days in a row with training, ending today (or yesterday, if not yet today). */
+/** The last 7 days, oldest first: { key, label (weekday letter), trained, today }. */
+export function lastWeek(now = new Date()) {
+  const have = new Set(store.days || []);
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() - (6 - i));
+    return { key: dayKey(d), label: d.toLocaleDateString(undefined, { weekday: "narrow" }), trained: have.has(dayKey(d)), today: i === 6 };
+  });
+}
+
 export function dayStreak(now = new Date()) {
   const have = new Set(store.days || []);
   const d = new Date(now);

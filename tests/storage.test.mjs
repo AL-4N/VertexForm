@@ -2,7 +2,7 @@
  * storage.test.mjs — saved data from older versions still loads
  * (js/storage.js migrate), and new session records. Run with:  npm test
  */
-import { migrate, VERSION, recordSession, lastSession, store } from "../public/js/storage.js";
+import { migrate, VERSION, recordSession, lastSession, store, lastWeek } from "../public/js/storage.js";
 
 let pass = 0, fail = 0;
 const check = (name, ok, detail = "") => {
@@ -38,6 +38,15 @@ check("New sessions record date, scores and fault counts", last?.date === "2026-
 recordSession({ exercise: "Plank", mode: "set", best: 95, average: 92, reps: [90, 95, 92], faults: [], isHold: true, durations: [5, 5, 5.4] });
 check("Holds record the seconds held", lastSession("Plank")?.heldS === 15 && lastSession("Squat").heldS === null);
 check("lastSession finds the latest of that exercise only", lastSession("Lunge") === null && store.sessions.length >= 2);
+
+{
+  const keep = store.days;
+  store.days = ["2026-10-20", "2026-10-22"];
+  const w = lastWeek(new Date(2026, 9, 22, 12));
+  check("lastWeek: 7 days, oldest first, today last and marked", w.length === 7 && w[0].key === "2026-10-16" && w[6].key === "2026-10-22" && w[6].today && !w[5].today);
+  check("lastWeek: trained days filled from the saved days", w.filter((d) => d.trained).map((d) => d.key).join() === "2026-10-20,2026-10-22");
+  store.days = keep;
+}
 
 console.log(`\n${fail ? `${fail} storage check(s) FAILED` : "All storage checks pass"} (${pass} passed)`);
 process.exit(fail ? 1 : 0);
