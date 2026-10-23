@@ -15,6 +15,7 @@
  */
 
 import { reducedMotion } from "../ui/motion.js";
+import { gradeColor } from "../grade.js";
 
 export function mountScrollFx() {
   const { gsap, ScrollTrigger, SplitText } = window;
@@ -61,6 +62,26 @@ export function mountScrollFx() {
       .to(".hero-scene", { yPercent: 12, scale: 0.94, opacity: 0.35, ease: "none" }, 0)
       .to(".hero-hud", { yPercent: -10, opacity: 0, ease: "none" }, 0);
   }
+
+  /* ── Scores count up the scale as they come into view ──── */
+  // The scoring test results and the example chips: each number climbs from
+  // 0 to its score, taking every grade colour on the way (the trainer's
+  // results do the same), a little after the one above it.
+  const counted = (el) => el.querySelector("b") ?? el.querySelector("i") ?? el;
+  ScrollTrigger.batch("[data-score]", {
+    start: "top 92%", once: true,
+    onEnter: (batch) => batch.forEach((el, k) => {
+      const score = Number(el.dataset.score), out = counted(el), v = { n: 0 };
+      gsap.to(v, { n: score, duration: 1.1, delay: k * 0.08, ease: "power2.out",
+        onUpdate: () => { out.textContent = Math.round(v.n); el.style.setProperty("--c", gradeColor(v.n)); },
+        onComplete: () => { out.textContent = score; el.style.setProperty("--c", gradeColor(score)); } });
+    }),
+  });
+  // The example chart's bars grow up from the floor, one after another.
+  ScrollTrigger.batch(".mock-chart span", {
+    start: "top 92%", once: true,
+    onEnter: (batch) => gsap.from(batch, { scaleY: 0, transformOrigin: "50% 100%", duration: 0.9, ease: "back.out(1.4)", stagger: 0.09, clearProps: "transform" }),
+  });
 
   /* ── Stages open out of a narrow frame as you reach them ─ */
   for (const stage of document.querySelectorAll(".r3-stage, .lab-stage")) {
