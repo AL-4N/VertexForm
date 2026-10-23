@@ -62,6 +62,14 @@ export function mountScrollFx() {
       .to(".hero-hud", { yPercent: -10, opacity: 0, ease: "none" }, 0);
   }
 
+  /* ── Stages open out of a narrow frame as you reach them ─ */
+  for (const stage of document.querySelectorAll(".r3-stage, .lab-stage")) {
+    gsap.fromTo(stage, { clipPath: "inset(14% 18% 14% 18% round 40px)" }, {
+      clipPath: "inset(0% 0% 0% 0% round 22px)", ease: "none",
+      scrollTrigger: { trigger: stage, start: "top 95%", end: "top 45%", scrub: 0.6 },
+    });
+  }
+
   /* ── The footer wordmark rises out of the floor ───────── */
   const mark = document.querySelector(".foot-mark span");
   if (mark) gsap.fromTo(mark, { yPercent: 70, opacity: 0.2 }, { yPercent: 0, opacity: 1, ease: "none",

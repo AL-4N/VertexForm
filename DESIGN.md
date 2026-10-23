@@ -203,6 +203,15 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **The footer wordmark** is as wide as the page, outlined "Vertex" and a
   gradient "Form", cut off by the bottom edge, and rises into view as you
   reach the end (scrubbed by scroll).
+- **Cards lean toward the pointer** (`site/tilt.js`): exercise cards, mode
+  cards, coach cues and panels tilt up to 6° in perspective with a soft
+  sheen that follows the pointer, and settle back on leave. Mouse only.
+- **Labels decode** (`site/decrypt.js`): small mono labels and tags start
+  as random measuring glyphs (digits, °, ±, ×) and settle left to right
+  the first time they come on screen (React Bits' "Decrypted Text" idea).
+- **Stages open out of a frame** (`scroll-fx.js`): the 3D view and the Form
+  Lab stage grow from a narrow, rounder frame to full size as you scroll
+  to them (clip-path, scrubbed).
 - **A drawing becomes the 3D model** (`site/expop.js`): opening an
   exercise card, its flat figure flies into the popup and lands on the 3D
   figure, which waits in the same pose seen from the side (the webcam's

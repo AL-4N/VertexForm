@@ -788,3 +788,12 @@ html.split-wait .hero h1 { visibility: hidden; }
 
 /* Click sparks (js/site/sparks.js). */
 .sparks { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 99; pointer-events: none; }
+
+/* ── Cards that lean toward the pointer (js/site/tilt.js) ── */
+.tilt { transform-style: preserve-3d; will-change: transform; }
+.tilt::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(238,241,251,.07), transparent 45%);
+}
+.tilt:hover::after { opacity: 1; }
+.cue.tilt, .mode.tilt, .panel.tilt { position: relative; }
