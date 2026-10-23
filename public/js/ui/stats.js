@@ -1,5 +1,6 @@
 /** stats.js — the Progress screen: overview, per-exercise history charts, faults over time, achievements, CSV export. */
 
+import { flipBoard } from "./flair.js";
 import { store, globalAverage, resetAll } from "../storage.js";
 import { removeAll as removeAllReplays } from "../replay-store.js";
 import { ACHIEVEMENTS, isUnlocked } from "../achievements.js";
@@ -68,6 +69,7 @@ export function renderStats() {
     </div>`;
 
   host.innerHTML = overview + perExercise + achievements;
+  flipBoard(host);
 }
 
 /**

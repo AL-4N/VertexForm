@@ -144,6 +144,15 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     rest of the screen lays out around it, and the tree blooms. Use this
     for any card that opens a screen of its own: the card becomes the
     thing it opens.
+  - **Trainer screen moments** (`ui/flair.js`), each different:
+    an **exercise card becomes its setup panel** (the card stretches to the
+    demo panel while its stick figure hops into the demo figure, then the
+    rest drops in like dominoes); the **results grade lands like a stamp**
+    (slams down, a ring of its colour shocks out, the card jolts); the
+    **history board flips** (stat cards flip down in turn, charts draw their
+    lines and pop their dots, unlocked achievements catch a glint); and
+    **challenges deal out** from a stacked deck while the calendar's days pop
+    in as a wave.
   - **The skill tree blooms** (`ui/skills.js`, `.tree.growing` in
     `app.css`): each path is drawn as a tree growing up from a trunk.
     Opening one grows the branches tier by tier, then flowers open on the

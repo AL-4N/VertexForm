@@ -49,7 +49,7 @@ export function renderMenu(onPick) {
         }
         return;
       }
-      onPick(name);
+      onPick(name, card);
     });
 
     list.appendChild(card);

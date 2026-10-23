@@ -24,6 +24,7 @@ import { startPreview, stopPreview, previewRunning } from "./ui/camera-preview.j
 import { CircuitRunner, stepSession, describeStep } from "./circuit.js";
 import { gradeVar } from "./geometry.js";
 import { SYSTEM } from "./coaching.js";
+import { morphInto } from "./ui/flair.js";
 import { registerServiceWorker } from "./pwa.js";
 import { mountHoverFill } from "./ui/hover-fill.js";
 import { mountPageTransitions } from "./page-transition.js";
@@ -194,7 +195,7 @@ function wireLiveControls() {
   });
 }
 
-function openMode(exercise) {
+function openMode(exercise, card = null) {
   currentExercise = exercise;
   $("#mode-title").textContent = exercise;
 
@@ -224,7 +225,16 @@ function openMode(exercise) {
   stopDemo = mountLoop($("#mode-demo"), BY_NAME[exercise]);
   $("#demo-tips").innerHTML = (DEMO_TIPS[exercise] ?? []).map((t) => `<li>${t}</li>`).join("");
 
-  showScreen("mode");
+  // From an exercise card: the card becomes the setup panel and its figure
+  // flies into the demo (ui/flair.js). From anywhere else: the usual grow.
+  if (!card) { showScreen("mode"); return; }
+  const screen = $("#screen-mode");
+  morphInto({
+    from: card, figure: card.querySelector(".picto"),
+    open: () => showScreen("mode", { grow: false }), screen,
+    target: screen.querySelector(".demo-card"), targetFigure: $("#mode-demo"),
+    rest: [...screen.querySelectorAll(".app-header > *"), screen.querySelector(".demo-text"), $("#mode-practice"), $("#mode-set"), screen.querySelector(".setup-panel")],
+  });
 }
 
 /* ── Camera picker ──────────────────────────────────────── */

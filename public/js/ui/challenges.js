@@ -3,6 +3,7 @@
  * Challenges screen, built from js/challenges.js.
  */
 
+import { dealCards } from "./flair.js";
 import { store, save } from "../storage.js";
 import { CHALLENGES, CHALLENGE_BY_ID, challengeStatus, dayKey } from "../challenges.js";
 import { $, showScreen, toast, confirmAction } from "./components.js";
@@ -40,6 +41,7 @@ export function renderChallengeCard() {
 export function openChallenges() {
   renderChallenges();
   showScreen("challenges");
+  dealCards([...document.querySelectorAll("#challenge-list .ch-option")], document.querySelectorAll("#challenge-current .ch-cal li"));
 }
 
 function start(id) {

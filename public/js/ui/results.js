@@ -7,6 +7,7 @@ import { faultLabel, faultPhrase } from "../coaching.js";
 import { getExercise } from "../exercises/index.js";
 import { slide, tween, EASE } from "./motion.js";
 import { gradeColor } from "../grade.js";
+import { stamp } from "./flair.js";
 
 /**
  * The score counts up from 0, and the number and letter take each colour of
@@ -30,6 +31,9 @@ function countUp(best) {
       shown = l;
     }
   }, { duration: 1100 });
+  // Once it has counted up, the grade lands like a stamp.
+  clearTimeout(countUp.stampAt);
+  countUp.stampAt = setTimeout(() => stamp(letter, gradeColor(best)), 1050);
 }
 
 export function renderResults(r) {
