@@ -19,6 +19,7 @@
 
 import { gradeColor, gradeLetter } from "../grade.js";
 import { slide, EASE, reducedMotion } from "../ui/motion.js";
+import { smooth as smoothScroll } from "./smooth.js";
 import { Scene, loadClips, frameAt, mixColor, clamp, smooth } from "../figures/scene3d.js";
 
 const PAPER = "#eef1fb";
@@ -165,7 +166,10 @@ export async function mountStory(section) {
   story.querySelectorAll("[data-goto]").forEach((b) => b.addEventListener("click", () => {
     const r = story.getBoundingClientRect();
     const span = r.height - innerHeight;
-    scrollTo({ top: scrollY + r.top + span * ((Number(b.dataset.goto) + 0.5) / 4), behavior: "smooth" });
+    const top = scrollY + r.top + span * ((Number(b.dataset.goto) + 0.5) / 4);
+    const lenis = smoothScroll();
+    if (lenis) lenis.scrollTo(top, { duration: 1.1 });
+    else scrollTo({ top, behavior: "smooth" });
   }));
 
   st.shown = st.p = progress();

@@ -71,31 +71,21 @@ button { font: inherit; color: inherit; }
 /* ── Tones: the page blends from one colour to the next ──────────
    Every section has a tone (data-tone="dark" | "paper" | "sage") and
    js/site/tones.js puts the tone of the section under the middle of the
-   screen on <body>. These properties are registered, so the background and
-   text glide from one tone to the next instead of jumping at a hard edge.
-   Cards, figures, the 3D views and popups are dark panels ("islands")
-   whatever the tone around them, so the grade colours keep their contrast. */
-@property --tone       { syntax: "<color>"; inherits: true; initial-value: #090d1c; }
-@property --text       { syntax: "<color>"; inherits: true; initial-value: #eef1fb; }
-@property --text-dim   { syntax: "<color>"; inherits: true; initial-value: #a6aecb; }
-@property --text-faint { syntax: "<color>"; inherits: true; initial-value: #737d9f; }
-@property --line       { syntax: "<color>"; inherits: true; initial-value: #222c4e; }
-@property --line-2     { syntax: "<color>"; inherits: true; initial-value: #2e3a63; }
-@property --surface    { syntax: "<color>"; inherits: true; initial-value: #121a32; }
-@property --surface-2  { syntax: "<color>"; inherits: true; initial-value: #18223f; }
-@property --accent-bg  { syntax: "<color>"; inherits: true; initial-value: #eef1fb; }
-@property --accent-fg  { syntax: "<color>"; inherits: true; initial-value: #090d1c; }
+   screen on <body>. "paper" and "sage" are the alternate navy: a fixed
+   layer of it fades in or out behind everything. Only its opacity changes,
+   which the GPU blends without repainting the page, so crossing a section
+   boundary never stutters. Cards, figures, the 3D views and popups are
+   panels ("islands") with their own colours throughout. */
 body {
   --tone: #090d1c; --accent-bg: var(--paper); --accent-fg: #090d1c; --focus: var(--g85);
   background: var(--tone);
-  transition: --tone .9s var(--ease), --text .9s var(--ease), --text-dim .9s var(--ease), --text-faint .9s var(--ease),
-              --line .9s var(--ease), --line-2 .9s var(--ease), --surface .9s var(--ease), --surface-2 .9s var(--ease),
-              --accent-bg .9s var(--ease), --accent-fg .9s var(--ease);
 }
-/* The "paper" and "sage" sections are the alternate navy: the page glides
-   between the two navies as you scroll. */
-body[data-tone="paper"], body[data-tone="sage"] { --tone: #0d1326; }
-@media (prefers-reduced-motion: reduce) { body { transition: none; } }
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: #0d1326; opacity: 0; transition: opacity .9s var(--ease);
+}
+body[data-tone="paper"]::before, body[data-tone="sage"]::before { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { body::before { transition: none; } }
 /* Islands: always dark. */
 :is(.ex-card, .r3-stage, .r3-panel, .cue, .mode, .panel, .calibration, .step-fig, .lab-stage, .lab-panel, .hero-hud, .pop, .stage-frame) {
   --text: #eef1fb; --text-dim: #a6aecb; --text-faint: #737d9f;

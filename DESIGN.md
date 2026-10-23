@@ -59,7 +59,8 @@ its exact colour):
   go gradient) fill with a light circle; the others fill with the gradient.
   Danger buttons fill coral.
 - Tones: sections alternate the two navies (`--ink`, `--ink-2`), and the
-  page glides from one to the other as you scroll (`site/tones.js`).
+  page glides from one to the other as you scroll (`site/tones.js`, a fixed
+  `body::before` layer fading in and out).
   Cards, figures and 3D views keep their own panel colours.
 
 ## Type
@@ -177,8 +178,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   back), a big outlined step number rolls over like an odometer, the fact
   chip flips, and the meter lights the step. About 3.3 screens of scroll.
 - **Tones blend** (`site/tones.js`): the page colour glides between the two
-  navies to the tone of the section under the middle of the screen
-  (registered custom properties), never a hard edge.
+  navies to the tone of the section under the middle of the screen. The
+  alternate navy is a fixed layer whose opacity fades (GPU only, no page
+  repaint), so section boundaries never stutter.
 - **Smooth scrolling** (Lenis, `site/smooth.js`): wheel and trackpad
   scrolling glide; touch stays native. Paused while a popup is open.
 - **Headings rise in line by line** from a mask, with a little blur (GSAP
