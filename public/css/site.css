@@ -981,3 +981,27 @@ circle.su-body { fill: var(--ink-2); }
   .paths.live .pslide { align-content: center; height: 86svh; }
   .pc-info h3 { font-size: 2.2rem; }
 }
+
+/* The carousel card's glass: a glare under the pointer, and a light band
+   that sweeps across as a path arrives (site/paths.js). */
+.pc-glare { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; overflow: hidden; }
+.pc-glare::after { content: ""; position: absolute; inset: 0;
+  background: radial-gradient(40% 50% at var(--gx, 50%) var(--gy, 30%), rgba(238,241,251,.09), transparent 70%); }
+.pc-glare::before { content: ""; position: absolute; inset: 0; background-repeat: no-repeat; background-position: -60% 0; background-size: 60% 100%;
+  background-image: linear-gradient(105deg, transparent 20%, rgba(238,241,251,.14) 48%, rgba(198,239,78,.12) 52%, transparent 80%); }
+.pc-tree { will-change: transform; }
+.pc-info h3 { perspective: 600px; }
+.pc-ch { display: inline-block; transform-origin: 50% 100%; white-space: pre; }
+.pc-tags span { display: inline-block; }
+
+/* The carousel's rail: a tick per path along the bottom, filling as you scroll. */
+.paths-rail { display: none; }
+.paths.live .paths-rail { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; position: absolute; left: 50%; bottom: max(3svh, 1.2rem); translate: -50% 0;
+  width: min(420px, 70vw); margin: 0; padding: .9rem 0 0; list-style: none; text-align: center; }
+.paths-rail::before, .paths-rail-fill { content: ""; position: absolute; left: 10%; right: 10%; top: 0; height: 2px; border-radius: 2px; background: var(--line-2); }
+.paths-rail-fill { background: linear-gradient(90deg, var(--g70), var(--g100)); transform-origin: left; box-shadow: 0 0 10px rgba(46,229,157,.5); }
+.paths-rail li { position: relative; font-family: var(--mono); font-size: .66rem; letter-spacing: .1em; color: var(--text-faint); transition: color .3s, transform .4s cubic-bezier(.34,1.5,.5,1); }
+.paths-rail li::before { content: ""; position: absolute; left: 50%; top: calc(-.9rem - 3px); width: 2px; height: 8px; translate: -50% 0; background: var(--line-2); transition: background .3s, height .3s; }
+.paths-rail li.on { color: var(--text); transform: translateY(-2px); }
+.paths-rail li.on::before { background: var(--g100); height: 12px; top: calc(-.9rem - 5px); box-shadow: 0 0 8px rgba(46,229,157,.7); }
+

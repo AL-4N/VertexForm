@@ -927,8 +927,15 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
     linear-gradient(90deg, rgba(238,241,251,.06) 1px, transparent 1px) -1px -1px / 24px 24px,
     var(--panel);
   box-shadow: inset 0 0 0 1px var(--border);
-  transition: background .5s;
+  background-position: 0 0, calc(-1px + var(--px, 0px)) calc(-1px + var(--py, 0px)), calc(-1px + var(--px, 0px)) calc(-1px + var(--py, 0px)), 0 0;
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform .5s cubic-bezier(.22,.61,.36,1), background-position .5s cubic-bezier(.22,.61,.36,1);
 }
+.pk-stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: radial-gradient(45% 40% at var(--gx, 50%) var(--gy, 20%), rgba(238,241,251,.07), transparent 70%); }
+.pk-fig { position: relative; }
+.pk-fig svg { transform: translate(calc(var(--px, 0px) * -.6), calc(var(--py, 0px) * -.6)); transition: transform .5s cubic-bezier(.22,.61,.36,1); }
+.pk-fig .pk-ghost { position: absolute; inset: 2.4rem 0 0; margin: auto; pointer-events: none; }
 .pk-num { position: absolute; right: 1rem; top: .5rem; display: flex; align-items: baseline; gap: .35rem; font-family: var(--display); line-height: 1; pointer-events: none; }
 .pk-num i { font-style: normal; font-weight: 800; font-size: 4.6rem; color: transparent; -webkit-text-stroke: 1.2px rgba(238,241,251,.28); letter-spacing: -.04em; }
 .pk-num b { font-family: var(--mono); font-size: .75rem; font-weight: 600; color: var(--text-faint); }
@@ -967,8 +974,12 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
   grid-area: name; white-space: nowrap; font-family: var(--display); font-weight: 800; font-size: clamp(1.2rem, 2vw, 1.9rem); letter-spacing: -.03em; line-height: 1.05;
   color: transparent; -webkit-text-stroke: 1.2px rgba(238,241,251,.55); transition: -webkit-text-stroke-color .3s;
 }
-.picker .ex-card.on .name { background: var(--go-gradient, linear-gradient(90deg, #ffbe3d, #2ee59d)); -webkit-background-clip: text; background-clip: text; -webkit-text-stroke-color: transparent;
-  filter: drop-shadow(0 0 18px rgba(46,229,157,.35)); }
+/* The chosen name fills with ink from left to right, its outline fading as the ink passes. */
+.picker .ex-card.on .name { background: linear-gradient(90deg, #ffbe3d, #c6ef4e 25%, #2ee59d 50%, transparent 50.5%) 0 0 / 200% 100% no-repeat;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-stroke-color: transparent;
+  filter: drop-shadow(0 0 18px rgba(46,229,157,.35)); animation: pk-ink .6s cubic-bezier(.6,0,.2,1) both; transition: -webkit-text-stroke-color .3s .35s; }
+@keyframes pk-ink { from { background-position: 100% 0; } to { background-position: 0 0; } }
+.pk-marker { transform-origin: 0 50%; }
 .picker .ex-card .hint { grid-area: hint; font-size: .8rem; margin: 0; max-height: 0; opacity: 0; overflow: hidden; transition: max-height .4s, opacity .3s; }
 .picker .ex-card.on .hint { max-height: 2.6em; opacity: 1; }
 .picker .ex-card .best { grid-area: best; justify-self: end; font-family: var(--display); font-size: 1rem; }
@@ -991,5 +1002,6 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
   .picker .ex-card .name { font-size: 1.7rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .picker .ex-card, .pk-marker, .pk-arc { transition: none; }
+  .picker .ex-card, .pk-marker, .pk-arc, .pk-stage, .pk-fig svg { transition: none; }
+  .picker .ex-card.on .name { animation: none; }
 }

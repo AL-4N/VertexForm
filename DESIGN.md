@@ -161,8 +161,14 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     its grade colour, a Train button), beside a dial of huge outlined names
     on a ruler. The pointed-at name fills with the go gradient and shows
     its hint while a glowing marker springs to it; the others tip back and
-    fade by distance like a drum. Clicking a name trains it at once, and
-    its stage becomes the setup panel.
+    fade by distance like a drum. The chosen name fills with ink left to
+    right; the marker stretches like a needle as it travels; the old figure
+    leaves through a blur as the new one arrives; the best score counts up
+    the scale with its arc; the stage leans to the pointer with its grid
+    sliding behind the figure. Clicking a name trains it at once, and its
+    stage becomes the setup panel: the flying figure keeps doing its rep in
+    step with the stage (`mountLoop`'s `start`), and lands on the setup
+    demo's figure in the same pose and size.
   - **Trainer screen moments** (`ui/flair.js`), each different:
     an **exercise card becomes its setup panel** (the card stretches to the
     demo panel while its stick figure hops into the demo figure, then the
@@ -212,7 +218,12 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   that tree via `app.html#tree-<id>`) swaps with it; a glossy tile with a
   grade-colour rim shows the goal skill's flower, tumbles past the other
   way and leans toward the pointer. When scrolling stops between two
-  paths it glides to the nearer one. Reduced motion: a plain list.
+  paths it glides to the nearer one. Each arriving path grows its tree
+  (trunk, then branches from the ground up, then flowers and buds pop),
+  its name rises in letter by letter, its tags pop and a light band
+  sweeps the glass; a glare follows the pointer and the tree sits a
+  little behind the frame. A tick rail along the bottom fills as you go.
+  Reduced motion: a plain list.
 - **Homepage setup and questions**: the trainer's three camera-setup
   steps, each a small plan drawn in stroke by stroke as it arrives; the
   questions open with a height glide while the answer unblurs (`site/faq.js`).

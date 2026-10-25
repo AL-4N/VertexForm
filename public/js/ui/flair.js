@@ -36,7 +36,10 @@ const rect = (r, radius) => ({ left: `${r.left}px`, top: `${r.top}px`, width: `$
  * screen: the new screen; target / targetFigure: where the card and the
  * figure land on it; rest: what drops in around them afterwards.
  */
-export async function morphInto({ from, figure, open, screen, target, targetFigure, rest = [] }) {
+/* figureLoop(host): optional; fills the flying copy with the same live loop
+ * (in step with the source), so the figure keeps moving all the way and
+ * lands in exactly the pose the target is showing. */
+export async function morphInto({ from, figure, figureLoop = null, open, screen, target, targetFigure, rest = [] }) {
   if (!ok() || !from) { open(); return; }
   const c = from.getBoundingClientRect();
   const f = figure?.getBoundingClientRect();
@@ -44,13 +47,14 @@ export async function morphInto({ from, figure, open, screen, target, targetFigu
   box.className = "flair-box";
   box.setAttribute("aria-hidden", "true");
   document.body.appendChild(box);
-  let fly = null;
+  let fly = null, stopFly = () => {};
   if (figure && f?.width) {
     fly = document.createElement("div");
     fly.className = "flair-fly picto";
     fly.setAttribute("aria-hidden", "true");
-    fly.innerHTML = figure.innerHTML;
     document.body.appendChild(fly);
+    if (figureLoop) stopFly = figureLoop(fly);
+    else fly.innerHTML = figure.tagName.toLowerCase() === "svg" ? figure.outerHTML : figure.innerHTML;
   }
   const radius = getComputedStyle(from).borderRadius || "14px";
   try {
@@ -84,6 +88,7 @@ export async function morphInto({ from, figure, open, screen, target, targetFigu
     await Promise.all([box, fly].filter(Boolean).map((el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: "ease-out", fill: "forwards" }).finished));
   } finally {
     box.remove();
+    stopFly();
     fly?.remove();
     screen.style.visibility = "";
   }

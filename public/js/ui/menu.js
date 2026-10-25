@@ -29,6 +29,7 @@ export function addSessionEntry(exercise, score) {
  * and its stage becomes the setup panel (morphInto in main.js).
  */
 let stopStage = () => {};
+let countRaf = 0;
 export function renderMenu(onPick) {
   const list = $("#exercise-list");
   list.removeAttribute("aria-busy");
@@ -82,14 +83,25 @@ export function renderMenu(onPick) {
       el.style.setProperty("--d", String(k - i));
       el.style.setProperty("--a", String(Math.abs(k - i)));
     });
-    // The marker glides to the name.
+    // The marker glides to the name, stretching on the way like a needle.
     const it = items[i];
     marker.style.transform = `translateY(${it.offsetTop + it.offsetHeight / 2 - 1}px)`;
-    // The stage: a new figure doing its rep, sliding in the way you moved.
+    if (dir && !quiet) marker.animate([{ scale: "1 1" }, { scale: "1.5 6", offset: .35 }, { scale: "1 1" }], { duration: 520, easing: "cubic-bezier(.3,.7,.4,1)" });
+    // The stage: the old figure leaves the way you moved (through a blur) as
+    // the new one, doing its rep, comes in behind it.
     stopStage();
     const fig = stage.querySelector(".pk-fig");
-    stopStage = mountLoop(fig, BY_NAME[name]);
-    if (dir && !quiet) slide(fig, { from: [0, dir * 46], to: [0, 0], opacity: [0, 1], duration: 420, strength: 1 });
+    const old = fig.querySelector("svg:not(.pk-ghost)");
+    const ghost = old && dir && !quiet ? old.cloneNode(true) : null;
+    stopStage = mountLoop(fig, BY_NAME[name]);              // replaces the figure
+    stage.loopStart = stopStage.start;                      // the setup demo carries on from here
+    if (ghost) {
+      ghost.classList.add("pk-ghost");
+      fig.append(ghost);
+      ghost.animate([{ transform: "none", opacity: 1, filter: "blur(0)" }, { transform: `translateY(${-dir * 60}px) scale(.85)`, opacity: 0, filter: "blur(10px)" }],
+        { duration: 360, easing: "cubic-bezier(.5,0,.75,0)", fill: "forwards" }).finished.then(() => ghost.remove(), () => ghost.remove());
+    }
+    if (dir && !quiet) slide(fig.querySelector("svg:not(.pk-ghost)"), { from: [0, dir * 46], to: [0, 0], opacity: [0, 1], duration: 460, strength: 1 });
     rollTo(stage.querySelector(".pk-num i"), pad(i + 1));
     stage.querySelector(".pk-name").textContent = name;
     stage.querySelector(".pk-hint").textContent = EXERCISE_META[name].hint;
@@ -97,9 +109,21 @@ export function renderMenu(onPick) {
     const arc = stage.querySelector(".pk-arc");
     arc.style.strokeDasharray = `${best ?? 0} 100`;
     arc.style.stroke = best != null ? gradeColor(best) : "transparent";
+    // The best score counts up the scale with the arc, taking each grade's colour.
     const gv = stage.querySelector(".pk-gv");
-    gv.textContent = best ?? "--";
-    gv.style.fill = best != null ? gradeColor(best) : "";
+    cancelAnimationFrame(countRaf);
+    if (best == null) { gv.textContent = "--"; gv.style.fill = ""; }
+    else if (quiet) { gv.textContent = best; gv.style.fill = gradeColor(best); }
+    else {
+      const t0 = performance.now();
+      const tick = (now) => {
+        const k = Math.min(1, (now - t0) / 800), v = Math.round(best * (1 - Math.pow(1 - k, 3)));
+        gv.textContent = v; gv.style.fill = gradeColor(v);
+        if (k < 1) countRaf = requestAnimationFrame(tick);
+      };
+      countRaf = requestAnimationFrame(tick);
+    }
+    if (!quiet && dir) arc.animate([{ strokeDasharray: "0 100" }, { strokeDasharray: `${best ?? 0} 100` }], { duration: 800, easing: "cubic-bezier(.22,.61,.36,1)" });
     stage.querySelector(".pk-go").textContent = `Train ${name.toLowerCase()}`;
     stage.style.setProperty("--pk", best != null ? gradeColor(best) : "#2ee59d");
   }
@@ -136,6 +160,22 @@ export function renderMenu(onPick) {
     });
   });
   stage.querySelector(".pk-go").addEventListener("click", () => pick(at));
+  // The stage leans toward the pointer; its grid slides the other way and a
+  // glare follows, so the figure seems to stand in front of the board.
+  if (!quiet) {
+    stage.addEventListener("pointermove", (e) => {
+      if (e.pointerType !== "mouse") return;
+      const r = stage.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+      stage.style.setProperty("--rx", `${(-y * 6).toFixed(2)}deg`);
+      stage.style.setProperty("--ry", `${(x * 8).toFixed(2)}deg`);
+      stage.style.setProperty("--gx", `${(x + 0.5) * 100}%`);
+      stage.style.setProperty("--gy", `${(y + 0.5) * 100}%`);
+      stage.style.setProperty("--px", `${(-x * 14).toFixed(1)}px`);
+      stage.style.setProperty("--py", `${(-y * 10).toFixed(1)}px`);
+    });
+    stage.addEventListener("pointerleave", () => ["--rx", "--ry", "--px", "--py"].forEach((k) => stage.style.removeProperty(k)));
+  }
   list.querySelector(".pk-list").addEventListener("pointerleave", () => clearTimeout(hoverT));
 
   // Start on the last exercise you trained, or the first.

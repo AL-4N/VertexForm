@@ -229,7 +229,8 @@ function openMode(exercise, card = null) {
 
   // Animated "good rep" demo + the three things that matter.
   stopDemo();
-  stopDemo = mountLoop($("#mode-demo"), BY_NAME[exercise]);
+  // Opened from the picker: the demo carries on mid-rep from the stage's figure.
+  stopDemo = mountLoop($("#mode-demo"), BY_NAME[exercise], card?.loopStart ? { start: card.loopStart } : {});
   $("#demo-tips").innerHTML = (DEMO_TIPS[exercise] ?? []).map((t) => `<li>${t}</li>`).join("");
 
   // From an exercise card: the card becomes the setup panel and its figure
@@ -237,9 +238,10 @@ function openMode(exercise, card = null) {
   if (!card) { showScreen("mode"); return; }
   const screen = $("#screen-mode");
   morphInto({
-    from: card, figure: card.querySelector(".picto"),
+    from: card, figure: card.querySelector(".picto svg:not(.pk-ghost)") ?? card.querySelector(".picto"),
+    figureLoop: card.loopStart ? (host) => mountLoop(host, BY_NAME[exercise], { start: card.loopStart }) : null,
     open: () => showScreen("mode", { grow: false }), screen,
-    target: screen.querySelector(".demo-card"), targetFigure: $("#mode-demo"),
+    target: screen.querySelector(".demo-card"), targetFigure: $("#mode-demo svg") ?? $("#mode-demo"),
     rest: [...screen.querySelectorAll(".app-header > *"), screen.querySelector(".demo-text"), $("#mode-practice"), $("#mode-set"), screen.querySelector(".setup-panel")],
   });
 }

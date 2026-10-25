@@ -16,7 +16,12 @@ const ARCS = {
   pushup: (s) => [s.shN, s.elbN, s.wriN],
 };
 
-export function mountLoop(host, id) {
+/**
+ * start: a performance.now() time to count the loop from, so a second copy
+ * (the setup screen's demo, a figure flying between screens) can carry on in
+ * the same pose instead of restarting. The returned stop() carries .start.
+ */
+export function mountLoop(host, id, { start = performance.now() } = {}) {
   const ex = BY_ID[id];
   if (!host || !ex) return () => {};
 
@@ -27,11 +32,11 @@ export function mountLoop(host, id) {
   host.innerHTML = `<svg viewBox="${x0.toFixed(1)} ${y0.toFixed(1)} ${(x1 - x0).toFixed(1)} ${(y1 - y0).toFixed(1)}" role="img" aria-label="Animated stick figure doing a ${ex.name.toLowerCase()} with good form"><g></g></svg>`;
   const g = host.querySelector("g");
 
-  let shown = 0;
+  let shown = null;
   const draw = (t) => {
     const s = build(blend(ex.top, ex.bottom, t));
     const m = ex.measure(s);
-    shown += (m.score - shown) * 0.12;
+    shown = shown == null ? m.score : shown + (m.score - shown) * 0.12;   // a fresh copy starts in the right colour
     g.innerHTML = figureMarkup(s, {
       color: gradeColor(shown), floor: { x0: x0 + 6, x1: x1 - 6 }, arc: ARCS[id]?.(s),
       guide: id === "plank" ? [s.neck, s.ankN] : null, guideColor: "#eef1fb",
@@ -41,23 +46,26 @@ export function mountLoop(host, id) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
     shown = 100;
     draw(ex.good === "top" ? 0 : 1);
-    return () => {};
+    return Object.assign(() => {}, { start });
   }
 
   const [dn, hold, up, rest] = ex.timing;
   const total = dn + hold + up + rest;
-  const start = performance.now();
   let raf = 0;
+  const at = (now) => {
+    const p = ((now - start) % total + total) % total;
+    return p < dn ? ease(p / dn) : p < dn + hold ? 1 : p < dn + hold + up ? 1 - ease((p - dn - hold) / up) : 0;
+  };
   const frame = (now) => {
     raf = requestAnimationFrame(frame);
-    const p = (now - start) % total;
-    draw(p < dn ? ease(p / dn) : p < dn + hold ? 1 : p < dn + hold + up ? 1 - ease((p - dn - hold) / up) : 0);
+    draw(at(now));
   };
+  draw(at(performance.now()));                               // drawn at once, so a copy matches from its first frame
   // Animate only while visible (the setup screen hidden or scrolled away = no work at all).
   const io = new IntersectionObserver(([e]) => {
     cancelAnimationFrame(raf);
     raf = e.isIntersecting ? requestAnimationFrame(frame) : 0;
   });
   io.observe(host);
-  return () => { cancelAnimationFrame(raf); io.disconnect(); };
+  return Object.assign(() => { cancelAnimationFrame(raf); io.disconnect(); }, { start });
 }

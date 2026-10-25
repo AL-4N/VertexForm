@@ -53,11 +53,12 @@ function slideHTML(p, i, n) {
       <a class="pc-card" href="${href}" tabindex="-1" aria-hidden="true">
         <span class="pc-cap">${p.steps.length} SKILLS · ${tiers} TIERS</span>
         <span class="pc-tree">${miniTree(p)}</span>
+        <span class="pc-glare"></span>
         <span class="pc-cap pc-cap-b">BUILDS TO ${p.goal.toUpperCase()}</span>
       </a>
       <div class="pc-info">
         <span class="pc-n">N°${pad(i + 1)} / ${pad(n)}</span>
-        <h3>${p.name}</h3>
+        <h3 aria-label="${p.name}">${[...p.name].map((c, k) => `<span class="pc-ch" style="--k:${k}" aria-hidden="true">${c}</span>`).join("")}</h3>
         <span class="pc-tags"><span>${p.steps.length} skills</span><span>${tracked} tracked</span><span>${p.done} unlocked</span></span>
         <a class="btn btn-ghost" href="${href}">Open the ${p.name.toLowerCase()} tree</a>
       </div>
@@ -71,37 +72,51 @@ function slideHTML(p, i, n) {
     </article>`;
 }
 
+/** Each skill mark in its own wrapper so it can pop without losing its place. */
+function wrapMarks(svg) {
+  if (!svg) return [];
+  return [...svg.querySelectorAll(":scope > g")].map((mark) => {
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    mark.replaceWith(g); g.append(mark);
+    g.style.transformBox = "fill-box"; g.style.transformOrigin = "50% 100%";
+    const m = /translate\(([\d.]+) ([\d.]+)\)/.exec(mark.getAttribute("transform") ?? "");
+    return { g, y: m ? Number(m[2]) : 0 };
+  });
+}
+
 export function mountPaths(root = document.querySelector("[data-paths]")) {
   if (!root) return;
   const { sessions, skills } = saved();
   const paths = skillPath(sessions, skills);
   const n = paths.length;
-  root.innerHTML = `<div class="paths-pin">${paths.map((p, i) => slideHTML(p, i, n)).join("")}</div>`;
+  root.innerHTML = `<div class="paths-pin">${paths.map((p, i) => slideHTML(p, i, n)).join("")}
+    <ol class="paths-rail" aria-hidden="true">${paths.map((p, i) => `<li style="--i:${i}"><span>${pad(i + 1)}</span></li>`).join("")}<i class="paths-rail-fill"></i></ol></div>`;
   if (PATHS.length !== n) return;
 
   const G = window.gsap;
   if (!G || reducedMotion()) return;                      // a plain list
   root.classList.add("live");
   root.style.setProperty("--n", n);
+  root.querySelectorAll(".mini-tree .mt-wood:not(.planned)").forEach((w) => { w.setAttribute("pathLength", "1"); });
   const slides = [...root.querySelectorAll(".pslide")];
   const parts = slides.map((s) => ({
     s, card: s.querySelector(".pc-card"), info: s.querySelector(".pc-info"), tile: s.querySelector(".pc-tile"),
-    link: s.querySelector(".pc-info .btn"),
+    link: s.querySelector(".pc-info .btn"), tree: s.querySelector(".pc-tree"),
+    wood: [...s.querySelectorAll(".mini-tree .mt-wood")], marks: wrapMarks(s.querySelector(".mini-tree")),
   }));
+  const rail = root.querySelector(".paths-rail"), railFill = root.querySelector(".paths-rail-fill");
+  const railDots = [...rail.querySelectorAll("li")];
 
-  const st = { p: 0, shown: 0, v: 0, bow: 0, on: -1, visible: false, mx: 0, my: 0, tmx: 0, tmy: 0, idle: 0 };
-
-  function target() {
-    const r = root.getBoundingClientRect();
-    const run = Math.max(1, r.height - innerHeight);
-    return clamp(-r.top / run, 0, 1) * (n - 1);
-  }
+  const st = { p: 0, shown: 0, v: 0, bow: 0, on: -1, mx: 0, my: 0, tmx: 0, tmy: 0, idle: 0 };
 
   function frame(time, dt) {
-    if (!st.visible) return;
+    // One read of the section's box: whether it's on screen, and how far through it you are.
+    const r = root.getBoundingClientRect();
+    if (r.bottom < -50 || r.top > innerHeight + 50) return;
+    const run = Math.max(1, r.height - innerHeight);
     const step = Math.min(64, dt || 16) / 16.7;
     const prev = st.shown;
-    st.p = target();
+    st.p = clamp(-r.top / run, 0, 1) * (n - 1);
     st.shown += (st.p - st.shown) * (1 - Math.pow(1 - 0.14, step));
     if (Math.abs(st.p - st.shown) < 0.0005) st.shown = st.p;
     const v = (st.shown - prev) / step;                     // slides per frame
@@ -133,6 +148,16 @@ export function mountPaths(root = document.querySelector("[data-paths]")) {
       tile.style.opacity = String(clamp(1 - a * 1.2, 0, 1));
       tile.style.setProperty("--sheen", `${50 + st.mx * 30 + d * 60}%`);
     });
+    // Depth inside the card: the tree sits a little behind its frame and
+    // drifts against the pointer; the glare follows the pointer over the glass.
+    const cur = parts[Math.round(st.shown)];
+    if (cur) {
+      cur.tree.style.transform = `translate3d(${-st.mx * 10}px, ${-st.my * 6}px, 0)`;
+      cur.card.style.setProperty("--gx", `${50 + st.mx * 40}%`);
+      cur.card.style.setProperty("--gy", `${30 + st.my * 30}%`);
+    }
+    // The rail along the bottom fills to where you are, its tick for the path lighting up.
+    railFill.style.transform = `scaleX(${(st.shown / (n - 1)).toFixed(4)})`;
 
     const on = Math.round(st.shown);
     if (on !== st.on) {
@@ -142,6 +167,8 @@ export function mountPaths(root = document.querySelector("[data-paths]")) {
         s.setAttribute("aria-hidden", String(i !== on));
         link.tabIndex = i === on ? 0 : -1;
       });
+      railDots.forEach((d, i) => d.classList.toggle("on", i === on));
+      arrive(parts[on]);
     }
     settle(time);
   }
@@ -173,8 +200,36 @@ export function mountPaths(root = document.querySelector("[data-paths]")) {
     else scrollTo({ top: y, behavior: "smooth" });
   }
 
+  // A path arriving: its tree grows (trunk, then branches tier by tier, then
+  // its flowers and buds pop open), the name's letters rise in one by one,
+  // the tags pop and a light sweeps across the glass. Once per arrival.
+  let lastArrived = null;
+  function arrive(part) {
+    if (!part || part === lastArrived) return;
+    lastArrived = part;
+    const { card, info, wood, marks } = part;
+    const H = card.querySelector(".mini-tree")?.viewBox.baseVal.height || 200;
+    wood.forEach((w) => {
+      const y = w.getBBox().y + w.getBBox().height;           // branches nearer the ground grow first
+      const dashed = w.classList.contains("planned");         // dashed ones (not tracked yet) fade in instead
+      w.animate(dashed ? [{ opacity: 0 }, { opacity: 1 }] : [{ strokeDasharray: "1 1", strokeDashoffset: 1 }, { strokeDasharray: "1 1", strokeDashoffset: 0 }],
+        { duration: 520, delay: (1 - y / H) * 520, easing: "cubic-bezier(.3,.6,.3,1)", fill: "backwards" });
+    });
+    marks.forEach(({ g, y }) => g.animate(
+      [{ transform: "scale(0) rotate(-40deg)", opacity: 0 }, { transform: "scale(1.25) rotate(6deg)", opacity: 1, offset: .7 }, { transform: "none", opacity: 1 }],
+      { duration: 460, delay: 300 + (1 - y / H) * 560, easing: "cubic-bezier(.3,.7,.4,1)", fill: "backwards" }));
+    info.querySelectorAll(".pc-ch").forEach((c, k) => c.animate(
+      [{ transform: "translateY(.7em) rotateX(-80deg)", opacity: 0, filter: "blur(6px)" }, { transform: "none", opacity: 1, filter: "blur(0)" }],
+      { duration: 560, delay: 60 + k * 38, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }));
+    info.querySelectorAll(".pc-tags span").forEach((t, k) => t.animate(
+      [{ transform: "translateY(10px) scale(.8)", opacity: 0 }, { transform: "none", opacity: 1 }],
+      { duration: 380, delay: 260 + k * 70, easing: "cubic-bezier(.34,1.5,.5,1)", fill: "backwards" }));
+    card.querySelector(".pc-glare")?.animate(
+      [{ backgroundPosition: "-60% 0" }, { backgroundPosition: "160% 0" }],
+      { duration: 900, delay: 120, easing: "cubic-bezier(.5,0,.3,1)", pseudoElement: "::before" });
+  }
+
   G.ticker.add(frame);
-  new IntersectionObserver(([e]) => { st.visible = e.isIntersecting; }, { rootMargin: "50px" }).observe(root);
   root.addEventListener("pointermove", (e) => {
     if (e.pointerType !== "mouse") return;
     st.tmx = (e.clientX / innerWidth) * 2 - 1;
