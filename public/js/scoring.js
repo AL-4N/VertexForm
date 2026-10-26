@@ -34,6 +34,15 @@ export function scorePushup(elbow, bodyLine) {
   return { depth, straight };
 }
 
+/** Pike push-up: depth is the elbow (head toward the floor); "hips" is how
+ *  well the hips stay piked high (the shoulder–hip–ankle angle; ~90° is a
+ *  good pike, 135° has dropped toward a plain push-up). */
+export function scorePike(elbow, hip) {
+  const depth = elbow <= 95 ? 100 : Math.max(0, 100 - (elbow - 95) * 1.8);
+  const hips  = hip   <= 105 ? 100 : Math.max(0, 100 - (hip - 105) * 2.2);
+  return { depth, hips };
+}
+
 export function scorePlank(sag) {
   const a = Math.abs(sag);
   return a < 0.022 ? 100 : Math.max(0, 100 - (a - 0.022) * 550);

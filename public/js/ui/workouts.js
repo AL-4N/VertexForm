@@ -4,6 +4,10 @@
  */
 
 import { EXERCISES } from "../config.js";
+import { EXERCISE_NAMES } from "../coaching.js";
+// Workouts announce each exercise by name, so only ones with a recorded name
+// (EXERCISE_NAMES) can go in one. Pike push-up joins once its name is recorded.
+const IN_WORKOUTS = EXERCISES.filter((e) => EXERCISE_NAMES.includes(e));
 import { store, save } from "../storage.js";
 import {
   MAX_ROUTINES, MAX_STEPS, unitFor, normalizeStep, saveRoutine, deleteRoutine, validateRoutine, describeStep,
@@ -119,7 +123,7 @@ function renderSteps() {
     <li class="step">
       <label class="sr-only" for="step-ex-${i}">Exercise ${i + 1}</label>
       <select id="step-ex-${i}" class="text-input">
-        ${EXERCISES.map((e) => `<option${e === s.exercise ? " selected" : ""}>${e}</option>`).join("")}
+        ${IN_WORKOUTS.map((e) => `<option${e === s.exercise ? " selected" : ""}>${e}</option>`).join("")}
       </select>
       <label class="sr-only" for="step-n-${i}">${unitFor(s.exercise)}</label>
       <input id="step-n-${i}" class="text-input num" type="number" inputmode="numeric" min="1" value="${s.amount}" />

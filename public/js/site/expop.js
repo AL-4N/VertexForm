@@ -158,7 +158,7 @@ export function mountExercisePopups(grid, dlg) {
 
   grid.addEventListener("click", (e) => {
     const card = e.target.closest(".ex-card");
-    if (card) open(card);
+    if (card && !card.hasAttribute("data-no-pop")) open(card);      // no 3D clip yet (pike push-up): its link opens the trainer
   });
 
   canvas.addEventListener("pointerdown", (e) => {

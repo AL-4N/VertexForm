@@ -134,6 +134,23 @@ export const FAULTS = {
     ]],
   },
 
+  // Pike push-up: built from lines already recorded for the push-up and
+  // plank (no new audio needed). Its labels and focus wording match the
+  // push-up's on purpose, so the briefing and summary lines exist too.
+  "Pike push-up": {
+    depth: [3, "Depth", [
+      "Deeper. Break ninety with the elbows",
+      "Half reps don't count, all the way down",
+    ]],
+    hipsLow: [3, "Hips up", [
+      "Don't let gravity win. Hips back up",
+    ]],
+    tempo: [1, "Slow down", [
+      "Slow the reps down, control both directions",
+      "Two seconds down, one second up",
+    ]],
+  },
+
   "Lunge": {
     shallow: [3, "Depth", [
       "Bend the front knee more, aim for ninety degrees",
@@ -283,6 +300,9 @@ export const CONCRETE = {
     head: ["Look at the floor just in front of your hands"],
     drift: ["Freeze. Imagine a glass of water balanced on your back"],
   },
+  "Pike push-up": {
+    tempo: ["Two seconds down, pause, then push the floor away"],
+  },
   "Jumping Jack": {
     extension: ["Clap your hands right above your head on every jump"],
     feet: ["Land with your feet wider than your shoulders, like a big X"],
@@ -295,6 +315,7 @@ export const FIXED = {
   "Lunge":   { shallow: "good depth on that one", tooDeep: "nice controlled depth", lean: "torso stayed tall", kneeTravel: "front shin stayed upright" },
   "Plank":   { sag: "hips are back in line", pike: "hips came down, nice line", head: "head's neutral now", drift: "rock steady now" },
   "Jumping Jack": { extension: "hands all the way up", feet: "feet nice and wide" },
+  "Pike push-up": { depth: "your chest got low", tempo: "good controlled tempo" },
 };
 
 export const FOCUS = {
@@ -303,6 +324,7 @@ export const FOCUS = {
   "Lunge":   { shallow: "dropping the back knee lower", tooDeep: "controlling the depth", lean: "staying upright", kneeTravel: "a longer step" },
   "Plank":   { sag: "keeping your hips up", pike: "keeping your hips level", head: "a neutral neck", drift: "holding still" },
   "Jumping Jack": { extension: "getting your hands all the way up", feet: "jumping your feet wider" },
+  "Pike push-up": { depth: "getting your chest lower", hipsLow: "keeping your hips up", tempo: "slowing the reps down" },
 };
 
 /** Personality-flavoured lines for the smarter coach. `{x}` is filled in. */

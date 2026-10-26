@@ -60,6 +60,24 @@ export const LAB = {
     },
   },
 
+  // Pike push-up: used by the simulator (tests/helpers/synth.mjs); not on the homepage.
+  pike: {
+    sliders: [
+      { key: "depth", label: "Depth", min: 0, max: 100, lo: "Arms locked", hi: "Head low" },
+      { key: "hips", label: "Hips", min: 0, max: 100, lo: "Piked high", hi: "Dropped" },
+    ],
+    presets: [
+      { name: "Good rep", v: { depth: 100, hips: 0 } },
+      { name: "Hips dropped", v: { depth: 100, hips: 100 } },
+    ],
+    pose: (v) => blend(
+      blend(BY_ID.pike.top, BY_ID.pike.bottom, v.depth / 100),
+      blend(BY_ID.pike.lowTop, BY_ID.pike.lowBottom, v.depth / 100), v.hips / 100),
+    arc: (s) => [s.shN, s.elbN, s.wriN],
+    guide: () => null,
+    cue: () => [],
+    focus: () => "elbN",
+  },
   pushup: {
     sliders: [
       { key: "depth", label: "Depth", min: 0, max: 100, lo: "Arms locked", hi: "Chest low" },

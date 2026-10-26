@@ -27,12 +27,13 @@ import { reducedMotion } from "../ui/motion.js";
 import { Scene, loadClips, frameAt, doneAt, deepestT, mixColor, clamp, smooth } from "../figures/scene3d.js";
 
 const ORDER = ["full", "pushup", "plank", "lunge", "jack"];
-const TAB_FOR = { full: "squat", pushup: "pushup", plank: "plank", lunge: "lunge", jack: "jack" };
-const NAME = { full: "Squat", pushup: "Push-up", plank: "Plank", lunge: "Lunge", jack: "Jumping jack" };
+const TAB_FOR = { full: "squat", half: "squat", pushup: "pushup", plank: "plank", lunge: "lunge", jack: "jack" };
+const NAME = { full: "Squat", half: "Squat", pushup: "Push-up", plank: "Plank", lunge: "Lunge", jack: "Jumping jack" };
 // The coach's note after each graded rep (the demo reps are good ones), and
 // the body part the arrow points at ("other" = the leg the readout doesn't measure).
 const NOTES = {
   full:   ["Thighs about parallel", "hip"],
+  half:   ["Hips stopped above the knees", "hip"],     // the half-squat clip: the one fix note
   pushup: ["Elbows at 90°", "el"],
   plank:  ["One straight line, shoulders to ankles", "hip"],
   lunge:  ["Back knee nearly down", "kn", "other"],
@@ -89,7 +90,7 @@ export async function mountHero3d(root) {
     target: null, dist: 3.7, intro: null, colour: PAPER, from: PAPER, flood: 1, done: -1,
     count: null,
   };
-  const frames = Object.fromEntries(ORDER.map((id) => [id, framing(clips[id])]));
+  const frames = Object.fromEntries([...ORDER, "half"].filter((id) => clips[id]).map((id) => [id, framing(clips[id])]));
   Object.assign(st, { target: frames.full.target.slice(), dist: frames.full.dist });
 
   /* ── Readout ────────────────────────────────────────── */
@@ -186,7 +187,7 @@ export async function mountHero3d(root) {
       // Named for its rep: it's the verdict on the rep just finished, shown
       // while the figure stands back up, so it mustn't read as describing the pose.
       const say = clip.kind === "hold" ? text : `Rep ${n + 1}: ${text[0].toLowerCase()}${text.slice(1)}`;
-      if (since >= 0 && since < 2200) marks.note(cam, P[joint + s], say, { write: reduced ? 1 : clamp(since / 900, 0, 1), side: 1 });
+      if (since >= 0 && since < 2200) marks.note(cam, P[joint + s], say, { write: reduced ? 1 : clamp(since / 900, 0, 1), side: 1, good: clip.reps[n].score >= 90 });
     }
 
     readout(clip, P, n, a3);
@@ -234,6 +235,11 @@ export async function mountHero3d(root) {
     // coast to a stop while the new figure is found and drawn.
     if (byUser && !reduced) st.vSpin = 0.55;
     tabs.forEach((t) => t.setAttribute("aria-selected", String(t.dataset.ex === TAB_FOR[id])));
+    // The squat's full / half switch: shown only on the squat.
+    if (depth) {
+      depth.hidden = TAB_FOR[id] !== "squat";
+      depth.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.depth === id)));
+    }
     if (reduced) {
       // A still: the bottom of the first rep, in that rep's colour.
       const clip = clips[id];
@@ -250,6 +256,14 @@ export async function mountHero3d(root) {
     clearScore();
   }
   tabs.forEach((t) => t.addEventListener("click", () => select(ORDER.find((id) => TAB_FOR[id] === t.dataset.ex), true)));
+  // Full or half squat: the same engine grading a half rep (the score drops into the 70s, coral).
+  const depth = hero.querySelector("[data-hero-depth]");
+  if (depth && clips.half) {
+    depth.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-depth]");
+      if (b && b.dataset.depth !== st.id) select(b.dataset.depth, true);
+    });
+  } else depth?.remove();
   hero.addEventListener("keydown", (e) => {
     const i = tabs.indexOf(document.activeElement);
     if (i < 0 || (e.key !== "ArrowRight" && e.key !== "ArrowLeft")) return;

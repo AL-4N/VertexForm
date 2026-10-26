@@ -87,6 +87,16 @@ check("Squat: body out of frame asks you to step back", r.reps.length === 0 && r
         `reps=[${s.reps.join(",")}] good=${s.goodReps}`);
 }
 
+/* ── Pike push-up ────────────────────────────────────────── */
+r = run("Pike push-up", repStream("pike", { depth: 0, hips: 0 }, { depth: 100, hips: 0 }));
+check("Pike push-up: 5 good reps all score A", r.reps.length === 5 && r.min >= 90, fmt(r));
+
+r = run("Pike push-up", repStream("pike", { depth: 0, hips: 100 }, { depth: 100, hips: 100 }));
+check("Pike push-up: dropped hips flagged and scored lower", r.reps.length === 5 && r.max < 85 && r.faults.has("hipsLow"), fmt(r));
+
+r = run("Pike push-up", repStream("pike", { depth: 0, hips: 0 }, { depth: 30, hips: 0 }));   // elbows to ~118°: half the range
+check("Pike push-up: half reps don't count (logged as shallow)", r.reps.length === 0 && r.shallow >= 4, fmt(r));
+
 /* ── Push-up ───────────────────────────────────────────── */
 r = run("Push-up", repStream("pushup", { depth: 0, hips: 0 }, { depth: 100, hips: 0 }));
 check("Push-up: 5 good reps all score A", r.reps.length === 5 && r.min >= 90, fmt(r));

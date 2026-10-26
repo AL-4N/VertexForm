@@ -13,7 +13,7 @@
  */
 
 import { angleAt, thighDepth, leanFromVertical, hipSag } from "./rig.js";
-import { scoreSquat, scorePushup, scorePlank, scoreLunge, scoreJack, combine } from "../scoring.js";
+import { scoreSquat, scorePushup, scorePike, scorePlank, scoreLunge, scoreJack, combine } from "../scoring.js";
 
 export const GROUND = 470;
 const STAGE_H = 520;   // used to normalise distances the way the app does
@@ -82,6 +82,33 @@ const pushup = {
       parts: [["Depth", depth], ["Body line", straight]],
       raw: { elbow, bendOff },
       rows: [["Elbow angle", deg(elbow)], ["Body line", bendOff < 4 ? "straight" : `${deg(bendOff)} bend`]],
+    };
+  },
+};
+
+/* ── Pike push-up (hips high, head lowers toward the floor) ── */
+// Hip angle ~90° top and bottom; the bottom bends the elbows to ~58°.
+// lowTop / lowBottom: the same rep with the hips dropped (~133°), the fault.
+const PIKE_BASE = {
+  view: "side", arms: "ik", angFootN: 135, angFootF: 135, bendKneeN: -1, bendKneeF: -1,
+  handN: [449, GROUND], handF: [443, GROUND - 2], bendElbowN: 1, bendElbowF: 1,   // arms near locked at the top
+};
+const pike = {
+  id: "pike", name: "Pike push-up", view: "side",
+  timing: [1200, 400, 1000, 700],
+  top:       { ...PIKE_BASE, hip: [300, 285],   angTorso: 40, angHead: 62, ankleN: [163, 449], ankleF: [167, 448] },
+  bottom:    { ...PIKE_BASE, hip: [334, 314],   angTorso: 52, angHead: 66, ankleN: [163, 449], ankleF: [167, 448] },
+  lowTop:    { ...PIKE_BASE, hip: [273.5, 336], angTorso: 15, angHead: 40, ankleN: [92, 449],  ankleF: [96, 448] },
+  lowBottom: { ...PIKE_BASE, hip: [295.4, 362], angTorso: 25, angHead: 50, ankleN: [100, 449], ankleF: [104, 448] },
+  measure(s) {
+    const elbow = angleAt(s.shN, s.elbN, s.wriN);
+    const hip = angleAt(s.neck, s.hip, s.ankN);
+    const { depth, hips } = scorePike(elbow, hip);
+    return {
+      score: combine([[depth, 0.6], [hips, 0.4]]),
+      parts: [["Depth", depth], ["Hips high", hips]],
+      raw: { elbow, hip },
+      rows: [["Elbow angle", deg(elbow)], ["Hip angle", deg(hip)]],
     };
   },
 };
@@ -184,5 +211,5 @@ const jack = {
   },
 };
 
-export const EXERCISES = [squat, pushup, plank, lunge, jack];
+export const EXERCISES = [squat, pushup, plank, lunge, jack, pike];
 export const BY_ID = Object.fromEntries(EXERCISES.map((e) => [e.id, e]));

@@ -984,7 +984,7 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .picker .ex-card.on .hint { max-height: 2.6em; opacity: 1; }
 .picker .ex-card .best { grid-area: best; justify-self: end; font-family: var(--display); font-size: 1rem; }
 .picker .ex-card .best.dim { font-family: inherit; font-size: .7rem; white-space: nowrap; }
-.picker .ex-card:not(.on) .best.dim { visibility: hidden; }
+.picker .ex-card:not(.on) .best.dim { display: none; }
 .picker .ex-card .reset { grid-area: reset; justify-self: end; opacity: 0; transition: opacity .2s; }
 .picker .ex-card.on .reset, .picker .ex-card:focus-within .reset { opacity: 1; }
 .picker .ex-card:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }

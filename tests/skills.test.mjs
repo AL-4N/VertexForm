@@ -20,6 +20,14 @@ const all = PATHS.flatMap((p) => p.steps);
 check("Five paths: Push, Pull, Legs, Core, Conditioning", PATHS.map((p) => p.name).join() === "Push,Pull,Legs,Core,Conditioning");
 check("New tracked skills: 20 push-ups, 20 deep squats, clean lunges, two-minute plank, jacks",
   ["pushup_20", "squat_20", "lunge_clean", "plank_2min", "jacks", "jacks_clean"].every((id) => STEP_BY_ID[id]?.test));
+check("Pike push-up is tracked (8 in a set, average 85+)", STEP_BY_ID.pike?.test?.exercise === "Pike push-up" && STEP_BY_ID.pike.test.reps === 8);
+{
+  const pre = [set("Push-up", 10, 85), set("Push-up", 15, 92)];          // Push-up, then Clean push-ups
+  check("Pike push-up unlocks after clean push-ups and a real pike set",
+    step(skillPath([...pre, set("Pike push-up", 8, 88)]), "pike").status === "done"
+    && step(skillPath([...pre, set("Pike push-up", 6, 95)]), "pike").status === "next"
+    && step(skillPath([set("Pike push-up", 8, 95)]), "pike").status === "locked");
+}
 check("Step ids are unique", new Set(all.map((s) => s.id)).size === all.length);
 check("Every tracked step uses an exercise the app can grade", all.filter((s) => s.test).every((s) => REGISTRY[s.test.exercise]));
 check("Every step says what it takes", all.every((s) => s.name && s.goal));

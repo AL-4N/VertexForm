@@ -5,6 +5,7 @@ import pushup from "./pushup.js";
 import plank from "./plank.js";
 import lunge from "./lunge.js";
 import jumpingjack from "./jumpingjack.js";
+import pike from "./pike.js";
 
 export const REGISTRY = {
   "Squat": squat,
@@ -12,6 +13,7 @@ export const REGISTRY = {
   "Plank": plank,
   "Lunge": lunge,
   "Jumping Jack": jumpingjack,
+  "Pike push-up": pike,
 };
 
 export const getExercise = (name) => REGISTRY[name];

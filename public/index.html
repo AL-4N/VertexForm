@@ -142,6 +142,11 @@
             <div class="scale-labels"><span style="left:30%">F</span><span style="left:65%">D</span><span style="left:75%">C</span><span style="left:85%">B</span><span style="left:95%">A</span></div>
           </div>
         </div>
+        <div class="hero-depth" data-hero-depth role="group" aria-label="Squat depth">
+          <span>See it grade</span>
+          <button type="button" data-depth="full" aria-pressed="true">Full squat</button>
+          <button type="button" data-depth="half" aria-pressed="false">Half squat</button>
+        </div>
         <div class="tabs" role="tablist" aria-label="Choose an exercise to demo">
           <button role="tab" data-ex="squat"  aria-selected="true"><span class="tab-picto" data-picto="squat" data-picto-plain></span><span class="tab-name">Squat</span></button>
           <button role="tab" data-ex="pushup" aria-selected="false"><span class="tab-picto" data-picto="pushup" data-picto-plain></span><span class="tab-name">Push-up</span></button>
@@ -155,13 +160,13 @@
 
   <!-- Facts that slide as you scroll (js/site/ticker.js). Decorative: the
        same facts are in the page, so screen readers skip these. -->
-  <div class="ticker" data-ticker="left" aria-hidden="true"><div class="ticker-track"><span>33 points tracked every frame</span><i aria-hidden="true"></i><span>Every rep graded 0 to 100</span><i aria-hidden="true"></i><span>5 exercises</span><i aria-hidden="true"></i><span>Nothing uploaded</span><i aria-hidden="true"></i><span>No account</span><i aria-hidden="true"></i><span>3 coach voices</span><i aria-hidden="true"></i><span>1,605 recorded coach clips</span><i aria-hidden="true"></i><span>Works offline</span><i aria-hidden="true"></i></div></div>
+  <div class="ticker" data-ticker="left" aria-hidden="true"><div class="ticker-track"><span>33 points tracked every frame</span><i aria-hidden="true"></i><span>Every rep graded 0 to 100</span><i aria-hidden="true"></i><span>6 exercises</span><i aria-hidden="true"></i><span>Nothing uploaded</span><i aria-hidden="true"></i><span>No account</span><i aria-hidden="true"></i><span>3 coach voices</span><i aria-hidden="true"></i><span>1,605 recorded coach clips</span><i aria-hidden="true"></i><span>Works offline</span><i aria-hidden="true"></i></div></div>
 
   <!-- ═════════════ EXERCISES ═════════════ -->
   <section id="exercises" class="section" data-tone="paper">
     <div class="wrap">
       <div class="section-head">
-        <h2>Five exercises, each measured its own way.</h2>
+        <h2>Six exercises, each measured its own way.</h2>
         <p>A squat is judged on how low your thighs get and how far you lean; a push-up on your
            elbow angle and whether your body stays in one line. Pull-ups and the L-sit are next.
            Open any exercise to see it in 3D.</p>
@@ -211,6 +216,15 @@
             <p class="ex-measures">How high your hands get and how wide your feet go.</p>
             <p class="ex-flags"><strong>Flags:</strong> short arms, lazy feet.</p>
             <button type="button" class="ex-open" aria-haspopup="dialog">See it in 3D <span aria-hidden="true">&rarr;</span></button>
+          </div>
+        </article>
+        <article class="ex-card" data-no-pop>
+          <div class="picto" data-picto="pike"></div>
+          <div class="ex-body">
+            <div class="ex-title"><h3>Pike push-up</h3><span class="tag">Side-on</span></div>
+            <p class="ex-measures">Elbow angle and how high your hips stay.</p>
+            <p class="ex-flags"><strong>Flags:</strong> half reps, hips dropping toward a plain push-up.</p>
+            <a class="ex-open" href="app.html">Train it <span aria-hidden="true">&rarr;</span></a>
           </div>
         </article>
       </div>
@@ -585,33 +599,6 @@
           <div class="faq-a"><p>A current browser with camera access. It's tested most in Chromium browsers (Chrome, Edge, Opera). The camera needs a secure (https) page, which the live site is.</p></div></details>
         <details><summary>How accurate is the grading?</summary>
           <div class="faq-a"><p>The scoring is checked against simulated reps with known angles (see "How the scoring is tested"), and a side-on view at hip height in good light gives it the clearest picture. It measures angles in 2D and blends in 3D estimates as you turn toward the camera. It can't see things a side-on camera hides, like knees caving inward.</p></div></details>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═════════════ WHAT THE TRACKER READS (site/cloud3d.js) ═════════════ -->
-  <section id="cloud" class="section cloud-sec" data-tone="paper" aria-labelledby="cloud-title">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="tag">Drag to turn it</span>
-        <h2 id="cloud-title">What the tracker reads.</h2>
-        <p>A simulated person doing real sets, drawn as points around the joints the tracker follows.
-           The numbers beside it are the engine's own: the measured angle, live, and each rep's score as it's graded.</p>
-      </div>
-    </div>
-    <div class="wrap">
-      <div class="cloud-stage" data-cloud>
-        <canvas aria-label="A body made of points doing the selected exercise. Drag sideways to turn it."></canvas>
-        <div class="cl-read" aria-live="off">
-          <span class="cl-k cl-label">Knee angle</span>
-          <span class="cl-angle">--</span>
-          <span class="cl-k cl-rep">Rep 1</span>
-          <span class="cl-reps" aria-hidden="true"></span>
-          <span class="cl-k">Last rep</span>
-          <span class="cl-score">--</span>
-        </div>
-        <div class="cl-chips" role="group" aria-label="Exercise"></div>
-        <span class="cl-hint" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>Drag to turn</span>
       </div>
     </div>
   </section>

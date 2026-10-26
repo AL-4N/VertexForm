@@ -26,7 +26,7 @@ export const PATHS = [
       { id: "pushup_clean",  name: "Clean push-ups",    requires: ["pushup"],              goal: "15 push-ups in one set, average 90+",        test: set("Push-up", 15, 90) },
       { id: "diamond",       name: "Diamond push-up",   requires: ["pushup_clean"],        goal: "10 with hands together under the chest" },
       { id: "dips",          name: "Dips",              requires: ["pushup_clean"],        goal: "5 on parallel bars, shoulders below elbows" },
-      { id: "pike",          name: "Pike push-up",      requires: ["pushup_clean"],        goal: "8 with hips high, head toward the floor" },
+      { id: "pike",          name: "Pike push-up",      requires: ["pushup_clean"],        goal: "8 pike push-ups in one set, average 85+",    test: set("Pike push-up", 8, 85) },
       { id: "pushup_20",     name: "20 push-ups",       requires: ["pushup_clean"],        goal: "20 push-ups in one set, average 90+",        test: set("Push-up", 20, 90) },
       { id: "archer",        name: "Archer push-up",    requires: ["diamond"],             goal: "5 per side, the other arm straight out to the side" },
       { id: "hspu",          name: "Handstand push-up", requires: ["pike", "dips"],        goal: "3 against a wall, full range" },

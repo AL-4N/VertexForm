@@ -223,7 +223,7 @@ await test("Onboarding: shown on first visit, skippable, not shown again", async
 await test("Menu + setup: exercise list, demo, setup pills persist", async (make) => {
   const page = await make();
   await page.goto(`${BASE}/app.html`);
-  assert((await page.locator(".ex-card").count()) === 5, "expected 5 exercises");
+  assert((await page.locator(".ex-card").count()) === 6, "expected 6 exercises");
   await openExercise(page, "Push-up");
   assert(await page.locator("#mode-demo svg").count(), "good-rep demo missing");
   await page.click('#opt-target [data-val="80"]');

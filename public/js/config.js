@@ -31,7 +31,7 @@ export const POSE_EDGES = [
   [27,29],[29,31],[28,30],[30,32],
 ];
 
-export const EXERCISES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack"];
+export const EXERCISES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up"];
 
 // What a good rep looks like — shown beside the animated demo on the setup screen.
 export const DEMO_TIPS = {
@@ -40,6 +40,7 @@ export const DEMO_TIPS = {
   "Plank":        ["Side-on, camera at floor height", "Hands or forearms under your shoulders", "Hips level: no sag, no pike"],
   "Lunge":        ["Side-on, then step forward", "Drop until your front knee is about 90°", "Keep your torso tall"],
   "Jumping Jack": ["Face the camera", "Hands all the way overhead", "Feet out wider than your shoulders"],
+  "Pike push-up": ["Side-on, camera at floor height", "Hips high: an upside-down V", "Lower your head toward the floor, elbows past 90°"],
 };
 
 export const EXERCISE_META = {
@@ -48,6 +49,7 @@ export const EXERCISE_META = {
   "Plank":        { hint: "Side-on. Hold the position.",            live: true  },
   "Lunge":        { hint: "Side-on. Step and hold.",                live: true  },
   "Jumping Jack": { hint: "Face the camera.",                       live: true  },
+  "Pike push-up": { hint: "Side-on. Hips high, head down.",       live: true  },
 };
 
 // Visibility below this and we don't trust a measurement.
