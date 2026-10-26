@@ -8,7 +8,7 @@
 
 import { scrambleOnView } from "../ui/scramble.js";
 
-const ON_VIEW = "main .tag, .sec-index span, .r3-hud-src";
+const ON_VIEW = ".sec-index span, .r3-hud-src";   // measurement labels only; not every tag
 
 export function mountDecrypt() {
   scrambleOnView([...document.querySelectorAll(ON_VIEW)]);

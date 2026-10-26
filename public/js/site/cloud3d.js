@@ -47,8 +47,9 @@ void main() {
   p += normalize(d + 1e-4) * push * .2;
   float band = (1. - smoothstep(0., .055, abs(p.y - uScan))) * k;
   vGlow = max(band, push * .8);
-  vAlpha = mix(.22, 1., k);
   vec4 mv = modelViewMatrix * vec4(p, 1.);
+  // Depth: points behind the body's middle fade, so it reads as a volume, not a flat sticker.
+  vAlpha = mix(.22, 1., k) * mix(.35, 1., smoothstep(5.6, 4.3, -mv.z));
   gl_PointSize = aSize * uPix * (1. + vGlow * .9) / -mv.z;
   gl_Position = projectionMatrix * mv;
 }`;
@@ -58,7 +59,7 @@ void main() {
   float r = length(gl_PointCoord - .5);
   if (r > .5) discard;
   float a = smoothstep(.5, .0, r);
-  gl_FragColor = vec4(mix(uBase, uHot, vGlow), a * vAlpha * (.5 + .5 * vGlow));
+  gl_FragColor = vec4(mix(uBase, uHot, vGlow), a * vAlpha * (.38 + .62 * vGlow));   // dense parts (the torso) stay below white
 }`;
 
 const rand = (() => { let s = 7; return () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646; })();   // same cloud every visit

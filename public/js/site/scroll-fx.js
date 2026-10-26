@@ -35,9 +35,8 @@ export function mountScrollFx() {
     SplitText.create(h, {
       type: "lines", mask: "lines", autoSplit: true, linesClass: "split-line",
       onSplit: (self) => gsap.from(self.lines, {
-        yPercent: 115, filter: "blur(14px)", duration: 1.15, ease: "expo.out", stagger: 0.09,
+        yPercent: 110, duration: 1.1, ease: "expo.out", stagger: 0.08,   // a clean rise out of the line's mask, no blur
         delay: k === 0 ? 0.15 : 0,
-        clearProps: "filter",
         scrollTrigger: k === 0 ? undefined : { trigger: h, start: "top 88%", once: true },
       }),
     });
@@ -50,7 +49,7 @@ export function mountScrollFx() {
     if (!items.length) return;
     ScrollTrigger.batch(items, {
       start: "top 90%", once: true,
-      onEnter: (batch) => gsap.from(batch, { y: 56, opacity: 0, scale: 0.96, filter: "blur(12px)", duration: 1, ease: "power3.out", stagger: 0.08, clearProps: "transform,opacity,filter" }),
+      onEnter: (batch) => gsap.from(batch, { y: 28, opacity: 0, duration: 0.9, ease: "expo.out", stagger: 0.06, clearProps: "transform,opacity" }),
     });
   });
 

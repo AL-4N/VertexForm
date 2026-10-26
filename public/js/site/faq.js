@@ -17,13 +17,13 @@ export function mountFaq(root = document.querySelector("[data-faq]")) {
     d.open = true;
     gsap.killTweensOf(a);
     gsap.fromTo(a, { height: 0 }, { height: "auto", duration: 0.6, ease: "expo.out" });
-    gsap.fromTo(a.firstElementChild, { y: 14, opacity: 0, filter: "blur(10px)" },
-      { y: 0, opacity: 1, filter: "blur(0px)", duration: 0.6, ease: "power3.out", clearProps: "filter,transform" });
+    gsap.fromTo(a.firstElementChild, { y: 8, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.5, ease: "expo.out", clearProps: "transform" });
   }
   function close(d) {
     const a = d.querySelector(".faq-a");
     gsap.killTweensOf(a);
-    gsap.to(a.firstElementChild, { opacity: 0, filter: "blur(8px)", duration: 0.25, ease: "power1.in" });
+    gsap.to(a.firstElementChild, { opacity: 0, duration: 0.2, ease: "power1.in" });
     gsap.to(a, { height: 0, duration: 0.4, ease: "power3.inOut", onComplete: () => {
       d.open = false;
       gsap.set([a, a.firstElementChild], { clearProps: "all" });

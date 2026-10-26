@@ -59,6 +59,8 @@ export function mountSparks() {
   if (!matchMedia("(pointer: fine)").matches) return;           // click sparks: mouse only
   addEventListener("pointerdown", (e) => {
     if (e.pointerType !== "mouse" || e.button !== 0) return;
+    // Only the main calls to action: sparks on every click read as a gimmick.
+    if (!e.target.closest?.(".btn-grad, .cta-band .btn")) return;
     fire(e.clientX, e.clientY);
   }, { passive: true });
 }

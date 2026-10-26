@@ -256,7 +256,7 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   stops, or skips its writes, once its inputs stop changing.
 - **Smooth scrolling** (Lenis, `site/smooth.js`): wheel and trackpad
   scrolling glide; touch stays native. Paused while a popup is open.
-- **Headings rise in line by line** from a mask, with a little blur (GSAP
+- **Headings rise in line by line** from a mask, no blur (GSAP
   SplitText, `site/scroll-fx.js`): the hero's on load, each section's the
   first time it comes on screen.
 - **Cards rise in** group by group as they enter (ScrollTrigger batch), and
@@ -267,7 +267,8 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   light casting a soft floor shadow, a rim light tinted by the grade. The
   floor grid, protractors and notes stay drawing-board 2D on top.
 - **Click sparks** (`site/sparks.js`): eight short strokes in the amber to
-  green colours burst from where you click. **Magnetic buttons**
+  green colours burst from the main call-to-action buttons when clicked
+  (not from every click: that read as a gimmick). **Magnetic buttons**
   (`site/magnet.js`): the hero and closing buttons lean toward the pointer
   and spring back. Both are React Bits ideas rebuilt in plain JS.
 - **Things grow out of what you clicked** (`ui/popup.js`): exercise-card
@@ -290,17 +291,17 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **Text decodes** (`ui/scramble.js`, `site/decrypt.js`; React Bits'
   "Decrypted Text" idea): letters start as random measuring glyphs (digits,
   °, ±, ×) and settle left to right with a blur that clears. Use it
-  sparingly, only when a string first loads: the small tags, section-number
+  sparingly, only when a string first loads: section-number
   labels and the 3D view's source line on the homepage, the exercise
   popup's name as it opens, and trainer screen labels the first time each
   screen opens. **Never on hover** (the owner found it repetitive), and not
   on headings or card titles, which already rise in.
-- **Blur is part of every arrival**: headings rise through up to 14 px of
-  blur, cards through 12 px, story words through 10 to 14 px, the rolling
-  numbers through 16 px; fact strips only lean with scroll speed (their blur
-  was dropped: it cost too much per frame). Only for the
-  moment something moves; nothing sits blurred. (Live background blur, like
-  a frosted nav, is not used: it costs every frame.)
+- **Blur only where something is moving fast**: directional motion blur on
+  slides, screen changes, nav glides and rolling digits (the owner's rule).
+  Things arriving (headings, cards, answers, section numbers) rise cleanly
+  with no blur: blur-in reveals were the most "AI template" thing on the
+  page. Fact strips only lean with scroll speed. Live background blur (a
+  frosted nav) is not used: it costs every frame.
 - **Stages open out of a frame** (`scroll-fx.js`): the 3D view and the Form
   Lab stage grow from a narrow, rounder frame to full size as you scroll
   to them (clip-path, scrubbed).
@@ -340,6 +341,11 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **No custom cursor.** Tried twice in Oct 2026 and removed at the owner's
   request: the Mac pointer kept showing alongside it. Use the system pointer;
   `cursor: grab` on things you can drag.
+- **Not the template look.** Before adding motion, check it isn't one of
+  the stock "AI site" tells: blur-in on every reveal, sparkles or confetti
+  on every click, scrambled text everywhere, glow on everything, the same
+  fade-up stagger on every block. Each effect should belong to one place
+  and say something about measuring a body.
 - Nothing loops just for decoration: the figures are always doing an
   exercise, and only while on screen.
 - `prefers-reduced-motion`: everything jumps straight to its end state.
