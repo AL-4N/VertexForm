@@ -238,6 +238,16 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **Homepage setup and questions**: the trainer's three camera-setup
   steps, each a small plan drawn in stroke by stroke as it arrives; the
   questions open with a height glide while the answer unblurs (`site/faq.js`).
+- **What the tracker reads** (`site/cloud3d.js`, Three.js points with a
+  small custom shader): a body of ~7,000 glowing points (3,800 on phones)
+  round the tracked joints, doing the real 3D clips. It condenses from
+  drifting dust as the section scrolls in, feet first; drag turns it with
+  a coast; the pointer parts the points like a hand through smoke; a scan
+  ring sweeps the body in the last graded rep's colour; switching exercise
+  blows it back to dust and it re-forms. The readout (live angle, rep,
+  score) is the engine's. Three.js loads only near the section; the loop
+  runs only on screen; no WebGL hides the stage; reduced motion shows a
+  still body you can still turn.
 - **Reading progress** (`site/progress.js`): under 1400 px, where there's
   no side rail, a 2 px hairline under the header fills with the go
   gradient as you scroll, easing so jumps glide; its tip is a bead that

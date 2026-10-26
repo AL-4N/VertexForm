@@ -589,6 +589,33 @@
     </div>
   </section>
 
+  <!-- ═════════════ WHAT THE TRACKER READS (site/cloud3d.js) ═════════════ -->
+  <section id="cloud" class="section cloud-sec" data-tone="paper" aria-labelledby="cloud-title">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="tag">Drag to turn it</span>
+        <h2 id="cloud-title">What the tracker reads.</h2>
+        <p>A simulated person doing real sets, drawn as points around the joints the tracker follows.
+           The numbers beside it are the engine's own: the measured angle, live, and each rep's score as it's graded.</p>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="cloud-stage" data-cloud>
+        <canvas aria-label="A body made of points doing the selected exercise. Drag sideways to turn it."></canvas>
+        <div class="cl-read" aria-live="off">
+          <span class="cl-k cl-label">Knee angle</span>
+          <span class="cl-angle">--</span>
+          <span class="cl-k cl-rep">Rep 1</span>
+          <span class="cl-reps" aria-hidden="true"></span>
+          <span class="cl-k">Last rep</span>
+          <span class="cl-score">--</span>
+        </div>
+        <div class="cl-chips" role="group" aria-label="Exercise"></div>
+        <span class="cl-hint" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>Drag to turn</span>
+      </div>
+    </div>
+  </section>
+
   <!-- ═════════════ PRIVACY + LIMITS ═════════════ -->
   <section class="section" data-tone="dark">
     <div class="wrap two-col">

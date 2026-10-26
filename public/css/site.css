@@ -1015,3 +1015,39 @@ circle.su-body { fill: var(--ink-2); }
   background: #eafff5; box-shadow: 0 0 10px 2px rgba(46,229,157,.8); opacity: .35; transition: opacity .4s; }
 .nav-progress.moving b { opacity: 1; transition-duration: .1s; }
 @media (min-width: 1400px) { .nav-progress { display: none; } }
+
+/* ── What the tracker reads: the point-cloud body (site/cloud3d.js) ── */
+.cloud-stage {
+  position: relative; height: min(78svh, 720px); min-height: 460px; margin-top: 2rem; border-radius: 26px; overflow: hidden;
+  background:
+    radial-gradient(60% 55% at 50% 62%, rgba(46,229,157,.10), transparent 70%),
+    radial-gradient(90% 70% at 50% 100%, rgba(255,190,61,.05), transparent 70%),
+    linear-gradient(180deg, #0b1124, #070b18);
+  box-shadow: inset 0 0 0 1px var(--line), 0 50px 120px -60px rgba(0,0,0,.9);
+}
+.cloud-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; }
+.cloud-stage canvas:active { cursor: grabbing; }
+.cloud-stage.no-gl { display: none; }
+.cl-read { position: absolute; left: clamp(1rem, 3vw, 2rem); top: clamp(1rem, 3vw, 2rem); display: grid; gap: .15rem; pointer-events: none;
+  padding: .9rem 1rem; border-radius: 12px; background: rgba(9,13,28,.55); box-shadow: inset 0 0 0 1px var(--line); min-width: 9.5rem; }
+.cl-k { font-family: var(--mono); font-size: .64rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint); }
+.cl-angle, .cl-score { font-family: var(--display); font-weight: 800; font-size: 2rem; line-height: 1.05; letter-spacing: -.02em; font-variant-numeric: tabular-nums; margin-bottom: .45rem; }
+.cl-score { display: inline-block; text-shadow: 0 0 24px color-mix(in srgb, currentColor 45%, transparent); }
+.cl-reps { display: flex; gap: 4px; margin: .25rem 0 .6rem; }
+.cl-reps i { width: 14px; height: 4px; border-radius: 2px; background: var(--line-2); transition: background .3s, box-shadow .3s; }
+.cl-reps i.on { box-shadow: 0 0 8px currentColor; }
+.cl-chips { position: absolute; left: 50%; bottom: clamp(1rem, 3vw, 1.6rem); translate: -50% 0; display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; width: max-content; max-width: calc(100% - 2rem); }
+.cl-chip { font: 600 .8rem/1 var(--body, inherit); color: var(--text-dim); padding: .6rem .8rem; border-radius: 9px; border: 0; cursor: pointer;
+  background: rgba(18,26,50,.7); box-shadow: inset 0 0 0 1px var(--line); transition: color .2s, box-shadow .2s, background .2s; }
+.cl-chip:hover { color: var(--text); box-shadow: inset 0 0 0 1px var(--line-2); }
+.cl-chip[aria-pressed="true"] { color: #090d1c; background: var(--go-gradient); box-shadow: none; }
+.cl-hint { position: absolute; right: clamp(1rem, 3vw, 2rem); top: clamp(1rem, 3vw, 2rem); display: flex; align-items: center; gap: .4rem; pointer-events: none;
+  font-family: var(--mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--text-faint); transition: opacity .6s; }
+.cl-hint svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.cloud-stage.dragged .cl-hint { opacity: 0; }
+@media (max-width: 700px) {
+  .cloud-stage { height: 82svh; min-height: 520px; border-radius: 20px; }
+  .cl-read { padding: .7rem .8rem; min-width: 0; }
+  .cl-angle, .cl-score { font-size: 1.5rem; }
+  .cl-hint { display: none; }
+}
