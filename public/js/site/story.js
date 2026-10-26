@@ -122,7 +122,7 @@ export async function mountStory(section) {
   }
 
   function draw() {
-    if (scene.fit()) { scene.at = wide() ? [0.64, 0.56] : [0.5, 0.4]; scene.zoom = wide() ? 1.32 : 2.0; }
+    if (scene.fit()) { scene.at = wide() ? [0.64, 0.56] : [0.5, 0.42]; scene.zoom = wide() ? 1.32 : 1.55; }   // narrow: room above the head and below the floor ring
     const c = st.shown * 4;
     const [yaw, pitch] = shot(c);
     const cam = scene.camera(yaw, pitch);
@@ -142,7 +142,7 @@ export async function mountStory(section) {
     const [a, b, k] = ["hipL", "knL", "anL"].map((x) => P[x.replace("L", clip.side)]);
     const a3 = scene.angle(cam, a, b, k, { alpha: marks });
     const flat = scene.flatAngle(cam, a, b, k);
-    if (write > 0) scene.note(cam, P["hip" + clip.side], "Thighs about parallel", { write, side: 1 });
+    if (write > 0) scene.note(cam, P["hip" + clip.side], "Thighs reached parallel", { write, side: wide() ? 1 : -1 });   // past tense: said after the rep, while standing
 
     // The fact under each step.
     const i = Math.min(3, Math.floor(c));

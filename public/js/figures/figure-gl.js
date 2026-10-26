@@ -52,13 +52,28 @@ export class GLFigure {
     floor.receiveShadow = true;
     scene.add(floor);
 
-    this.material = new THREE.MeshStandardMaterial({ color: 0xeef1fb, roughness: 0.42, metalness: 0.05 });
-    const cyl = new THREE.CylinderGeometry(1, 1, 1, 18, 1, true);
-    const ball = new THREE.SphereGeometry(1, 20, 14);
-    const mesh = (g) => { const m = new THREE.Mesh(g, this.material); m.castShadow = true; scene.add(m); return m; };
+    // The body: dark, satin, lit from the edges in the grade colour (a
+    // fresnel rim added to the standard material), so it reads as a scanned
+    // figure rather than a plastic toy. The tracked joints are small bright
+    // beads on it: the points the tracker actually follows.
+    this.rimU = { uRim: { value: new THREE.Color(0x2ee59d) }, uRimStrength: { value: 1.6 } };
+    this.material = new THREE.MeshStandardMaterial({ color: 0x141c36, roughness: 0.55, metalness: 0.15 });
+    this.material.onBeforeCompile = (sh) => {
+      Object.assign(sh.uniforms, this.rimU);
+      sh.fragmentShader = sh.fragmentShader
+        .replace("#include <common>", "#include <common>\nuniform vec3 uRim; uniform float uRimStrength;")
+        .replace("#include <emissivemap_fragment>", `#include <emissivemap_fragment>
+          float rimF = pow(1.0 - clamp(abs(dot(normal, normalize(vViewPosition))), 0.0, 1.0), 2.4);
+          totalEmissiveRadiance += uRim * rimF * uRimStrength;`);
+    };
+    this.jointMat = new THREE.MeshStandardMaterial({ color: 0xeef1fb, roughness: 0.3, metalness: 0, emissive: 0xffffff, emissiveIntensity: 0.35 });
+    const cyl = new THREE.CylinderGeometry(1, 1, 1, 20, 1, true);
+    const ball = new THREE.SphereGeometry(1, 24, 16);
+    const mesh = (g, mat = this.material) => { const m = new THREE.Mesh(g, mat); m.castShadow = true; scene.add(m); return m; };
     this.bones = [...BONES, ["neck", "headBase"]].map(() => mesh(cyl));
-    this.joints = JOINTS.map(() => mesh(ball));
+    this.joints = JOINTS.map(() => mesh(ball, this.jointMat));
     this.head = mesh(ball);
+    this.base = new THREE.Color(0x141c36); this.white = new THREE.Color(0xeef1fb); this.grade = new THREE.Color();
     this.tmp = { a: new THREE.Vector3(), b: new THREE.Vector3(), d: new THREE.Vector3() };
     this.w = 0; this.h = 0;
   }
@@ -85,10 +100,13 @@ export class GLFigure {
   /** Draw the body at pose P (scene space). grow 0..1 draws each bone out from its first joint. */
   render(scene, cam, P, colour, { grow = 1 } = {}) {
     this.syncCamera(scene, cam);
-    this.material.color.set(colour);
-    this.material.emissive.set(colour);
-    this.material.emissiveIntensity = 0.16;
-    this.rim.color.set(colour).lerp(new THREE.Color(0x9fb4ff), 0.5);
+    const g = this.grade.set(colour);
+    this.material.color.copy(this.base).lerp(g, 0.14);      // a hint of the grade in the body itself
+    this.material.emissive.copy(g);
+    this.material.emissiveIntensity = 0.05;
+    this.rimU.uRim.value.copy(g);
+    this.jointMat.emissive.copy(g).lerp(this.white, 0.45);
+    this.rim.color.copy(g).lerp(this.white, 0.3);
 
     const { a, b, d } = this.tmp;
     const ears = a.set(...P.earL).add(b.set(...P.earR)).multiplyScalar(0.5).clone();
@@ -113,7 +131,8 @@ export class GLFigure {
       const m = this.joints[i];
       m.visible = grow > 0;
       m.position.set(...P[k]);
-      const r = (k.startsWith("el") || k.startsWith("wr") ? R_LIMB * 0.85 : R_LIMB) * Math.min(1, grow * 1.5);
+      const foot = k.startsWith("he") || k.startsWith("to");
+      const r = (k.startsWith("el") || k.startsWith("wr") ? R_LIMB * 0.85 : R_LIMB) * (foot ? 0.8 : 1.22) * Math.min(1, grow * 1.5);   // beads stand just proud of the limb
       m.scale.setScalar(Math.max(1e-4, r));
     });
     this.head.visible = grow > 0;

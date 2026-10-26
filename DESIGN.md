@@ -263,7 +263,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   the hero has depth on the way out: the copy drifts up faster than the
   page while the 3D scene sinks and fades.
 - **The hero figure is lit 3D geometry** (Three.js, `figures/figure-gl.js`):
-  capsule limbs and head in the grade colour with a slight glow, a key
+  a dark satin body lit at the edges in the grade colour (a fresnel rim on
+  the standard material) with small white beads on the tracked joints, so
+  it reads as a scanned figure, not a plastic toy; a key
   light casting a soft floor shadow, a rim light tinted by the grade. The
   floor grid, protractors and notes stay drawing-board 2D on top.
 - **Click sparks** (`site/sparks.js`): eight short strokes in the amber to

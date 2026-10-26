@@ -49,7 +49,7 @@ void main() {
   vGlow = max(band, push * .8);
   vec4 mv = modelViewMatrix * vec4(p, 1.);
   // Depth: points behind the body's middle fade, so it reads as a volume, not a flat sticker.
-  vAlpha = mix(.22, 1., k) * mix(.35, 1., smoothstep(5.6, 4.3, -mv.z));
+  vAlpha = mix(.22, 1., k) * mix(.35, 1., smoothstep(4.8, 3.5, -mv.z));
   gl_PointSize = aSize * uPix * (1. + vGlow * .9) / -mv.z;
   gl_Position = projectionMatrix * mv;
 }`;
@@ -59,7 +59,7 @@ void main() {
   float r = length(gl_PointCoord - .5);
   if (r > .5) discard;
   float a = smoothstep(.5, .0, r);
-  gl_FragColor = vec4(mix(uBase, uHot, vGlow), a * vAlpha * (.38 + .62 * vGlow));   // dense parts (the torso) stay below white
+  gl_FragColor = vec4(mix(uBase, uHot, vGlow), a * vAlpha * (.46 + .54 * vGlow));   // dense parts (the torso) stay below white
 }`;
 
 const rand = (() => { let s = 7; return () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646; })();   // same cloud every visit
@@ -96,15 +96,21 @@ function start(THREE, clips, root, canvas) {
   const kind = new Uint8Array(N), ref = new Uint8Array(N), u1 = new Float32Array(N), u2 = new Float32Array(N), u3 = new Float32Array(N);
   const pos = new Float32Array(N * 3), scatter = new Float32Array(N * 3), delay = new Float32Array(N), size = new Float32Array(N), seed = new Float32Array(N);
   const lens = BONES.map(([a, b]) => RADIUS[`${a}-${b}`] ?? .04);
+  // Share the limb points out by each bone's size (length × thickness), so a
+  // thigh gets far more than a toe and the limbs read as volumes.
+  const f0 = (clips.full ?? Object.values(clips)[0]).frames[0];
+  const weight = BONES.map(([a, b], j) => Math.hypot(f0[a][0] - f0[b][0], f0[a][1] - f0[b][1], f0[a][2] - f0[b][2]) * lens[j]);
+  const cum = []; weight.reduce((acc, w, j) => (cum[j] = acc + w), 0);
+  const pickBone = () => { const x = rand() * cum.at(-1); let j = 0; while (cum[j] < x) j++; return j; };
   for (let i = 0; i < N; i++) {
     const r = rand();
-    if (r < .62) { kind[i] = 0; ref[i] = Math.floor(rand() * BONES.length); u1[i] = rand(); u2[i] = rand() * Math.PI * 2; u3[i] = Math.sqrt(rand()) * lens[ref[i]]; }
+    if (r < .62) { kind[i] = 0; ref[i] = pickBone(); u1[i] = rand(); u2[i] = rand() * Math.PI * 2; u3[i] = Math.sqrt(rand()) * lens[ref[i]]; }
     else if (r < .88) { kind[i] = 1; u1[i] = rand(); u2[i] = rand(); u3[i] = (rand() - .5) * .2; }
     else { kind[i] = 2; u1[i] = rand() * Math.PI * 2; u2[i] = Math.acos(2 * rand() - 1); u3[i] = .09 + rand() * .025; }
     // Dust: a wide, flattened cloud round the body.
     const th = rand() * Math.PI * 2, rr = 1.2 + rand() * 1.8;
     scatter.set([Math.cos(th) * rr, .2 + rand() * 2.4, Math.sin(th) * rr * .7], i * 3);
-    size[i] = (small ? .013 : .010) + rand() * .009;          // world size (m), projected in the shader
+    size[i] = (small ? .016 : .013) + rand() * .010;          // world size (m), projected in the shader
     seed[i] = rand();
   }
 
@@ -143,7 +149,7 @@ function start(THREE, clips, root, canvas) {
 
   // The scan ring, and a floor of fading dots.
   const ringPts = [];
-  for (let k = 0; k <= 96; k++) { const a = k / 96 * Math.PI * 2; ringPts.push(new THREE.Vector3(Math.cos(a) * .5, 0, Math.sin(a) * .5)); }
+  for (let k = 0; k <= 96; k++) { const a = k / 96 * Math.PI * 2; ringPts.push(new THREE.Vector3(Math.cos(a) * .42, 0, Math.sin(a) * .42)); }
   const ringMat = new THREE.LineBasicMaterial({ color: 0x2ee59d, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
   const ring = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringPts), ringMat);
   body.add(ring);
@@ -339,7 +345,8 @@ function start(THREE, clips, root, canvas) {
     const scan = .05 + (Math.sin(sec * .7) * .5 + .5) * 1.75;
     uniforms.uScan.value = scan;
     ring.position.y = scan;
-    ringMat.opacity = solid * .55;
+    // Near eye level the ring is seen edge-on as a flat line: fade it there (the lit band carries it).
+    ringMat.opacity = solid * .55 * Math.min(1, Math.abs(scan - camera.position.y) / .4);
     uniforms.uHot.value.lerp(hotGoal.set(st.hot), .08);     // eases to the new grade's colour
     ringMat.color.copy(uniforms.uHot.value);
     jMat.color.copy(uniforms.uHot.value).lerp(PAPER, .55);
@@ -350,7 +357,7 @@ function start(THREE, clips, root, canvas) {
     if (!drag) { st.vyaw *= .94; st.yaw += st.vyaw + (still || root.classList.contains("dragged") ? 0 : dt * .00008); }
     body.rotation.y = st.yaw;
     const lying = c.kind === "hold" || st.id === "pushup";
-    camera.position.set(0, lying ? 1.25 : 1.15, lying ? 4.6 : 4.9);
+    camera.position.set(0, lying ? 1.2 : 1.1, lying ? 3.9 : 4.1);
     camera.lookAt(0, lying ? .45 : .88, 0);
     renderer.render(scene, camera);
   }

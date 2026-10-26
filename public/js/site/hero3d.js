@@ -183,7 +183,10 @@ export async function mountHero3d(root) {
       const since = st.t - clip.reps[n].t;
       const [text, joint, which] = NOTES[st.id];
       const s = which === "other" ? (clip.side === "L" ? "R" : "L") : clip.side;
-      if (since >= 0 && since < 2200) marks.note(cam, P[joint + s], text, { write: reduced ? 1 : clamp(since / 900, 0, 1), side: 1 });
+      // Named for its rep: it's the verdict on the rep just finished, shown
+      // while the figure stands back up, so it mustn't read as describing the pose.
+      const say = clip.kind === "hold" ? text : `Rep ${n + 1}: ${text[0].toLowerCase()}${text.slice(1)}`;
+      if (since >= 0 && since < 2200) marks.note(cam, P[joint + s], say, { write: reduced ? 1 : clamp(since / 900, 0, 1), side: 1 });
     }
 
     readout(clip, P, n, a3);
