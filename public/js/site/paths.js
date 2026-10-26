@@ -125,6 +125,11 @@ export function mountPaths(root = document.querySelector("[data-paths]")) {
     const want = clamp(Math.abs(st.v) * 90, 0, 7);
     st.bow += (want - st.bow) * 0.18;
     st.mx += (st.tmx - st.mx) * 0.1; st.my += (st.tmy - st.my) * 0.1;
+    // Nothing moved since the last frame (scroll settled, pointer still,
+    // edges straight): leave the styles alone instead of rewriting them.
+    const key = `${st.shown.toFixed(4)}|${st.mx.toFixed(3)}|${st.my.toFixed(3)}|${st.bow.toFixed(2)}`;
+    if (key === st.key) return;
+    st.key = key;
     const bow = polygon(st.bow);
     const skew = clamp(st.v * 140, -6, 6);
 

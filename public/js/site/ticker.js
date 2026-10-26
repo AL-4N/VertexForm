@@ -36,10 +36,9 @@ export function mountTickers() {
       if (r.bottom < -50 || r.top > innerHeight + 50) continue;
       const unit = Number(row.dataset.unit), dir = row.dataset.ticker === "right" ? 1 : -1;
       const x = ((scrollY * 0.45 * dir) % unit + unit) % unit;
+      // Leans with scroll speed. (No blur: re-blurring these huge rows every
+      // frame was the most expensive thing on the page while scrolling.)
       row.firstElementChild.style.transform = `translate3d(${-x}px, 0, 0) skewX(${skew.toFixed(2)}deg)`;
-      // Fast scrolls smear the strip sideways a little (cleared when still).
-      const b = Math.min(4, Math.abs(skew) * 0.5);
-      row.firstElementChild.style.filter = b > 0.2 ? `blur(${b.toFixed(1)}px)` : "";
     }
     if (Math.abs(skew) > 0.05) raf = requestAnimationFrame(frame);
   };

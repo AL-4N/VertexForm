@@ -1005,3 +1005,13 @@ circle.su-body { fill: var(--ink-2); }
 .paths-rail li.on { color: var(--text); transform: translateY(-2px); }
 .paths-rail li.on::before { background: var(--g100); height: 12px; top: calc(-.9rem - 5px); box-shadow: 0 0 8px rgba(46,229,157,.7); }
 
+
+/* Reading progress: a hairline under the header (site/progress.js). The bead
+   brightens while it travels and dims when it rests. */
+.nav-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; pointer-events: none; }
+.nav-progress i { position: absolute; inset: 0; transform-origin: left; transform: scaleX(0);
+  background: var(--go-gradient); box-shadow: 0 0 8px rgba(46,229,157,.45); }
+.nav-progress b { position: absolute; left: -3px; top: -2px; width: 6px; height: 6px; border-radius: 99px;
+  background: #eafff5; box-shadow: 0 0 10px 2px rgba(46,229,157,.8); opacity: .35; transition: opacity .4s; }
+.nav-progress.moving b { opacity: 1; transition-duration: .1s; }
+@media (min-width: 1400px) { .nav-progress { display: none; } }

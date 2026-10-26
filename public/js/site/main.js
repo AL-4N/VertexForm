@@ -27,6 +27,7 @@ import { renderHow } from "./how.js";
 import { mountMotionNav } from "./motion-nav.js";
 import { mountNavSpy } from "./nav-spy.js";
 import { mountRail } from "./rail.js";
+import { mountProgress } from "./progress.js";
 import { mountPageTransitions } from "../page-transition.js";
 import { mountHoverFill } from "../ui/hover-fill.js";
 
@@ -67,6 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
   headerCta();
   mountMotionNav();
   mountRail();
+  mountProgress();
   mountNavSpy();
   mountPageTransitions();
   colourScores();

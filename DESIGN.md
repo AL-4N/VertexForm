@@ -238,6 +238,12 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **Homepage setup and questions**: the trainer's three camera-setup
   steps, each a small plan drawn in stroke by stroke as it arrives; the
   questions open with a height glide while the answer unblurs (`site/faq.js`).
+- **Reading progress** (`site/progress.js`): under 1400 px, where there's
+  no side rail, a 2 px hairline under the header fills with the go
+  gradient as you scroll, easing so jumps glide; its tip is a bead that
+  brightens while moving and dims at rest.
+- **Loops idle when nothing moves**: every per-frame loop on the homepage
+  stops, or skips its writes, once its inputs stop changing.
 - **Smooth scrolling** (Lenis, `site/smooth.js`): wheel and trackpad
   scrolling glide; touch stays native. Paused while a popup is open.
 - **Headings rise in line by line** from a mask, with a little blur (GSAP
@@ -281,7 +287,8 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   on headings or card titles, which already rise in.
 - **Blur is part of every arrival**: headings rise through up to 14 px of
   blur, cards through 12 px, story words through 10 to 14 px, the rolling
-  numbers through 16 px, fact strips smear with scroll speed. Only for the
+  numbers through 16 px; fact strips only lean with scroll speed (their blur
+  was dropped: it cost too much per frame). Only for the
   moment something moves; nothing sits blurred. (Live background blur, like
   a frosted nav, is not used: it costs every frame.)
 - **Stages open out of a frame** (`scroll-fx.js`): the 3D view and the Form
