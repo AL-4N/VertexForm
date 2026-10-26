@@ -182,6 +182,17 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     with a green pulse and amber-to-green sparks, `bestBadge`), and each
     **skill unlocked** toast carries the tree's blossom and a spark burst
     (`sparkle`).
+  - **The results grade sits in a dial** (`results.js`): a protractor-style
+    gauge round the letter (ticks every 10, the F to A bands marked) sweeps
+    with the count-up, a bead riding its end in the live grade colour and
+    each band's letter lighting as it passes; the dial flashes as the
+    stamp lands and "Go again" catches a glint. The **rep chart draws
+    itself** when it comes on screen (`drawRepChart`'s `p`): the target
+    line runs across, each bar grows a little past its height and
+    settles, its number pops, then the best rep gets a "BEST" bracket.
+    The cards below land like sheets laid on the board (a slight turn,
+    settling); the coach's tip rises in word by word; each fault shows
+    the set as a row of dots that light on the reps it was flagged in.
   - **Results bars grow in** one after another, numbers counting up with them;
     the **menu's exercise cards rise in** the first time it shows; the **rest
     ring** refills with a spring on "+15 s" and its last 3 seconds stamp.

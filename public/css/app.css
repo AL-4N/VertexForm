@@ -1005,3 +1005,30 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
   .picker .ex-card, .pk-marker, .pk-arc, .pk-stage, .pk-fig svg { transition: none; }
   .picker .ex-card.on .name { animation: none; }
 }
+
+/* ── Results: the grade sits in a dial that sweeps with the count (results.js) ── */
+.grade-dial { position: relative; display: grid; place-items: center; width: 150px; aspect-ratio: 1; flex: none; }
+.grade-dial svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.grade-dial .grade-big { position: relative; font-size: 3.4rem; margin-top: -.15em; }
+.gd-track, .gd-arc { fill: none; stroke-width: 6; stroke-linecap: round; }
+.gd-track { stroke: var(--border); }
+.gd-arc { stroke-dasharray: 0 100; filter: drop-shadow(0 0 6px currentColor); }
+.gd-ticks line { stroke: var(--text-faint); stroke-width: 1; opacity: .7; }
+.gd-bands text { font-family: var(--mono); font-size: 7px; font-weight: 700; text-anchor: middle; fill: var(--text-faint); opacity: .45; transition: fill .25s, opacity .25s; }
+.gd-bands text.on { fill: var(--text); opacity: 1; }
+.gd-bead { stroke: var(--bg, #090d1c); stroke-width: 2; filter: drop-shadow(0 0 5px currentColor); }
+
+/* "Go again" catches a glint once the grade has landed. */
+#btn-again::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; transform: translateX(-120%);
+  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,.75) 50%, transparent 70%); }
+#btn-again.glint::after { animation: res-glint .8s cubic-bezier(.5,0,.3,1) .15s; }
+@keyframes res-glint { to { transform: translateX(120%); } }
+
+/* Coach notes: one dot per rep, lit on the reps a fault was flagged in. */
+.fault-dots { display: flex; flex-wrap: wrap; gap: 4px; margin-top: .4rem; }
+.fault-dots i { width: 7px; height: 7px; border-radius: 99px; background: var(--border); }
+.fault-dots i.hit { background: var(--sev); box-shadow: 0 0 6px var(--sev); }
+#res-tip .tw { display: inline-block; }
+
+@media (max-width: 560px) { .grade-dial { width: 120px; } .grade-dial .grade-big { font-size: 2.7rem; } }
+@media (prefers-reduced-motion: reduce) { #btn-again.glint::after { animation: none; } }

@@ -297,7 +297,16 @@
     <div class="results-wrap">
       <div class="card">
         <div class="grade-row">
-          <span class="grade-big" id="res-letter">A</span>
+          <span class="grade-dial">
+            <svg viewBox="-64 -64 128 128" aria-hidden="true">
+              <path class="gd-track" d="M-35.36 35.36A50 50 0 1 1 35.36 35.36" pathLength="100"/>
+              <path class="gd-arc" id="res-dial-arc" d="M-35.36 35.36A50 50 0 1 1 35.36 35.36" pathLength="100"/>
+              <g class="gd-ticks"><line x1="-32.53" y1="32.53" x2="-35.36" y2="35.36"/><line x1="-43.75" y1="14.21" x2="-47.55" y2="15.45"/><line x1="-45.43" y1="-7.20" x2="-49.38" y2="-7.82"/><line x1="-37.21" y1="-27.04" x2="-40.45" y2="-29.39"/><line x1="-20.88" y1="-40.99" x2="-22.70" y2="-44.55"/><line x1="-0.00" y1="-46.00" x2="-0.00" y2="-50.00"/><line x1="19.98" y1="-39.20" x2="22.70" y2="-44.55"/><line x1="35.60" y1="-25.86" x2="40.45" y2="-29.39"/><line x1="43.46" y1="-6.88" x2="49.38" y2="-7.82"/><line x1="41.85" y1="13.60" x2="47.55" y2="15.45"/><line x1="32.53" y1="32.53" x2="35.36" y2="35.36"/></g>
+              <g class="gd-bands"><text x="-46.11" y="-31.10" data-band="30">F</text><text x="37.02" y="-40.94" data-band="65">D</text><text x="52.66" y="-19.41" data-band="75">C</text><text x="56.82" y="6.87" data-band="85">B</text><text x="48.60" y="32.18" data-band="95">A</text></g>
+              <circle class="gd-bead" id="res-dial-bead" r="4.2" cx="-35.36" cy="35.36"/>
+            </svg>
+            <span class="grade-big" id="res-letter">A</span>
+          </span>
           <div>
             <span class="score-big" id="res-score">94</span><span class="dim">/100</span>
             <p class="dim" id="res-sub">Best rep of 5</p>

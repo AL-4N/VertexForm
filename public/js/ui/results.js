@@ -5,7 +5,7 @@ import { renderReplayCard } from "./replay.js";
 import { gradeLetter, gradeVar } from "../geometry.js";
 import { faultLabel, faultPhrase } from "../coaching.js";
 import { getExercise } from "../exercises/index.js";
-import { slide, tween, EASE } from "./motion.js";
+import { slide, tween, EASE, reducedMotion } from "./motion.js";
 import { gradeColor } from "../grade.js";
 import { stamp, bestBadge } from "./flair.js";
 
@@ -18,11 +18,23 @@ let stopCount = null;
 function countUp(best) {
   stopCount?.();
   const num = $("#res-score"), letter = $("#res-letter");
+  const arc = $("#res-dial-arc"), bead = $("#res-dial-bead"), bands = [...document.querySelectorAll(".gd-bands text")];
   let shown = null;
   stopCount = tween(0, best, (x) => {
     const n = Math.round(x);
     num.textContent = n;
     num.style.color = gradeColor(n);
+    // The dial round the letter sweeps with it: the arc, the bead riding its
+    // end, and each band's letter lighting as the needle passes into it.
+    if (arc) {
+      const a = (135 + x * 2.7) * Math.PI / 180;
+      arc.style.strokeDasharray = `${x} 100`;
+      arc.style.stroke = arc.style.color = gradeColor(n);
+      bead.setAttribute("cx", (50 * Math.cos(a)).toFixed(2));
+      bead.setAttribute("cy", (50 * Math.sin(a)).toFixed(2));
+      bead.style.fill = bead.style.color = gradeColor(n);
+      bands.forEach((b) => b.classList.toggle("on", x >= Number(b.dataset.band) - (b.dataset.band === "30" ? 30 : 5)));
+    }
     const l = gradeLetter(n);
     if (l !== shown) {
       letter.textContent = l;
@@ -31,9 +43,16 @@ function countUp(best) {
       shown = l;
     }
   }, { duration: 1100 });
-  // Once it has counted up, the grade lands like a stamp.
+  // Once it has counted up, the grade lands like a stamp, the dial flashes,
+  // and a glint runs across "Go again".
   clearTimeout(countUp.stampAt);
-  countUp.stampAt = setTimeout(() => stamp(letter, gradeColor(best)), 1050);
+  countUp.stampAt = setTimeout(() => {
+    stamp(letter, gradeColor(best));
+    if (reducedMotion()) return;
+    letter.closest(".grade-dial")?.animate([{ filter: "brightness(1)" }, { filter: `brightness(1.8) drop-shadow(0 0 14px ${gradeColor(best)})`, offset: .2 }, { filter: "brightness(1)" }], { duration: 700, easing: "ease-out" });
+    const again = $("#btn-again");
+    again.classList.remove("glint"); void again.offsetWidth; again.classList.add("glint");
+  }, 1050);
 }
 
 export function renderResults(r) {
@@ -59,7 +78,8 @@ export function renderResults(r) {
   ];
   renderBars($("#res-bars"), bars, "res-bar");
 
-  drawRepChart($("#res-chart"), r.reps, r.target);
+  revealChart(r.reps, r.target);
+  dealCards();
   $("#res-chart").setAttribute("aria-label", `Rep scores: ${r.reps.join(", ")}. Target ${r.target}.`);
   renderSummary(r);
   renderDetails(r);
@@ -75,6 +95,7 @@ export function renderResults(r) {
     $("#res-tip").textContent =
       "Clean session: no repeated form faults detected. Keep that standard.";
     $("#res-faults").innerHTML = "";
+    revealNotes();
     return;
   }
 
@@ -86,15 +107,79 @@ export function renderResults(r) {
     `Your most common issue was ${faultLabel(r.exercise, topKey).toLowerCase()} ` +
     `(in ${topCount} of ${r.reps.length} ${unit}). ${faultPhrase(r.exercise, topKey)}.`;
 
-  $("#res-faults").innerHTML = ranked.slice(0, 4).map(([key, n]) => `
-    <div class="fault-item">
-      <span class="fault-sev" style="background:${
-        n >= r.reps.length / 2 ? "var(--coral)" : "var(--amber)"}"></span>
+  // Each fault shows the set as a row of dots, one per rep, lit on the reps
+  // it was flagged in (from the per-rep details when there are any).
+  const total = r.reps.length;
+  $("#res-faults").innerHTML = ranked.slice(0, 4).map(([key, n]) => {
+    const sev = n >= total / 2 ? "var(--coral)" : "var(--amber)";
+    const hit = r.details?.length === total ? r.details.map((d) => d.faults?.includes(key)) : Array.from({ length: total }, (_, i) => i < n);
+    return `
+    <div class="fault-item" style="--sev:${sev}">
+      <span class="fault-sev" style="background:${sev}"></span>
       <div>
         <strong>${faultLabel(r.exercise, key)}</strong>
-        <div class="dim">in ${n} of ${r.reps.length} ${r.isHold ? "stretches" : "reps"}</div>
+        <div class="dim">in ${n} of ${total} ${r.isHold ? "stretches" : "reps"}</div>
+        ${total <= 30 ? `<span class="fault-dots" aria-hidden="true">${hit.map((h) => `<i class="${h ? "hit" : ""}"></i>`).join("")}</span>` : ""}
       </div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
+  revealNotes();
+}
+
+/** The rep chart draws itself once its card is on screen (components.js drawRepChart's p). */
+let stopChart = () => {};
+function revealChart(reps, target) {
+  stopChart();
+  const canvas = $("#res-chart");
+  if (reducedMotion() || !reps.length) { drawRepChart(canvas, reps, target); return; }
+  drawRepChart(canvas, reps, target, 0);
+  let raf = 0, t0 = 0;
+  const dur = 700 + reps.length * 140;
+  const step = (now) => {
+    t0 ||= now;
+    const p = Math.min(1, (now - t0) / dur);
+    drawRepChart(canvas, reps, target, p);
+    raf = p < 1 ? requestAnimationFrame(step) : 0;
+  };
+  const io = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting) return;
+    io.disconnect();
+    setTimeout(() => { raf = requestAnimationFrame(step); }, 450);
+  }, { threshold: 0.4 });
+  io.observe(canvas);
+  stopChart = () => { io.disconnect(); cancelAnimationFrame(raf); drawRepChart(canvas, reps, target); };
+}
+
+/** The cards under the grade land one after another like sheets laid on the board. */
+function dealCards() {
+  if (reducedMotion()) return;
+  const cards = [...document.querySelectorAll("#screen-results .results-wrap > .card:not(:first-child):not([hidden])")];
+  cards.forEach((c, k) => c.animate(
+    [{ opacity: 0, transform: `translateY(34px) rotate(${k % 2 ? 1.4 : -1.4}deg) scale(.97)`, filter: "blur(8px)" },
+     { opacity: 1, transform: `translateY(-3px) rotate(${k % 2 ? -0.3 : 0.3}deg)`, filter: "blur(0)", offset: .7 },
+     { opacity: 1, transform: "none", filter: "blur(0)" }],
+    { duration: 620, delay: 380 + k * 110, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }));
+}
+
+/** Coach notes: the tip's words rise in, then each fault's dots light rep by rep. */
+function revealNotes() {
+  if (reducedMotion()) return;
+  const tip = $("#res-tip");
+  if (!tip.hidden && tip.textContent) {
+    const words = tip.textContent.split(" ");
+    tip.setAttribute("aria-label", tip.textContent);
+    tip.innerHTML = words.map((w) => `<span class="tw" aria-hidden="true">${esc(w)}</span>`).join(" ");
+    tip.querySelectorAll(".tw").forEach((w, k) => w.animate(
+      [{ opacity: 0, transform: "translateY(.5em)", filter: "blur(5px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
+      { duration: 420, delay: 700 + k * 28, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }));
+  }
+  document.querySelectorAll("#res-faults .fault-item").forEach((item, f) => {
+    item.querySelectorAll(".fault-dots i").forEach((d, k) => d.animate(
+      d.classList.contains("hit")
+        ? [{ transform: "scale(0)" }, { transform: "scale(1.6)", offset: .6 }, { transform: "scale(1)" }]
+        : [{ transform: "scale(0)" }, { transform: "scale(1)" }],
+      { duration: 360, delay: 900 + f * 160 + k * 45, easing: "cubic-bezier(.3,.7,.4,1)", fill: "backwards" }));
+  });
 }
 
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));

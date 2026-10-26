@@ -135,10 +135,20 @@ export function confirmAction(message, opts = {}) {
 }
 
 /** Draw a small rep-by-rep bar chart onto a canvas. */
-export function drawRepChart(canvas, scores, target) {
+/**
+ * p (0..1) draws the chart part-way, for the results screen's reveal: the
+ * target line runs across first, then each bar grows in turn (a little past
+ * its height, then settles) with its number popping on top; at the end the
+ * best rep gets a bracket and "BEST". Drawn at the screen's pixel density.
+ */
+export function drawRepChart(canvas, scores, target, p = 1) {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
-  const { width: w, height: h } = canvas;
+  canvas.dataset.w ??= canvas.width; canvas.dataset.h ??= canvas.height;
+  const w = Number(canvas.dataset.w), h = Number(canvas.dataset.h);
+  const dpr = Math.min(3, devicePixelRatio || 1);
+  if (canvas.width !== Math.round(w * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const style = getComputedStyle(document.documentElement);
   const dim = style.getPropertyValue("--text-dim").trim() || "#98a0a6";
 
@@ -150,31 +160,63 @@ export function drawRepChart(canvas, scores, target) {
   }
 
   const pad = 24, padR = 70;                 // room on the right for the target label
-  const chartH = h - pad * 1.5;
+  const padT = 36;                            // headroom for numbers and the BEST bracket
+  const chartH = h - padT - 12;
   const slot = (w - pad - padR) / scores.length;
   const barW = Math.min(46, slot - 8);
+  const lineP = Math.min(1, p / 0.2);                       // 0–20%: the target line
+  const barsP = Math.max(0, (p - 0.15) / 0.75);             // 15–90%: the bars, one after another
+  const endP = Math.max(0, (p - 0.9) / 0.1);                // 90–100%: the best rep's bracket
+  const back = (t) => 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2);   // overshoot, then settle
 
   // Target line
-  const ty = pad + chartH * (1 - target / 100);
+  const ty = padT + chartH * (1 - target / 100);
   ctx.strokeStyle = "rgba(255,255,255,.22)";
   ctx.setLineDash([4, 4]);
-  ctx.beginPath(); ctx.moveTo(pad, ty); ctx.lineTo(w - padR + 8, ty); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad, ty); ctx.lineTo(pad + (w - padR + 8 - pad) * lineP, ty); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = dim; ctx.font = "11px sans-serif";
   ctx.textAlign = "left";
+  ctx.globalAlpha = lineP;
   ctx.fillText(`target ${target}`, w - padR + 14, ty + 4);
+  ctx.globalAlpha = 1;
 
+  const best = Math.max(...scores), bestAt = scores.indexOf(best);
+  const each = 1 / scores.length;
   scores.forEach((s, i) => {
+    // Each bar's own share of the reveal, overlapping its neighbours a little.
+    const t = Math.min(1, Math.max(0, (barsP - i * each * 0.8) / (each * 1.8)));
+    if (t <= 0) return;
     const x = pad + i * slot + (slot - barW) / 2;
-    const bh = Math.max(3, chartH * (s / 100));
-    const y = pad + chartH - bh;
+    const full = Math.max(3, chartH * (s / 100));
+    const bh = Math.max(3, Math.min(chartH + 6, full * back(t)));
+    const y = padT + chartH - bh;
     ctx.fillStyle = gradeVar(s);
     ctx.beginPath();
     if (ctx.roundRect) ctx.roundRect(x, y, barW, bh, 4); else ctx.rect(x, y, barW, bh);
     ctx.fill();
-    ctx.fillStyle = "#fff"; ctx.font = "bold 11px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(String(s), x + barW / 2, y - 5);
-    ctx.textAlign = "left";
+    const nt = Math.max(0, (t - 0.55) / 0.45);               // the number pops once the bar is nearly up
+    if (nt > 0) {
+      ctx.save();
+      ctx.globalAlpha = nt;
+      ctx.translate(x + barW / 2, padT + chartH - full - 5 - (1 - nt) * 8);
+      ctx.scale(0.6 + 0.4 * back(nt), 0.6 + 0.4 * back(nt));
+      ctx.fillStyle = "#fff"; ctx.font = "bold 11px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(String(s), 0, 0);
+      ctx.restore();
+    }
   });
+
+  // The best rep: a bracket over its bar and a small mono "BEST".
+  if (endP > 0 && scores.length > 1) {
+    const x = pad + bestAt * slot + (slot - barW) / 2, top = padT + chartH - Math.max(3, chartH * (best / 100)) - 22;
+    ctx.save();
+    ctx.globalAlpha = endP;
+    ctx.strokeStyle = gradeVar(best); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x, top + 5); ctx.lineTo(x, top); ctx.lineTo(x + barW, top); ctx.lineTo(x + barW, top + 5); ctx.stroke();
+    ctx.fillStyle = gradeVar(best); ctx.font = "600 9px ui-monospace, Menlo, monospace"; ctx.textAlign = "center";
+    ctx.fillText("BEST", x + barW / 2, top - 4 + (1 - endP) * 6);
+    ctx.restore();
+  }
 }
