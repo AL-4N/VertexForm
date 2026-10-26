@@ -1027,3 +1027,32 @@ circle.su-body { fill: var(--ink-2); }
 .hero-depth button:hover { color: var(--text); box-shadow: inset 0 0 0 1px var(--line-2); }
 .hero-depth button[aria-pressed="true"] { color: var(--text); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line-2); }
 .hero-depth button[data-depth="half"][aria-pressed="true"] { box-shadow: inset 0 0 0 1px rgba(255,122,69,.55); color: #ffb49a; }
+
+/* ── Finish: the small things that make it read as built, not generated ──
+   Balanced heading lines, tighter display tracking, more room between
+   sections, surfaces with a faint top light over their hairline (machined,
+   not flat), primary buttons with a lit top edge, numbers that don't jitter. */
+h1, h2, h3 { text-wrap: balance; }
+p, li, dd { text-wrap: pretty; }
+.section-head h2, .hero h1 { letter-spacing: -.035em; }
+.section { padding: clamp(5rem, 11vw, 8.5rem) 0; }
+::selection { background: rgba(46,229,157,.3); color: #fff; }
+.ex-card, .panel {
+  background: linear-gradient(180deg, rgba(238,241,251,.035), rgba(238,241,251,0) 140px), var(--surface);
+}
+.ex-card { box-shadow: inset 0 0 0 1px var(--line), inset 0 1px 0 rgba(238,241,251,.06); }
+.ex-card:hover { box-shadow: inset 0 0 0 1px var(--line-2), inset 0 1px 0 rgba(238,241,251,.1), 0 30px 60px -40px rgba(0,0,0,.9); }
+.panel { box-shadow: inset 0 0 0 1px var(--line), inset 0 1px 0 rgba(238,241,251,.06); }
+.btn { letter-spacing: -.01em; }
+.btn-grad { box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -1px 0 rgba(9,13,28,.12), 0 8px 28px -12px rgba(46,229,157,.5); }
+.btn-grad:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -1px 0 rgba(9,13,28,.12), 0 12px 34px -12px rgba(46,229,157,.65); }
+.score-num, .lab-num, .story-big span, .pc-n, .readout-rows dd { font-variant-numeric: tabular-nums; }
+
+/* The sixth exercise (pike push-up) runs the full width, figure beside the
+   text, so the grid ends on a deliberate row instead of an orphan. */
+@media (min-width: 901px) {
+  .ex-card.ex-new { grid-column: 1 / -1; flex-direction: row; align-items: center; }
+  .ex-card.ex-new .picto { flex: 0 0 min(42%, 420px); align-self: stretch; }
+  .ex-card.ex-new .ex-body { flex: 1; }
+}
+a.ex-open { text-decoration: none; }

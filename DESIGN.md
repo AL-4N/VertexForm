@@ -87,7 +87,10 @@ its exact colour):
 - Cards: `--r-lg` 22px (site) / `--radius` 14px (trainer). Small chips 6–8px.
 - Pills (`999px`) only for things that aren't buttons: progress tracks, dots.
 - Cards are outlined with 1px hairlines (`inset 0 0 0 1px var(--line)`), not
-  soft drop shadows. (The hero frame's single shadow is the exception.)
+  soft drop shadows, with a faint light along the top edge (a 1px inset
+  highlight and a short top-down sheen) so surfaces read machined, not
+  flat. Primary buttons get a lit top edge too. Headings wrap balanced
+  (`text-wrap: balance`), body text `pretty`; changing numbers are tabular. (The hero frame's single shadow is the exception.)
 - Don't make everything the same card. Vary it: a ruled list (`.also`),
   panels, a calendar grid.
 
