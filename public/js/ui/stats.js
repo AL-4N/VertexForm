@@ -36,9 +36,11 @@ export function renderStats() {
       <div class="stat-card"><span>Sets saved</span><strong class="big-stat">${store.sessions.length}</strong></div>
     </div>`;
 
+  // Exercises with no sets share one small card instead of an empty card each.
+  const untried = [];
   const perExercise = EXERCISES.map((name) => {
     const h = exerciseHistory(store.sessions, name);
-    if (!h.count) return `<div class="card"><h2>${name}</h2><p class="dim">No sets yet.</p></div>`;
+    if (!h.count) { untried.push(name); return ""; }
     const faults = h.faults.length
       ? `<ul class="fault-trends">${h.faults.map((f) => `
           <li><strong>${faultLabel(name, f.key)}</strong> <span class="dim">in ${f.count} rep${f.count === 1 ? "" : "s"}${TREND[f.trend] ? ` · ${TREND[f.trend]}` : ""}</span></li>`).join("")}</ul>`
@@ -68,7 +70,14 @@ export function renderStats() {
       </div>
     </div>`;
 
-  host.innerHTML = overview + perExercise + achievements;
+  const notYet = untried.length ? `
+    <div class="card not-yet">
+      <h2 class="label">Not tried yet</h2>
+      <ul class="not-yet-list">${untried.map((n) => `<li>${n}</li>`).join("")}</ul>
+      <p class="dim small">Each gets its own chart after its first saved set.</p>
+    </div>` : "";
+
+  host.innerHTML = overview + perExercise + notYet + achievements;
   flipBoard(host);
 }
 

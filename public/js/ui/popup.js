@@ -43,7 +43,7 @@ export function growFrom(el, rect, { radius = 14, duration = 560, items = [] } =
   const to = rect && rect.width ? `inset(0px 0px 0px 0px round 0px)` : `circle(${Math.hypot(d.width, d.height)}px at 50% ${Math.min(d.height / 2, innerHeight / 2 - d.top)}px)`;
   el.animate([{ clipPath: from }, { clipPath: to }], { duration, easing: EASE_OUT });
   items.forEach((c, i) => c.animate(
-    [{ opacity: 0, transform: "translateY(20px)", filter: "blur(10px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
+    [{ opacity: 0, transform: "translateY(20px)" }, { opacity: 1, transform: "none" }],
     { duration: 440, delay: 140 + i * 45, easing: EASE_OUT, fill: "backwards" },
   ));
 }
@@ -64,7 +64,7 @@ export function openPopup(dlg, from = null, { onClose, beforeClose } = {}) {
   );
   dlg.querySelectorAll("[data-pop-item]").forEach((el, i) => {
     el.animate(
-      [{ opacity: 0, transform: "translateY(26px)", filter: "blur(12px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
+      [{ opacity: 0, transform: "translateY(26px)" }, { opacity: 1, transform: "none" }],
       { duration: 480, delay: 170 + i * 55, easing: EASE_OUT, fill: "backwards" },
     );
   });

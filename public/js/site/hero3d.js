@@ -127,7 +127,7 @@ export async function mountHero3d(root) {
     st.count?.();
     card.score.textContent = "–";
     card.letter.textContent = "";
-    card.score.style.color = "";
+    card.score.style.color = "var(--text-faint)";      // waiting for the next rep's grade, not a score
     card.marker.style.left = "0%";
   }
 

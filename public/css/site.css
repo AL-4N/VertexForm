@@ -140,7 +140,7 @@ body::after {
   padding-top: env(safe-area-inset-top, 0px);
   /* Near-opaque, no backdrop blur: re-blurring the page under the bar on
      every scroll frame was the costliest thing the GPU did. */
-  background: color-mix(in srgb, var(--tone) 94%, transparent);
+  background: color-mix(in srgb, var(--tone) 97%, transparent);
   border-bottom: 1px solid transparent; transition: border-color .2s;
 }
 .nav.scrolled { border-bottom-color: var(--line); }
@@ -181,8 +181,8 @@ body::after {
 @media (max-width: 480px) {
   .nav-settings span { display: none; } .nav-settings { padding: .55rem; }
   /* Phones: a tighter row so "Start training" fits whole instead of being squeezed. */
-  .nav-row { gap: .5rem; } .nav .btn { flex: none; } .js .nav.cta-hidden .btn { margin-left: -.5rem !important; }
-  .logo span { font-size: 1.1rem; }
+  .nav-row { gap: .5rem; } .nav .btn { flex: none; margin-left: .15rem; padding-inline: .85rem; } .js .nav.cta-hidden .btn { margin-left: -.5rem !important; }
+  .logo { gap: .45rem; } .logo span { font-size: 1.02rem; } .logo-mark { width: 26px; height: 26px; }
 }
 
 /* ── Side rail (js/site/rail.js): a ruler down the left edge, wide screens only ── */
@@ -281,7 +281,8 @@ body::after {
 .hero-hud .tabs button { background: color-mix(in srgb, #090d1c 88%, transparent); }
 @media (min-width: 1000px) {
   .hero { min-height: min(900px, calc(100svh - 68px)); display: flex; }
-  .hero-grid { position: static; width: 100%; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr auto; row-gap: 2rem; }
+  .hero-grid { position: static; width: 100%; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr auto; row-gap: 2rem;
+    padding-block: clamp(1.25rem, 3.5vh, 3rem) clamp(1.25rem, 3vh, 2.5rem); }   /* by height: the switch and readout stay above the fold */
   .hero-copy { grid-row: 1; align-self: center; max-width: 520px; }
   /* A strip along the bottom: the exercise switch under the copy, the readout under the figure. */
   .hero-hud { grid-row: 2; display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; }
@@ -550,11 +551,11 @@ body::after {
 .cta-band p { font-size: 1.1rem; margin-bottom: 2rem; font-weight: 500; }
 
 /* Footer */
-.foot { padding: 2rem 0 0; border-top: 1px solid var(--line); overflow: hidden; }
+.foot { padding: 2rem 0 0; border-top: 1px solid var(--line); overflow: hidden; container-type: inline-size; }
 /* The wordmark, edge to edge, cut off by the bottom of the page like it's standing on it. */
-.foot-mark { margin-top: 2.5rem; height: 9.6vw; overflow: hidden; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.foot-mark { margin-top: 2.5rem; height: 10.2cqi; overflow: hidden; padding-bottom: env(safe-area-inset-bottom, 0px); }
 .foot-mark span {
-  display: block; font-family: var(--display); font-weight: 800; font-size: 12.4vw; line-height: .9; letter-spacing: -.05em;
+  display: block; font-family: var(--display); font-weight: 800; font-size: 13.2cqi; line-height: .9; letter-spacing: -.05em;   /* "VertexForm" is ~7.07 em wide: 93% of the footer */
   white-space: nowrap; text-align: center; color: transparent; -webkit-text-stroke: 1.5px var(--line-2);
 }
 .foot-mark em { font-style: normal; background: var(--go-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-stroke: 0; }
@@ -763,6 +764,8 @@ html.split-wait .hero h1 { visibility: hidden; }
     color: transparent; -webkit-text-stroke: 1.5px rgba(166,174,203,.22); font-variant-numeric: tabular-nums;
   }
   .sec-index span { font-family: var(--mono); font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); }
+  /* A short heading still clears its number, so it never sits over the cards below. */
+  .sec-index + .section-head { min-height: calc(clamp(6rem, 11vw, 10rem) * .94 + .9rem); }
 }
 
 /* The hero's scroll cue: a line that empties as you scroll out (scroll-fx.js). */
@@ -996,7 +999,7 @@ a.ex-open { text-decoration: none; }
 .also-ex { margin-top: clamp(2.5rem, 5vw, 3.5rem); }
 .also-ex h3 { font-size: 1.05rem; letter-spacing: -.01em; }
 .also-ex .also { margin-top: 1rem; }
-.also-ex .also > div { grid-template-columns: 11rem 1fr; }
+.also-ex .also > div { grid-template-columns: 13rem 1fr; }
 @media (max-width: 560px) { .also > div, .also-ex .also > div { grid-template-columns: 1fr; gap: .3rem; } }
 
 /* "What it can't do": one honest panel, full width, its list in two columns on wide screens. */

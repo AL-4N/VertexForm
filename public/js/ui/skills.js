@@ -122,7 +122,7 @@ async function zoomIntoTree(card, id) {
     screen.style.visibility = "";
     const around = [...screen.querySelectorAll(".app-header > *"), screen.querySelector(".tree-detail")].filter(Boolean);
     around.forEach((el, k) => el.animate(
-      [{ opacity: 0, transform: "translateY(22px)", filter: "blur(5px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
+      [{ opacity: 0, transform: "translateY(22px)" }, { opacity: 1, transform: "none" }],
       { duration: 520, delay: 60 + k * 70, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }));
     grow = true;
     drawEdges();

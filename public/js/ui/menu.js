@@ -186,7 +186,7 @@ export function renderMenu(onPick) {
   // The first time the menu shows, the names wind on like a dial and the stage draws in.
   if (!renderMenu.shown && !quiet) {
     items.forEach((c, i) => c.animate(
-      [{ opacity: 0, transform: "translateY(40px) rotateX(-70deg)", filter: "blur(8px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
+      [{ opacity: 0, transform: "translateY(40px) rotateX(-70deg)" }, { opacity: 1, transform: "none" }],
       { duration: 640, delay: 80 + i * 75, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards", composite: "add" }));
     stage.animate([{ clipPath: "inset(0 100% 0 0 round 18px)" }, { clipPath: "inset(0 0 0 0 round 18px)" }],
       { duration: 700, easing: "cubic-bezier(.65,0,.2,1)", fill: "backwards" });

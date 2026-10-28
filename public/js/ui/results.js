@@ -155,9 +155,9 @@ function dealCards() {
   if (reducedMotion()) return;
   const cards = [...document.querySelectorAll("#screen-results .results-wrap > .card:not(:first-child):not([hidden])")];
   cards.forEach((c, k) => c.animate(
-    [{ opacity: 0, transform: `translateY(34px) rotate(${k % 2 ? 1.4 : -1.4}deg) scale(.97)`, filter: "blur(8px)" },
-     { opacity: 1, transform: `translateY(-3px) rotate(${k % 2 ? -0.3 : 0.3}deg)`, filter: "blur(0)", offset: .7 },
-     { opacity: 1, transform: "none", filter: "blur(0)" }],
+    [{ opacity: 0, transform: `translateY(34px) rotate(${k % 2 ? 1.4 : -1.4}deg) scale(.97)` },
+     { opacity: 1, transform: `translateY(-3px) rotate(${k % 2 ? -0.3 : 0.3}deg)`, offset: .7 },
+     { opacity: 1, transform: "none" }],
     { duration: 620, delay: 380 + k * 110, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }));
 }
 
@@ -170,7 +170,7 @@ function revealNotes() {
     tip.setAttribute("aria-label", tip.textContent);
     tip.innerHTML = words.map((w) => `<span class="tw" aria-hidden="true">${esc(w)}</span>`).join(" ");
     tip.querySelectorAll(".tw").forEach((w, k) => w.animate(
-      [{ opacity: 0, transform: "translateY(.5em)", filter: "blur(5px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
+      [{ opacity: 0, transform: "translateY(.5em)" }, { opacity: 1, transform: "none" }],
       { duration: 420, delay: 700 + k * 28, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }));
   }
   document.querySelectorAll("#res-faults .fault-item").forEach((item, f) => {

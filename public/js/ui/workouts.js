@@ -105,7 +105,7 @@ function renderRoutines() {
           <button class="btn ghost" data-act="delete" data-i="${i}" aria-label="Delete ${esc(r.name)}">Delete</button>
         </div>
       </div>`).join("")
-    : `<p class="dim">No saved routines yet. Build one below: pick exercises, reps (or seconds for a plank) and the rest between them.</p>`;
+    : `<p class="dim">No saved routines yet. Build one below: pick exercises, reps (or seconds for holds like the plank) and the rest between them.</p>`;
 }
 
 function renderBuilder() {
