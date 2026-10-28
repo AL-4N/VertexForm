@@ -5,9 +5,9 @@
  * header nav lights nothing, but the side rail lights its first item, so
  * it shows where the page starts from the moment it loads.
  *
- * "Where you are" = the last linked section whose top has passed a line
- * 40% down the screen. Sections without a link (the hero, "Progress"…)
- * light nothing up. While a nav glide runs (motion-nav.js sets
+ * "Where you are" = the section under a line 40% down the screen. The
+ * header lights only its own sections (nothing in between or after); the
+ * side rail, which links every section, lights the last one you reached. While a nav glide runs (motion-nav.js sets
  * html[data-gliding]) the clicked link lights up at once instead of every
  * section on the way.
  */
@@ -19,40 +19,54 @@ export function mountNavSpy() {
   const sections = links.map((a) => document.getElementById(a.hash.slice(1)));
   if (!links.length || sections.some((s) => !s)) return;
 
-  let current, raf = 0;
+  // The side rail links every section, the header only some: each lights its own.
+  const railLinks = [...document.querySelectorAll('.rail a[href^="#"]')];
+  const railSections = railLinks.map((a) => document.getElementById(a.hash.slice(1)));
+  let current, railCurrent, raf = 0;
 
-  /** Which linked section you're in (or null: hero, or an unlinked section after it). */
-  function whereAmI() {
+  /** The section under a line 40% down the screen (null above the first). */
+  function sectionHere() {
     const line = innerHeight * 0.4;
     let found = null;
-    for (const s of [...document.querySelectorAll("main > section")]) {
-      if (s.getBoundingClientRect().top <= line) found = s;
-    }
-    const i = sections.indexOf(found);
-    // At the very bottom of the page, the last linked section stays lit.
-    if (i < 0 && found && innerHeight + scrollY >= document.documentElement.scrollHeight - 4) {
-      return links.length - 1;
-    }
+    for (const s of document.querySelectorAll("main > section")) if (s.getBoundingClientRect().top <= line) found = s;
+    return found;
+  }
+  /** Header: lit only while you're in a section it links to (the hero and
+   *  unlinked sections light nothing; nothing stays lit to the page's end). */
+  function whereAmI() {
+    const i = sections.indexOf(sectionHere());
     return i < 0 ? null : i;
   }
+  /** Rail: the last of its sections you've reached (its first on the hero). */
+  function railWhere() {
+    const line = innerHeight * 0.4;
+    let k = 0;
+    railSections.forEach((s, i) => { if (s && s.getBoundingClientRect().top <= line) k = i; });
+    return k;
+  }
 
-  function show(i) {
-    if (i === current) return;
-    current = i;
+  function show(i, r) {
+    if (i === current && r === railCurrent) return;
+    current = i; railCurrent = r;
     const hash = i == null ? null : links[i].hash;
-    const railHash = hash ?? links[0].hash;
-    for (const a of document.querySelectorAll('.nav nav a[href^="#"], .rail a[href^="#"]')) {
-      const on = a.hash === (a.closest(".rail") ? railHash : hash);
+    for (const a of links) {
+      const on = a.hash === hash;
       a.classList.toggle("active", on);
       if (on) a.setAttribute("aria-current", "location"); else a.removeAttribute("aria-current");
     }
+    railLinks.forEach((a, k) => {
+      const on = k === r;
+      a.classList.toggle("active", on);
+      if (on) a.setAttribute("aria-current", "location"); else a.removeAttribute("aria-current");
+    });
     document.dispatchEvent(new CustomEvent("vf:section", { detail: hash }));
   }
 
   const update = () => {
     raf = 0;
     const gliding = document.documentElement.dataset.gliding;
-    show(gliding ? links.findIndex((a) => a.hash === gliding) : whereAmI());
+    if (gliding) show(links.findIndex((a) => a.hash === gliding), Math.max(0, railLinks.findIndex((a) => a.hash === gliding)));
+    else show(whereAmI(), railWhere());
   };
   const schedule = () => { if (!raf) raf = requestAnimationFrame(update); };
   addEventListener("scroll", schedule, { passive: true });
