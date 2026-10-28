@@ -3,7 +3,7 @@
 import { LM } from "../config.js";
 import { angleBetween, lineFromHorizontal } from "../geometry.js";
 import { scorePike, combine } from "../scoring.js";
-import { rankFaults } from "../coaching.js";
+import { rankFaults, POSITION_CUES } from "../coaching.js";
 
 const P = (lms, side, name) => lms[LM[`${side}_${name}`]];
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -17,7 +17,7 @@ export default {
   repSeconds: [0.4, 10],
   bottomBand: 8,
   attemptMin: 12,
-  startTip: "Hands and feet on the floor, hips high, side-on",
+  startTip: POSITION_CUES["Pike push-up"],
   fixes: {
     depth:   (m) => ({ ...m, elbow: Math.min(m.elbow, 90) }),
     hipsLow: (m) => ({ ...m, hip: Math.min(m.hip, 95) }),

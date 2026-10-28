@@ -10,7 +10,7 @@
 
 import { LM } from "../config.js";
 import { scoreJack } from "../scoring.js";
-import { rankFaults } from "../coaching.js";
+import { rankFaults, POSITION_CUES } from "../coaching.js";
 import { median } from "../geometry.js";
 
 const TORSO_TO_FRAME = 0.2;
@@ -28,7 +28,7 @@ export default {
   repSeconds: [0.2, 4],
   bottomBand: 0.05,
   attemptMin: 0.12,
-  startTip: "Face the camera, arms by your sides",
+  startTip: POSITION_CUES["Jumping Jack"],
   fixes: {
     extension: (m) => ({ ...m, armRaise: Math.max(m.armRaise, 0.2) }),
     feet:      (m) => ({ ...m, legSpread: Math.max(m.legSpread, 1.7) }),

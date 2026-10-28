@@ -9,7 +9,7 @@
 import { LM } from "../config.js";
 import { angleBetween, leanFromVertical, thighAngleDeg, kneeTravel } from "../geometry.js";
 import { scoreSquat, scoreControl, combine } from "../scoring.js";
-import { rankFaults } from "../coaching.js";
+import { rankFaults, POSITION_CUES } from "../coaching.js";
 
 const P = (lms, side, name) => lms[LM[`${side}_${name}`]];
 
@@ -24,7 +24,7 @@ export default {
   repSeconds: [0.5, 12],    // shorter = a twitch, longer = not one rep (grinders still fit)         // seconds that must be spent below deepThreshold
   bottomBand: 8,             // score frames within 8° of the deepest point
   attemptMin: 12,            // dipped this far without going deep = "too shallow"
-  startTip: "Stand tall, side-on, to start",
+  startTip: POSITION_CUES["Squat"],
   // For the coach: the measurements as they'd be with one fault fixed (to
   // estimate how many points fixing it is worth), and the depth signal to
   // watch for fatigue (higher depthDeg = shallower).

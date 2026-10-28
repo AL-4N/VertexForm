@@ -11,7 +11,7 @@
 
 import {
   PRAISE, NEAR_MISS, NO_REP, MILESTONES, SYSTEM, REST_SECONDS, EXERCISE_NAMES,
-  FAULTS, CONCRETE, FIXED, FOCUS, COACH_LINES, SETUP_CUES, FRAMING, PERSONALITIES,
+  FAULTS, CONCRETE, FIXED, FOCUS, COACH_LINES, SETUP_CUES, POSITION_CUES, FRAMING, PERSONALITIES,
 } from "./coaching.js";
 import { fillTemplate, briefFixLine } from "./coach.js";
 export { numberKey } from "./speech.js";
@@ -27,7 +27,7 @@ export function allPhrases() {
     else if (v && typeof v === "object") Object.values(v).forEach(add);
   };
 
-  add([PRAISE, NEAR_MISS, NO_REP, MILESTONES, SETUP_CUES, FRAMING, CONCRETE]);
+  add([PRAISE, NEAR_MISS, NO_REP, MILESTONES, SETUP_CUES, POSITION_CUES, FRAMING, CONCRETE]);
   for (const [k, v] of Object.entries(SYSTEM)) if (typeof v !== "function") add(v);
   REST_SECONDS.forEach((n) => add(SYSTEM.rest(n)));
   EXERCISE_NAMES.forEach((e) => add(SYSTEM.name(e)));

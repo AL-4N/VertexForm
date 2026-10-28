@@ -4,7 +4,7 @@
 import { LM } from "../config.js";
 import { angleBetween, lineFromHorizontal, relativeSag } from "../geometry.js";
 import { scoreHang } from "../scoring.js";
-import { rankFaults } from "../coaching.js";
+import { rankFaults, POSITION_CUES } from "../coaching.js";
 
 const P = (lms, side, name) => lms[LM[`${side}_${name}`]];
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -14,11 +14,11 @@ export default {
   isHold: true,
   frontFacing: true,
   inPosition: (m) => m.wristsUp && m.elbow > 140,
-  positionText: "Hang from a bar facing the camera, arms straight",
+  positionTip: POSITION_CUES["Dead hang"],
   posture: (m) => (m.wristsUp ? 1 : 0),
   floor: false,
   guide: null,
-  fixes: {},
+  fixes: { bentArms: (m) => ({ ...m, elbow: 170 }) },
   repMetric: () => 0, deepThreshold: 0, shallowThreshold: 0,
 
   measure(lms) {
@@ -41,6 +41,9 @@ export default {
     };
   },
   detectFaults(m) {
-    return rankFaults("Dead hang", m.drift > 0.02 ? [["drift", 1]] : []);
+    const found = [];
+    if (m.elbow < 155) found.push(["bentArms", 3]);
+    if (m.drift > 0.02) found.push(["drift", 1]);
+    return rankFaults("Dead hang", found);
   },
 };

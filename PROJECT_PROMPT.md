@@ -17,9 +17,8 @@ run it.
 
 - **Exercises:** squat, push-up, plank (a timed hold), lunge, jumping jack,
   and (Oct 2026, for the skill tree) pike push-up, side plank (hold), hollow
-  hold (hold), mountain climber, dead hang (hold). The newer five coach only
-  with lines already recorded (no `npm run voice` was available), so they
-  stay out of workouts until their spoken names are recorded.
+  hold (hold), mountain climber, dead hang (hold). All ten have their own
+  recorded fault lines and spoken names, so all ten can go in workouts.
 - **Modes:** Practice (rep by rep until you hit a target grade), Analyze a set
   (N reps or seconds, then a breakdown), and Workouts (circuits of up to 10
   steps with rest; 3 saved routines).
@@ -47,9 +46,10 @@ compare `const VERSION` in the live `/sw.js` with the local `public/sw.js`.
 **Git:** pushes work over HTTPS with cached credentials, using
 `GIT_TERMINAL_PROMPT=0 git push origin main`. The credential is a classic GitHub token
 (`repo` scope) in the macOS Keychain; if a push fails with 401/403 it has
-expired: ask the user to make a new one and push once themselves. Node isn't
-installed: run it through VS Code's Electron with
-`ELECTRON_RUN_AS_NODE=1 "/Applications/Visual Studio Code.app/Contents/MacOS/Code"`. `http.postBuffer` is raised for
+expired: ask the user to make a new one and push once themselves. Node 24
+LTS is installed per user (no admin) in `~/.local/node`, with `node`, `npm`
+and `npx` linked into `~/.local/bin` (on the PATH via `~/.zshrc`); if a
+shell can't find it, prefix `PATH=~/.local/node/bin:$PATH`. `http.postBuffer` is raised for
 large pushes. The GitHub CLI (`gh`) isn't installed. Commit as you go, with a
 clear message and the Co-Authored-By trailer. **Push every commit to `main`
 right away without asking** (the owner asked for this in Oct 2026; it
@@ -122,7 +122,9 @@ local). `npm test` must pass first, as always.
 Dev dependencies: `playwright` (Chromium is downloaded by
 `npx playwright install chromium`), `ffmpeg-static` (its install script is
 allowed in `package.json` `allowScripts`), and `kokoro-js` (its model, about
-90 MB, sits in the Hugging Face cache).
+90 MB, is downloaded on the first `npm run voice` into
+`node_modules/@huggingface/transformers/.cache`). Every exercise's setup cue
+(`POSITION_CUES`) and name (`EXERCISE_NAMES`) live in `coaching.js` too.
 
 ## How it works (pipeline)
 
@@ -163,7 +165,7 @@ webcam → pose.js (MediaPipe PoseLandmarker; lite/full/heavy, "auto" falls back
   voice, and `voices.json`.
   - Voices: Heart (`af_heart`, Chill), Bella (`af_bella`, Hype), Michael
     (`am_michael`, Coach); configured in `js/voices.js`.
-  - 3 × 535 clips, 12.8 MB at 32 kbps mono MP3. Not precached; cached the
+  - 3 × 737 clips, 18.8 MB at 32 kbps mono MP3. Not precached; cached the
     first time they play.
   - Coach lines are PARTS, e.g. `[92, "Better, that one hit parallel."]`.
     Pauses: 250 ms after a number, 400 ms between sentences.

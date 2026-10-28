@@ -3,7 +3,7 @@
 import { LM } from "../config.js";
 import { angleBetween, relativeSag, headDrop, lineFromHorizontal } from "../geometry.js";
 import { scorePushup, combine } from "../scoring.js";
-import { rankFaults } from "../coaching.js";
+import { rankFaults, POSITION_CUES } from "../coaching.js";
 
 const P = (lms, side, name) => lms[LM[`${side}_${name}`]];
 
@@ -16,7 +16,7 @@ export default {
   repSeconds: [0.4, 10],
   bottomBand: 8,
   attemptMin: 12,
-  startTip: "Get into the top of a push-up, side-on",
+  startTip: POSITION_CUES["Push-up"],
   fixes: {
     depth: (m) => ({ ...m, elbow: Math.min(m.elbow, 90) }),
     sag:   (m) => ({ ...m, bodyLine: 0, sag: 0 }),

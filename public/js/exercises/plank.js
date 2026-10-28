@@ -3,7 +3,7 @@
 import { LM } from "../config.js";
 import { lineFromHorizontal, relativeSag, headDrop, angleBetween } from "../geometry.js";
 import { scorePlank } from "../scoring.js";
-import { rankFaults } from "../coaching.js";
+import { rankFaults, POSITION_CUES } from "../coaching.js";
 
 const P = (lms, side, name) => lms[LM[`${side}_${name}`]];
 
@@ -12,7 +12,7 @@ export default {
   isHold: true,
   /** Timer only runs while you're actually in a plank (body near horizontal). */
   inPosition: (m) => m.incline < 40,
-  positionTip: "Get into your plank, side-on to the camera",
+  positionTip: POSITION_CUES["Plank"],
   posture: (m) => Math.max(0, Math.min(1, (55 - m.incline) / 15)),
   floor: true,
   guide: "line",

@@ -3,7 +3,7 @@
 import { LM } from "../config.js";
 import { angleBetween, leanFromVertical, kneeTravel } from "../geometry.js";
 import { scoreLunge, combine } from "../scoring.js";
-import { rankFaults } from "../coaching.js";
+import { rankFaults, POSITION_CUES } from "../coaching.js";
 
 const P = (lms, side, name) => lms[LM[`${side}_${name}`]];
 
@@ -22,7 +22,7 @@ export default {
   repSeconds: [0.5, 12],
   bottomBand: 8,
   attemptMin: 12,
-  startTip: "Stand tall, side-on, to start",
+  startTip: POSITION_CUES["Lunge"],
   fixes: {
     shallow: (m) => ({ ...m, knee: 92 }),
     tooDeep: (m) => ({ ...m, knee: 92 }),

@@ -4,10 +4,6 @@
  */
 
 import { EXERCISES } from "../config.js";
-import { EXERCISE_NAMES } from "../coaching.js";
-// Workouts announce each exercise by name, so only ones with a recorded name
-// (EXERCISE_NAMES) can go in one. Pike push-up joins once its name is recorded.
-const IN_WORKOUTS = EXERCISES.filter((e) => EXERCISE_NAMES.includes(e));
 import { store, save } from "../storage.js";
 import {
   MAX_ROUTINES, MAX_STEPS, unitFor, normalizeStep, saveRoutine, deleteRoutine, validateRoutine, describeStep,
@@ -123,7 +119,7 @@ function renderSteps() {
     <li class="step">
       <label class="sr-only" for="step-ex-${i}">Exercise ${i + 1}</label>
       <select id="step-ex-${i}" class="text-input">
-        ${IN_WORKOUTS.map((e) => `<option${e === s.exercise ? " selected" : ""}>${e}</option>`).join("")}
+        ${EXERCISES.map((e) => `<option${e === s.exercise ? " selected" : ""}>${e}</option>`).join("")}
       </select>
       <label class="sr-only" for="step-n-${i}">${unitFor(s.exercise)}</label>
       <input id="step-n-${i}" class="text-input num" type="number" inputmode="numeric" min="1" value="${s.amount}" />
@@ -143,11 +139,12 @@ function renderRest() {
 /** Pull the form's values into the draft (amounts normalised to their unit's limits). */
 function readForm() {
   draft.name = $("#routine-name").value;
-  draft.steps = $$("#step-list .step").map((li) => {
+  draft.steps = $$("#step-list .step").map((li, i) => {
     const exercise = li.querySelector("select").value;
-    const prev = draft.steps.find((s) => s.exercise === exercise);
+    const was = draft.steps[i];
     let amount = Number(li.querySelector("input").value);
-    if (unitFor(exercise) === "seconds" && amount < 10) amount = prev?.unit === "seconds" ? prev.amount : 30;
+    // Switched between reps and a hold: start from that unit's usual amount.
+    if (was && unitFor(was.exercise) !== unitFor(exercise)) amount = unitFor(exercise) === "seconds" ? 30 : 10;
     return normalizeStep({ exercise, amount });
   });
 }

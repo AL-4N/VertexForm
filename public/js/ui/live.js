@@ -27,7 +27,7 @@ import {
 import { savedCameraId, savedCameraLabel, refreshCameraPickers } from "./camera-picker.js";
 import { Session } from "../session.js";
 import { gradeLetter, gradeVar } from "../geometry.js";
-import { SETUP_CUES, SYSTEM, PRAISE, NEAR_MISS, NO_REP, FAULTS, CONCRETE, FRAMING } from "../coaching.js";
+import { SETUP_CUES, POSITION_CUES, SYSTEM, PRAISE, NEAR_MISS, NO_REP, FAULTS, CONCRETE, FRAMING } from "../coaching.js";
 import { Coach } from "../coach.js";
 import { voice, speech, beep, setMuted, isMuted } from "../voice.js";
 import { recordScore, recordSession, lastSession, countRep } from "../storage.js";
@@ -263,7 +263,7 @@ export async function runLive(exerciseName, cfg, onFinish, { label = null } = {}
       else if (ts - problemSince > SETUP_SPEAK_AFTER) {
         const cue = issue === "dark" || issue === "framing" ? tip
                   : issue === "turn" && ex.frontFacing ? SETUP_CUES.turnFront
-                  : issue === "position" ? (ex.positionTip ?? SETUP_CUES.position)
+                  : issue === "position" ? (POSITION_CUES[ex.name] ?? SETUP_CUES.position)
                   : SETUP_CUES[issue];
         voice.say(cue, { minGap: 7 });
       }

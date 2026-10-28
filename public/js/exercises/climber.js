@@ -5,7 +5,7 @@
 import { LM } from "../config.js";
 import { angleBetween, lineFromHorizontal, relativeSag } from "../geometry.js";
 import { combine, scoreClimber } from "../scoring.js";
-import { rankFaults } from "../coaching.js";
+import { rankFaults, POSITION_CUES } from "../coaching.js";
 
 const P = (lms, side, name) => lms[LM[`${side}_${name}`]];
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -21,8 +21,9 @@ export default {
   repSeconds: [0.25, 4],
   bottomBand: 10,
   attemptMin: 15,
-  startTip: "High plank, side-on, then drive the near knee to your chest",
+  startTip: POSITION_CUES["Mountain climber"],
   fixes: {
+    drive: (m) => ({ ...m, hip: Math.min(m.hip, 75) }),
     sag:  (m) => ({ ...m, lineBreak: 0 }),
     pike: (m) => ({ ...m, lineBreak: 0 }),
   },
@@ -61,6 +62,7 @@ export default {
   },
   detectFaults(m) {
     const found = [];
+    if (m.hip > 85) found.push(["drive", 2]);           // the knee stopped short of the chest
     if (m.lineBreak > 11) found.push(["sag", 3]);
     else if (m.lineBreak < -11) found.push(["pike", 2]);
     return rankFaults("Mountain climber", found);

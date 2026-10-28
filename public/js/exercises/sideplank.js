@@ -4,7 +4,7 @@
  *  reads it as side-on). */
 import { LM } from "../config.js";
 import { angleBetween, lineFromHorizontal, relativeSag } from "../geometry.js";
-import { rankFaults } from "../coaching.js";
+import { rankFaults, POSITION_CUES } from "../coaching.js";
 
 const P = (lms, side, name) => lms[LM[`${side}_${name}`]];
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -14,7 +14,7 @@ export default {
   name: "Side plank",
   isHold: true,
   inPosition: (m) => m.incline < 40,
-  positionText: "Side plank on one forearm, chest to the camera",
+  positionTip: POSITION_CUES["Side plank"],
   posture: (m) => clamp01((55 - m.incline) / 15),
   floor: true,
   guide: "line",

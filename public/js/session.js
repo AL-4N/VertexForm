@@ -265,7 +265,7 @@ export class Session {
       out.tip = {
         visibility: FRAMING.wholeBody, bones: "", still: FRAMING.still,
         facing: ex.frontFacing ? SETUP_CUES.turnFront : SETUP_CUES.turn,
-        posture: (ex.isHold ? ex.positionText ?? ex.positionTip : ex.startTip) ?? SETUP_CUES.position,
+        posture: (ex.isHold ? ex.positionTip : ex.startTip) ?? SETUP_CUES.position,
       }[conf.weakest] ?? "";
       out.weakest = conf.weakest;
       this.#lost(t);
@@ -297,7 +297,7 @@ export class Session {
     if (!this.armed) {
       // Ready = in the start position and holding still for a second.
       out.ready = atTop && this.calibrator.stillFor >= 1;
-      out.tip = atTop ? (this.calib ? "Ready" : "Hold still a moment…") : (ex.isHold ? ex.positionText ?? ex.positionTip : ex.startTip) ?? "Get into position";
+      out.tip = atTop ? (this.calib ? "Ready" : "Hold still a moment…") : (ex.isHold ? ex.positionTip : ex.startTip) ?? "Get into position";
       this.overlay = out.overlay = shown ? "ready" : "none";
       return out;
     }
@@ -482,7 +482,7 @@ export class Session {
     const inPosition = this.ex.inPosition ? this.ex.inPosition(m) : true;
     if (!inPosition) {
       out.state = "position";
-      out.tip = this.ex.positionText ?? this.ex.positionTip ?? "Get into position";   // positionText: shown only (positionTip is also spoken, so it must be recorded)
+      out.tip = this.ex.positionTip ?? "Get into position";
       h.good = 0;
       out.hold = this.#holdInfo();
       return;

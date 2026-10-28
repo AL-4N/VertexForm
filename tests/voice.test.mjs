@@ -17,7 +17,7 @@ import { numberKey, partKey } from "../public/js/speech.js";
 import { VOICES, PERSONALITY_VOICE } from "../public/js/voices.js";
 import { Coach } from "../public/js/coach.js";
 import { REGISTRY } from "../public/js/exercises/index.js";
-import { PERSONALITIES, SYSTEM, SETUP_CUES, FRAMING, REST_SECONDS } from "../public/js/coaching.js";
+import { PERSONALITIES, SYSTEM, SETUP_CUES, POSITION_CUES, FRAMING, REST_SECONDS, EXERCISE_NAMES } from "../public/js/coaching.js";
 import { restCue } from "../public/js/rest.js";
 import { rng } from "./helpers/synth.mjs";
 
@@ -46,6 +46,9 @@ for (const voice of Object.keys(VOICES)) {
   const bytes = fs.readdirSync(path.join(AUDIO, voice)).filter((f) => f.endsWith(".mp3")).reduce((a, f) => a + fs.statSync(path.join(AUDIO, voice, f)).size, 0);
   totalBytes += bytes;
 }
+// Workouts announce every exercise by name ("Next up: Dead hang."), so each needs its name recorded.
+const { EXERCISES } = await import("../public/js/config.js");
+check("Every exercise's name is recorded (workouts say it)", EXERCISES.every((e) => EXERCISE_NAMES.includes(e)), EXERCISES.filter((e) => !EXERCISE_NAMES.includes(e)).join(", "));
 check("Each personality has a voice", PERSONALITIES.every((p) => VOICES[PERSONALITY_VOICE[p]]));
 check(`Voice pack under 25 MB in total`, totalBytes < 25 * 1048576, `${(totalBytes / 1048576).toFixed(1)} MB`);
 
@@ -82,6 +85,9 @@ for (const [name, ex] of Object.entries(REGISTRY)) {
 // System lines the app says outside the coach.
 say([SYSTEM.go, SYSTEM.startRep, SYSTEM.startHold, SYSTEM.setComplete, SYSTEM.targetReached, SYSTEM.workoutStart, SYSTEM.firstUp, SYSTEM.workoutDone, SYSTEM.workoutEnded, 92, SYSTEM.sample, ...SYSTEM.tempo]);
 for (const n of REST_SECONDS) say([SYSTEM.rest(n), SYSTEM.nextUp, SYSTEM.name("Squat")]);
+for (const e of EXERCISE_NAMES) say([SYSTEM.firstUp, SYSTEM.name(e)]);
+// The setup cue each exercise says while you get into position.
+for (const ex of Object.values(REGISTRY)) say([POSITION_CUES[ex.name] ?? SETUP_CUES.position]);
 for (const auto of [true, false]) for (let s = 90; s >= 0; s--) { const c = restCue(s + 1, s, 90, auto); if (c != null) say([c]); }
 say([...Object.values(SETUP_CUES), ...Object.values(FRAMING)]);
 check("The coach and app only say recorded phrases", !unknown.size, unknown.size ? [...unknown].slice(0, 5).join(" | ") : `checked ${PERSONALITIES.length * 3 * Object.keys(REGISTRY).length * 120} simulated reps`);

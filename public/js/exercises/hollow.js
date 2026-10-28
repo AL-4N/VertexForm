@@ -4,7 +4,7 @@
 import { LM } from "../config.js";
 import { angleBetween, lineFromHorizontal, relativeSag } from "../geometry.js";
 import { scoreHollow } from "../scoring.js";
-import { rankFaults } from "../coaching.js";
+import { rankFaults, POSITION_CUES } from "../coaching.js";
 
 const P = (lms, side, name) => lms[LM[`${side}_${name}`]];
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -14,11 +14,14 @@ export default {
   isHold: true,
   /** Lying (the shoulder-to-ankle line near level) with both ends lifted. */
   inPosition: (m) => m.incline < 35 && m.shLift > 0.12 && m.legLift > 0.12,
-  positionText: "Lie on your back, side-on, then lift your shoulders and legs",
+  positionTip: POSITION_CUES["Hollow hold"],
   posture: (m) => clamp01((50 - m.incline) / 15),
   floor: true,
   guide: null,
-  fixes: {},
+  fixes: {
+    flat:   (m) => ({ ...m, hip: 150 }),
+    folded: (m) => ({ ...m, hip: 150 }),
+  },
   repMetric: () => 0, deepThreshold: 0, shallowThreshold: 0,
 
   measure(lms, side) {
@@ -44,6 +47,10 @@ export default {
     };
   },
   detectFaults(m) {
-    return rankFaults("Hollow hold", m.drift > 0.02 ? [["drift", 1]] : []);
+    const found = [];
+    if (m.hip > 162) found.push(["flat", 2]);           // both ends barely up: the easy version
+    else if (m.hip < 130) found.push(["folded", 2]);    // a jackknife, not a hollow
+    if (m.drift > 0.02) found.push(["drift", 1]);
+    return rankFaults("Hollow hold", found);
   },
 };

@@ -112,18 +112,18 @@ step in `js/skills.js`. Order = most useful first.
       The bar isn't tracked; the wrists stand in for it. Faults: half rep (chin under wrists),
       no dead hang at the bottom, kipping (hip swing: horizontal hip speed), rushed lowering.
       Negative = top hold then a lowering of 3 s or more.
-- [ ] **Dead hang** (hold): wrists above head, elbows > 160°, feet off the floor (ankles move
+- [x] **Dead hang**: done (`exercises/hang.js`, front-on; wrists above the head stand in for the bar; steadiness watches sideways sway). Was planned as: wrists above head, elbows > 160°, feet off the floor (ankles move
       up with the body, no floor contact for the whole hold). Fault: shrugged shoulders
       (shoulder-to-ear distance shrinks vs the calibrated standing value).
 - [ ] **L-sit** (hold, side-on): hip angle 80–100°, knees > 165°, ankles at or above hip height.
       In-position only when the hips are above the wrists' floor line (hands on floor or
       parallettes). Faults: bent knees, legs dropping (ankle below hip), leaning back.
-- [ ] **Hollow hold** (hold, side-on, lying): shoulders and ankles both off the floor line,
+- [x] **Hollow hold**: done (`exercises/hollow.js`; in position while shoulders and feet are lifted; graded on the hip angle). Was planned as: shoulders and ankles both off the floor line,
       hip angle 140–170°. Fault: legs too high (easy), lower back arching (hip lifts).
 - [ ] **V-sit** (hold): like the L-sit with ankles clearly above hip height (hip angle < 75°).
 - [ ] **Diamond push-up**: push-up module plus wrists close together (wrist gap < shoulder
       width x 0.5, front-on or 45°). Needs a facing check that allows a 45° camera.
-- [ ] **Pike push-up**: hips high (hip angle < 110°), rep = head toward the floor (elbow angle).
+- [x] **Pike push-up**: done (`exercises/pike.js`). Hip angle (shoulder–hip–ankle) must stay folded; reps by elbow angle; its own recorded fault lines and name. To do: a 3D clip for the homepage popup.
 - [ ] **Handstand push-up** (wall): body inverted (ankles above shoulders), elbow angle reps.
 - [ ] **Pistol squat**: squat module on one leg; the free foot must stay off the floor for the
       whole rep; depth = working thigh angle; per-leg counts.
@@ -186,3 +186,10 @@ Rough order: most useful first. Everything stays on-device unless it says otherw
 - **Directional (vertical) blur in the page transition.** View-transition snapshots take CSS filters;
   an SVG directional blur there isn't reliable across browsers, so it's a strong blur + upward
   motion, which reads as motion blur. The in-page nav glide keeps the true vertical SVG blur.
+
+### Newer trackers: follow-ups
+- [x] Record the spoken names of Pike push-up, Side plank, Hollow hold, Mountain climber and Dead hang, so all ten exercises can go in workouts.
+- [x] Their own recorded fault lines, plus new faults: hollow hold too flat / folded, dead hang bent arms, climber short knee drive. Every exercise also says its own setup cue (`POSITION_CUES`).
+- [ ] Pike push-up "elbows flaring" and hollow hold "lower back up": neither shows from the side-on view; needs a second camera angle or a depth signal.
+- [x] Side plank (`exercises/sideplank.js`) and mountain climbers (`exercises/climber.js`, counts the near knee; the climber figure's hips lift mid-drive via `mid` poses and `rig.js poseAt`).
+- [ ] Real recordings of all five (RECORDING_GUIDE.md) to check the thresholds on real bodies.
