@@ -28,6 +28,16 @@ check("Pike push-up is tracked (8 in a set, average 85+)", STEP_BY_ID.pike?.test
     && step(skillPath([...pre, set("Pike push-up", 6, 95)]), "pike").status === "next"
     && step(skillPath([set("Pike push-up", 8, 95)]), "pike").status === "locked");
 }
+check("Side plank, hollow hold, mountain climbers and dead hang are tracked",
+  ["side_plank", "hollow", "climbers", "dead_hang"].every((id) => STEP_BY_ID[id]?.test));
+{
+  const hold = (exercise, sec, average) => ({ exercise, reps: Array(Math.ceil(sec / 5)).fill(average), average, best: average, heldS: sec });
+  const p = skillPath([hold("Dead hang", 32, 90)]);
+  check("Dead hang unlocks from a real 30 s hang (no prerequisites)", step(p, "dead_hang").status === "done");
+  const q = skillPath([hold("Plank", 32, 85), hold("Side plank", 31, 84)]);
+  check("Side plank needs the plank first, then a 30 s side plank", step(q, "side_plank").status === "done"
+    && step(skillPath([hold("Side plank", 31, 84)]), "side_plank").status === "locked");
+}
 check("Step ids are unique", new Set(all.map((s) => s.id)).size === all.length);
 check("Every tracked step uses an exercise the app can grade", all.filter((s) => s.test).every((s) => REGISTRY[s.test.exercise]));
 check("Every step says what it takes", all.every((s) => s.name && s.goal));
@@ -44,7 +54,7 @@ check("L-sit and pull-up are on the path", !!step(PATHS, "l_sit") && !!step(PATH
 let p = skillPath([]);
 check("No history: first tracked steps are next", ["pushup", "squat", "plank"].every((id) => step(p, id).status === "next"));
 check("No history: later tracked steps are locked", step(p, "pushup_clean").status === "locked" && step(p, "squat_deep").status === "locked");
-check("Untracked steps show as planned", step(p, "l_sit").status === "planned" && step(p, "dead_hang").status === "planned");
+check("Untracked steps show as planned", step(p, "l_sit").status === "planned" && step(p, "row").status === "planned");
 check("No history: next step says there are no sets yet", step(p, "pushup").closest === null);
 
 p = skillPath([set("Push-up", 10, 80)]);

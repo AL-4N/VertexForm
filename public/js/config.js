@@ -31,7 +31,7 @@ export const POSE_EDGES = [
   [27,29],[29,31],[28,30],[30,32],
 ];
 
-export const EXERCISES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up"];
+export const EXERCISES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up", "Side plank", "Hollow hold", "Mountain climber", "Dead hang"];
 
 // What a good rep looks like — shown beside the animated demo on the setup screen.
 export const DEMO_TIPS = {
@@ -41,6 +41,10 @@ export const DEMO_TIPS = {
   "Lunge":        ["Side-on, then step forward", "Drop until your front knee is about 90°", "Keep your torso tall"],
   "Jumping Jack": ["Face the camera", "Hands all the way overhead", "Feet out wider than your shoulders"],
   "Pike push-up": ["Side-on, camera at floor height", "Hips high: an upside-down V", "Lower your head toward the floor, elbows past 90°"],
+  "Side plank":   ["Chest to the camera, camera at floor height", "Elbow under the shoulder", "Hips up: shoulders, hips and ankles in one line"],
+  "Hollow hold":  ["Side-on, camera at floor height", "Lower back pressed to the floor", "Shoulders and legs just off the floor"],
+  "Mountain climber": ["Side-on, camera at floor height", "Hands under the shoulders, hips level", "Drive the near knee all the way to the chest"],
+  "Dead hang":    ["Face the camera, whole body and hands in frame", "Arms straight, shoulders pulled down", "Still: no swinging"],
 };
 
 export const EXERCISE_META = {
@@ -50,6 +54,10 @@ export const EXERCISE_META = {
   "Lunge":        { hint: "Side-on. Step and hold.",                live: true  },
   "Jumping Jack": { hint: "Face the camera.",                       live: true  },
   "Pike push-up": { hint: "Side-on. Hips high, head down.",       live: true  },
+  "Side plank":   { hint: "Chest to the camera. Hold the line.",    live: true  },
+  "Hollow hold":  { hint: "Side-on, lying down. Hold the shape.",   live: true  },
+  "Mountain climber": { hint: "Side-on. Counts the near knee.",     live: true  },
+  "Dead hang":    { hint: "Face the camera. Hang still.",           live: true  },
 };
 
 // Visibility below this and we don't trust a measurement.

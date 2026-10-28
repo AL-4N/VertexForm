@@ -43,6 +43,23 @@ export function scorePike(elbow, hip) {
   return { depth, hips };
 }
 
+/** Hollow hold: 135–160° at the hip is the hollow; flatter is the easy
+ *  version (legs and shoulders sinking), sharper is a jackknife. */
+export function scoreHollow(hip) {
+  return hip > 160 ? Math.max(0, 100 - (hip - 160) * 4) : hip < 135 ? Math.max(0, 100 - (135 - hip) * 3) : 100;
+}
+
+/** Mountain climber: knee drive (the near hip's angle at the deepest point)
+ *  and how far the hips break from the shoulder–back-ankle line. */
+export function scoreClimber(hip, lineBreak) {
+  const drive = hip <= 80 ? 100 : Math.max(0, 100 - (hip - 80) * 2);
+  const line = Math.abs(lineBreak) <= 8 ? 100 : Math.max(0, 100 - (Math.abs(lineBreak) - 8) * 5);   // like the push-up's body line
+  return { drive, line };
+}
+
+/** Dead hang: straight arms (the more bent elbow). */
+export const scoreHang = (elbow) => (elbow >= 165 ? 100 : Math.max(0, 100 - (165 - elbow) * 3));
+
 export function scorePlank(sag) {
   const a = Math.abs(sag);
   return a < 0.022 ? 100 : Math.max(0, 100 - (a - 0.022) * 550);

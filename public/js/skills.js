@@ -35,7 +35,7 @@ export const PATHS = [
   {
     id: "pull", name: "Pull", goal: "Muscle-up",
     steps: [
-      { id: "dead_hang",     name: "Dead hang",         requires: [],                      goal: "Hang from a bar for 30 s, shoulders active" },
+      { id: "dead_hang",     name: "Dead hang",         requires: [],                      goal: "Hang from a bar for 30 s, arms straight, average 80+", test: hold("Dead hang", 30, 80) },
       { id: "row",           name: "Australian row",    requires: [],                      goal: "10 rows under a low bar, body in one straight line" },
       { id: "negative",      name: "Negative pull-up",  requires: ["dead_hang", "row"],    goal: "5 slow lowers from chin over the bar, 3 s each" },
       { id: "pullup",        name: "Pull-up",           requires: ["negative"],            goal: "1 pull-up from a dead hang, chin over the bar" },
@@ -61,8 +61,8 @@ export const PATHS = [
       { id: "plank",         name: "Plank",             requires: [],                      goal: "Hold 30 s, average 80+",                     test: hold("Plank", 30, 80) },
       { id: "plank_solid",   name: "Solid plank",       requires: ["plank"],               goal: "Hold 60 s, average 90+",                     test: hold("Plank", 60, 90) },
       { id: "plank_2min",    name: "Two-minute plank",  requires: ["plank_solid"],         goal: "Hold 120 s, average 90+",                    test: hold("Plank", 120, 90) },
-      { id: "side_plank",    name: "Side plank",        requires: ["plank"],               goal: "Hold 30 s per side, hips up in line" },
-      { id: "hollow",        name: "Hollow hold",       requires: ["plank_solid"],         goal: "Hold 30 s, lower back on the floor" },
+      { id: "side_plank",    name: "Side plank",        requires: ["plank"],               goal: "Hold 30 s, hips up in line, average 80+ (do both sides)", test: hold("Side plank", 30, 80) },
+      { id: "hollow",        name: "Hollow hold",       requires: ["plank_solid"],         goal: "Hold 30 s, shoulders and legs up, average 80+", test: hold("Hollow hold", 30, 80) },
       { id: "l_sit",         name: "L-sit",             requires: ["hollow", "dips"],      goal: "Hold 10 s, legs straight and level" },
       { id: "v_sit",         name: "V-sit",             requires: ["l_sit"],               goal: "Hold 5 s, legs above level" },
     ],
@@ -72,7 +72,7 @@ export const PATHS = [
     steps: [
       { id: "jacks",         name: "Jumping jacks",     requires: [],                      goal: "30 jumping jacks in one set, average 85+",   test: set("Jumping Jack", 30, 85) },
       { id: "jacks_clean",   name: "Clean jacks",       requires: ["jacks"],               goal: "60 jumping jacks in one set, average 92+",   test: set("Jumping Jack", 60, 92) },
-      { id: "climbers",      name: "Mountain climbers", requires: ["jacks_clean", "plank"], goal: "30 s, hips level, knees driving to the chest" },
+      { id: "climbers",      name: "Mountain climbers", requires: ["jacks_clean", "plank"], goal: "20 knee drives in one set, hips level, average 85+", test: set("Mountain climber", 20, 85) },
       { id: "burpee",        name: "Burpee",            requires: ["climbers", "pushup_clean"], goal: "10 in a row, a full push-up and a jump each" },
     ],
   },

@@ -5,7 +5,7 @@
  * app uses (bottom window → medians → component scores → weighted blend), and
  * checks each case lands in its intended band. Run with:  npm test
  */
-import { scoreSquat, scorePushup, scorePlank, scoreLunge, scoreControl, combine } from "../public/js/scoring.js";
+import { scoreSquat, scorePushup, scorePlank, scoreLunge, scoreControl, scorePike, scoreHollow, scoreClimber, scoreHang, combine } from "../public/js/scoring.js";
 import { thighAngleDeg, leanFromVertical, median, bottomWindow } from "../public/js/geometry.js";
 import { gradeColor, gradeLetter } from "../public/js/grade.js";
 import { gradeLetter as appLetter } from "../public/js/geometry.js";
@@ -62,6 +62,21 @@ letterCheck("Site: 97 is an A", gradeLetter(97), "A");
 letterCheck("Trainer: 97 is an A+ (matches the A+ 95 target)", appLetter(97), "A+");
 letterCheck("Trainer: 94 is an A", appLetter(94), "A");
 letterCheck("69 is a D, 59 an F", gradeLetter(69) + gradeLetter(59), "DF");
+
+/* ── The newer trackers' curves (Oct 2026) ── */
+{
+  const ok = (name, cond, detail = "") => { cond ? pass++ : fail++; console.log(`${cond ? "PASS" : "FAIL"}  ${name.padEnd(58)} ${detail}`); };
+  const pk = (e, h) => combine([[scorePike(e, h).depth, 0.6], [scorePike(e, h).hips, 0.4]]);
+  ok("Pike: elbows 90, hips folded 90° = 100", pk(90, 90) === 100, pk(90, 90));
+  ok("Pike: hips dropped to 133° lands ~C/D (70–80)", pk(90, 133) >= 70 && pk(90, 133) <= 80, pk(90, 133));
+  ok("Hollow: 135–160° is full marks", scoreHollow(135) === 100 && scoreHollow(160) === 100);
+  ok("Hollow: nearly flat (170°) is an F", scoreHollow(170) < 65, scoreHollow(170));
+  const cl = (h, b) => combine([[scoreClimber(h, b).drive, 0.6], [scoreClimber(h, b).line, 0.4]]);
+  ok("Climber: knee to chest, straight line = 100", cl(60, 0) === 100, cl(60, 0));
+  ok("Climber: half drive (hip 120°) clearly lower", cl(120, 0) < 65, cl(120, 0));
+  ok("Climber: 12° sag costs points, like the push-up", cl(60, 12) < 95 && cl(60, 12) > 80, cl(60, 12));
+  ok("Hang: straight arms 100, elbows at 140° an F", scoreHang(172) === 100 && scoreHang(140) < 30, scoreHang(140));
+}
 
 console.log(`\n${fail ? `${fail} FAILED` : "All scoring checks pass"} (${pass} passed)`);
 process.exit(fail ? 1 : 0);

@@ -15,7 +15,11 @@ pre-recorded voice. There's no server, no account, no uploads and no
 analytics. It's static HTML/CSS/vanilla JS ES modules with no build step to
 run it.
 
-- **Exercises:** squat, push-up, plank (a timed hold), lunge, jumping jack.
+- **Exercises:** squat, push-up, plank (a timed hold), lunge, jumping jack,
+  and (Oct 2026, for the skill tree) pike push-up, side plank (hold), hollow
+  hold (hold), mountain climber, dead hang (hold). The newer five coach only
+  with lines already recorded (no `npm run voice` was available), so they
+  stay out of workouts until their spoken names are recorded.
 - **Modes:** Practice (rep by rep until you hit a target grade), Analyze a set
   (N reps or seconds, then a breakdown), and Workouts (circuits of up to 10
   steps with rest; 3 saved routines).

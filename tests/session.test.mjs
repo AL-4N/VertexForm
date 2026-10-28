@@ -97,6 +97,30 @@ check("Pike push-up: dropped hips flagged and scored lower", r.reps.length === 5
 r = run("Pike push-up", repStream("pike", { depth: 0, hips: 0 }, { depth: 30, hips: 0 }));   // elbows to ~118°: half the range
 check("Pike push-up: half reps don't count (logged as shallow)", r.reps.length === 0 && r.shallow >= 4, fmt(r));
 
+/* ── Side plank, hollow hold, dead hang (holds), mountain climber ── */
+r = run("Side plank", holdStream("side_plank", { hips: 0 }));
+check("Side plank: 30 s, hips in line, all A", r.done && r.reps.length === 6 && r.min >= 90, fmt(r));
+r = run("Side plank", holdStream("side_plank", { hips: 28 }));
+check("Side plank: dropping hips score low, flagged sag", r.done && r.max < 75 && r.faults.has("sag"), fmt(r));
+
+r = run("Hollow hold", holdStream("hollow", { lift: 100 }));
+check("Hollow hold: 30 s in the hollow, all A", r.done && r.reps.length === 6 && r.min >= 90, fmt(r));
+r = run("Hollow hold", holdStream("hollow", { lift: 0 }, { seconds: 12 }));
+check("Hollow hold: lying flat never counts as holding", r.reps.length === 0 && !r.done, fmt(r));
+
+r = run("Dead hang", holdStream("hang", { bend: 0 }));
+check("Dead hang: 30 s, arms straight, all A", r.done && r.reps.length === 6 && r.min >= 90, fmt(r));
+r = run("Dead hang", holdStream("hang", { bend: 45 }));
+check("Dead hang: bent arms score lower", r.reps.length > 0 && r.max < 85, fmt(r));
+
+const CLIMB_T = { timing: [0.35, 0.1, 0.35, 0.2], reps: 8 };
+r = run("Mountain climber", repStream("climber", { depth: 0, hips: 0 }, { depth: 100, hips: 0 }, CLIMB_T), { setReps: 8 });
+check("Mountain climber: 8 full knee drives all A", r.reps.length === 8 && r.min >= 90, fmt(r));
+r = run("Mountain climber", repStream("climber", { depth: 0, hips: 24 }, { depth: 100, hips: 24 }, CLIMB_T), { setReps: 8 });
+check("Mountain climber: sagging hips flagged and lower", r.reps.length === 8 && r.max < 95 && r.faults.has("sag"), fmt(r));
+r = run("Mountain climber", repStream("climber", { depth: 0, hips: 0 }, { depth: 45, hips: 0 }, CLIMB_T), { setReps: 8 });
+check("Mountain climber: short drives score lower", r.reps.length > 0 && r.max < 90, fmt(r));
+
 /* ── Push-up ───────────────────────────────────────────── */
 r = run("Push-up", repStream("pushup", { depth: 0, hips: 0 }, { depth: 100, hips: 0 }));
 check("Push-up: 5 good reps all score A", r.reps.length === 5 && r.min >= 90, fmt(r));

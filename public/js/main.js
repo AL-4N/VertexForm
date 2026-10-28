@@ -6,6 +6,7 @@
  */
 
 import { EXERCISE_META, DEMO_TIPS } from "./config.js";
+import { REGISTRY } from "./exercises/index.js";
 import { speech } from "./voice.js";
 import { cfg as settingsCfg, wireSettings, setCfg, onSetting } from "./ui/settings.js";
 import { $, $$, showScreen, toast } from "./ui/components.js";
@@ -210,7 +211,7 @@ function openMode(exercise, card = null) {
   $("#mode-practice").style.display = supportsLive ? "" : "none";
 
   // Plank is a hold, so the wording (and the set length) is in seconds.
-  const hold = exercise === "Plank";
+  const hold = !!REGISTRY[exercise]?.isHold;
   $("#mode-practice-text").textContent = hold
     ? "Live coaching while you hold. Keep your target grade for 10 seconds (or 30)."
     : "Live coaching, rep by rep, until you hit your target grade.";

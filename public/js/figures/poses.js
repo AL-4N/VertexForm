@@ -13,7 +13,7 @@
  */
 
 import { angleAt, thighDepth, leanFromVertical, hipSag } from "./rig.js";
-import { scoreSquat, scorePushup, scorePike, scorePlank, scoreLunge, scoreJack, combine } from "../scoring.js";
+import { scoreSquat, scorePushup, scorePike, scorePlank, scoreLunge, scoreJack, scoreHollow, scoreClimber, scoreHang, combine } from "../scoring.js";
 
 export const GROUND = 470;
 const STAGE_H = 520;   // used to normalise distances the way the app does
@@ -211,5 +211,92 @@ const jack = {
   },
 };
 
-export const EXERCISES = [squat, pushup, plank, lunge, jack, pike];
+/* ── Side plank (forearm, top arm up; a hold that sags, then corrects) ── */
+const sidePlank = {
+  id: "side_plank", name: "Side plank", view: "side",
+  good: "top",
+  timing: [1300, 1100, 900, 2200],
+  top: {
+    view: "side", arms: "ik",
+    hip: [335, 420], angTorso: -9.2, angHead: -9,
+    ankleN: [120, 455], ankleF: [124, 452],
+    angFootN: 135, angFootF: 135, bendKneeN: 1, bendKneeF: 1,
+    handN: [519, GROUND - 2], handF: [470, 290], bendElbowN: -1, bendElbowF: 1,
+  },
+  bottom: null,          // set below: the top with the hips dropped
+  measure: (s) => plank.measure(s),
+};
+
+/* ── Hollow hold (on the back; a hold that sinks flat, then lifts) ── */
+const hollow = {
+  id: "hollow", name: "Hollow hold", view: "side",
+  good: "top",
+  timing: [1300, 1000, 900, 2200],
+  top: {   // the hollow: shoulders and legs off the floor
+    view: "side", arms: "fk",
+    hip: [300, 456], angTorso: -15, angHead: -15,
+    ankleN: [97, 384], ankleF: [101, 386],
+    angFootN: 200, angFootF: 200, bendKneeN: 1, bendKneeF: 1,
+    angUpperN: -10, angForeN: -5, angUpperF: -12, angForeF: -7,
+  },
+  bottom: {   // sinking flat
+    view: "side", arms: "fk",
+    hip: [300, 458], angTorso: -5, angHead: -6,
+    ankleN: [84, 440], ankleF: [88, 441],
+    angFootN: 190, angFootF: 190, bendKneeN: 1, bendKneeF: 1,
+    angUpperN: -2, angForeN: 0, angUpperF: -4, angForeF: -2,
+  },
+  measure(s) {
+    const hip = angleAt(s.neck, s.hip, s.ankN);
+    const shape = scoreHollow(hip);
+    return { score: Math.round(shape), parts: [["Body shape", shape]], raw: { hip }, rows: [["Hip angle", deg(hip)]] };
+  },
+};
+
+/* ── Mountain climber (high plank; the near knee drives to the chest) ── */
+const climber = {
+  id: "climber", name: "Mountain climber", view: "side",
+  timing: [380, 120, 380, 260],
+  top: { ...pushup.top, footLift: true },
+  // Mid-drive the hips lift as the knee passes under them (rig.js poseAt),
+  // or the knee would have to go through the floor.
+  mid: { ...pushup.top, footLift: true, hip: [332, 350], angTorso: 3.5, angHead: 8, ankleN: [250, 446], bendKneeN: -1 },
+  bottom: { ...pushup.top, footLift: true, ankleN: [330, 463], bendKneeN: -1 },   // knee forward under the chest
+  measure(s) {
+    const hip = angleAt(s.neck, s.hip, s.kneeN);
+    const lineBreak = 180 - angleAt(s.neck, s.hip, s.ankF);
+    const { drive, line } = scoreClimber(hip, lineBreak);
+    return {
+      score: combine([[drive, 0.6], [line, 0.4]]),
+      parts: [["Knee drive", drive], ["Body line", line]],
+      raw: { hip, lineBreak },
+      rows: [["Hip angle", deg(hip)], ["Body line", lineBreak < 6 ? "straight" : `${deg(lineBreak)} bend`]],
+    };
+  },
+};
+
+/* ── Dead hang (front view, from a bar above the frame) ── */
+const HANG = {
+  view: "front", arms: "fk",
+  hip: [300, 200], angTorso: -90, angHead: -90,
+  ankleN: [287, 417], ankleF: [313, 417],                    // straight down from each hip
+  angFootN: 96, angFootF: 84, bendKneeN: -1, bendKneeF: -1,
+  angUpperN: -97, angForeN: -94, angUpperF: -83, angForeF: -86,
+};
+const hang = {
+  id: "hang", name: "Dead hang", view: "front",
+  good: "top",
+  timing: [1400, 900, 1400, 1800],
+  top: HANG,
+  bottom: { ...HANG, hip: [306, 200], ankleN: [295, 417], ankleF: [321, 417] },   // a small sideways sway
+  measure(s) {
+    const elbow = Math.min(angleAt(s.shN, s.elbN, s.wriN), angleAt(s.shF, s.elbF, s.wriF));
+    const arms = scoreHang(elbow);
+    return { score: Math.round(arms), parts: [["Straight arms", arms]], raw: { elbow }, rows: [["Elbows", deg(elbow)]] };
+  },
+};
+
+sidePlank.bottom = { ...sidePlank.top, hip: [335, 446], angTorso: -19.8, angHead: -17 };   // hips drop, shoulder stays over the elbow
+
+export const EXERCISES = [squat, pushup, plank, lunge, jack, pike, sidePlank, hollow, climber, hang];
 export const BY_ID = Object.fromEntries(EXERCISES.map((e) => [e.id, e]));

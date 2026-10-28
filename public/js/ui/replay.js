@@ -16,7 +16,7 @@ import {
   SIDE, chains, KEY_ANGLE, KEEP_DAYS, framePoints, nearSide, keyAngle, deepestFrame,
   clipBounds, daysLeft, bestAndWorst, phaseProgress, frameAtProgress, facingDir,
 } from "../repclips.js";
-import { build, blend } from "../figures/rig.js";
+import { build, blend, poseAt } from "../figures/rig.js";
 import { BY_ID } from "../figures/poses.js";
 import { figureMarkup, bounds } from "../figures/draw.js";
 import { BY_NAME } from "../figures/pictos.js";
@@ -93,7 +93,7 @@ function idealMarkup(exercise, p, faceDir) {
   if (w / h < want) { const add = h * want - w; x0 -= add / 2; x1 += add / 2; } else { const add = w / want - h; y0 -= add; }
   const ease = (x) => (x < 0.5 ? 2 * x * x : 1 - (-2 * x + 2) ** 2 / 2);
   const t = ex.isHold || ex.id === "plank" ? (ex.good === "top" ? 0 : 1) : ease(p <= 0.5 ? p / 0.5 : (1 - p) / 0.5);
-  let s = build(blend(ex.top, ex.bottom, t));
+  let s = build(poseAt(ex, t));
   // Face the same way you did (side views only).
   const rigDir = top.toeN && top.ankN ? Math.sign(top.toeN[0] - top.ankN[0]) || 1 : 1;
   if (!s.front && faceDir !== rigDir) {

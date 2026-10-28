@@ -1048,11 +1048,12 @@ p, li, dd { text-wrap: pretty; }
 .btn-grad:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -1px 0 rgba(9,13,28,.12), 0 12px 34px -12px rgba(46,229,157,.65); }
 .score-num, .lab-num, .story-big span, .pc-n, .readout-rows dd { font-variant-numeric: tabular-nums; }
 
-/* The sixth exercise (pike push-up) runs the full width, figure beside the
-   text, so the grid ends on a deliberate row instead of an orphan. */
-@media (min-width: 901px) {
-  .ex-card.ex-new { grid-column: 1 / -1; flex-direction: row; align-items: center; }
-  .ex-card.ex-new .picto { flex: 0 0 min(42%, 420px); align-self: stretch; }
-  .ex-card.ex-new .ex-body { flex: 1; }
-}
 a.ex-open { text-decoration: none; }
+
+/* "Also tracked in the trainer": the newer exercises as a ruled list under
+   the cards (no 3D clip of their own yet). */
+.also-ex { margin-top: clamp(2.5rem, 5vw, 3.5rem); }
+.also-ex h3 { font-size: 1.05rem; letter-spacing: -.01em; }
+.also-ex .also { margin-top: 1rem; }
+.also-ex .also > div { grid-template-columns: 11rem 1fr; }
+@media (max-width: 560px) { .also > div, .also-ex .also > div { grid-template-columns: 1fr; gap: .3rem; } }

@@ -68,6 +68,29 @@ export function blend(A, B, t) {
      arms: "fk" -> angUpperN, angForeN, angUpperF, angForeF
            "ik" -> handN, handF, bendElbowN, bendElbowF
      view: "side" | "front"                                       */
+// The floor (same as poses.js GROUND; not imported, to keep rig.js free of it).
+const FLOOR = 470;
+
+/** A leg by IK. With `lift` (a pose's `footLift`: the mountain climber),
+ *  a knee never goes through the floor: the foot lifts until it clears, as
+ *  a real foot does. Other poses put the foot exactly where they say. */
+function leg(hp, ankle, bend, lift) {
+  let a = ankle, knee = solveIK(hp, a, SEG.thigh, SEG.shin, bend);
+  for (let k = 0; lift && k < 24 && knee[1] > FLOOR + 1; k++) {
+    a = [a[0], a[1] - 6];
+    knee = solveIK(hp, a, SEG.thigh, SEG.shin, bend);
+  }
+  return [knee, a];
+}
+
+/** An exercise's pose at t (0 top … 1 bottom). With a `mid` pose the path
+ *  goes top → mid → bottom (a mountain climber's hips lift as the knee
+ *  passes under them); otherwise straight from top to bottom. */
+export function poseAt(ex, t) {
+  if (!ex.mid) return blend(ex.top, ex.bottom, t);
+  return t < 0.5 ? blend(ex.top, ex.mid, t * 2) : blend(ex.mid, ex.bottom, t * 2 - 1);
+}
+
 export function build(p) {
   const front = p.view === "front";
   const hip = p.hip;
@@ -80,10 +103,10 @@ export function build(p) {
   const hpN = front ? [hip[0] - SEG.hipHalf, hip[1]] : hip;
   const hpF = front ? [hip[0] + SEG.hipHalf, hip[1]] : hip;
 
-  const kneeN = solveIK(hpN, p.ankleN, SEG.thigh, SEG.shin, p.bendKneeN ?? -1);
-  const kneeF = solveIK(hpF, p.ankleF, SEG.thigh, SEG.shin, p.bendKneeF ?? -1);
-  const ankN = reach(kneeN, p.ankleN, SEG.shin);
-  const ankF = reach(kneeF, p.ankleF, SEG.shin);
+  const [kneeN, ankleN] = leg(hpN, p.ankleN, p.bendKneeN ?? -1, p.footLift);
+  const [kneeF, ankleF] = leg(hpF, p.ankleF, p.bendKneeF ?? -1, p.footLift);
+  const ankN = reach(kneeN, ankleN, SEG.shin);
+  const ankF = reach(kneeF, ankleF, SEG.shin);
   const toeN = add(ankN, SEG.foot, p.angFootN);
   const toeF = add(ankF, SEG.foot, p.angFootF);
 

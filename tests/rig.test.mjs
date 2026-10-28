@@ -1,14 +1,16 @@
-import { build, blend, SEG } from "../public/js/figures/rig.js";
+import { build, poseAt, SEG } from "../public/js/figures/rig.js";
 import { EXERCISES } from "../public/js/figures/poses.js";
 const d = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 let bad = 0;
 for (const ex of EXERCISES) {
   const rows = [];
   for (const t of [0, 0.25, 0.5, 0.75, 1]) {
-    const s = build(blend(ex.top, ex.bottom, t));
-    const p = blend(ex.top, ex.bottom, t);
+    const p = poseAt(ex, t);
+    const s = build(p);
     const thigh = d(s.hpN, s.kneeN), shin = d(s.kneeN, s.ankN);
-    const footSlip = d(s.ankN, p.ankleN) + d(s.ankF, p.ankleF);
+    // Feet land where the pose says, unless it lets them lift (the mountain
+    // climber): then the knees must stay above the floor instead.
+    const footSlip = p.footLift ? (Math.max(s.kneeN[1], s.kneeF[1]) > 472 ? 9 : 0) : d(s.ankN, p.ankleN) + d(s.ankF, p.ankleF);
     const handSlip = p.arms === "ik" ? d(s.wriN, p.handN) + d(s.wriF, p.handF) : 0;
     const upper = d(s.shN, s.elbN), fore = d(s.elbN, s.wriN);
     const m = ex.measure(s);

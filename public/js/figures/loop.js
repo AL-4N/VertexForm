@@ -4,7 +4,7 @@
  * Returns a stop() function. Pauses itself while its host is hidden.
  */
 
-import { build, blend } from "./rig.js";
+import { build, poseAt } from "./rig.js";
 import { BY_ID } from "./poses.js";
 import { figureMarkup, bounds } from "./draw.js";
 import { gradeColor } from "../grade.js";
@@ -34,7 +34,7 @@ export function mountLoop(host, id, { start = performance.now() } = {}) {
 
   let shown = null;
   const draw = (t) => {
-    const s = build(blend(ex.top, ex.bottom, t));
+    const s = build(poseAt(ex, t));
     const m = ex.measure(s);
     shown = shown == null ? m.score : shown + (m.score - shown) * 0.12;   // a fresh copy starts in the right colour
     g.innerHTML = figureMarkup(s, {

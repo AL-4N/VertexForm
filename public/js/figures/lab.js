@@ -8,7 +8,7 @@
  * about (a skeleton key, for the note's arrow).
  */
 
-import { build, blend, SEG } from "./rig.js";
+import { build, blend, poseAt, SEG } from "./rig.js";
 import { BY_ID } from "./poses.js";
 import { FAULTS, PRAISE } from "../coaching.js";
 
@@ -60,6 +60,34 @@ export const LAB = {
     },
   },
 
+  // Side plank, hollow hold, mountain climber, dead hang: used by the simulator only.
+  side_plank: {
+    sliders: [{ key: "hips", label: "Hips", min: -40, max: 40, lo: "Too high", hi: "Dropping" }],
+    presets: [{ name: "Good hold", v: { hips: 0 } }],
+    pose: (v) => shiftHip(BY_ID.side_plank.top, v.hips),
+    guide: () => null, cue: () => [], focus: () => "hip",
+  },
+  hollow: {
+    sliders: [{ key: "lift", label: "Lift", min: 0, max: 100, lo: "Flat", hi: "Hollow" }],
+    presets: [{ name: "Good hold", v: { lift: 100 } }],
+    pose: (v) => blend(BY_ID.hollow.bottom, BY_ID.hollow.top, v.lift / 100),
+    guide: () => null, cue: () => [], focus: () => "hip",
+  },
+  climber: {
+    sliders: [
+      { key: "depth", label: "Knee drive", min: 0, max: 100, lo: "Leg back", hi: "Knee to chest" },
+      { key: "hips", label: "Hips", min: -40, max: 40, lo: "Piked", hi: "Sagging" },
+    ],
+    presets: [{ name: "Good rep", v: { depth: 100, hips: 0 } }],
+    pose: (v) => shiftHip(poseAt(BY_ID.climber, v.depth / 100), v.hips),
+    guide: () => null, cue: () => [], focus: () => "hip",
+  },
+  hang: {
+    sliders: [{ key: "bend", label: "Elbows", min: 0, max: 100, lo: "Straight", hi: "Bent" }],
+    presets: [{ name: "Good hold", v: { bend: 0 } }],
+    pose: (v) => blend(BY_ID.hang.top, { ...BY_ID.hang.top, angUpperN: -150, angForeN: -95, angUpperF: -30, angForeF: -85 }, v.bend / 100),
+    guide: () => null, cue: () => [], focus: () => "elbN",
+  },
   // Pike push-up: used by the simulator (tests/helpers/synth.mjs); not on the homepage.
   pike: {
     sliders: [

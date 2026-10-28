@@ -145,7 +145,8 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     toggle group's options with a horizontal motion blur.
   - **Five skill paths** (`js/skills.js`): Push, Pull, Legs, Core and
     Conditioning, 32 skills. Tracked ones unlock from real saved sets
-    (push-ups, squats, lunges, planks, jumping jacks); the rest say "Not
+    (push-ups, pike push-ups, squats, lunges, planks, side planks, hollow
+    holds, mountain climbers, jumping jacks, dead hangs); the rest say "Not
     tracked yet". Tree cards are large (236 px, 42 px flowers) on a wide
     screen (up to 1600 px), with a thicker trunk.
   - **Path cards show their tree in small** (`miniTree` in `ui/skills.js`):

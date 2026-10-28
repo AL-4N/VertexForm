@@ -8,13 +8,14 @@
  */
 
 import { EXERCISES } from "./config.js";
+import { REGISTRY } from "./exercises/index.js";
 
 export const MAX_ROUTINES = 3;
 export const MAX_STEPS = 10;
 export const REST_CHOICES = [0, 30, 60, 90, 120];
 
 /** "reps" for rep exercises, "seconds" for holds. */
-export const unitFor = (exercise) => (exercise === "Plank" ? "seconds" : "reps");
+export const unitFor = (exercise) => (REGISTRY[exercise]?.isHold ? "seconds" : "reps");
 
 const LIMITS = { reps: [1, 50], seconds: [10, 300] };
 

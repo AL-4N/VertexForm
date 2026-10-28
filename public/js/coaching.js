@@ -151,6 +151,47 @@ export const FAULTS = {
     ]],
   },
 
+  // Side plank, mountain climber, hollow hold, dead hang: built from the
+  // plank's recorded lines, with its labels and focus wording (no new audio).
+  "Side plank": {
+    sag: [3, "Hips up", [
+      "Hips are sagging, squeeze the glutes and lift them",
+      "Brace the core, bring the hips up to the line",
+      "Don't let gravity win. Hips back up",
+    ]],
+    pike: [2, "Hips down", [
+      "Hips are too high, lower into one straight line",
+      "Flatten out. Shoulders to ankles in one line",
+    ]],
+    drift: [1, "Hold steady", [
+      "You're drifting, reset the position and hold",
+      "Lock it in, no swaying",
+    ]],
+  },
+  "Mountain climber": {
+    sag: [3, "Hips up", [
+      "Hips are sagging, squeeze the glutes and lift them",
+      "Brace the core, bring the hips up to the line",
+      "Don't let gravity win. Hips back up",
+    ]],
+    pike: [2, "Hips down", [
+      "Hips are too high, lower into one straight line",
+      "Flatten out. Shoulders to ankles in one line",
+    ]],
+  },
+  "Hollow hold": {
+    drift: [1, "Hold steady", [
+      "You're drifting, reset the position and hold",
+      "Lock it in, no swaying",
+    ]],
+  },
+  "Dead hang": {
+    drift: [1, "Hold steady", [
+      "You're drifting, reset the position and hold",
+      "Lock it in, no swaying",
+    ]],
+  },
+
   "Lunge": {
     shallow: [3, "Depth", [
       "Bend the front knee more, aim for ninety degrees",
@@ -303,6 +344,15 @@ export const CONCRETE = {
   "Pike push-up": {
     tempo: ["Two seconds down, pause, then push the floor away"],
   },
+  "Side plank": {
+    sag: ["Squeeze your glutes hard and tuck your tailbone under"],
+    pike: ["Lower your hips until they line up with your shoulders and heels"],
+    drift: ["Freeze. Imagine a glass of water balanced on your back"],
+  },
+  "Mountain climber": {
+    sag: ["Squeeze your glutes hard and tuck your tailbone under"],
+    pike: ["Lower your hips until they line up with your shoulders and heels"],
+  },
   "Jumping Jack": {
     extension: ["Clap your hands right above your head on every jump"],
     feet: ["Land with your feet wider than your shoulders, like a big X"],
@@ -316,6 +366,10 @@ export const FIXED = {
   "Plank":   { sag: "hips are back in line", pike: "hips came down, nice line", head: "head's neutral now", drift: "rock steady now" },
   "Jumping Jack": { extension: "hands all the way up", feet: "feet nice and wide" },
   "Pike push-up": { depth: "your chest got low", tempo: "good controlled tempo" },
+  "Side plank":   { sag: "hips are back in line", pike: "hips came down, nice line", drift: "rock steady now" },
+  "Mountain climber": { sag: "hips are back in line", pike: "hips came down, nice line" },
+  "Hollow hold":  { drift: "rock steady now" },
+  "Dead hang":    { drift: "rock steady now" },
 };
 
 export const FOCUS = {
@@ -325,6 +379,10 @@ export const FOCUS = {
   "Plank":   { sag: "keeping your hips up", pike: "keeping your hips level", head: "a neutral neck", drift: "holding still" },
   "Jumping Jack": { extension: "getting your hands all the way up", feet: "jumping your feet wider" },
   "Pike push-up": { depth: "getting your chest lower", hipsLow: "keeping your hips up", tempo: "slowing the reps down" },
+  "Side plank":   { sag: "keeping your hips up", pike: "keeping your hips level", drift: "holding still" },
+  "Mountain climber": { sag: "keeping your hips up", pike: "keeping your hips level" },
+  "Hollow hold":  { drift: "holding still" },
+  "Dead hang":    { drift: "holding still" },
 };
 
 /** Personality-flavoured lines for the smarter coach. `{x}` is filled in. */
