@@ -149,6 +149,10 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     holds, mountain climbers, jumping jacks, dead hangs); the rest say "Not
     tracked yet". Tree cards are large (236 px, 42 px flowers) on a wide
     screen (up to 1600 px), with a thicker trunk.
+  - **A skill's panel shows your best try as meters** (`progressOf` in
+    `skills.js`): reps or seconds, and the average, each against the goal,
+    from your closest real set; they fill as the panel opens, "met" when
+    reached. Its Train button opens that exercise.
   - **Path cards show their tree in small** (`miniTree` in `ui/skills.js`):
     trunk, branches and the same blossoms, buds and twigs as the full tree.
   - **A path card zooms into its tree** (`zoomIntoTree` in `ui/skills.js`):

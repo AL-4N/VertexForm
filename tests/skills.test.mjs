@@ -2,7 +2,7 @@
  * skills.test.mjs — the skill tree (js/skills.js) unlocks skills only from
  * real saved sets, after their prerequisites, and never loses one. Run with:  npm test
  */
-import { PATHS, STEP_BY_ID, skillPath, newSkills, heldSeconds } from "../public/js/skills.js";
+import { PATHS, STEP_BY_ID, skillPath, newSkills, heldSeconds, progressOf } from "../public/js/skills.js";
 import { REGISTRY } from "../public/js/exercises/index.js";
 
 let pass = 0, fail = 0;
@@ -37,6 +37,11 @@ check("Side plank, hollow hold, mountain climbers and dead hang are tracked",
   const q = skillPath([hold("Plank", 32, 85), hold("Side plank", 31, 84)]);
   check("Side plank needs the plank first, then a 30 s side plank", step(q, "side_plank").status === "done"
     && step(skillPath([hold("Side plank", 31, 84)]), "side_plank").status === "locked");
+}
+{
+  const pr = progressOf(STEP_BY_ID.pushup_clean.test, [set("Push-up", 9, 93), set("Push-up", 12, 88), set("Squat", 30, 99)]);
+  check("Best try for a step: reps and average from the closest real set", pr && pr.done === 12 && pr.goal === 15 && pr.avg === 88 && pr.goalAvg === 90 && pr.unit === "reps", JSON.stringify(pr));
+  check("No sets of that exercise: no progress", progressOf(STEP_BY_ID.pike.test, [set("Push-up", 20, 99)]) === null);
 }
 check("Step ids are unique", new Set(all.map((s) => s.id)).size === all.length);
 check("Every tracked step uses an exercise the app can grade", all.filter((s) => s.test).every((s) => REGISTRY[s.test.exercise]));

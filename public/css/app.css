@@ -1040,3 +1040,16 @@ h1, h2, h3 { text-wrap: balance; }
 p { text-wrap: pretty; }
 ::selection { background: rgba(46,229,157,.3); color: #fff; }
 .score-big, .big-stat, .session-row strong, .rep-table td { font-variant-numeric: tabular-nums; }
+
+/* Skill panel: your best try as two meters against the goal (ui/skills.js). */
+.skill-progress { display: grid; gap: .55rem; margin: .6rem 0 .2rem; }
+.skill-progress .label { margin: 0 0 .1rem; }
+.sp-row { display: grid; grid-template-columns: 1fr auto; gap: .3rem .8rem; align-items: baseline; }
+.sp-k { font-size: .82rem; color: var(--text-dim); }
+.sp-v { font-family: var(--mono); font-size: .86rem; font-variant-numeric: tabular-nums; }
+.sp-bar { grid-column: 1 / -1; height: 6px; border-radius: 99px; background: var(--border); overflow: hidden; }
+.sp-bar i { display: block; height: 100%; width: calc(var(--f) * 100%); border-radius: inherit; background: var(--c, var(--go-gradient));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--c, #2ee59d) 50%, transparent); animation: sp-fill .9s cubic-bezier(.22,.61,.36,1) .25s both; }
+.sp-row.met .sp-k::after { content: "  met"; font-family: var(--mono); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--lime); }
+@keyframes sp-fill { from { width: 0; } }
+@media (prefers-reduced-motion: reduce) { .sp-bar i { animation: none; } }

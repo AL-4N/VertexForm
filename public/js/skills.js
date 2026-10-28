@@ -96,6 +96,28 @@ const passes = (test, s) => {
 };
 
 /** The saved set that came closest to a step's goal (or null if none of that exercise). */
+function bestTry(test, sessions) {
+  let best = null, bestFit = -1;
+  for (const s of sessions) {
+    if (s.exercise !== test.exercise) continue;
+    const r = reach(test, s);
+    const fit = r.amount + r.quality;
+    if (fit > bestFit) { bestFit = fit; best = s; }
+  }
+  return best;
+}
+
+/** How far your best try got toward a step's goal, as numbers for meters:
+ *  { done, goal, unit: "reps" | "s", avg, goalAvg } (null with no tries). */
+export function progressOf(test, sessions) {
+  const best = test && bestTry(test, sessions);
+  if (!best) return null;
+  return {
+    done: test.kind === "hold" ? heldSeconds(best) : best.reps.length, goal: test.kind === "hold" ? test.seconds : test.reps,
+    unit: test.kind === "hold" ? "s" : "reps", avg: best.average ?? 0, goalAvg: test.avg,
+  };
+}
+
 function closest(test, sessions) {
   let best = null, bestFit = -1;
   for (const s of sessions) {
@@ -142,7 +164,7 @@ export function skillPath(sessions = [], kept = []) {
       return {
         ...step, path: path.id, status: st, tier: tierOf(step.id),
         ready: step.requires.every((r) => statusOf(r) === "done"),
-        ...(st === "next" ? { closest: closest(step.test, sessions) } : {}),
+        ...(st === "next" ? { closest: closest(step.test, sessions), progress: progressOf(step.test, sessions) } : {}),
       };
     });
     return { ...path, steps, done: steps.filter((s) => s.status === "done").length };

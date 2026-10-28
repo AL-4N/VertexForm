@@ -13,6 +13,7 @@
  *             a button to train it.
  */
 
+import { gradeColor } from "../grade.js";
 import { reducedMotion } from "./motion.js";
 import { growFrom } from "./popup.js";
 import { store } from "../storage.js";
@@ -292,6 +293,22 @@ function drawEdges() {
   }
 }
 
+/** Two meters from your best real try: the amount (reps or seconds) and the
+ *  average, each against the goal, filling in as the panel opens. */
+function progressHTML(s) {
+  const p = s.progress;
+  if (!p) return `<p class="skill-closest small">No sets of this exercise yet. Train it once and your best try shows here.</p>`;
+  const row = (label, have, need, unit, colour) => {
+    const f = Math.max(0, Math.min(1, have / need));
+    return `<div class="sp-row${f >= 1 ? " met" : ""}"><span class="sp-k">${label}</span><span class="sp-v">${have}<span class="dim"> / ${need}${unit}</span></span><span class="sp-bar"><i style="--f:${f.toFixed(3)};${colour ? `--c:${colour}` : ""}"></i></span></div>`;
+  };
+  return `<div class="skill-progress" aria-label="Your best try">
+    <h3 class="label">Your best try</h3>
+    ${row(p.unit === "s" ? "Held" : "Reps in one set", p.done, p.goal, p.unit === "s" ? " s" : "")}
+    ${row("Average", p.avg, p.goalAvg, "", gradeColor(p.avg))}
+  </div>`;
+}
+
 /** The panel for the selected skill: goal, what it needs and unlocks, your best try. */
 function drawDetail() {
   const s = stepOf(selected);
@@ -309,7 +326,7 @@ function drawDetail() {
     <span class="tree-detail-status ${s.status}">${statusText(s)}</span>
     <h2>${s.name}</h2>
     <p class="tree-goal">${s.goal}</p>
-    ${s.status === "next" ? `<p class="skill-closest small">${s.closest ? `Closest so far: ${s.closest}` : "No sets of this exercise yet"}</p>` : ""}
+    ${s.status === "next" ? progressHTML(s) : ""}
     ${why}
     ${needs.length ? `<h3 class="label">Needs</h3><ul class="tree-links">${needs.map(link).join("")}</ul>` : `<h3 class="label">Needs</h3><p class="dim small">Nothing. This is a starting skill.</p>`}
     ${unlocks.length ? `<h3 class="label">Leads to</h3><ul class="tree-links">${unlocks.map(link).join("")}</ul>` : `<h3 class="label">Leads to</h3><p class="dim small">The top of this path.</p>`}
