@@ -92,7 +92,10 @@ its exact colour):
   flat. Primary buttons get a lit top edge too. Headings wrap balanced
   (`text-wrap: balance`), body text `pretty`; changing numbers are tabular. (The hero frame's single shadow is the exception.)
 - Don't make everything the same card. Vary it: a ruled list (`.also`),
-  panels, a calendar grid.
+  panels, a calendar grid. Empty states share one small card (History's
+  "Not tried yet") rather than one empty card each.
+- Buttons that start something look like it: the setup screen's Practice /
+  Analyze cards carry an arrow that fills with the go gradient on hover.
 - Say each thing once. The homepage had privacy in four places and three
   3D squats in a row (Oct 2026); now privacy is in the hero badges and the
   questions, and the 3D squat is the hero plus the pinned story. Before
@@ -313,8 +316,10 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   scoring test results and example chips climb from 0 through each grade
   colour as they come into view; the example chart's bars grow up in turn.
 - **Section index numbers** (`site/sections.js`): on wide screens, sections
-  whose heading has its row to itself get a big outlined number (01, 02…)
-  and a mono label in the empty space to the right; the digits roll up as
+  whose heading has its row to itself get a big outlined number and a mono
+  label in the empty space to the right, numbered as the side rail numbers
+  them (a section without room, like Coaching, is skipped, not renumbered),
+  and the heading row is always tall enough to clear it; the digits roll up as
   the section arrives, the label decodes, and the number drifts slower
   than the page.
 - **Exercise cards do their rep on hover** (`site/card-reps.js`): the
