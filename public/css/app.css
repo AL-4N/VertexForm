@@ -963,11 +963,11 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
   --d: 0; --a: 0; display: grid; grid-template-columns: 2.2rem 1fr auto; grid-template-areas: "i name name" "i hint best" "i hint reset"; column-gap: .6rem; align-items: baseline;
   background: none; border: 0; border-radius: 10px; padding: .55rem .6rem; text-align: left;
   transform-origin: 0 50%;
-  transform: rotateX(calc(var(--d) * -9deg)) translateX(0) scale(calc(1 - min(1, var(--a) * .5) * .12));
+  transform: rotateX(clamp(-30deg, calc(var(--d) * -8deg), 30deg)) translateX(0) scale(calc(1 - min(1, var(--a) * .5) * .12));
   opacity: calc(1 - min(1, var(--a) * .5) * .5);
   transition: transform .5s cubic-bezier(.22,.61,.36,1), opacity .4s, background .3s;
 }
-.picker .ex-card:hover { transform: rotateX(calc(var(--d) * -9deg)) translateX(4px) scale(calc(1 - min(1, var(--a) * .5) * .12)); background: none; }
+.picker .ex-card:hover { transform: rotateX(clamp(-30deg, calc(var(--d) * -8deg), 30deg)) translateX(4px) scale(calc(1 - min(1, var(--a) * .5) * .12)); background: none; }
 .picker .ex-card.on { transform: translateX(10px); opacity: 1; background: linear-gradient(90deg, rgba(46,229,157,.08), transparent 70%); }
 .pk-i { grid-area: i; font-family: var(--mono); font-size: .72rem; font-weight: 600; color: var(--text-faint); letter-spacing: .06em; }
 .picker .ex-card .name {
@@ -1053,3 +1053,10 @@ p { text-wrap: pretty; }
 .sp-row.met .sp-k::after { content: "  met"; font-family: var(--mono); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--lime); }
 @keyframes sp-fill { from { width: 0; } }
 @media (prefers-reduced-motion: reduce) { .sp-bar i { animation: none; } }
+
+/* Ten names: a tighter dial so it fits beside the stage (the tilt is capped
+   above, so far names stay readable). */
+.pk-list.many { gap: 0; }
+.pk-list.many .ex-card { padding: .32rem .6rem; }
+.pk-list.many .ex-card .name { font-size: clamp(1.05rem, 1.55vw, 1.45rem); }
+.pk-list.many .pk-i { font-size: .66rem; }

@@ -52,7 +52,7 @@ export function renderMenu(onPick) {
         </svg>
         <button type="button" class="btn primary pk-go"></button>
       </div>
-      <div class="pk-list" role="list">
+      <div class="pk-list${EXERCISES.length > 6 ? " many" : ""}" role="list">
         ${EXERCISES.map((name, i) => {
           const best = store.bests[name];
           return `<button type="button" role="listitem" class="ex-card" data-i="${i}" data-name="${name}">
