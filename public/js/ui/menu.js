@@ -85,7 +85,7 @@ export function renderMenu(onPick) {
     });
     // The marker glides to the name, stretching on the way like a needle.
     const it = items[i];
-    marker.style.transform = `translateY(${it.offsetTop + it.offsetHeight / 2 - 1}px)`;
+    marker.style.translate = `0 ${it.offsetTop + it.offsetHeight / 2 - 1}px`;   // translate, not transform: the stretch below scales the marker, not its distance down the list
     if (dir && !quiet) marker.animate([{ scale: "1 1" }, { scale: "1.5 6", offset: .35 }, { scale: "1 1" }], { duration: 520, easing: "cubic-bezier(.3,.7,.4,1)" });
     // The stage: the old figure leaves the way you moved (through a blur) as
     // the new one, doing its rep, comes in behind it.
@@ -181,7 +181,7 @@ export function renderMenu(onPick) {
   // Start on the last exercise you trained, or the first.
   const last = store.sessions?.at?.(-1)?.exercise;
   show(Math.max(0, EXERCISES.indexOf(last)));
-  requestAnimationFrame(() => { marker.style.transform = `translateY(${items[at].offsetTop + items[at].offsetHeight / 2 - 1}px)`; });
+  requestAnimationFrame(() => { marker.style.translate = `0 ${items[at].offsetTop + items[at].offsetHeight / 2 - 1}px`; });
 
   // The first time the menu shows, the names wind on like a dial and the stage draws in.
   if (!renderMenu.shown && !quiet) {

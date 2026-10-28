@@ -94,15 +94,23 @@ export async function morphInto({ from, figure, figureLoop = null, open, screen,
   }
 }
 
-/** The grade lands: slams down from above, a ring of its colour shocks out, the card jolts. */
-export function stamp(el, colour, card = el.closest(".card")) {
+/** The grade lands: slams down from above, a ring of its colour shocks out, the card jolts.
+ *  `lift`: the mark is already showing (a score that just counted up), so it
+ *  lifts off and slams back down instead of vanishing first. */
+export function stamp(el, colour, card = el.closest(".card"), { lift = false } = {}) {
   if (!ok() || !el) return;
-  el.animate([
+  el.animate(lift ? [
+    { transform: "scale(1) rotate(0)" },
+    { transform: "scale(1.9) rotate(-12deg)", opacity: 0.7, offset: 0.3 },
+    { transform: "scale(.88) rotate(3deg)", opacity: 1, offset: 0.66 },
+    { transform: "scale(1.06) rotate(-1deg)", offset: 0.84 },
+    { transform: "scale(1) rotate(0)" },
+  ] : [
     { transform: "scale(2.6) rotate(-16deg)", opacity: 0, filter: "blur(6px)" },
     { transform: "scale(.88) rotate(3deg)", opacity: 1, filter: "blur(0)", offset: 0.62 },
     { transform: "scale(1.06) rotate(-1deg)", offset: 0.82 },
     { transform: "scale(1) rotate(0)" },
-  ], { duration: 560, easing: "cubic-bezier(.3,.7,.3,1)" });
+  ], { duration: lift ? 620 : 560, easing: "cubic-bezier(.3,.7,.3,1)" });
   const r = el.getBoundingClientRect();
   const ring = document.createElement("span");
   ring.className = "flair-ring";
@@ -110,12 +118,13 @@ export function stamp(el, colour, card = el.closest(".card")) {
   const size = Math.max(r.width, r.height);
   Object.assign(ring.style, { left: `${r.left + r.width / 2 - size / 2}px`, top: `${r.top + r.height / 2 - size / 2}px`, width: `${size}px`, height: `${size}px`, borderColor: colour });
   document.body.appendChild(ring);
-  ring.animate([{ transform: "scale(.5)", opacity: 0.9 }, { transform: "scale(3.2)", opacity: 0 }], { duration: 650, delay: 330, easing: OUT, fill: "both" })
+  const hit = lift ? 400 : 330;                                   // the moment it lands
+  ring.animate([{ transform: "scale(.5)", opacity: 0.9 }, { transform: "scale(3.2)", opacity: 0 }], { duration: 650, delay: hit, easing: OUT, fill: "both" })
     .finished.then(() => ring.remove());
   card?.animate([
     { transform: "translate(0, 0)" }, { transform: "translate(0, 5px)", offset: 0.2 },
     { transform: "translate(-3px, -2px)", offset: 0.45 }, { transform: "translate(2px, 1px)", offset: 0.7 }, { transform: "translate(0, 0)" },
-  ], { duration: 360, delay: 340, easing: "ease-out" });
+  ], { duration: 360, delay: hit + 10, easing: "ease-out" });
 }
 
 /** History: stat cards flip down in turn like a departure board; charts draw themselves. */

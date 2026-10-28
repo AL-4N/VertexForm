@@ -26,7 +26,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 <!-- Marks that scripts run, so script-driven states (like the header button
      waiting until you scroll past the hero's) never hide anything without them. -->
-<script>document.documentElement.classList.add("js");</script>
+<script>(function(d){d.classList.add("js");if(!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("split-wait");setTimeout(function(){d.classList.remove("split-wait")},2500)}})(document.documentElement);</script>
 </head>
 <body data-tone="dark">
 
@@ -134,12 +134,12 @@
             <span class="readout-live">simulated, scored by the engine</span>
           </div>
           <div class="readout-score">
-            <span class="score-num" data-r="score">99</span>
-            <span class="score-letter" data-r="letter">A</span>
+            <span class="score-num" data-r="score" style="color:var(--text-faint)">–</span>
+            <span class="score-letter" data-r="letter"></span>
           </div>
           <dl class="readout-rows" data-r="rows"><div><dt>Knee angle</dt><dd>72°</dd></div><div><dt>Rep</dt><dd>1 of 3</dd></div></dl>
           <div class="scale" aria-hidden="true">
-            <div class="scale-bar"><span class="scale-marker" data-r="marker" style="left:99%"></span></div>
+            <div class="scale-bar"><span class="scale-marker" data-r="marker" style="left:0%"></span></div>
             <div class="scale-labels"><span style="left:30%">F</span><span style="left:65%">D</span><span style="left:75%">C</span><span style="left:85%">B</span><span style="left:95%">A</span></div>
           </div>
         </div>

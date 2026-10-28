@@ -33,18 +33,23 @@ function shapeOf(dlg, from, radius) {
  * let its children rise in one after another. With no rect: out of the
  * centre as a circle. Used for trainer screens, the skill-tree panel, and
  * anything else that should look like it came from what you clicked.
+ * `wash`: for an element with no background of its own (a whole screen), it
+ * grows as a panel that dissolves as its content arrives, so the growth
+ * shows instead of an empty pause.
  */
-export function growFrom(el, rect, { radius = 14, duration = 560, items = [] } = {}) {
+export function growFrom(el, rect, { radius = 14, duration = 560, items = [], wash = false } = {}) {
   if (reducedMotion() || !el?.animate) return;
   const d = el.getBoundingClientRect();
   const from = rect && rect.width
     ? `inset(${Math.max(0, rect.top - d.top)}px ${Math.max(0, d.right - rect.right)}px ${Math.max(0, d.bottom - rect.bottom)}px ${Math.max(0, rect.left - d.left)}px round ${radius}px)`
     : `circle(0px at 50% ${Math.min(d.height / 2, innerHeight / 2 - d.top)}px)`;
   const to = rect && rect.width ? `inset(0px 0px 0px 0px round 0px)` : `circle(${Math.hypot(d.width, d.height)}px at 50% ${Math.min(d.height / 2, innerHeight / 2 - d.top)}px)`;
-  el.animate([{ clipPath: from }, { clipPath: to }], { duration, easing: EASE_OUT });
+  el.animate(wash
+    ? [{ clipPath: from, backgroundColor: "#18223f" }, { backgroundColor: "rgba(18,26,50,.6)", offset: 0.45 }, { clipPath: to, backgroundColor: "rgba(18,26,50,0)" }]
+    : [{ clipPath: from }, { clipPath: to }], { duration, easing: EASE_OUT });
   items.forEach((c, i) => c.animate(
     [{ opacity: 0, transform: "translateY(20px)" }, { opacity: 1, transform: "none" }],
-    { duration: 440, delay: 140 + i * 45, easing: EASE_OUT, fill: "backwards" },
+    { duration: 440, delay: (wash ? 60 : 140) + i * (wash ? 38 : 45), easing: EASE_OUT, fill: "backwards" },
   ));
 }
 

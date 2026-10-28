@@ -119,7 +119,7 @@ export function mountLab(root) {
     // Reaching an A (from below, by your own hand or once a preset settles):
     // the score stamps down, rings out green and throws a burst of sparks.
     if (!swinging && score >= 90 && lastScore != null && lastScore < 90) {
-      stamp(ui.score, c, null);
+      stamp(ui.score, c, null, { lift: true });
       const r = ui.score.getBoundingClientRect();
       setTimeout(() => burst(r.left + r.width / 2, r.top + r.height / 2, 1.8), 320);
     }

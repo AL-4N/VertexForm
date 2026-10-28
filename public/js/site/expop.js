@@ -20,6 +20,7 @@ import { openPopup } from "../ui/popup.js";
 import { scramble } from "../ui/scramble.js";
 import { reducedMotion, tween, EASE } from "../ui/motion.js";
 import { Scene, loadClips, frameAt, repAt, deepestT, clamp } from "../figures/scene3d.js";
+import { renderPictos } from "../figures/pictos.js";
 
 const CLIP_FOR = { squat: "full", pushup: "pushup", plank: "plank", lunge: "lunge", jack: "jack" };
 const TIPS_FOR = { squat: "Squat", pushup: "Push-up", plank: "Plank", lunge: "Lunge", jack: "Jumping Jack" };
@@ -66,6 +67,10 @@ export function mountExercisePopups(grid, dlg) {
   /** Card figure → 3D figure (see the top of this file). */
   async function becomeModel(card, run) {
     const c = st.clip;
+    // Fly the card's still drawing (the bottom of the rep, the pose the 3D
+    // figure waits in), not whichever frame its hover loop was on.
+    const host = card.querySelector(".picto[data-picto]");
+    if (host) { host.innerHTML = ""; renderPictos(card); }
     const from = card.querySelector(".picto svg");
     const end = { yaw: c.front ? 24 : 34, pitch: 12 };
     if (!from) { Object.assign(st, end, { show: 1, floor: 1, playing: true }); return; }
@@ -78,9 +83,11 @@ export function mountExercisePopups(grid, dlg) {
     fly.setAttribute("aria-hidden", "true");
     fly.innerHTML = from.outerHTML;
     dlg.appendChild(fly);
+    if (host) host.style.visibility = "hidden";                // it has left the card
     const box = (r) => ({ left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px` });
     const TRAVEL = "cubic-bezier(.65,0,.2,1)";
     await fly.animate([box(a), box(b)], { duration: 780, easing: TRAVEL, fill: "forwards" }).finished.catch(() => {});
+    if (host) host.style.visibility = "";
     if (run !== st.run) { fly.remove(); return; }
     // Dissolve the flat drawing into the model…
     tween(0, 1, (v) => { st.show = v; if (!st.raf) draw(); }, { duration: 320 });

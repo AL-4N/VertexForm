@@ -973,7 +973,7 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .pk-list::before { content: ""; position: absolute; left: .35rem; top: .4rem; bottom: .4rem; width: 1px;
   background: repeating-linear-gradient(to bottom, var(--border-hi, #2e3a63) 0 1px, transparent 1px 12px), var(--border); }
 .pk-marker { position: absolute; left: 0; top: 0; width: 13px; height: 2px; border-radius: 2px; background: var(--go-gradient, linear-gradient(90deg, #ffbe3d, #2ee59d));
-  box-shadow: 0 0 12px rgba(46,229,157,.7); transition: transform .55s cubic-bezier(.34,1.4,.5,1); }
+  box-shadow: 0 0 12px rgba(46,229,157,.7); transition: translate .55s cubic-bezier(.34,1.4,.5,1); }
 
 .picker .ex-card {
   --d: 0; --a: 0; display: grid; grid-template-columns: 2.2rem 1fr auto; grid-template-areas: "i name name" "i hint best" "i hint reset"; column-gap: .6rem; align-items: baseline;

@@ -47,7 +47,7 @@ function countUp(best) {
   // and a glint runs across "Go again".
   clearTimeout(countUp.stampAt);
   countUp.stampAt = setTimeout(() => {
-    stamp(letter, gradeColor(best));
+    stamp(letter, gradeColor(best), undefined, { lift: true });
     if (reducedMotion()) return;
     letter.closest(".grade-dial")?.animate([{ filter: "brightness(1)" }, { filter: `brightness(1.8) drop-shadow(0 0 14px ${gradeColor(best)})`, offset: .2 }, { filter: "brightness(1)" }], { duration: 700, easing: "ease-out" });
     const again = $("#btn-again");

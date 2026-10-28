@@ -264,6 +264,8 @@ body::after {
 .hero:not(.hero-3d) .hero-canvas, .hero:not(.hero-3d) .hero-view { display: none; }
 .hero-fallback { position: absolute; inset: 0 var(--gutter); display: flex; align-items: center; border-radius: var(--r-lg); }
 .hero.hero-3d .hero-fallback { display: none; }
+.js .hero:not(.hero-3d) .hero-fallback { animation: hero-fb-in .4s 2s both; }   /* no flash of the flat figure while the 3D loads */
+@keyframes hero-fb-in { from { opacity: 0; } }
 .hero-view {
   position: absolute; right: var(--gutter); top: .6rem; pointer-events: none;
   font-family: var(--mono); font-size: .7rem; font-weight: 600; letter-spacing: .06em; color: var(--text-faint); font-variant-numeric: tabular-nums;

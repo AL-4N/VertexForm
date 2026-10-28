@@ -43,9 +43,9 @@ export const LAB = {
     ],
     presets: [
       { name: "Good rep", v: { depth: 100, lean: 25 } },
-      { name: "Half squat", v: { depth: 55, lean: 20 } },
-      { name: "Folded forward", v: { depth: 100, lean: 52 } },
-      { name: "Quarter squat", v: { depth: 30, lean: 12 } },
+      { name: "Half squat", v: { depth: 62, lean: 20 } },          // 76, the half squat in the scoring tests
+      { name: "Folded forward", v: { depth: 100, lean: 42 } },     // 83, the folded-forward squat in the scoring tests
+      { name: "Quarter squat", v: { depth: 39, lean: 12 } },       // 54, the quarter squat in the scoring tests
     ],
     pose: (v) => withLean(blend(BY_ID.squat.top, BY_ID.squat.bottom, v.depth / 100), v.lean),
     arc: (s) => [s.hip, s.kneeN, s.ankN],

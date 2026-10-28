@@ -140,14 +140,13 @@ export function mountPaths(root = document.querySelector("[data-paths]")) {
       if (!near) return;
       // The card rolls over the top of a drum: up, tipped back, smaller, blurred.
       card.style.transform = `translate3d(0, ${d * 78}%, 0) perspective(1400px) rotateX(${-d * 28}deg) rotateY(${14 - st.mx * 6}deg) skewY(${skew}deg) scale(${1 - a * 0.12})`;
-      card.style.opacity = String(clamp(1 - a * 0.85, 0, 1));
-      card.style.filter = a > 0.02 ? `blur(${(a * 9).toFixed(1)}px)` : "none";
+      card.style.opacity = String(clamp(1 - a * 1.25, 0, 1));          // the leaving card clears out of the way fast
+      card.style.filter = a > 0.02 ? `blur(${(a * 5).toFixed(1)}px)` : "none";
       card.style.clipPath = bow;
-      // The middle column only shows its own path, rising through a blur.
+      // The middle column only shows its own path: it slides and fades, text stays sharp.
       const ia = clamp(1 - a * 2.4, 0, 1);
       info.style.opacity = String(ia);
       info.style.transform = `translate3d(0, ${d * 70}px, 0)`;
-      info.style.filter = ia < 0.99 ? `blur(${((1 - ia) * 10).toFixed(1)}px)` : "none";
       // The tile passes the other way and tumbles, leaning to the pointer.
       tile.style.transform = `translate3d(${st.mx * 14}px, ${-d * 120 + st.my * 10}%, 0) perspective(700px) rotateX(${d * 50 - st.my * 12}deg) rotateY(${st.mx * 18}deg) rotateZ(${d * -24}deg)`;
       tile.style.opacity = String(clamp(1 - a * 1.2, 0, 1));
@@ -224,7 +223,7 @@ export function mountPaths(root = document.querySelector("[data-paths]")) {
       [{ transform: "scale(0) rotate(-40deg)", opacity: 0 }, { transform: "scale(1.25) rotate(6deg)", opacity: 1, offset: .7 }, { transform: "none", opacity: 1 }],
       { duration: 460, delay: 300 + (1 - y / H) * 560, easing: "cubic-bezier(.3,.7,.4,1)", fill: "backwards" }));
     info.querySelectorAll(".pc-ch").forEach((c, k) => c.animate(
-      [{ transform: "translateY(.7em) rotateX(-80deg)", opacity: 0, filter: "blur(6px)" }, { transform: "none", opacity: 1, filter: "blur(0)" }],
+      [{ transform: "translateY(.7em) rotateX(-80deg)", opacity: 0 }, { transform: "none", opacity: 1 }],
       { duration: 560, delay: 60 + k * 38, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }));
     info.querySelectorAll(".pc-tags span").forEach((t, k) => t.animate(
       [{ transform: "translateY(10px) scale(.8)", opacity: 0 }, { transform: "none", opacity: 1 }],

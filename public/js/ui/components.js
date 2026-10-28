@@ -39,7 +39,7 @@ export function showScreen(id, { focus = null, dir = "forward", grow = true } = 
     if (dir === "back") slide(next, { from: [-64, 0], to: [0, 0], opacity: [0, 1], duration: 380, ease: EASE.out, strength: 1.1 });
     else {
       const recent = pressed && performance.now() - pressed.at < 700 ? pressed.rect : null;
-      growFrom(next, recent, { items: [...next.children].slice(0, 8) });
+      growFrom(next, recent, { items: [...next.children].slice(0, 8), wash: true });
     }
     pressed = null;
     // The screen's small labels decode the first time it opens, not every time.

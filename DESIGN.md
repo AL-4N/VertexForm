@@ -193,8 +193,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   - **The results grade sits in a dial** (`results.js`): a protractor-style
     gauge round the letter (ticks every 10, the F to A bands marked) sweeps
     with the count-up, a bead riding its end in the live grade colour and
-    each band's letter lighting as it passes; the dial flashes as the
-    stamp lands and "Go again" catches a glint. The **rep chart draws
+    each band's letter lighting as it passes; the letter it counted up to
+    lifts off and slams down (`stamp(..., { lift: true })`, never blanking
+    the dial), and the dial flashes as the stamp lands and "Go again" catches a glint. The **rep chart draws
     itself** when it comes on screen (`drawRepChart`'s `p`): the target
     line runs across, each bar grows a little past its height and
     settles, its number pops, then the best rep gets a "BEST" bracket.
@@ -279,7 +280,8 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   popups, the trainer's confirms and onboarding (the page behind blurs and
   dims; closing runs back into the trigger); trainer screens grow out of
   the button or card that opened them (`showScreen`, `growFrom`), or out
-  of the middle when nothing was pressed; the skill-tree panel grows out of
+  of the middle when nothing was pressed, as a panel that dissolves while
+  the content rises (`wash`), so there's never an empty pause; the skill-tree panel grows out of
   the skill you picked; "Target reached" bursts out as a circle; toasts pop
   open from a dot and close back into one.
 - **Fact strips** (`site/ticker.js`): rows of true facts (mono, small) and
@@ -355,6 +357,13 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - Nothing loops just for decoration: the figures are always doing an
   exercise, and only while on screen.
 - `prefers-reduced-motion`: everything jumps straight to its end state.
+- Nothing flashes on load: the hero headline is hidden from the first
+  paint until it rises (`split-wait`, set inline, never longer than 2.5 s),
+  the flat fallback figure only shows if the 3D hero hasn't loaded within
+  2 s, and placeholders are dim dashes, not made-up scores.
+- Popups that fly a figure land it on the same pose: the exercise popup
+  flies the card's still drawing (the bottom of the rep), not whichever
+  frame its hover loop was on.
 
 ## Layout
 
