@@ -160,7 +160,7 @@
 
   <!-- Facts that slide as you scroll (js/site/ticker.js). Decorative: the
        same facts are in the page, so screen readers skip these. -->
-  <div class="ticker" data-ticker="left" aria-hidden="true"><div class="ticker-track"><span>33 points tracked every frame</span><i aria-hidden="true"></i><span>Every rep graded 0 to 100</span><i aria-hidden="true"></i><span>10 exercises</span><i aria-hidden="true"></i><span>Nothing uploaded</span><i aria-hidden="true"></i><span>No account</span><i aria-hidden="true"></i><span>3 coach voices</span><i aria-hidden="true"></i><span>1,605 recorded coach clips</span><i aria-hidden="true"></i><span>Works offline</span><i aria-hidden="true"></i></div></div>
+  <div class="ticker" data-ticker="left" aria-hidden="true"><div class="ticker-track"><span>33 points tracked every frame</span><i aria-hidden="true"></i><span>Every rep graded 0 to 100</span><i aria-hidden="true"></i><span>10 exercises</span><i aria-hidden="true"></i><span>32 skills in 5 paths</span><i aria-hidden="true"></i><span>Spoken between reps, never during</span><i aria-hidden="true"></i><span>3 coach voices</span><i aria-hidden="true"></i><span>1,605 recorded coach clips</span><i aria-hidden="true"></i><span>Works offline</span><i aria-hidden="true"></i></div></div>
 
   <!-- ═════════════ EXERCISES ═════════════ -->
   <section id="exercises" class="section" data-tone="paper">
@@ -290,65 +290,8 @@
     </div>
   </section>
 
-  <!-- ═════════════ 3D REP VIEWER (js/site/rep3d.js) ═════════════ -->
-  <section class="section r3-section" data-tone="sage" aria-labelledby="r3-title">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="tag">Drag the figure to turn it</span>
-        <h2 id="r3-title">Turn the view and a flat angle changes. The 3D one doesn't.</h2>
-        <p>MediaPipe estimates how far each tracked point is from the camera, not only
-           where it sits in the picture. Side-on, the picture alone measures your joints
-           well. Turn toward the camera and flat angles start reading too straight, so
-           VertexForm blends in the 3D ones, up to half.</p>
-      </div>
-
-      <div class="r3" data-r3>
-        <div class="r3-stage">
-          <canvas class="r3-canvas" tabindex="0" role="img"
-                  aria-label="A squatting figure in 3D, coloured by each rep's score. Drag or use the arrow keys to turn the view."></canvas>
-          <span class="r3-hud r3-hud-view" data-3="view" aria-hidden="true">VIEW 38° FROM WEBCAM · 16° UP</span>
-          <span class="r3-hud r3-hud-src">Simulated person, scored by the real engine</span>
-          <p class="r3-status" data-3="status">Loading the 3D clip.</p>
-        </div>
-
-        <div class="r3-panel">
-          <div class="r3-controls">
-            <div class="r3-seg r3-clips" role="group" aria-label="Which squat">
-              <button type="button" data-clip="full" aria-pressed="true">Full depth</button>
-              <button type="button" data-clip="half" aria-pressed="false">Half squat</button>
-            </div>
-            <div class="r3-seg r3-views" role="group" aria-label="View">
-              <button type="button" data-view="webcam" aria-pressed="false">Webcam</button>
-              <button type="button" data-view="turned" aria-pressed="true">Turned</button>
-              <button type="button" data-view="front" aria-pressed="false">Front</button>
-              <button type="button" data-view="top" aria-pressed="false">Top</button>
-            </div>
-          </div>
-
-          <dl class="r3-rows">
-            <div><dt>Rep</dt><dd data-3="rep">1 of 3</dd></div>
-            <div><dt>Score</dt><dd class="r3-score" data-3="score">99 A+</dd></div>
-            <div><dt>Knee, measured in 3D</dt><dd data-3="k3">0°</dd></div>
-            <div><dt>Knee, as this view's picture shows it</dt><dd><span data-3="k2">0°</span> <small data-3="diff"></small></dd></div>
-          </dl>
-
-          <div class="r3-time">
-            <button type="button" class="r3-play" data-3="play" aria-pressed="true" aria-label="Pause">
-              <svg class="i-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4h3v12H6zM11 4h3v12h-3z"/></svg>
-              <svg class="i-play" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4l10 6-10 6z"/></svg>
-            </button>
-            <div class="r3-track">
-              <div class="r3-marks" data-3="marks" aria-hidden="true"></div>
-              <input type="range" min="0" max="1" step="1" value="0" data-3="scrub" aria-label="Position in the clip" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ═════════════ FORM LAB ═════════════ -->
-  <section id="lab" class="section" data-tone="dark">
+  <section id="lab" class="section" data-tone="sage">
     <div class="wrap">
       <div class="section-head">
         <span class="tag tag-live">Try it now. No camera needed.</span>
@@ -398,7 +341,7 @@
   </section>
 
   <!-- ═════════════ TRUST / THE SCALE ═════════════ -->
-  <section class="section" data-tone="paper">
+  <section class="section" data-tone="dark">
     <div class="wrap trust-grid">
       <div>
         <div class="section-head">
@@ -438,7 +381,7 @@
   </section>
 
   <!-- ═════════════ VOICE COACH ═════════════ -->
-  <section id="coach" class="section" data-tone="dark">
+  <section id="coach" class="section" data-tone="paper">
     <div class="wrap coach-grid" data-coach>
       <div class="section-head">
         <h2>It talks, so you don't have to read mid&#8209;rep.</h2>
@@ -464,7 +407,7 @@
   </section>
 
   <!-- ═════════════ MODES + PROGRESS ═════════════ -->
-  <section id="progress" class="section" data-tone="sage">
+  <section id="progress" class="section" data-tone="dark">
     <div class="wrap">
       <div class="section-head">
         <h2>Train rep by rep, or in sets.</h2>
@@ -510,7 +453,6 @@
 
       <dl class="also">
         <div><dt>Workouts</dt><dd>Circuits of up to 10 exercises with rest in between. Save up to 3 routines.</dd></div>
-        <div><dt>Skill tree</dt><dd>Five paths toward the handstand push-up, muscle-up, pistol squat, V-sit and burpee. A skill unlocks when one of your real sets meets its goal.</dd></div>
         <div><dt>Rep replay</dt><dd>Watch your skeleton replay each rep beside the ideal form. Save the reps you want; unsaved ones are deleted after 7 days.</dd></div>
         <div><dt>Challenges</dt><dd>One goal a day for 7, 14 or 30 days. Miss a day and the run starts over.</dd></div>
       </dl>
@@ -518,7 +460,7 @@
   </section>
 
   <!-- ═════════════ SKILL PATHS (site/paths.js rolls through them as you scroll) ═════════════ -->
-  <section id="paths" class="section paths-sec" data-tone="dark" aria-labelledby="paths-title">
+  <section id="paths" class="section paths-sec" data-tone="sage" aria-labelledby="paths-title">
     <div class="wrap">
       <div class="section-head">
         <span class="tag">Skill path</span>
@@ -581,7 +523,7 @@
   </section>
 
   <!-- ═════════════ QUESTIONS ═════════════ -->
-  <section id="faq" class="section" data-tone="sage" aria-labelledby="faq-title">
+  <section id="faq" class="section" data-tone="paper" aria-labelledby="faq-title">
     <div class="wrap">
       <div class="section-head">
         <h2 id="faq-title">Questions people ask first.</h2>
@@ -604,16 +546,11 @@
     </div>
   </section>
 
-  <!-- ═════════════ PRIVACY + LIMITS ═════════════ -->
-  <section class="section" data-tone="dark">
-    <div class="wrap two-col">
-      <div class="panel">
-        <h2>What stays on your device</h2>
-        <p class="panel-text">The pose model runs in your browser and no video is ever uploaded. There's no account
-           to make. Your scores, bests and rep replays are saved in this browser only.</p>
-      </div>
-      <div class="panel">
-        <h2>What it can't do</h2>
+  <!-- ═════════════ LIMITS (privacy is answered in the questions above) ═════════════ -->
+  <section class="section limits-sec" data-tone="dark" aria-labelledby="limits-title">
+    <div class="wrap">
+      <div class="panel limits">
+        <h2 id="limits-title">What it can't do</h2>
         <ul class="checks checks-warn">
           <li>A side-on camera can't see knees caving inward or weight shifting side to side.</li>
           <li>Cut-off feet or a dark room hurt tracking. When that happens, it warns you and holds back the score.</li>
@@ -622,8 +559,6 @@
       </div>
     </div>
   </section>
-
-  <div class="ticker ticker-big" data-ticker="right" aria-hidden="true"><div class="ticker-track"><span class="ticker-outline">Squat</span><i aria-hidden="true"></i><span class="ticker-outline">Push-up</span><i aria-hidden="true"></i><span class="ticker-outline">Plank</span><i aria-hidden="true"></i><span class="ticker-outline">Lunge</span><i aria-hidden="true"></i><span class="ticker-outline">Jumping jack</span><i aria-hidden="true"></i></div></div>
 
   <!-- ═════════════ CLOSE ═════════════ -->
   <section class="cta-band" data-tone="paper">

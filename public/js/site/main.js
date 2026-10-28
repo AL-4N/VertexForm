@@ -22,7 +22,6 @@ import { renderPictos } from "../figures/pictos.js";
 import { mountCoach } from "./coach.js";
 import { gradeColor } from "../grade.js";
 import { mountLab } from "./lab.js";
-import { mountRep3d } from "./rep3d.js";
 import { renderHow } from "./how.js";
 import { mountMotionNav } from "./motion-nav.js";
 import { mountNavSpy } from "./nav-spy.js";
@@ -91,8 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
   mountScrollFx();
   mountFaq();
   mountMagnets(".hero-actions .btn, .cta-band .btn");
-  const r3 = document.querySelector("[data-r3]");
-  if (r3) mountRep3d(r3);
   const lab = document.querySelector("[data-lab]");
   if (lab) mountLab(lab);
 });

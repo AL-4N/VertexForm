@@ -93,6 +93,10 @@ its exact colour):
   (`text-wrap: balance`), body text `pretty`; changing numbers are tabular. (The hero frame's single shadow is the exception.)
 - Don't make everything the same card. Vary it: a ruled list (`.also`),
   panels, a calendar grid.
+- Say each thing once. The homepage had privacy in four places and three
+  3D squats in a row (Oct 2026); now privacy is in the hero badges and the
+  questions, and the 3D squat is the hero plus the pinned story. Before
+  adding a section, check what already says it.
 
 ## Figures and marks
 
@@ -110,13 +114,6 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   arrow to the body part. Green arrow for a good rep, amber for a fix. The
   note says the real cue, never filler.
 - Icons are drawn SVG (stroke `currentColor`). **No emoji icons.**
-- 3D view (`js/site/rep3d.js`, homepage): the same figure rules in
-  perspective. Drafting grid on the floor (25 cm squares, fading out), a
-  protractor ring around the figure with the webcam's position marked,
-  floor shadows, and the knee protractor drawn in the plane of the leg.
-  Far limbs recede to 38%. Drawn on a canvas with its own small camera,
-  no 3D library. Every score it shows comes from the engine (the clip's
-  data is made and checked by `tools/make-rep3d.mjs` / `tests/rep3d.test.mjs`).
 
 ## Motion
 
@@ -306,8 +303,8 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   with no blur: blur-in reveals were the most "AI template" thing on the
   page. Fact strips only lean with scroll speed. Live background blur (a
   frosted nav) is not used: it costs every frame.
-- **Stages open out of a frame** (`scroll-fx.js`): the 3D view and the Form
-  Lab stage grow from a narrow, rounder frame to full size as you scroll
+- **Stages open out of a frame** (`scroll-fx.js`): the Form
+  Lab stage grows from a narrow, rounder frame to full size as you scroll
   to them (clip-path, scrubbed).
 - **Coach cues show the voice** (`site/coach.js`): while a cue plays, its
   card lights in its score's colour and the play button becomes five bars

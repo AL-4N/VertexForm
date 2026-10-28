@@ -18,7 +18,7 @@ export function mountSectionIndex() {
   sections.forEach((sec) => {
     const head = sec.querySelector(":scope > .wrap > .section-head");
     if (!head) return;
-    const label = LABEL[sec.id] ?? (sec.classList.contains("r3-section") ? "In 3D" : null);
+    const label = LABEL[sec.id] ?? null;
     if (!label) return;
     const n = String(++count).padStart(2, "0");
     const el = document.createElement("div");

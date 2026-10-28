@@ -43,7 +43,7 @@ export function mountScrollFx() {
   }
 
   /* ── Cards rise in, group by group ──────────────────── */
-  const groups = [".ex-grid > .ex-card", ".steps > li", ".modes > .mode", ".cues > .cue", ".principles > li", ".cal-rows > li", ".two-col > .panel", ".also > div", ".lab", ".r3", ".setup > li", ".faq > details"];
+  const groups = [".ex-grid > .ex-card", ".steps > li", ".modes > .mode", ".cues > .cue", ".principles > li", ".cal-rows > li", ".two-col > .panel", ".also > div", ".lab", ".setup > li", ".faq > details"];
   groups.forEach((sel) => {
     const items = gsap.utils.toArray(sel);
     if (!items.length) return;
@@ -98,7 +98,7 @@ export function mountScrollFx() {
   });
 
   /* ── Stages open out of a narrow frame as you reach them ─ */
-  for (const stage of document.querySelectorAll(".r3-stage, .lab-stage")) {
+  for (const stage of document.querySelectorAll(".lab-stage")) {
     gsap.fromTo(stage, { clipPath: "inset(14% 18% 14% 18% round 40px)" }, {
       clipPath: "inset(0% 0% 0% 0% round 22px)", ease: "none",
       scrollTrigger: { trigger: stage, start: "top 95%", end: "top 45%", scrub: 0.6 },
