@@ -20,7 +20,8 @@ html, body {
 
 h1, h2, h3, .mode-card h3, .grade-big, .score-big, .big-stat,
 .grade-badge .letter, .countdown span, .celebrate h2 { font-family: var(--display); }
-h1 { font-size: 1.5rem; margin: 0; }
+h1, h2, h3, .mode-card h3 { font-weight: 600; }      /* Unbounded is wide: lighter cuts read precise, heavy ones shout */
+h1 { font-size: 1.5rem; margin: 0; letter-spacing: -.02em; }
 h2 { font-size: 1.05rem; margin: 0 0 .5rem; }
 h3 { font-size: .95rem; margin: 0 0 .4rem; }
 p  { margin: 0; line-height: 1.55; }
@@ -73,7 +74,8 @@ p  { margin: 0; line-height: 1.55; }
   .btn.danger:hover { color: #fff; }
 }
 @media (prefers-reduced-motion: reduce) { .btn, .btn::before { transition: none; } }
-.btn.primary { --btn-bg: transparent; --btn-fill: linear-gradient(var(--paper), var(--paper)); background: var(--go-gradient); border-color: transparent; color: #090d1c; }
+/* Primary: solid paper at rest (grade colours stay for scores); the go gradient grows in on hover. */
+.btn.primary { --btn-bg: var(--paper); border-color: transparent; color: #090d1c; box-shadow: inset 0 -1px 0 rgba(9,13,28,.16); }
 .btn.ghost   { --btn-bg: transparent; color: var(--text-dim); }
 .btn.danger  { --btn-bg: transparent; --btn-fill: linear-gradient(var(--coral), var(--coral)); border-color: var(--coral); color: var(--coral); }
 
@@ -157,7 +159,7 @@ p  { margin: 0; line-height: 1.55; }
   color: var(--text-dim); transition: .15s var(--ease);
 }
 .pills button:hover { color: var(--text); }
-.pills button.on { background: var(--go-gradient); border-color: transparent; color: #090d1c; }
+.pills button.on { background: var(--paper); border-color: transparent; color: #090d1c; }
 
 /* ── Live stage ──────────────────────────────────────── */
 .stage { position: relative; width: 100%; height: 100vh; height: 100dvh; background: #000; overflow: hidden; }
@@ -923,9 +925,6 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 @keyframes week-pop { from { transform: scale(.3) translateY(8px); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .week.fresh li { animation: none; } }
 
-/* Scores glow in their own colour (as on the site). */
-.grade-big, .score-big, .big-stat { text-shadow: 0 0 22px color-mix(in srgb, currentColor 26%, transparent); }
-
 /* Sparks (flair.js sparkle): short strokes that fly out and shrink. */
 .flair-spark { position: fixed; z-index: 71; width: 12px; height: 2.5px; margin: -1.25px 0 0; border-radius: 2px; pointer-events: none; transform-origin: 0 50%; }
 /* A toast with an icon: the skill-unlock blossom. */
@@ -956,7 +955,7 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 .pk-num i { font-style: normal; font-weight: 800; font-size: 4.6rem; color: transparent; -webkit-text-stroke: 1.2px rgba(238,241,251,.28); letter-spacing: -.04em; }
 .pk-num b { font-family: var(--mono); font-size: .75rem; font-weight: 600; color: var(--text-faint); }
 .pk-fig { grid-row: 1 / 3; display: grid; place-items: center; min-height: 0; padding-top: 2.4rem; }
-.pk-fig svg { width: 100%; height: 100%; max-height: 240px; filter: drop-shadow(0 0 16px color-mix(in srgb, var(--pk) 35%, transparent)); }
+.pk-fig svg { width: 100%; height: 100%; max-height: 240px; }
 .pk-read { grid-row: 3; display: grid; gap: .2rem; padding-right: 110px; }
 .pk-name { font-family: var(--display); font-weight: 800; font-size: 1.5rem; letter-spacing: -.02em; }
 .pk-hint { color: var(--text-dim); font-size: .88rem; }
@@ -993,7 +992,7 @@ kbd { font: 600 .78rem var(--mono); padding: .05rem .35rem; border-radius: 5px; 
 /* The chosen name fills with ink from left to right, its outline fading as the ink passes. */
 .picker .ex-card.on .name { background: linear-gradient(90deg, #ffbe3d, #c6ef4e 25%, #2ee59d 50%, transparent 50.5%) 0 0 / 200% 100% no-repeat;
   -webkit-background-clip: text; background-clip: text; -webkit-text-stroke-color: transparent;
-  filter: drop-shadow(0 0 18px rgba(46,229,157,.35)); animation: pk-ink .6s cubic-bezier(.6,0,.2,1) both; transition: -webkit-text-stroke-color .3s .35s; }
+  animation: pk-ink .6s cubic-bezier(.6,0,.2,1) both; transition: -webkit-text-stroke-color .3s .35s; }
 @keyframes pk-ink { from { background-position: 100% 0; } to { background-position: 0 0; } }
 .pk-marker { transform-origin: 0 50%; }
 .picker .ex-card .hint { grid-area: hint; font-size: .8rem; margin: 0; max-height: 0; opacity: 0; overflow: hidden; transition: max-height .4s, opacity .3s; }
