@@ -5,7 +5,7 @@
  * app uses (bottom window → medians → component scores → weighted blend), and
  * checks each case lands in its intended band. Run with:  npm test
  */
-import { scoreSquat, scorePushup, scorePlank, scoreLunge, scoreControl, scorePike, scoreHollow, scoreClimber, scoreHang, combine } from "../public/js/scoring.js";
+import { scoreSquat, scorePushup, scorePlank, scoreLunge, scoreControl, scorePike, scoreHollow, scoreClimber, scoreHang, scoreSplitSquat, scorePistol, scoreDip, combine } from "../public/js/scoring.js";
 import { thighAngleDeg, leanFromVertical, median, bottomWindow } from "../public/js/geometry.js";
 import { gradeColor, gradeLetter } from "../public/js/grade.js";
 import { gradeLetter as appLetter } from "../public/js/geometry.js";
@@ -76,6 +76,13 @@ letterCheck("69 is a D, 59 an F", gradeLetter(69) + gradeLetter(59), "DF");
   ok("Climber: half drive (hip 120°) clearly lower", cl(120, 0) < 65, cl(120, 0));
   ok("Climber: 12° sag costs points, like the push-up", cl(60, 12) < 95 && cl(60, 12) > 80, cl(60, 12));
   ok("Hang: straight arms 100, elbows at 140° an F", scoreHang(172) === 100 && scoreHang(140) < 30, scoreHang(140));
+  // Nov 2026 trackers. Split squat: a front knee of 75–100° is full depth
+  // (deeper than a lunge is fine with the back foot up), with a slight lean allowed.
+  const ss = scoreSplitSquat(90, 12), ssHalf = scoreSplitSquat(125, 12);
+  ok("Split squat: knee 90°, upright = 100; knee 125° clearly lower", ss.depth === 100 && ss.posture === 100 && ssHalf.depth < 40, JSON.stringify(ssHalf));
+  const pi = scorePistol(-4, 0.3), piDown = scorePistol(-4, 0.02);
+  ok("Pistol: below parallel with the free foot up = 100; foot down costs", pi.depth === 100 && pi.freeLeg === 100 && piDown.freeLeg < 20, JSON.stringify(piDown));
+  ok("Dips: 90° elbows = 100, 125° an F", scoreDip(90).depth === 100 && scoreDip(125).depth < 45, scoreDip(125).depth);
 }
 
 console.log(`\n${fail ? `${fail} FAILED` : "All scoring checks pass"} (${pass} passed)`);

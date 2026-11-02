@@ -16,7 +16,7 @@
  * and old ones are deleted on activate. Updates are never stuck.
  */
 
-const VERSION = "aa2a43e07d2c";
+const VERSION = "fc0c2658b112";
 const PRECACHE = [
   "./",
   "404.html",
@@ -33,6 +33,7 @@ const PRECACHE = [
   "css/theme.css",
   "css/transitions.css",
   "data/rep3d.json",
+  "exercises.html",
   "favicon.svg",
   "fonts/instrument-sans-latin-400-normal.woff2",
   "fonts/instrument-sans-latin-500-normal.woff2",
@@ -54,15 +55,18 @@ const PRECACHE = [
   "js/coaching.js",
   "js/config.js",
   "js/exercises/climber.js",
+  "js/exercises/dips.js",
   "js/exercises/hang.js",
   "js/exercises/hollow.js",
   "js/exercises/index.js",
   "js/exercises/jumpingjack.js",
   "js/exercises/lunge.js",
   "js/exercises/pike.js",
+  "js/exercises/pistol.js",
   "js/exercises/plank.js",
   "js/exercises/pushup.js",
   "js/exercises/sideplank.js",
+  "js/exercises/splitsquat.js",
   "js/exercises/squat.js",
   "js/figures/annotate.js",
   "js/figures/draw.js",
@@ -97,6 +101,7 @@ const PRECACHE = [
   "js/site/hero3d.js",
   "js/site/how.js",
   "js/site/lab.js",
+  "js/site/library.js",
   "js/site/main.js",
   "js/site/motion-nav.js",
   "js/site/nav-spy.js",

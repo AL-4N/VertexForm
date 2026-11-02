@@ -50,6 +50,9 @@ export const KEY_ANGLE = {
   "Hollow hold":  { name: "Hip angle",   a: "sh",  b: "hip", c: "an", pick: "near", deepest: "min" },
   "Mountain climber": { name: "Hip angle", a: "sh", b: "hip", c: "kn", pick: "near", deepest: "min" },
   "Dead hang":    { name: "Elbow angle", a: "sh",  b: "el", c: "wr", pick: "near", deepest: "min" },
+  "Bulgarian split squat": { name: "Front knee", a: "hip", b: "kn", c: "an", pick: "min", deepest: "min" },
+  "Pistol squat": { name: "Standing knee", a: "hip", b: "kn", c: "an", pick: "min", deepest: "min" },
+  "Dips":         { name: "Elbow angle", a: "sh",  b: "el", c: "wr", pick: "near", deepest: "min" },
   "Plank":        { name: "Body line",   a: "sh",  b: "hip", c: "an", pick: "near", deepest: "min" },
   "Jumping Jack": { name: "Arm raise",   a: "hip", b: "sh", c: "wr", pick: "max",  deepest: "max" },
 };

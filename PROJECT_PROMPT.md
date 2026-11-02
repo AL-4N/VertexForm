@@ -17,15 +17,23 @@ run it.
 
 - **Exercises:** squat, push-up, plank (a timed hold), lunge, jumping jack,
   and (Oct 2026, for the skill tree) pike push-up, side plank (hold), hollow
-  hold (hold), mountain climber, dead hang (hold). All ten have their own
-  recorded fault lines and spoken names, so all ten can go in workouts.
+  hold (hold), mountain climber, dead hang (hold), and (Nov 2026) Bulgarian
+  split squat, pistol squat and dips. All thirteen have their own recorded
+  fault lines and spoken names, so all can go in workouts.
+- **Exercise library** (`exercises.html`): one plate per exercise, generated
+  by `tools/make-library.mjs` from the trainer's code (what it scores, the
+  faults and the coach's words, the skills it unlocks); `tests/library.test.mjs`
+  fails if it's stale. Its Train links use `app.html#train-<id>`.
 - **Modes:** Practice (rep by rep until you hit a target grade), Analyze a set
   (N reps or seconds, then a breakdown), and Workouts (circuits of up to 10
   steps with rest; 3 saved routines).
 - **Website** (`index.html`): a 3D hero, a pinned 3D story, exercise popups,
   the Form Lab (sliders that drive the real scoring engine).
 - **Skill path:** five paths (Push, Pull, Legs, Core, Conditioning), 32 skills,
-  drawn as blooming trees; tracked skills unlock from real saved sets.
+  drawn as blooming trees; tracked skills unlock from real saved sets. The
+  Legs path is fully tracked. The trainer menu's "Nearest unlocks" card names
+  the two skills you're closest to and what's left (`nearestUnlocks` in
+  `skills.js`).
 
 ## Links and places
 

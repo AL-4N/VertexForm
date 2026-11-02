@@ -31,7 +31,7 @@ export const POSE_EDGES = [
   [27,29],[29,31],[28,30],[30,32],
 ];
 
-export const EXERCISES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up", "Side plank", "Hollow hold", "Mountain climber", "Dead hang"];
+export const EXERCISES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up", "Side plank", "Hollow hold", "Mountain climber", "Dead hang", "Bulgarian split squat", "Pistol squat", "Dips"];
 
 // What a good rep looks like — shown beside the animated demo on the setup screen.
 export const DEMO_TIPS = {
@@ -45,6 +45,9 @@ export const DEMO_TIPS = {
   "Hollow hold":  ["Side-on, camera at floor height", "Lower back pressed to the floor", "Shoulders and legs just off the floor"],
   "Mountain climber": ["Side-on, camera at floor height", "Hands under the shoulders, hips level", "Drive the near knee all the way to the chest"],
   "Dead hang":    ["Face the camera, whole body and hands in frame", "Arms straight, shoulders pulled down", "Still: no swinging"],
+  "Bulgarian split squat": ["Side-on, back foot up on a bench behind you", "Lower until your front knee is about 90°", "Torso tall over the front leg"],
+  "Pistol squat": ["Side-on, standing on the leg nearer the camera", "Sit down until your hip is below your knee", "Keep the other leg straight out, off the floor"],
+  "Dips":         ["Side-on to the camera, on parallel bars", "Lower until your elbows reach about 90°", "Press back up to straight arms"],
 };
 
 export const EXERCISE_META = {
@@ -58,6 +61,9 @@ export const EXERCISE_META = {
   "Hollow hold":  { hint: "Side-on, lying down. Hold the shape.",   live: true  },
   "Mountain climber": { hint: "Side-on. Counts the near knee.",     live: true  },
   "Dead hang":    { hint: "Face the camera. Hang still.",           live: true  },
+  "Bulgarian split squat": { hint: "Side-on. Back foot on a bench.", live: true },
+  "Pistol squat": { hint: "Side-on. One leg out in front.",        live: true  },
+  "Dips":         { hint: "Side-on, on parallel bars.",            live: true  },
 };
 
 // Visibility below this and we don't trust a measurement.

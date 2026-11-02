@@ -50,6 +50,23 @@ export function keypoints(s) {
  * opts: color, width, headFill, joints (bool), arc ([a,b,c]), arcLabel,
  *       guide ([p1,p2]), floor ({x0,x1}), farOpacity
  */
+/** The kit an exercise is done on (a pose's `prop`), drawn like the floor:
+ *  a bench under a back foot, or the near parallel bar under the hands. */
+export function propMarkup(prop, stroke = "#2e3a63", cls = "") {
+  if (!prop) return "";
+  const a = cls ? ` class="${cls}"` : ` stroke="${stroke}" stroke-width="2" fill="none"`;
+  let out = "";
+  if (prop.bench) {
+    const [x0, x1, top] = prop.bench;
+    out += `<path${a} d="M${f(x0)} ${f(top)}H${f(x1)}M${f(x0 + 8)} ${f(top)}V${GROUND}M${f(x1 - 8)} ${f(top)}V${GROUND}"/>`;
+  }
+  if (prop.bars) {
+    const [x, y] = prop.bars;
+    out += `<path${a} d="M${f(x - 46)} ${f(y + 4)}H${f(x + 46)}M${f(x + 30)} ${f(y + 4)}V${GROUND}"/>`;
+  }
+  return out;
+}
+
 export function figureMarkup(s, opts = {}) {
   const c = opts.color ?? "#2ee59d";
   const w = opts.width ?? 7;
@@ -61,6 +78,7 @@ export function figureMarkup(s, opts = {}) {
   if (opts.floor) {
     out += `<line x1="${f(opts.floor.x0)}" y1="${GROUND}" x2="${f(opts.floor.x1)}" y2="${GROUND}" stroke="${opts.floorColor ?? "#2e3a63"}" stroke-width="2"/>`;
   }
+  out += propMarkup(opts.prop, opts.floorColor);
   if (opts.guide) {
     const [a, b] = opts.guide;
     out += `<line x1="${f(a[0])}" y1="${f(a[1])}" x2="${f(b[0])}" y2="${f(b[1])}" stroke="${opts.guideColor ?? "#2ee59d"}" stroke-width="2.5" stroke-dasharray="7 8" opacity=".6"/>`;

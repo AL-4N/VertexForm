@@ -10,6 +10,9 @@ import sideplank from "./sideplank.js";
 import hollow from "./hollow.js";
 import climber from "./climber.js";
 import hang from "./hang.js";
+import splitsquat from "./splitsquat.js";
+import pistol from "./pistol.js";
+import dips from "./dips.js";
 
 export const REGISTRY = {
   "Squat": squat,
@@ -22,6 +25,9 @@ export const REGISTRY = {
   "Hollow hold": hollow,
   "Mountain climber": climber,
   "Dead hang": hang,
+  "Bulgarian split squat": splitsquat,
+  "Pistol squat": pistol,
+  "Dips": dips,
 };
 
 export const getExercise = (name) => REGISTRY[name];

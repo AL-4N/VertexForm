@@ -9,12 +9,13 @@
 
 import { build, angleAt } from "./rig.js";
 import { EXERCISES, GROUND } from "./poses.js";
+import { propMarkup } from "./draw.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const P = (p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
 
 // App exercise names → figure ids
-export const BY_NAME = { "Squat": "squat", "Push-up": "pushup", "Plank": "plank", "Lunge": "lunge", "Jumping Jack": "jack", "Pike push-up": "pike", "Side plank": "side_plank", "Hollow hold": "hollow", "Mountain climber": "climber", "Dead hang": "hang" };
+export const BY_NAME = { "Squat": "squat", "Push-up": "pushup", "Plank": "plank", "Lunge": "lunge", "Jumping Jack": "jack", "Pike push-up": "pike", "Side plank": "side_plank", "Hollow hold": "hollow", "Mountain climber": "climber", "Dead hang": "hang", "Bulgarian split squat": "split_squat", "Pistol squat": "pistol", "Dips": "dips" };
 
 export function renderPictos(root = document) {
   root.querySelectorAll("[data-picto]").forEach((host) => {
@@ -52,6 +53,7 @@ export function renderPictos(root = document) {
           </linearGradient>
         </defs>`}
         <line x1="${x0}" y1="${GROUND}" x2="${x1}" y2="${GROUND}" class="picto-floor"/>
+        ${propMarkup(ex.prop, null, "picto-floor")}
         <g class="picto-far" stroke="${stroke}">${[...farLegs, ...farArms].map((a) => line(a)).join("")}</g>
         <g class="picto-near" stroke="${stroke}">
           ${line(spine)}${legs.map((a) => line(a)).join("")}${arms.map((a) => line(a)).join("")}

@@ -40,7 +40,7 @@ export const MILESTONES = {
 
 /* ── System lines: countdown, start, finish, rest timer, workouts ── */
 
-export const EXERCISE_NAMES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up", "Side plank", "Hollow hold", "Mountain climber", "Dead hang"];
+export const EXERCISE_NAMES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up", "Side plank", "Hollow hold", "Mountain climber", "Dead hang", "Bulgarian split squat", "Pistol squat", "Dips"];
 export const REST_SECONDS = [15, 30, 45, 60, 75, 90, 105, 120];
 
 export const SYSTEM = {
@@ -211,6 +211,42 @@ export const FAULTS = {
     ]],
   },
 
+  "Bulgarian split squat": {
+    shallow: [3, "Depth", [
+      "Sink lower, front knee to ninety",
+      "Drop the back knee toward the floor",
+      "Deeper. Front thigh close to parallel",
+    ]],
+    lean: [2, "Chest up", [
+      "Chest up, stay tall over the front leg",
+      "Don't fold over the front knee, lift your chest",
+    ]],
+  },
+
+  "Pistol squat": {
+    depth: [3, "Depth", [
+      "Sit lower, hip below the knee",
+      "All the way down, sit back onto your heel",
+      "Deeper. Hip to knee height at least",
+    ]],
+    footDown: [3, "Leg up", [
+      "Keep the free leg off the floor",
+      "Hold the other leg straight out in front",
+    ]],
+  },
+
+  "Dips": {
+    depth: [3, "Depth", [
+      "Lower until your elbows reach ninety",
+      "Deeper. Shoulders down to elbow height",
+      "Half dips don't count, all the way down",
+    ]],
+    tempo: [1, "Slow down", [
+      "Slow the dip down, control the bottom",
+      "Two seconds down, then press up",
+    ]],
+  },
+
   "Lunge": {
     shallow: [3, "Depth", [
       "Bend the front knee more, aim for ninety degrees",
@@ -288,6 +324,9 @@ export const POSITION_CUES = {
   "Hollow hold":       "Lie on your back, side-on, then lift your shoulders and legs",
   "Mountain climber":  "High plank, side-on, then drive the near knee to your chest",
   "Dead hang":         "Hang from a bar, facing the camera, arms straight",
+  "Bulgarian split squat": "Side-on, front foot forward, back foot up on a bench",
+  "Pistol squat":      "Side-on, stand on the leg nearer the camera",
+  "Dips":              "On the bars, side-on, arms straight",
 };
 
 /** Framing, lighting and camera hints (shown on screen, and said if they last). */
@@ -375,6 +414,18 @@ export const CONCRETE = {
     head: ["Look at the floor just in front of your hands"],
     drift: ["Freeze. Imagine a glass of water balanced on your back"],
   },
+  "Bulgarian split squat": {
+    shallow: ["Drop straight down, as if the back knee is reaching for the floor"],
+    lean: ["Keep your shoulders stacked over your hips the whole way down"],
+  },
+  "Pistol squat": {
+    depth: ["Reach your arms forward and sit your hips down past your knee"],
+    footDown: ["Squeeze the front of the free leg to keep it straight and up"],
+  },
+  "Dips": {
+    depth: ["Let your shoulders sink until your upper arms are level with the bars"],
+    tempo: ["Count two on the way down, then drive the bars away"],
+  },
   "Pike push-up": {
     depth: ["Aim the top of your head at a spot just in front of your hands"],
     hipsLow: ["Walk your feet closer until your hips sit right over your shoulders"],
@@ -416,6 +467,9 @@ export const FIXED = {
   "Mountain climber": { drive: "knee came right in", sag: "hips stayed level", pike: "back stayed flat" },
   "Hollow hold":  { flat: "that's the hollow", folded: "legs are long now", drift: "rock steady now" },
   "Dead hang":    { bentArms: "arms are straight now", drift: "the swing has stopped" },
+  "Bulgarian split squat": { shallow: "good depth on that one", lean: "your chest stayed up" },
+  "Pistol squat": { depth: "hip went below the knee", footDown: "free leg stayed up" },
+  "Dips":         { depth: "shoulders got down to the elbows", tempo: "good controlled tempo" },
 };
 
 export const FOCUS = {
@@ -429,6 +483,9 @@ export const FOCUS = {
   "Mountain climber": { drive: "driving the knee higher", sag: "keeping your hips level", pike: "keeping your back flat" },
   "Hollow hold":  { flat: "lifting a little higher", folded: "stretching out long", drift: "holding the shape" },
   "Dead hang":    { bentArms: "hanging from straight arms", drift: "staying still under the bar" },
+  "Bulgarian split squat": { shallow: "dropping the back knee lower", lean: "keeping your chest up" },
+  "Pistol squat": { depth: "sitting all the way down", footDown: "keeping the free leg up" },
+  "Dips":         { depth: "getting your shoulders down to your elbows", tempo: "slowing the reps down" },
 };
 
 /** Personality-flavoured lines for the smarter coach. `{x}` is filled in. */

@@ -58,6 +58,10 @@ function boot() {
   fontsIn.then(() => {
     renderMenu(openMode);
     document.documentElement.classList.remove("vf-loading");
+    // The exercise library's Train links (app.html#train-squat etc.) open that exercise's setup.
+    const train = location.hash.match(/^#train-([\w-]+)$/);
+    const name = train && Object.keys(BY_NAME).find((n) => BY_NAME[n] === train[1]);
+    if (name) { openMode(name); history.replaceState(null, "", location.pathname + location.search); }
   });
   wireNav();
   // The homepage's Settings link (app.html#settings) opens straight on Settings.

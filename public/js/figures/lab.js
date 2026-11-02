@@ -88,6 +88,35 @@ export const LAB = {
     pose: (v) => blend(BY_ID.hang.top, { ...BY_ID.hang.top, angUpperN: -150, angForeN: -95, angUpperF: -30, angForeF: -85 }, v.bend / 100),
     guide: () => null, cue: () => [], focus: () => "elbN",
   },
+  // Bulgarian split squat, pistol squat, dips: the simulator's (tests/helpers/synth.mjs); not on the homepage.
+  split_squat: {
+    sliders: [
+      { key: "depth", label: "Depth", min: 0, max: 100, lo: "Standing", hi: "Knee at 90°" },
+      { key: "lean", label: "Torso lean", min: 0, max: 45, lo: "Upright", hi: "Leaning" },
+    ],
+    presets: [{ name: "Good rep", v: { depth: 100, lean: 8 } }],
+    pose: (v) => withLean(blend(BY_ID.split_squat.top, BY_ID.split_squat.bottom, v.depth / 100), v.lean),
+    guide: () => null, cue: () => [], focus: () => "kneeN",
+  },
+  pistol: {
+    sliders: [
+      { key: "depth", label: "Depth", min: 0, max: 100, lo: "Standing", hi: "Hip below knee" },
+      { key: "foot", label: "Free foot", min: 0, max: 100, lo: "Held up", hi: "On the floor" },
+    ],
+    presets: [{ name: "Good rep", v: { depth: 100, foot: 0 } }],
+    pose: (v) => {
+      const p = blend(BY_ID.pistol.top, BY_ID.pistol.bottom, v.depth / 100);
+      const k = v.foot / 100;                                        // the free foot lowered toward the floor
+      return { ...p, ankleF: [p.ankleF[0] - 60 * k, p.ankleF[1] + (466 - p.ankleF[1]) * k] };
+    },
+    guide: () => null, cue: () => [], focus: () => "hip",
+  },
+  dips: {
+    sliders: [{ key: "depth", label: "Depth", min: 0, max: 100, lo: "Arms locked", hi: "Elbows at 90°" }],
+    presets: [{ name: "Good rep", v: { depth: 100 } }],
+    pose: (v) => blend(BY_ID.dips.top, BY_ID.dips.bottom, v.depth / 100),
+    guide: () => null, cue: () => [], focus: () => "elbN",
+  },
   // Pike push-up: used by the simulator (tests/helpers/synth.mjs); not on the homepage.
   pike: {
     sliders: [

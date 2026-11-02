@@ -57,6 +57,27 @@ export function scoreClimber(hip, lineBreak) {
   return { drive, line };
 }
 
+/** Bulgarian split squat: the front knee to about 90° (a little deeper is
+ *  fine with the back foot up) and an upright torso, allowing a slight lean. */
+export function scoreSplitSquat(knee, lean) {
+  const depth = knee >= 75 && knee <= 100 ? 100 : Math.max(0, 100 - Math.min(Math.abs(knee - 75), Math.abs(knee - 100)) * 2.8);
+  const posture = lean <= 20 ? 100 : Math.max(0, 100 - (lean - 20) * 3);
+  return { depth, posture };
+}
+
+/** Pistol squat: depth like a squat (hip to knee height) and the free foot
+ *  kept clear of the floor (lift: its height in leg lengths). */
+export function scorePistol(depth, lift) {
+  const d = depth <= 0 ? 100 : Math.max(0, 100 - depth * 1.5);
+  const freeLeg = lift >= 0.15 ? 100 : Math.max(0, (lift / 0.15) * 100);
+  return { depth: d, freeLeg };
+}
+
+/** Dips: elbow to 90° or below at the bottom (shoulders level with the elbows). */
+export function scoreDip(elbow) {
+  return { depth: elbow <= 92 ? 100 : Math.max(0, 100 - (elbow - 92) * 1.8), lockout: null };
+}
+
 /** Dead hang: straight arms (the more bent elbow). */
 export const scoreHang = (elbow) => (elbow >= 165 ? 100 : Math.max(0, 100 - (165 - elbow) * 3));
 

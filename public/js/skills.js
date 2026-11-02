@@ -25,7 +25,7 @@ export const PATHS = [
       { id: "pushup",        name: "Push-up",           requires: [],                      goal: "10 push-ups in one set, average 80+",        test: set("Push-up", 10, 80) },
       { id: "pushup_clean",  name: "Clean push-ups",    requires: ["pushup"],              goal: "15 push-ups in one set, average 90+",        test: set("Push-up", 15, 90) },
       { id: "diamond",       name: "Diamond push-up",   requires: ["pushup_clean"],        goal: "10 with hands together under the chest" },
-      { id: "dips",          name: "Dips",              requires: ["pushup_clean"],        goal: "5 on parallel bars, shoulders below elbows" },
+      { id: "dips",          name: "Dips",              requires: ["pushup_clean"],        goal: "5 dips on parallel bars in one set, average 80+", test: set("Dips", 5, 80) },
       { id: "pike",          name: "Pike push-up",      requires: ["pushup_clean"],        goal: "8 pike push-ups in one set, average 85+",    test: set("Pike push-up", 8, 85) },
       { id: "pushup_20",     name: "20 push-ups",       requires: ["pushup_clean"],        goal: "20 push-ups in one set, average 90+",        test: set("Push-up", 20, 90) },
       { id: "archer",        name: "Archer push-up",    requires: ["diamond"],             goal: "5 per side, the other arm straight out to the side" },
@@ -51,8 +51,8 @@ export const PATHS = [
       { id: "lunge",         name: "Lunge",             requires: ["squat"],               goal: "10 lunges in one set, average 85+",          test: set("Lunge", 10, 85) },
       { id: "squat_20",      name: "20 deep squats",    requires: ["squat_deep"],          goal: "20 squats in one set, average 92+",          test: set("Squat", 20, 92) },
       { id: "lunge_clean",   name: "Clean lunges",      requires: ["lunge"],               goal: "16 lunges in one set, average 92+",          test: set("Lunge", 16, 92) },
-      { id: "split_squat",   name: "Bulgarian split squat", requires: ["lunge_clean"],     goal: "8 per leg, back foot up on a bench" },
-      { id: "pistol",        name: "Pistol squat",      requires: ["squat_deep", "lunge"], goal: "1 per leg, heel down, other leg off the floor" },
+      { id: "split_squat",   name: "Bulgarian split squat", requires: ["lunge_clean"],     goal: "8 in one set, back foot on a bench, average 85+", test: set("Bulgarian split squat", 8, 85) },
+      { id: "pistol",        name: "Pistol squat",      requires: ["squat_deep", "lunge"], goal: "2 in one set, the other leg off the floor, average 85+", test: set("Pistol squat", 2, 85) },
     ],
   },
   {
@@ -179,3 +179,32 @@ export function newSkills(sessions, kept = []) {
 }
 
 export const skillName = (id) => STEP_BY_ID[id]?.name ?? id;
+
+/**
+ * The tracked skills you're closest to unlocking (status "next"), nearest
+ * first, each with what's left in plain words: "3 more reps, 2 more points
+ * on the average". Skills you haven't tried yet come after the ones you have.
+ */
+export function nearestUnlocks(sessions = [], kept = [], n = 2) {
+  const out = [];
+  for (const p of skillPath(sessions, kept)) {
+    for (const s of p.steps) {
+      if (s.status !== "next" || !s.test) continue;
+      const pr = progressOf(s.test, sessions);
+      const near = pr ? (Math.min(1, pr.done / pr.goal) + Math.min(1, pr.avg / pr.goalAvg)) / 2 : 0;
+      out.push({ id: s.id, name: s.name, path: p.name, exercise: s.test.exercise, goal: s.goal, progress: pr, near, left: leftToGo(pr) });
+    }
+  }
+  return out.sort((a, b) => b.near - a.near).slice(0, n);
+}
+
+/** What's still missing from your best try, in words. */
+export function leftToGo(pr) {
+  if (!pr) return "No sets of this exercise yet";
+  const bits = [];
+  const more = pr.goal - pr.done;
+  if (more > 0) bits.push(pr.unit === "s" ? `${more} more second${more === 1 ? "" : "s"}` : `${more} more rep${more === 1 ? "" : "s"}`);
+  const pts = pr.goalAvg - pr.avg;
+  if (pts > 0) bits.push(`${pts} more point${pts === 1 ? "" : "s"} on the average`);
+  return bits.length ? bits.join(", ") : "Almost there";
+}

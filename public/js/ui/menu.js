@@ -10,6 +10,7 @@ import { slide } from "./motion.js";
 import { gradeColor } from "../grade.js";
 import { renderChallengeCard } from "./challenges.js";
 import { rollTo } from "./digits.js";
+import { nearestUnlocks } from "../skills.js";
 
 let sessionLog = [];
 
@@ -30,7 +31,10 @@ export function addSessionEntry(exercise, score) {
  */
 let stopStage = () => {};
 let countRaf = 0;
+let pickHandler = null;      // renderMenu's onPick, for the "Nearest unlocks" Train buttons
+
 export function renderMenu(onPick) {
+  pickHandler = onPick;
   const list = $("#exercise-list");
   list.removeAttribute("aria-busy");
   const quiet = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -227,6 +231,25 @@ function renderSidebar() {
     if (week.innerHTML !== html) { week.classList.toggle("fresh", !week.childElementCount); week.innerHTML = html; }
   }
   renderChallengeCard();
+  renderUnlocks();
+}
+
+/** The two tracked skills you're closest to, what's left for each, and a
+ *  Train button that opens that exercise. */
+function renderUnlocks() {
+  const host = $("#unlocks-card");
+  if (!host) return;
+  const list = nearestUnlocks(store.sessions, store.skills);
+  host.innerHTML = list.length ? list.map((u) => `
+    <div class="unlock-row">
+      <div class="unlock-text">
+        <strong>${u.name}</strong>
+        <span class="dim">${u.left}</span>
+        <span class="unlock-bar" aria-hidden="true"><i style="width:${Math.round(u.near * 100)}%;background:${gradeColor(u.near * 100)}"></i></span>
+      </div>
+      <button type="button" class="btn" data-train="${u.exercise}" aria-label="Train ${u.exercise.toLowerCase()} for ${u.name}">Train</button>
+    </div>`).join("") : `<p class="dim">Every tracked skill is unlocked.</p>`;
+  host.onclick = (e) => { const b = e.target.closest("[data-train]"); if (b) pickHandler?.(b.dataset.train); };
 }
 
 export { showScreen };

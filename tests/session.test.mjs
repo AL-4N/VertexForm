@@ -123,6 +123,24 @@ check("Mountain climber: sagging hips flagged and lower", r.reps.length === 8 &&
 r = run("Mountain climber", repStream("climber", { depth: 0, hips: 0 }, { depth: 45, hips: 0 }, CLIMB_T), { setReps: 8 });
 check("Mountain climber: short drives score lower, flagged", r.reps.length > 0 && r.max < 90 && r.faults.has("drive"), fmt(r));
 
+/* ── Bulgarian split squat, pistol squat, dips ── */
+r = run("Bulgarian split squat", repStream("split_squat", { depth: 0, lean: 6 }, { depth: 100, lean: 8 }));
+check("Split squat: 5 deep, upright reps all A", r.reps.length === 5 && r.min >= 90, fmt(r));
+r = run("Bulgarian split squat", repStream("split_squat", { depth: 0, lean: 6 }, { depth: 55, lean: 8 }));
+check("Split squat: stopping short scores lower, flagged", r.reps.length > 0 && r.max < 90 && r.faults.has("shallow"), fmt(r));
+r = run("Bulgarian split squat", repStream("split_squat", { depth: 0, lean: 30 }, { depth: 100, lean: 38 }));
+check("Split squat: folding over the front leg flagged", r.reps.length > 0 && r.max < 90 && r.faults.has("lean"), fmt(r));
+r = run("Pistol squat", repStream("pistol", { depth: 0, foot: 0 }, { depth: 100, foot: 0 }));
+check("Pistol: 5 below parallel, free leg up, all A", r.reps.length === 5 && r.min >= 90, fmt(r));
+r = run("Pistol squat", repStream("pistol", { depth: 0, foot: 0 }, { depth: 65, foot: 0 }));
+check("Pistol: shallow reps score lower, flagged depth", r.reps.length > 0 && r.max < 90 && r.faults.has("depth"), fmt(r));
+r = run("Pistol squat", repStream("pistol", { depth: 0, foot: 0 }, { depth: 100, foot: 100 }));
+check("Pistol: the free foot touching down flagged", r.max < 90 && r.faults.has("footDown"), fmt(r));
+r = run("Dips", repStream("dips", { depth: 0 }, { depth: 100 }));
+check("Dips: 5 to 90° all A", r.reps.length === 5 && r.min >= 90, fmt(r));
+r = run("Dips", repStream("dips", { depth: 0 }, { depth: 55 }));
+check("Dips: half dips score lower, flagged depth", r.reps.length > 0 && r.max < 80 && r.faults.has("depth"), fmt(r));
+
 /* ── Push-up ───────────────────────────────────────────── */
 r = run("Push-up", repStream("pushup", { depth: 0, hips: 0 }, { depth: 100, hips: 0 }));
 check("Push-up: 5 good reps all score A", r.reps.length === 5 && r.min >= 90, fmt(r));

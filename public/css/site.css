@@ -994,3 +994,47 @@ a.ex-open { text-decoration: none; }
 .limits h2 { margin-bottom: 1rem; }
 @media (min-width: 900px) { .limits .checks { columns: 2; column-gap: 3rem; } .limits .checks li { break-inside: avoid; } }
 .ex-card .picto-near circle { fill: #0b1122; }   /* the head, filled with the page, not a panel colour */
+
+/* ── Exercise library (exercises.html, tools/make-library.mjs) ──
+   One ruled plate per exercise: the figure on its drafting grid, then what
+   it scores, what a good rep is, what it flags (in the coach's words) and the
+   skills it unlocks. No side rail on this page: the header links stay. */
+@media (min-width: 1400px) { body.no-rail { padding-left: 0; } .no-rail .nav nav { display: flex; } .no-rail .nav .btn { margin-left: 0; } }
+.lib .section-head h1 { font-size: clamp(2rem, 4.4vw, 3.2rem); line-height: 1.08; margin-bottom: 1rem; font-weight: 500; letter-spacing: -.035em; }
+.lib-index { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0 0 2.6rem; }
+.lib-index a { font-size: .85rem; font-weight: 600; color: var(--text-dim); text-decoration: none; padding: .42rem .7rem; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--line); transition: color .2s, box-shadow .2s; }
+.lib-index a:hover { color: var(--text); box-shadow: inset 0 0 0 1px var(--line-2); }
+.lib-ex { display: grid; grid-template-columns: minmax(220px, 340px) 1fr; border-top: 1px solid var(--line); scroll-margin-top: 90px; }
+.lib-ex:last-of-type { border-bottom: 1px solid var(--line); }
+.lib-fig { position: relative; margin: 0; display: flex; align-items: center; justify-content: center; padding: 2.6rem 1.2rem 1.2rem; border-right: 1px solid var(--line);
+  background-image: linear-gradient(rgba(238,241,251,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(238,241,251,.045) 1px, transparent 1px);
+  background-size: 24px 24px; background-position: -1px -1px; }
+.lib-fig figcaption { position: absolute; left: 1.2rem; top: 1rem; font-family: var(--mono); font-size: .66rem; font-weight: 600; letter-spacing: .12em; color: var(--text-faint); }
+.lib-fig svg { display: block; width: 100%; height: auto; max-height: 240px; }
+.lib-body { padding: 1.7rem 0 1.9rem 2.2rem; min-width: 0; }
+.lib-title { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.lib-title h2 { font-size: 1.5rem; font-weight: 600; }
+.lib-tags { font-family: var(--mono); font-size: .68rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); }
+.lib-setup { color: var(--text-dim); margin: .45rem 0 1.2rem; }
+.lib-facts { margin: 0; }
+.lib-facts > div { display: grid; grid-template-columns: 8.5rem 1fr; gap: 1rem; padding: .75rem 0; border-top: 1px solid var(--line); }
+.lib-facts dt { font-family: var(--mono); font-size: .68rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); padding-top: .2rem; }
+.lib-facts dd { margin: 0; font-size: .95rem; }
+.lib-facts ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; }
+.lib-facts li span, .lib-faults q { color: var(--text-dim); }
+.lib-faults strong, .lib-facts li strong { font-weight: 600; margin-right: .35rem; }
+.lib-body .btn { margin-top: 1.3rem; }
+@media (max-width: 760px) {
+  .lib-ex { grid-template-columns: 1fr; }
+  .lib-fig { border-right: 0; border-bottom: 1px solid var(--line); }
+  .lib-fig svg { max-height: 200px; }
+  .lib-body { padding: 1.3rem 0 1.7rem; }
+  .lib-facts > div { grid-template-columns: 1fr; gap: .35rem; }
+}
+
+.lib-link { display: inline-flex; gap: .5rem; margin-top: 1.4rem; font-weight: 600; color: var(--text); text-decoration: none; }
+.lib-link span { transition: transform .3s var(--ease); }
+.lib-link:hover span { transform: translateX(4px); }
+.foot-links { display: inline-flex; gap: 1.4rem; }
+.foot-links a { color: var(--text-dim); font-size: .9rem; font-weight: 600; text-decoration: none; }
+.foot-links a:hover { color: var(--text); }

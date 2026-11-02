@@ -12,8 +12,8 @@
  * Pictograms and the reduced-motion still frame use it.
  */
 
-import { angleAt, thighDepth, leanFromVertical, hipSag } from "./rig.js";
-import { scoreSquat, scorePushup, scorePike, scorePlank, scoreLunge, scoreJack, scoreHollow, scoreClimber, scoreHang, combine } from "../scoring.js";
+import { angleAt, thighDepth, leanFromVertical, hipSag, SEG } from "./rig.js";
+import { scoreSquat, scorePushup, scorePike, scorePlank, scoreLunge, scoreJack, scoreHollow, scoreClimber, scoreHang, scoreSplitSquat, scorePistol, scoreDip, combine } from "../scoring.js";
 
 export const GROUND = 470;
 const STAGE_H = 520;   // used to normalise distances the way the app does
@@ -298,5 +298,103 @@ const hang = {
 
 sidePlank.bottom = { ...sidePlank.top, hip: [335, 446], angTorso: -19.8, angHead: -17 };   // hips drop, shoulder stays over the elbow
 
-export const EXERCISES = [squat, pushup, plank, lunge, jack, pike, sidePlank, hollow, climber, hang];
+/* ── Bulgarian split squat (side view, back foot up on a bench) ── */
+const BENCH_TOP = 372;                                   // a knee-high bench behind
+const splitSquat = {
+  id: "split_squat", name: "Bulgarian split squat", view: "side",
+  timing: [1400, 650, 1100, 750],
+  prop: { bench: [116, 180, BENCH_TOP] },               // x0, x1, top: drawn under the back foot
+  top: {
+    view: "side", arms: "fk",
+    hip: [262, 287], angTorso: -86, angHead: -86,
+    ankleN: [372, GROUND], ankleF: [150, BENCH_TOP - 6],
+    angFootN: 0, angFootF: 160, bendKneeN: -1, bendKneeF: -1,
+    angUpperN: 104, angForeN: 64, angUpperF: 110, angForeF: 70,
+  },
+  bottom: {
+    view: "side", arms: "fk",
+    hip: [266, 364], angTorso: -80, angHead: -82,
+    ankleN: [372, GROUND], ankleF: [150, BENCH_TOP - 6],
+    angFootN: 0, angFootF: 160, bendKneeN: -1, bendKneeF: -1,
+    angUpperN: 100, angForeN: 60, angUpperF: 106, angForeF: 66,
+  },
+  measure(s) {
+    const knee = angleAt(s.hip, s.kneeN, s.ankN);
+    const lean = leanFromVertical(s.neck, s.hip);
+    const { depth, posture } = scoreSplitSquat(knee, lean);
+    return {
+      score: combine([[depth, 0.65], [posture, 0.35]]),
+      parts: [["Depth", depth], ["Posture", posture]],
+      raw: { knee, lean },
+      rows: [["Front knee", deg(knee)], ["Torso lean", deg(lean)]],
+    };
+  },
+};
+
+/* ── Pistol squat (side view, on one leg, the other held out in front) ── */
+const pistol = {
+  id: "pistol", name: "Pistol squat", view: "side",
+  timing: [1700, 600, 1300, 900],
+  top: {
+    view: "side", arms: "fk",
+    hip: [292, 259], angTorso: -86, angHead: -86,
+    ankleN: [300, GROUND], ankleF: [488, 352],
+    angFootN: 0, angFootF: -50, bendKneeN: -1, bendKneeF: -1,
+    angUpperN: -6, angForeN: -4, angUpperF: -10, angForeF: -8,
+  },
+  bottom: {
+    view: "side", arms: "fk",
+    hip: [238, 398], angTorso: -48, angHead: -40,
+    ankleN: [300, GROUND], ankleF: [450, 384],
+    angFootN: 0, angFootF: -70, bendKneeN: -1, bendKneeF: -1,
+    angUpperN: -4, angForeN: -2, angUpperF: -8, angForeF: -6,
+  },
+  measure(s) {
+    const knee = angleAt(s.hip, s.kneeN, s.ankN);
+    const depth = thighDepth(s.hip, s.kneeN);
+    const lift = (s.ankN[1] - s.ankF[1]) / (SEG.thigh + SEG.shin);   // the free foot's height, in leg lengths
+    const { depth: d, freeLeg } = scorePistol(depth, lift);
+    return {
+      score: combine([[d, 0.7], [freeLeg, 0.3]]),
+      parts: [["Depth", d], ["Free leg up", freeLeg]],
+      raw: { knee, depth, lift },
+      rows: [["Standing knee", deg(knee)], ["Depth", depth <= 0 ? `${deg(-depth)} below parallel` : `${deg(depth)} above parallel`]],
+    };
+  },
+};
+
+/* ── Dips (side view, on parallel bars at hip height) ── */
+const BARS = [300, 212];
+const dips = {
+  id: "dips", name: "Dips", view: "side",
+  timing: [1200, 400, 1000, 700],
+  prop: { bars: BARS },
+  top: {
+    view: "side", arms: "ik",
+    hip: [293, 234], angTorso: -88, angHead: -88,
+    ankleN: [232, 418], ankleF: [226, 414],
+    angFootN: 110, angFootF: 110, bendKneeN: -1, bendKneeF: -1,
+    handN: BARS, handF: [BARS[0] - 4, BARS[1] - 2], bendElbowN: -1, bendElbowF: -1,
+  },
+  bottom: {
+    view: "side", arms: "ik",
+    hip: [250, 268], angTorso: -76, angHead: -72,
+    ankleN: [188, 436], ankleF: [182, 432],
+    angFootN: 110, angFootF: 110, bendKneeN: -1, bendKneeF: -1,
+    handN: BARS, handF: [BARS[0] - 4, BARS[1] - 2], bendElbowN: -1, bendElbowF: -1,
+  },
+  measure(s) {
+    const elbow = angleAt(s.shN, s.elbN, s.wriN);
+    const drop = (s.shN[1] - s.elbN[1]) / STAGE_H;            // + = shoulder below the elbow
+    const { depth, lockout } = scoreDip(elbow);
+    return {
+      score: Math.round(depth),
+      parts: [["Depth", depth]],
+      raw: { elbow, drop, lockout },
+      rows: [["Elbow at the bottom", deg(elbow)]],
+    };
+  },
+};
+
+export const EXERCISES = [squat, pushup, plank, lunge, jack, pike, sidePlank, hollow, climber, hang, splitSquat, pistol, dips];
 export const BY_ID = Object.fromEntries(EXERCISES.map((e) => [e.id, e]));

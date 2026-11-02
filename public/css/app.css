@@ -1072,6 +1072,8 @@ p { text-wrap: pretty; }
 /* Ten names: a tighter dial so it fits beside the stage (the tilt is capped
    above, so far names stay readable). */
 .pk-list.many { gap: 0; }
+.pk-list.many .ex-card { row-gap: 0; }          /* the empty hint rows mustn't add a gap each */
+.pk-list.many .ex-card.on { row-gap: .25rem; }
 .pk-list.many .ex-card { padding: .32rem .6rem; }
 .pk-list.many .ex-card .name { font-size: clamp(1.05rem, 1.55vw, 1.45rem); }
 /* At this size an outline reads as fuzz: the other names are solid, dimmed ink instead. */
@@ -1124,3 +1126,12 @@ p { text-wrap: pretty; }
   .step .step-unit { grid-column: 3; grid-row: 2; width: auto; }
   .step [data-remove] { grid-column: 4; grid-row: 2; justify-self: end; }
 }
+
+/* Menu: the skills you're closest to, with what's left and a Train button. */
+.unlocks-card { display: grid; gap: .85rem; }
+.unlock-row { display: flex; align-items: center; gap: .75rem; }
+.unlock-row + .unlock-row { padding-top: .85rem; border-top: 1px solid var(--border); }
+.unlock-text { flex: 1; min-width: 0; display: grid; gap: .2rem; font-size: .85rem; }
+.unlock-text strong { font-weight: 600; }
+.unlock-bar { display: block; height: 3px; margin-top: .3rem; border-radius: 3px; background: var(--panel-hi2); overflow: hidden; }
+.unlock-bar i { display: block; height: 100%; border-radius: inherit; }

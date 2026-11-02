@@ -125,8 +125,7 @@ step in `js/skills.js`. Order = most useful first.
       width x 0.5, front-on or 45°). Needs a facing check that allows a 45° camera.
 - [x] **Pike push-up**: done (`exercises/pike.js`). Hip angle (shoulder–hip–ankle) must stay folded; reps by elbow angle; its own recorded fault lines and name. To do: a 3D clip for the homepage popup.
 - [ ] **Handstand push-up** (wall): body inverted (ankles above shoulders), elbow angle reps.
-- [ ] **Pistol squat**: squat module on one leg; the free foot must stay off the floor for the
-      whole rep; depth = working thigh angle; per-leg counts.
+- [x] **Pistol squat**: done (`exercises/pistol.js`): standing leg = the lower ankle, depth by its thigh angle, the free foot must stay up. Not done: per-leg counts.
 - [ ] **Muscle-up**: pull-up tracker plus a transition phase (wrists move from above the head
       to below the shoulders) and a lockout at the top.
 
@@ -193,3 +192,11 @@ Rough order: most useful first. Everything stays on-device unless it says otherw
 - [ ] Pike push-up "elbows flaring" and hollow hold "lower back up": neither shows from the side-on view; needs a second camera angle or a depth signal.
 - [x] Side plank (`exercises/sideplank.js`) and mountain climbers (`exercises/climber.js`, counts the near knee; the climber figure's hips lift mid-drive via `mid` poses and `rig.js poseAt`).
 - [ ] Real recordings of all five (RECORDING_GUIDE.md) to check the thresholds on real bodies.
+
+### Nov 2026
+- [x] Dips, Bulgarian split squat and pistol squat trackers (the Legs path is now fully tracked).
+- [x] Exercise library page, generated from the code; `app.html#train-<id>` links.
+- [x] "Nearest unlocks" on the trainer menu.
+- [ ] Australian row and negative pull-up trackers, then the pull-up (the Pull path's pull-up waits on both).
+- [ ] Per-leg counts for split squats and pistols (both legs in one set).
+- [ ] Real recordings of the newer trackers (RECORDING_GUIDE.md).

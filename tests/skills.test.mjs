@@ -2,7 +2,7 @@
  * skills.test.mjs — the skill tree (js/skills.js) unlocks skills only from
  * real saved sets, after their prerequisites, and never loses one. Run with:  npm test
  */
-import { PATHS, STEP_BY_ID, skillPath, newSkills, heldSeconds, progressOf } from "../public/js/skills.js";
+import { PATHS, STEP_BY_ID, skillPath, newSkills, heldSeconds, progressOf, nearestUnlocks, leftToGo } from "../public/js/skills.js";
 import { REGISTRY } from "../public/js/exercises/index.js";
 
 let pass = 0, fail = 0;
@@ -28,6 +28,16 @@ check("Pike push-up is tracked (8 in a set, average 85+)", STEP_BY_ID.pike?.test
     && step(skillPath([...pre, set("Pike push-up", 6, 95)]), "pike").status === "next"
     && step(skillPath([set("Pike push-up", 8, 95)]), "pike").status === "locked");
 }
+check("Dips, Bulgarian split squat and pistol squat are tracked",
+  ["dips", "split_squat", "pistol"].every((id) => STEP_BY_ID[id]?.test));
+{
+  const legs = [set("Squat", 15, 95), set("Lunge", 16, 94)];               // squat, full depth, lunge, clean lunges
+  const p = skillPath([...legs, set("Bulgarian split squat", 8, 88), set("Pistol squat", 2, 90)]);
+  check("Legs path: split squat and pistol unlock from real sets", step(p, "split_squat").status === "done" && step(p, "pistol").status === "done");
+  check("Pistol waits for deep squats and lunges first", step(skillPath([set("Pistol squat", 3, 95)]), "pistol").status === "locked");
+  const q = skillPath([set("Push-up", 15, 92), set("Dips", 5, 84)]);
+  check("Dips unlock after clean push-ups and 5 real dips", step(q, "dips").status === "done");
+}
 check("Side plank, hollow hold, mountain climbers and dead hang are tracked",
   ["side_plank", "hollow", "climbers", "dead_hang"].every((id) => STEP_BY_ID[id]?.test));
 {
@@ -42,6 +52,12 @@ check("Side plank, hollow hold, mountain climbers and dead hang are tracked",
   const pr = progressOf(STEP_BY_ID.pushup_clean.test, [set("Push-up", 9, 93), set("Push-up", 12, 88), set("Squat", 30, 99)]);
   check("Best try for a step: reps and average from the closest real set", pr && pr.done === 12 && pr.goal === 15 && pr.avg === 88 && pr.goalAvg === 90 && pr.unit === "reps", JSON.stringify(pr));
   check("No sets of that exercise: no progress", progressOf(STEP_BY_ID.pike.test, [set("Push-up", 20, 99)]) === null);
+}
+{
+  const near = nearestUnlocks([set("Push-up", 12, 88)]);
+  check("Nearest unlock: the skill your best set is closest to comes first", near[0]?.id === "pushup_clean" && near[0].exercise === "Push-up", JSON.stringify(near.map((u) => u.id)));
+  check("...with what's left in words", near[0]?.left === "3 more reps, 2 more points on the average", near[0]?.left);
+  check("Untried skills say so", leftToGo(null) === "No sets of this exercise yet" && near.length === 2);
 }
 check("Step ids are unique", new Set(all.map((s) => s.id)).size === all.length);
 check("Every tracked step uses an exercise the app can grade", all.filter((s) => s.test).every((s) => REGISTRY[s.test.exercise]));

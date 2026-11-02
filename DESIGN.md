@@ -103,6 +103,10 @@ its exact colour):
   highlight and a short top-down sheen) so surfaces read machined, not
   flat. Primary buttons get a lit top edge too. Headings wrap balanced
   (`text-wrap: balance`), body text `pretty`; changing numbers are tabular. (The hero frame's single shadow is the exception.)
+- Kit is drawn like the floor (`prop` on a pose, `propMarkup` in
+  `figures/draw.js`): the bench under a split squat's back foot, the bar
+  under a dip. The exercise library (`exercises.html`) is the same plates,
+  one per exercise, generated from the code.
 - Figures sit in ruled plates (exercises, camera setup): hairlines between
   cells, no card background or radius, a drafting grid behind the drawing
   and a mono caption (FIG 01…), like plates in a manual.
@@ -160,9 +164,11 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     toggle group's options with a horizontal motion blur.
   - **Five skill paths** (`js/skills.js`): Push, Pull, Legs, Core and
     Conditioning, 32 skills. Tracked ones unlock from real saved sets
-    (push-ups, pike push-ups, squats, lunges, planks, side planks, hollow
-    holds, mountain climbers, jumping jacks, dead hangs); the rest say "Not
-    tracked yet". Tree cards are large (236 px, 42 px flowers) on a wide
+    (push-ups, pike push-ups, dips, squats, lunges, Bulgarian split squats,
+    pistol squats, planks, side planks, hollow holds, mountain climbers,
+    jumping jacks, dead hangs); the rest say "Not tracked yet". The menu's
+    "Nearest unlocks" card names the two you're closest to, what's left in
+    words ("3 more reps, 2 more points on the average") and a Train button. Tree cards are large (236 px, 42 px flowers) on a wide
     screen (up to 1600 px), with a thicker trunk.
   - **A skill's panel shows your best try as meters** (`progressOf` in
     `skills.js`): reps or seconds, and the average, each against the goal,
