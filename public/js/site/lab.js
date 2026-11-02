@@ -13,7 +13,6 @@ import { angleMark, levelLine, offsetMark, coachNote, jointAngle } from "../figu
 import { gradeColor, gradeLetter } from "../grade.js";
 import { slide, spring, EASE } from "../ui/motion.js";
 import { stamp } from "../ui/flair.js";
-import { burst } from "./sparks.js";
 import { voice, configureVoice } from "../voice.js";
 
 /**
@@ -117,12 +116,8 @@ export function mountLab(root) {
     ui.score.textContent = score;
     ui.letter.textContent = gradeLetter(score);
     // Reaching an A (from below, by your own hand or once a preset settles):
-    // the score stamps down, rings out green and throws a burst of sparks.
-    if (!swinging && score >= 90 && lastScore != null && lastScore < 90) {
-      stamp(ui.score, c, null, { lift: true });
-      const r = ui.score.getBoundingClientRect();
-      setTimeout(() => burst(r.left + r.width / 2, r.top + r.height / 2, 1.8), 320);
-    }
+    // the score stamps down and rings out green.
+    if (!swinging && score >= 90 && lastScore != null && lastScore < 90) stamp(ui.score, c, null, { lift: true });
     if (!swinging) lastScore = score;
     ui.rows.innerHTML = m.rows.map(([k, val]) => `<div><dt>${k}</dt><dd>${val}</dd></div>`).join("");
     ui.parts.innerHTML = m.parts.map(([k, val]) => {

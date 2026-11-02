@@ -4,8 +4,7 @@
  * chapters). Only sections whose heading has the row to itself get one,
  * numbered as the side rail numbers them (so 04, Coaching, which shares its
  * row with the cue cards, is skipped rather than renumbered). As a section arrives, its
- * digits roll up into place and the label decodes (decrypt.js picks up
- * .sec-index span); while you scroll past, the number drifts a little
+ * digits roll up into place; while you scroll past, the number drifts a little
  * slower than the page, for depth. Decorative: aria-hidden.
  */
 

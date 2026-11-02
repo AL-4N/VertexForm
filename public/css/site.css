@@ -57,7 +57,7 @@ body {
   font-family: var(--body); font-size: 17px; line-height: 1.6;
   -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
 }
-h1, h2, h3 { font-family: var(--display); font-weight: 700; margin: 0; letter-spacing: -.02em; }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; margin: 0; letter-spacing: -.02em; }
 p { margin: 0; }
 a { color: inherit; }
 button { font: inherit; color: inherit; }
@@ -125,10 +125,10 @@ body::after {
   .btn:hover::before { clip-path: circle(150% at var(--fx, 50%) var(--fy, 50%)); }
 }
 @media (prefers-reduced-motion: reduce) { .btn, .btn::before { transition: none; } }
-/* Primary: the go gradient at rest; on hover a light circle fills it. */
-.btn-grad { background: var(--go-gradient); color: #090d1c; box-shadow: 0 6px 24px -8px rgba(46,229,157,.55); }
-.btn-grad::before, .btn-dark::before { background: var(--paper); }
-.btn-grad:hover { box-shadow: 0 10px 32px -8px rgba(46,229,157,.75); }
+/* Primary: solid paper at rest (the grade colours stay for scores); on hover
+   the go gradient grows in from the pointer. No glow. */
+.btn-grad { background: var(--paper); color: #090d1c; box-shadow: inset 0 -1px 0 rgba(9,13,28,.18); }
+.btn-dark::before { background: var(--paper); }
 .btn-ghost { color: var(--text); box-shadow: inset 0 0 0 1.5px var(--line-2); }
 .btn-dark { --btn-bg: var(--ink); color: #fff; }
 .btn-sm { font-size: .9rem; padding: .7rem 1.15rem; }
@@ -169,7 +169,7 @@ body::after {
 .nav nav a:hover { color: var(--text); }
 /* Where you are: the link for the section on screen lights up and gets a
    short rule underneath (js/site/nav-spy.js). */
-.nav nav a.active { background: var(--go-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.nav nav a.active { color: var(--text); }
 /* Settings: opens the trainer on its Settings screen (app.html#settings). */
 .nav-settings {
   display: inline-flex; align-items: center; gap: .45rem; margin-left: -.6rem; padding: .5rem .7rem; border-radius: 9px;
@@ -279,13 +279,22 @@ body::after {
 }
 .hero-hud .readout-rows { padding: .65rem 0 0; border-left: 0; border-top: 1px solid var(--line); }
 .hero-hud .score-num { color: var(--text); transition: color .2s; }
-.hero-hud .tabs { margin-top: .6rem; }
-.hero-hud .tabs button { background: color-mix(in srgb, #090d1c 88%, transparent); }
+/* The hero's exercise switch reads as a ruler: a hairline across the top, the
+   chosen exercise marked by a short bar in the live grade colour. */
+.hero-hud .tabs { margin-top: .6rem; gap: 0; border-top: 1px solid var(--line-2); }
+.hero-hud .tabs button { position: relative; background: none; box-shadow: none; border-radius: 0; padding: .95rem .3rem .3rem; }
+.hero-hud .tabs button::before {
+  content: ""; position: absolute; left: 18%; right: 18%; top: -1.5px; height: 3px; border-radius: 2px;
+  background: var(--live); transform: scaleX(0); transition: transform .35s var(--ease);
+}
+.hero-hud .tabs button[aria-selected="true"] { background: none; box-shadow: none; }
+.hero-hud .tabs button[aria-selected="true"]::before { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) { .hero-hud .tabs button::before { transition: none; } }
 @media (min-width: 1000px) {
   .hero { min-height: min(900px, calc(100svh - 68px)); display: flex; }
   .hero-grid { position: static; width: 100%; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr auto; row-gap: 2rem;
     padding-block: clamp(1.25rem, 3.5vh, 3rem) clamp(1.25rem, 3vh, 2.5rem); }   /* by height: the switch and readout stay above the fold */
-  .hero-copy { grid-row: 1; align-self: center; max-width: 520px; }
+  .hero-copy { grid-row: 1; align-self: center; max-width: 600px; }
   /* A strip along the bottom: the exercise switch under the copy, the readout under the figure. */
   .hero-hud { grid-row: 2; display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; }
   .hero-hud .tabs { order: -1; flex: 0 1 470px; margin: 0; }
@@ -300,7 +309,7 @@ body::after {
   .hero-fallback { inset: 6% 4% 18% 52%; }
 }
 
-.hero h1 { font-size: clamp(2.3rem, 4.6vw, 3.75rem); line-height: 1.06; margin-bottom: 1.4rem; max-width: 15ch; text-wrap: balance; }
+.hero h1 { font-size: clamp(2.2rem, 4.2vw, 3.4rem); line-height: 1.08; margin-bottom: 1.4rem; max-width: 18ch; text-wrap: balance; }
 .lede { color: var(--text-dim); font-size: clamp(1.05rem, 1.5vw, 1.18rem); max-width: 47ch; margin-bottom: 2rem; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 2rem; }
 .facts { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; }
@@ -414,9 +423,12 @@ body::after {
 .tag { display: inline-block; font-size: .76rem; font-weight: 700; padding: .28rem .65rem; border-radius: 999px; background: var(--surface-2); color: var(--text-dim); box-shadow: inset 0 0 0 1px var(--line-2); }
 
 /* Exercises */
-.ex-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; }
-.ex-card { position: relative; grid-column: span 2; display: flex; flex-direction: column; background: var(--surface); border-radius: var(--r-lg); overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); cursor: pointer; transition: box-shadow .3s var(--ease); }
-.ex-card:hover { box-shadow: inset 0 0 0 1px var(--text-faint); }
+/* A ruled grid of figure plates, like a manual's: hairlines between cells,
+   no card backgrounds, each plate captioned FIG 01, 02… */
+.ex-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; counter-reset: fig; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.ex-card { position: relative; grid-column: span 2; display: flex; flex-direction: column; overflow: hidden; cursor: pointer;
+  border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); counter-increment: fig; transition: background .3s var(--ease); }
+.ex-card:hover { background: rgba(238,241,251,.025); }
 .ex-card .picto svg { transition: transform .5s var(--ease); }
 .ex-card:hover .picto svg { transform: scale(1.05); }
 /* The whole card is the button's hit area. */
@@ -430,7 +442,12 @@ body::after {
 .ex-card.ex-wide { grid-column: span 3; }
 @media (max-width: 900px) { .ex-card, .ex-card.ex-wide { grid-column: span 3; } }
 @media (max-width: 620px) { .ex-card, .ex-card.ex-wide { grid-column: span 6; } }
-.picto { height: 172px; display: flex; align-items: center; justify-content: center; padding: 1.1rem 1rem .5rem; background: radial-gradient(80% 90% at 50% 100%, rgba(46,229,157,.10), transparent 70%); }
+.picto { height: 172px; display: flex; align-items: center; justify-content: center; padding: 1.1rem 1rem .5rem; }
+.ex-card .picto { position: relative; height: 200px; padding-top: 2.2rem;
+  background-image: linear-gradient(rgba(238,241,251,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(238,241,251,.045) 1px, transparent 1px);
+  background-size: 24px 24px; background-position: -1px -1px; }
+.ex-card .picto::before { content: "FIG " counter(fig, decimal-leading-zero); position: absolute; left: 1.35rem; top: 1rem;
+  font-family: var(--mono); font-size: .66rem; font-weight: 600; letter-spacing: .12em; color: var(--text-faint); }
 .picto svg { display: block; height: 100%; width: auto; max-width: min(100%, 290px); }
 .picto-floor { stroke: var(--line-2); stroke-width: 2; vector-effect: non-scaling-stroke; }
 /* Line weight stays constant whatever the figure's scale, so wide and tall poses match. */
@@ -439,7 +456,8 @@ body::after {
 .picto-near circle { fill: var(--surface); stroke-width: 4.5; vector-effect: non-scaling-stroke; }
 .ex-body { padding: 1.1rem 1.35rem 1.4rem; }
 .ex-title { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .55rem; }
-.ex-title h3 { font-size: 1.2rem; }
+.ex-title h3 { font-size: 1.2rem; font-weight: 600; }
+.ex-title .tag { padding: 0; background: none; box-shadow: none; border-radius: 0; font-family: var(--mono); font-size: .68rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); }
 .ex-measures { color: var(--text); font-size: .97rem; margin-bottom: .5rem; }
 .ex-flags { color: var(--text-dim); font-size: .92rem; }
 .ex-flags strong { color: var(--text); font-weight: 600; }
@@ -490,9 +508,9 @@ body::after {
 .coach-grid .section-head { margin-bottom: 0; }
 .voices { display: inline-flex; gap: .3rem; margin-top: 1.6rem; padding: .3rem; border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
 .voices button { border: 0; cursor: pointer; padding: .55rem 1.1rem; border-radius: 9px; background: transparent; color: var(--text-dim); font-weight: 600; }
-.voices button[aria-pressed="true"] { background: var(--go-gradient); color: #090d1c; }
+.voices button[aria-pressed="true"] { background: var(--paper); color: #090d1c; }
 .voices.has-ind button[aria-pressed="true"] { background: transparent; }
-.voices .seg-ind { background: var(--go-gradient); border-radius: 9px; }
+.voices .seg-ind { background: var(--paper); border-radius: 9px; }
 .cues { list-style: none; margin: 0; padding: 0; display: grid; gap: .8rem; }
 .cue { display: flex; align-items: center; gap: 1rem; background: var(--surface); border-radius: var(--r-md); padding: .85rem .9rem .85rem .85rem; box-shadow: inset 0 0 0 1px var(--line); }
 .cue-score { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; font-family: var(--display); font-weight: 800; font-size: 1.15rem; color: #090d1c; }
@@ -510,7 +528,7 @@ body::after {
 .mock { margin-top: auto; background: var(--ink-2); border-radius: 14px; padding: 1rem; box-shadow: inset 0 0 0 1px var(--line); min-height: 118px; }
 .mock-pills { display: flex; gap: .35rem; margin-bottom: .9rem; flex-wrap: wrap; }
 .mock-pills span { font-size: .78rem; font-weight: 700; padding: .3rem .6rem; border-radius: 7px; background: var(--surface-2); color: var(--text-faint); }
-.mock-pills span.on { background: var(--go-gradient); color: #090d1c; }
+.mock-pills span.on { background: var(--paper); color: #090d1c; }
 .mock-chips { display: flex; gap: .4rem; }
 .mock-chips span { font-family: var(--display); font-weight: 700; font-size: .9rem; color: #090d1c; background: var(--c); border-radius: 9px; padding: .35rem .55rem; }
 .mock-chart { display: flex; align-items: flex-end; gap: .5rem; height: 118px; }
@@ -526,7 +544,7 @@ body::after {
 /* The rest of the trainer, under the mode cards: name on the left, what it does on the right. */
 .also { margin: 2rem 0 0; display: grid; border-top: 1px solid var(--line); }
 .also > div { display: grid; grid-template-columns: 9rem 1fr; gap: 1.5rem; padding: 1rem 0; border-bottom: 1px solid var(--line); }
-.also dt { font-family: var(--display); font-weight: 700; font-size: 1rem; }
+.also dt { font-weight: 600; font-size: 1.02rem; color: var(--text); }
 .also dd { margin: 0; color: var(--text-dim); max-width: 62ch; }
 @media (max-width: 620px) { .also > div { grid-template-columns: 1fr; gap: .3rem; } }
 
@@ -548,9 +566,13 @@ body::after {
 
 /* Closing band: paper, with the grade scale as a rule along its top edge */
 /* Closing band: the full grade gradient, edge to edge */
-.cta-band { position: relative; background: var(--grade-gradient); color: #090d1c; text-align: center; padding: clamp(4rem, 9vw, 6.5rem) 0; }
-.cta-band h2 { font-size: clamp(2rem, 4.6vw, 3.4rem); line-height: 1.05; margin-bottom: .8rem; }
-.cta-band p { font-size: 1.1rem; margin-bottom: 2rem; font-weight: 500; }
+/* The close: quiet, with the grade scale as one thin bar, F to A, over the heading. */
+.cta-band { position: relative; color: var(--text); text-align: center; padding: clamp(5rem, 10vw, 8rem) 0; border-top: 1px solid var(--line); }
+.cta-band h2 { font-size: clamp(2rem, 4.6vw, 3.4rem); line-height: 1.05; margin-bottom: .9rem; }
+.cta-band p { font-size: 1.08rem; margin-bottom: 2.2rem; color: var(--text-dim); }
+.cta-scale { display: flex; align-items: center; gap: .9rem; max-width: 360px; margin: 0 auto 2.4rem;
+  font-family: var(--mono); font-size: .72rem; font-weight: 600; color: var(--text-faint); }
+.cta-scale i { flex: 1; height: 3px; border-radius: 3px; background: var(--grade-gradient); }
 
 /* Footer */
 .foot { padding: 2rem 0 0; border-top: 1px solid var(--line); overflow: hidden; container-type: inline-size; }
@@ -562,28 +584,18 @@ body::after {
 }
 .foot-mark em { font-style: normal; background: var(--go-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-stroke: 0; }
 
-/* ── Fact strips (js/site/ticker.js) ── */
-.ticker { overflow: hidden; border-block: 1px solid var(--line); padding: 1.1rem 0; white-space: nowrap; }
-.ticker-track { display: inline-flex; align-items: center; gap: 2rem; will-change: transform; }
-.ticker-track span { font-family: var(--mono); font-size: .95rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); }
-.ticker-track i { width: 8px; height: 8px; border-radius: 50%; background: var(--go-gradient); flex: none; }
-.ticker-big .ticker-outline {
-  font-family: var(--display); font-size: clamp(3rem, 9vw, 7.5rem); font-weight: 800; letter-spacing: -.03em; text-transform: none;
-  color: transparent; -webkit-text-stroke: 1.5px var(--line-2); transition: color .3s, -webkit-text-stroke-color .3s;
-}
-.ticker-big i { width: 18px; height: 18px; }
 .foot-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
 .foot p { color: var(--text-faint); font-size: .88rem; }
 .foot-row > a:last-child { color: var(--text-dim); font-size: .9rem; font-weight: 600; text-decoration: none; }
 .foot-row > a:last-child:hover { color: var(--text); }
 
 /* ── Live tag ───────────────────────────────────────── */
-/* The lime chip over a section: tinted, outlined, and glowing softly. */
+/* The label over a section: plain mono with a short lime rule, like a figure caption. */
 .tag-live, .section-head .tag {
-  margin-bottom: 1.1rem; color: var(--g85); background: rgba(198,239,78,.1);
-  box-shadow: inset 0 0 0 1px rgba(198,239,78,.38), 0 0 26px -6px rgba(198,239,78,.45);
-  text-shadow: 0 0 14px rgba(198,239,78,.45);
+  display: inline-flex; align-items: center; gap: .6rem; margin-bottom: 1.1rem; padding: 0; background: none; box-shadow: none; border-radius: 0;
+  font-family: var(--mono); font-size: .72rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--text-dim);
 }
+.tag-live::before, .section-head .tag::before { content: ""; width: 18px; height: 1.5px; background: var(--g85); }
 
 /* ── How it works: step figures ─────────────────────── */
 .step-fig { margin: 1.1rem 0 1rem; background: var(--surface); border-radius: var(--r-md); box-shadow: inset 0 0 0 1px var(--line); padding: .6rem .4rem 0; }
@@ -732,19 +744,6 @@ html.split-wait .hero h1 { visibility: hidden; }
 .hero-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
 .hero:not(.hero-3d) .hero-layer { display: none; }
 
-/* Click sparks (js/site/sparks.js). */
-.sparks { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 99; pointer-events: none; }
-
-/* ── Cards that lean toward the pointer (js/site/tilt.js) ── */
-.tilt { transform-style: preserve-3d; }
-.tilt:hover { will-change: transform; }      /* a GPU layer only while it moves */
-.tilt::after {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s;
-  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(238,241,251,.07), transparent 45%);
-}
-.tilt:hover::after { opacity: 1; }
-.cue.tilt, .mode.tilt, .panel.tilt { position: relative; }
-
 /* ── A cue that's speaking (js/site/coach.js): its card lights in its score
    colour and the play button turns into bars moved by the voice. ── */
 .cue { transition: box-shadow .3s var(--ease), background .3s var(--ease); }
@@ -787,34 +786,23 @@ html.split-wait .hero h1 { visibility: hidden; }
   content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1.5px; border-radius: 1px;
   background: var(--go-gradient); transform: scaleX(0); transform-origin: right; transition: transform .45s cubic-bezier(.22,.61,.36,1);
 }
-.nav nav a:hover::after, .foot-row > a:last-child:hover::after { transform: scaleX(1); transform-origin: left; }
+.nav nav a:hover::after, .nav nav a.active::after, .foot-row > a:last-child:hover::after { transform: scaleX(1); transform-origin: left; }
 @media (prefers-reduced-motion: reduce) { .nav nav a::after, .foot-row > a:last-child::after { transition: none; } }
 
-/* ── Light and glow ──
-   A soft radial light follows the pointer behind the content (js/site/glow.js). */
-.pointer-glow {
-  position: fixed; left: 0; top: 0; width: 900px; height: 900px; margin: -450px 0 0 -450px; z-index: -1; pointer-events: none;
-  background: radial-gradient(closest-side, rgba(46,229,157,.055), rgba(255,190,61,.022) 45%, transparent 72%);
-  opacity: 0; transition: opacity .6s;
-}
-.pointer-glow.on { opacity: 1; }
-/* Scores glow in their own colour. */
-.score-num, .lab-num, .score-big, .grade-big, .story-big span { text-shadow: 0 0 24px color-mix(in srgb, currentColor 28%, transparent); }
-/* Exercise cards light up green on hover. */
-.ex-card:hover { box-shadow: inset 0 0 0 1px rgba(46,229,157,.4), 0 26px 70px -34px rgba(46,229,157,.55); }
-/* The footer's gradient "Form" and the section numbers carry a faint halo. */
-.foot-mark em { filter: drop-shadow(0 0 28px rgba(46,229,157,.35)); }
+/* No glows (Nov 2026): next to Linear, Raycast and Apple, haloes on scores,
+   cards and the cursor read as a template. Light stays only where it is
+   physical: the lit 3D figure and the hero's wash in the grade colour. */
 
 /* ── Setup: the trainer's three onboarding steps, drawn as plans ── */
-.setup { list-style: none; margin: 2.4rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; counter-reset: none; }
+.setup { list-style: none; margin: 2.4rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; counter-reset: none;
+  border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
 .setup-step {
-  position: relative; padding: 1.3rem 1.3rem 1.5rem; border-radius: var(--r-lg); background: var(--surface);
-  box-shadow: inset 0 0 0 1px var(--line);
-  background-image: linear-gradient(rgba(238,241,251,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(238,241,251,.06) 1px, transparent 1px);
+  position: relative; padding: 1.4rem 1.35rem 1.6rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  background-image: linear-gradient(rgba(238,241,251,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(238,241,251,.045) 1px, transparent 1px);
   background-size: 24px 24px; background-position: -1px -1px;
 }
 .setup-step svg { display: block; width: 100%; height: auto; margin-bottom: 1rem; overflow: visible; }
-.setup-step h3 { font-family: var(--display); font-size: 1.08rem; letter-spacing: -.02em; margin: .2rem 0 .5rem; }
+.setup-step h3 { font-family: var(--display); font-size: 1.08rem; font-weight: 600; letter-spacing: -.02em; margin: .2rem 0 .5rem; }
 .setup-step p { margin: 0; color: var(--text-dim); max-width: 42ch; }
 .setup-n { font-family: var(--mono); font-size: .72rem; font-weight: 600; letter-spacing: .12em; color: var(--g85); }
 .su-floor { stroke: var(--line-2); stroke-width: 2; fill: none; stroke-linecap: round; }
@@ -823,9 +811,8 @@ html.split-wait .hero h1 { visibility: hidden; }
 .su-ray { stroke: var(--g70); stroke-width: 1.6; stroke-dasharray: 5 5; fill: none; stroke-linecap: round; opacity: .85; }
 .su-body { stroke: var(--g100); stroke-width: 5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 circle.su-body { fill: var(--ink-2); }
-.su-sun { stroke: var(--g70); stroke-width: 2.4; fill: none; stroke-linecap: round; filter: drop-shadow(0 0 10px rgba(255,190,61,.55)); }
+.su-sun { stroke: var(--g70); stroke-width: 2.4; fill: none; stroke-linecap: round; }
 .su-text { font-family: var(--mono); font-size: 11px; font-weight: 600; fill: var(--text-dim); letter-spacing: .06em; }
-.setup-step:hover .su-body { filter: drop-shadow(0 0 8px rgba(46,229,157,.5)); }
 @media (max-width: 860px) { .setup { grid-template-columns: 1fr; } .setup-step svg { max-width: 360px; } }
 
 /* ── Questions: a ruled list; answers open with a height glide and unblur ── */
@@ -833,7 +820,7 @@ circle.su-body { fill: var(--ink-2); }
 .faq details { border-bottom: 1px solid var(--line); }
 .faq summary {
   list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-  padding: 1.15rem .2rem; font-family: var(--display); font-weight: 700; font-size: 1.02rem; letter-spacing: -.01em;
+  padding: 1.2rem .2rem; font-weight: 600; font-size: 1.08rem; color: var(--text-dim);
   transition: color .3s;
 }
 .faq summary::-webkit-details-marker { display: none; }
@@ -844,7 +831,7 @@ circle.su-body { fill: var(--ink-2); }
     linear-gradient(currentColor, currentColor) center / 2px 14px no-repeat;
 }
 .faq details[open] summary::after { transform: rotate(135deg); }
-.faq summary:hover, .faq details[open] summary { color: var(--g100); }
+.faq summary:hover, .faq details[open] summary { color: var(--text); }
 .faq summary:focus-visible { outline: 2px solid var(--g100); outline-offset: 3px; border-radius: 6px; }
 .faq-a { overflow: hidden; }
 .faq-a p { margin: 0; padding: 0 .2rem 1.3rem; color: var(--text-dim); max-width: 66ch; }
@@ -980,18 +967,17 @@ circle.su-body { fill: var(--ink-2); }
    not flat), primary buttons with a lit top edge, numbers that don't jitter. */
 h1, h2, h3 { text-wrap: balance; }
 p, li, dd { text-wrap: pretty; }
-.section-head h2, .hero h1 { letter-spacing: -.035em; }
+.section-head h2, .hero h1, .cta-band h2 { letter-spacing: -.035em; font-weight: 500; }
+/* Two-tone headings: the fact in white, the rest of the sentence in grey. */
+h1 .dim, h2 .dim { color: var(--text-faint); }
 .section { padding: clamp(5rem, 11vw, 8.5rem) 0; }
 ::selection { background: rgba(46,229,157,.3); color: #fff; }
-.ex-card, .panel {
+.panel {
   background: linear-gradient(180deg, rgba(238,241,251,.035), rgba(238,241,251,0) 140px), var(--surface);
 }
-.ex-card { box-shadow: inset 0 0 0 1px var(--line), inset 0 1px 0 rgba(238,241,251,.06); }
-.ex-card:hover { box-shadow: inset 0 0 0 1px var(--line-2), inset 0 1px 0 rgba(238,241,251,.1), 0 30px 60px -40px rgba(0,0,0,.9); }
 .panel { box-shadow: inset 0 0 0 1px var(--line), inset 0 1px 0 rgba(238,241,251,.06); }
 .btn { letter-spacing: -.01em; }
-.btn-grad { box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -1px 0 rgba(9,13,28,.12), 0 8px 28px -12px rgba(46,229,157,.5); }
-.btn-grad:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -1px 0 rgba(9,13,28,.12), 0 12px 34px -12px rgba(46,229,157,.65); }
+.btn-grad { box-shadow: inset 0 -1px 0 rgba(9,13,28,.16); }
 .score-num, .lab-num, .story-big span, .pc-n, .readout-rows dd { font-variant-numeric: tabular-nums; }
 
 a.ex-open { text-decoration: none; }
@@ -1007,3 +993,4 @@ a.ex-open { text-decoration: none; }
 /* "What it can't do": one honest panel, full width, its list in two columns on wide screens. */
 .limits h2 { margin-bottom: 1rem; }
 @media (min-width: 900px) { .limits .checks { columns: 2; column-gap: 3rem; } .limits .checks li { break-inside: avoid; } }
+.ex-card .picto-near circle { fill: #0b1122; }   /* the head, filled with the page, not a panel colour */

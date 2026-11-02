@@ -17,7 +17,6 @@
 import { gradeColor, gradeLetter } from "../grade.js";
 import { DEMO_TIPS } from "../config.js";
 import { openPopup } from "../ui/popup.js";
-import { scramble } from "../ui/scramble.js";
 import { reducedMotion, tween, EASE } from "../ui/motion.js";
 import { Scene, loadClips, frameAt, repAt, deepestT, clamp } from "../figures/scene3d.js";
 import { renderPictos } from "../figures/pictos.js";
@@ -141,7 +140,6 @@ export function mountExercisePopups(grid, dlg) {
       else Object.assign(st, { yaw: 0, pitch: 0, show: 0, floor: 0, playing: false });
     }
     const run = ++st.run;
-    setTimeout(() => scramble(x.name, { speed: 40, base: 300 }), 220);
     openPopup(dlg, card, {
       onClose: () => { st.run++; dlg.querySelectorAll(".ex-pop-fly").forEach((f) => f.remove()); },
       // Closing runs the opening backwards: the figure turns back to the flat

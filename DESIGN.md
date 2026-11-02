@@ -44,25 +44,32 @@ its exact colour):
 | 85 | `#c6ef4e` | B, lime |
 | 100 | `#2ee59d` | A, green |
 
-- `--grade-gradient`: the full scale, F to A. Score bars, the closing band.
-- `--go-gradient`: amber to green. Primary buttons, selected toggles, the
-  current item in nav, the logo's "Form", the hover fill of other buttons.
+- `--grade-gradient`: the full scale, F to A. Score bars, the thin F to A
+  bar over the closing heading.
+- `--go-gradient`: amber to green. The logo's "Form", the circle that fills
+  a button on hover, small marks (the eyebrow rule, the rail). Never as a
+  resting fill: primary buttons and selected toggles are solid paper
+  (`--paper` with `--ink` text), the current nav link is white with its
+  rule drawn. The grade colours are for scores; when buttons wore them
+  too, they stopped meaning anything (Nov 2026, after comparing with
+  Linear, Raycast and Apple).
 - Letters: 90+ A, 80 B, 70 C, 60 D, below 60 F. The trainer shows A+ from 95.
 - A score is always drawn in its own colour (`gradeColor(score)`), never a
   fixed "good" or "bad" colour. Colour is never the only signal: the number
   or letter is always shown too.
 - No purple, no blue-to-purple gradients.
-- Light and glow (Oct 2026, the owner wants more of it): a soft radial light
-  follows the pointer behind the content (`site/glow.js`, green fading
-  through amber); section chips are lime, tinted and glowing (the "Try it
-  now" chip is the model); score numbers glow in their own colour;
-  exercise cards glow green on hover; glows behind the hero and Form Lab
-  figures and under the primary button stay.
+- Light: only where it's physical. The lit 3D figure, the hero's wash in
+  the live grade colour and the glow behind the Form Lab figure stay. The
+  Oct 2026 glows (a light following the pointer, glowing chips, haloed
+  scores, cards glowing on hover, a glow under the primary button) were
+  removed in Nov 2026: next to pro sites they read as a template.
+- Section labels are eyebrows, not chips: mono uppercase, `--text-dim`,
+  after a short lime rule (`.tag-live`).
 - Buttons: on hover a circle grows from where the pointer came in until it
   fills the button, and shrinks back toward where it left
-  (`js/ui/hover-fill.js` + `.btn::before` clip-path). Primary buttons (the
-  go gradient) fill with a light circle; the others fill with the gradient.
-  Danger buttons fill coral.
+  (`js/ui/hover-fill.js` + `.btn::before` clip-path). Every button fills
+  with the go gradient; the primary is solid paper at rest. Danger
+  buttons fill coral.
 - Tones: sections alternate the two navies (`--ink`, `--ink-2`), and the
   page glides from one to the other as you scroll (`site/tones.js`, a fixed
   `body::before` layer fading in and out).
@@ -72,13 +79,18 @@ its exact colour):
 
 | Role | Face | Notes |
 |---|---|---|
-| Display | Unbounded 700/800 | headings, scores, names. `letter-spacing: -.02em` |
+| Display | Unbounded 500/600 | h1/h2 at 500 (`-.035em`), h3 and names at 600. The face is wide; heavier cuts shout |
 | Body | Instrument Sans 400–700 | everything else |
 | Measurements | system mono (`--mono`) | angles, times, readouts, rail labels. Tabular numbers |
 | Coach notes | system handwriting (`--hand`) | only for the coach's notes on figures |
 
 - Fonts are self-hosted (`public/fonts/`). Never load fonts from a CDN.
 - Headings are sentence case. Never Title Case.
+- Two-tone headings: the fact in white, the rest of the sentence in
+  `--text-faint` (`<span class="dim">`): "Ten exercises, each measured its
+  own way." Not on every heading; short ones stay one tone.
+- Questions, list labels and other small headings use the body face
+  (Instrument Sans 600), not Unbounded.
 - Body lines under 75 characters (`max-width: 60–70ch`).
 
 ## Shape
@@ -91,6 +103,9 @@ its exact colour):
   highlight and a short top-down sheen) so surfaces read machined, not
   flat. Primary buttons get a lit top edge too. Headings wrap balanced
   (`text-wrap: balance`), body text `pretty`; changing numbers are tabular. (The hero frame's single shadow is the exception.)
+- Figures sit in ruled plates (exercises, camera setup): hairlines between
+  cells, no card background or radius, a drafting grid behind the drawing
+  and a mono caption (FIG 01…), like plates in a manual.
 - Don't make everything the same card. Vary it: a ruled list (`.also`),
   panels, a calendar grid. Empty states share one small card (History's
   "Not tried yet") rather than one empty card each.
@@ -271,11 +286,6 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   it reads as a scanned figure, not a plastic toy; a key
   light casting a soft floor shadow, a rim light tinted by the grade. The
   floor grid, protractors and notes stay drawing-board 2D on top.
-- **Click sparks** (`site/sparks.js`): eight short strokes in the amber to
-  green colours burst from the main call-to-action buttons when clicked
-  (not from every click: that read as a gimmick). **Magnetic buttons**
-  (`site/magnet.js`): the hero and closing buttons lean toward the pointer
-  and spring back. Both are React Bits ideas rebuilt in plain JS.
 - **Things grow out of what you clicked** (`ui/popup.js`): exercise-card
   popups, the trainer's confirms and onboarding (the page behind blurs and
   dims; closing runs back into the trigger); trainer screens grow out of
@@ -284,29 +294,14 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   the content rises (`wash`), so there's never an empty pause; the skill-tree panel grows out of
   the skill you picked; "Target reached" bursts out as a circle; toasts pop
   open from a dot and close back into one.
-- **Fact strips** (`site/ticker.js`): rows of true facts (mono, small) and
-  the exercise names (huge, outlined) slide sideways only as you scroll,
-  alternate rows opposite ways, leaning with scroll speed. Decorative
-  (`aria-hidden`): the same facts are in the page.
 - **The footer wordmark** is as wide as the page, outlined "Vertex" and a
   gradient "Form", cut off by the bottom edge, and rises into view as you
   reach the end (scrubbed by scroll).
-- **Cards lean toward the pointer** (`site/tilt.js`): exercise cards, mode
-  cards, coach cues and panels tilt up to 6° in perspective with a soft
-  sheen that follows the pointer, and settle back on leave. Mouse only.
-- **Text decodes** (`ui/scramble.js`, `site/decrypt.js`; React Bits'
-  "Decrypted Text" idea): letters start as random measuring glyphs (digits,
-  °, ±, ×) and settle left to right with a blur that clears. Use it
-  sparingly, only when a string first loads: section-number
-  labels and the 3D view's source line on the homepage, the exercise
-  popup's name as it opens, and trainer screen labels the first time each
-  screen opens. **Never on hover** (the owner found it repetitive), and not
-  on headings or card titles, which already rise in.
 - **Blur only where something is moving fast**: directional motion blur on
   slides, screen changes, nav glides and rolling digits (the owner's rule).
   Things arriving (headings, cards, answers, section numbers) rise cleanly
   with no blur: blur-in reveals were the most "AI template" thing on the
-  page. Fact strips only lean with scroll speed. Live background blur (a
+  page. Live background blur (a
   frosted nav) is not used: it costs every frame.
 - **Stages open out of a frame** (`scroll-fx.js`): the Form
   Lab stage grows from a narrow, rounder frame to full size as you scroll
@@ -322,14 +317,14 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   label in the empty space to the right, numbered as the side rail numbers
   them (a section without room, like Coaching, is skipped, not renumbered),
   and the heading row is always tall enough to clear it; the digits roll up as
-  the section arrives, the label decodes, and the number drifts slower
+  the section arrives, and the number drifts slower
   than the page.
 - **Exercise cards do their rep on hover** (`site/card-reps.js`): the
   still figure is swapped for the trainer's live loop, coloured by its live
   score (coral at the top, green at depth), and swapped back on leave.
 - **Reaching an A in the Form Lab** (`site/lab.js`): the moment your
   sliders take the score from below 90 into an A, the number stamps down,
-  a green ring shocks out and a burst of sparks flies off it.
+  and a green ring shocks out.
 - **The story hands over**: as "How it works" ends, its pinned scene shrinks
   back and fades while the next section comes up. **The hero's scroll cue**
   is a short gradient line that empties as you scroll out (wide screens).
@@ -349,6 +344,17 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **No custom cursor.** Tried twice in Oct 2026 and removed at the owner's
   request: the Mac pointer kept showing alongside it. Use the system pointer;
   `cursor: grab` on things you can drag.
+- **Removed in Nov 2026, don't bring back**: click sparks and magnetic
+  buttons (`sparks.js`, `magnet.js`), the scrolling fact strip
+  (`ticker.js`: it repeated the hero and its clip count went stale), cards
+  that tilt toward the pointer with a sheen (`tilt.js`), text that decodes
+  from random glyphs (`decrypt.js`, `ui/scramble.js`), and the light that
+  followed the pointer (`glow.js`). All were React Bits style effects; side
+  by side with Linear, Raycast and Apple they were what made the page look
+  generated. The closing band was a full grade-gradient wall; it's now a
+  quiet close with the scale as one thin bar.
+- **The hero's exercise switch is a ruler**: a hairline with the chosen
+  exercise marked by a short bar in the live grade colour, not boxed tabs.
 - **Not the template look.** Before adding motion, check it isn't one of
   the stock "AI site" tells: blur-in on every reveal, sparkles or confetti
   on every click, scrambled text everywhere, glow on everything, the same
