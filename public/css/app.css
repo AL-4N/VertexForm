@@ -1104,3 +1104,23 @@ p { text-wrap: pretty; }
   .picker .ex-card.on { row-gap: .25rem; }
   .pk-list.many .ex-card { padding-block: .5rem; }
 }
+
+/* Phones: headers keep their buttons on one line (the title wraps instead,
+   and a row of actions drops below), option rows put the label above its
+   choices, and a workout step is two tidy rows (exercise; amount, unit,
+   Remove) instead of five things wrapping at random. */
+@media (max-width: 480px) {
+  .app-header { flex-wrap: wrap; row-gap: .75rem; }
+  .app-header h1 { font-size: 1.15rem; text-wrap: balance; text-align: center; flex: 1; min-width: 0; }
+  .app-header .btn { white-space: nowrap; padding: .5rem .75rem; }
+  .app-header .header-actions { order: 3; flex-basis: 100%; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  #screen-menu .app-header h1 { text-align: left; font-size: 1.5rem; }
+  .opt-row { flex-wrap: wrap; row-gap: .5rem; }
+  .opt-row > span:first-child { flex-basis: 100%; }
+  .step { display: grid; grid-template-columns: 1.4rem 4.6rem auto 1fr; row-gap: .4rem; }
+  .step::before { grid-row: 1; }
+  .step select { grid-column: 2 / -1; grid-row: 1; width: 100%; }
+  .step .num { grid-column: 2; grid-row: 2; width: 100%; }
+  .step .step-unit { grid-column: 3; grid-row: 2; width: auto; }
+  .step [data-remove] { grid-column: 4; grid-row: 2; justify-self: end; }
+}

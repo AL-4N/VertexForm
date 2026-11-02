@@ -378,6 +378,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   the header links.
 - 860px and down: header links hide. 480px and down: Settings is just a gear.
 - Every page works at 375px wide with no sideways scroll.
+- Phones (480px and down) in the trainer: header buttons never wrap (the
+  title wraps and centres; a row of actions drops below it), option rows
+  put the label above its choices, and the menu's links scroll in one row.
 - Loading: a skeleton of the same shape and height as the real content,
   shown only if loading takes over 150 ms.
 
