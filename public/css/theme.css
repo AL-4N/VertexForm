@@ -25,6 +25,7 @@
   /* Text */
   --text:        #eef1fb;
   --text-dim:    #a6aecb;
+  --text-faint:  #808aac;   /* hints and inactive labels: 4.5:1 or more on every panel */
   --paper:       #eef1fb;   /* light fills: primary buttons, selected toggles */
   --ink:         #090d1c;   /* text on paper and on the gradient */
 

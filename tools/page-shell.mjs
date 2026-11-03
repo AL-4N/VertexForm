@@ -30,7 +30,8 @@ export function shell({ generator, title, description, active, body, script = "j
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}" />
 <meta name="theme-color" content="#090d1c" />
-<link rel="preload" href="fonts/unbounded-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/unbounded-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/instrument-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="css/fonts.css" />
 <link rel="stylesheet" href="css/site.css" />
 <link rel="stylesheet" href="css/transitions.css" />

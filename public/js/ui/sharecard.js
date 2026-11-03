@@ -11,7 +11,7 @@ import { bounds } from "../figures/draw.js";
 import { GRADE_STOPS, gradeColor, gradeLetter } from "../grade.js";
 
 const W = 1080, H = 1350;
-const NAVY = "#090d1c", INK2 = "#0d1326", DIM = "#a6aecb", FAINT = "#737d9f", LINE = "#222c4e";
+const NAVY = "#090d1c", INK2 = "#0d1326", DIM = "#a6aecb", FAINT = "#808aac", LINE = "#222c4e";
 
 function gradeGradient(ctx, x0, x1) {
   const g = ctx.createLinearGradient(x0, 0, x1, 0);

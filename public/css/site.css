@@ -19,7 +19,7 @@
   --line-2:     #2e3a63;
   --text:       #eef1fb;
   --text-dim:   #a6aecb;
-  --text-faint: #737d9f;
+  --text-faint: #808aac;
   --paper:      #eef1fb;    /* light surfaces: primary buttons, the closing band */
 
   --g0:   #ff4d6d;   /* F */
@@ -88,7 +88,7 @@ body[data-tone="paper"]::before, body[data-tone="sage"]::before { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { body::before { transition: none; } }
 /* Islands: always dark. */
 :is(.ex-card, .cue, .mode, .panel, .calibration, .step-fig, .lab-stage, .lab-panel, .hero-hud, .pop, .stage-frame) {
-  --text: #eef1fb; --text-dim: #a6aecb; --text-faint: #737d9f;
+  --text: #eef1fb; --text-dim: #a6aecb; --text-faint: #808aac;
   --line: #222c4e; --line-2: #2e3a63; --surface: #121a32; --surface-2: #18223f;
   --accent-bg: var(--paper); --accent-fg: #090d1c; --focus: var(--g85);
   color: var(--text);

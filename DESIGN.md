@@ -30,7 +30,7 @@ numbers, figures, the side rail.
 | `--line-2` | `#2e3a63` | stronger rules, floor lines, ruler ticks |
 | `--text` | `#eef1fb` | body text |
 | `--text-dim` | `#a6aecb` | secondary text |
-| `--text-faint` | `#737d9f` | hints, inactive labels |
+| `--text-faint` | `#808aac` | hints, inactive labels. At least 4.5:1 on every surface, panels included (AA for small text) |
 | `--paper` | `#eef1fb` | the light circle that fills a primary button on hover |
 
 Grade scale (keep in sync with `public/js/grade.js`, which maps any score to
