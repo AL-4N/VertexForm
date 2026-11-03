@@ -40,7 +40,7 @@ export const MILESTONES = {
 
 /* ── System lines: countdown, start, finish, rest timer, workouts ── */
 
-export const EXERCISE_NAMES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up", "Side plank", "Hollow hold", "Mountain climber", "Dead hang", "Bulgarian split squat", "Pistol squat", "Dips"];
+export const EXERCISE_NAMES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up", "Side plank", "Hollow hold", "Mountain climber", "Dead hang", "Bulgarian split squat", "Pistol squat", "Dips", "Australian row", "Negative pull-up", "Pull-up"];
 export const REST_SECONDS = [15, 30, 45, 60, 75, 90, 105, 120];
 
 export const SYSTEM = {
@@ -247,6 +247,37 @@ export const FAULTS = {
     ]],
   },
 
+  "Australian row": {
+    short: [3, "Chest to bar", [
+      "Pull your chest all the way to the bar",
+      "Higher. Touch the bar with your chest",
+      "Squeeze your shoulder blades at the top",
+    ]],
+    sag: [3, "Hips up", [
+      "Hips are sagging, keep your body straight",
+      "Squeeze your glutes, one straight line to your heels",
+    ]],
+  },
+
+  "Negative pull-up": {
+    fast: [3, "Slow down", [
+      "Slower. Take three seconds to lower",
+      "Fight it on the way down, three full seconds",
+      "Control the drop, count to three",
+    ]],
+    halfRep: [2, "Start at the top", [
+      "Start each one with your chin over the bar",
+    ]],
+  },
+
+  "Pull-up": {
+    halfRep: [3, "Chin over", [
+      "Pull until your chin clears the bar",
+      "Chin over the bar, every rep",
+      "Higher. Get the chin past the bar",
+    ]],
+  },
+
   "Lunge": {
     shallow: [3, "Depth", [
       "Bend the front knee more, aim for ninety degrees",
@@ -327,6 +358,9 @@ export const POSITION_CUES = {
   "Bulgarian split squat": "Side-on, front foot forward, back foot up on a bench",
   "Pistol squat":      "Side-on, stand on the leg nearer the camera",
   "Dips":              "On the bars, side-on, arms straight",
+  "Australian row":    "Side-on, lie under a low bar, heels on the floor, arms straight",
+  "Negative pull-up":  "Face the camera, start at the top with your chin over the bar",
+  "Pull-up":           "Face the camera, hang from the bar with straight arms",
 };
 
 /** Framing, lighting and camera hints (shown on screen, and said if they last). */
@@ -414,6 +448,17 @@ export const CONCRETE = {
     head: ["Look at the floor just in front of your hands"],
     drift: ["Freeze. Imagine a glass of water balanced on your back"],
   },
+  "Australian row": {
+    short: ["Lead with your chest and pull your elbows past your ribs"],
+    sag: ["Squeeze your glutes like you're holding a plank under the bar"],
+  },
+  "Negative pull-up": {
+    fast: ["Count one-thousand, two-thousand, three-thousand all the way down"],
+    halfRep: ["Jump or step up so your chin starts above the bar"],
+  },
+  "Pull-up": {
+    halfRep: ["Drive your elbows down toward your back pockets"],
+  },
   "Bulgarian split squat": {
     shallow: ["Drop straight down, as if the back knee is reaching for the floor"],
     lean: ["Keep your shoulders stacked over your hips the whole way down"],
@@ -470,6 +515,9 @@ export const FIXED = {
   "Bulgarian split squat": { shallow: "good depth on that one", lean: "your chest stayed up" },
   "Pistol squat": { depth: "hip went below the knee", footDown: "free leg stayed up" },
   "Dips":         { depth: "shoulders got down to the elbows", tempo: "good controlled tempo" },
+  "Australian row": { short: "chest got to the bar", sag: "body stayed straight" },
+  "Negative pull-up": { fast: "a nice slow lower", halfRep: "started at the top" },
+  "Pull-up":      { halfRep: "chin cleared the bar" },
 };
 
 export const FOCUS = {
@@ -486,6 +534,9 @@ export const FOCUS = {
   "Bulgarian split squat": { shallow: "dropping the back knee lower", lean: "keeping your chest up" },
   "Pistol squat": { depth: "sitting all the way down", footDown: "keeping the free leg up" },
   "Dips":         { depth: "getting your shoulders down to your elbows", tempo: "slowing the reps down" },
+  "Australian row": { short: "pulling your chest to the bar", sag: "keeping your body straight" },
+  "Negative pull-up": { fast: "lowering for three full seconds", halfRep: "starting with your chin over the bar" },
+  "Pull-up":      { halfRep: "getting your chin over the bar" },
 };
 
 /** Personality-flavoured lines for the smarter coach. `{x}` is filled in. */

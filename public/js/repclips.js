@@ -53,6 +53,9 @@ export const KEY_ANGLE = {
   "Bulgarian split squat": { name: "Front knee", a: "hip", b: "kn", c: "an", pick: "min", deepest: "min" },
   "Pistol squat": { name: "Standing knee", a: "hip", b: "kn", c: "an", pick: "min", deepest: "min" },
   "Dips":         { name: "Elbow angle", a: "sh",  b: "el", c: "wr", pick: "near", deepest: "min" },
+  "Australian row": { name: "Elbow angle", a: "sh", b: "el", c: "wr", pick: "near", deepest: "min" },
+  "Negative pull-up": { name: "Elbow angle", a: "sh", b: "el", c: "wr", pick: "min", deepest: "min" },
+  "Pull-up":      { name: "Elbow angle", a: "sh",  b: "el", c: "wr", pick: "min",  deepest: "min" },
   "Plank":        { name: "Body line",   a: "sh",  b: "hip", c: "an", pick: "near", deepest: "min" },
   "Jumping Jack": { name: "Arm raise",   a: "hip", b: "sh", c: "wr", pick: "max",  deepest: "max" },
 };

@@ -25,6 +25,7 @@ How it looks, sounds and reads (colours, type, figures, motion, writing rules):
 - `npm run sw` — **run after changing any file in `public/`**: refreshes the precache list + content-hash version in `public/sw.js` (`tests/pwa.test.mjs` fails otherwise; a missing file there breaks offline loading)
 - `npm run voice` — render new/changed coach phrases with Kokoro (incremental; first run downloads ~90 MB model). **Any new spoken text must be added to `coaching.js` (and so to `js/phrases.js`) and rendered**, or `tests/voice.test.mjs` fails. Then `npm run sw`.
 - `npm run eval:angles` — 2D vs 3D angle accuracy on the simulator and on `tests/fixtures/*`
+- `node tools/make-library.mjs` — regenerate `public/exercises.html` (the exercise library) after changing exercises, coaching lines, tips or skills; `node tools/make-whatsnew.mjs` — regenerate `public/whats-new.html` after editing `CHANGELOG.md` (user-facing entries go at the top). Both have staleness tests in `npm test`; run `npm run sw` after.
 - `npm run deploy` — `npm run sw` + `wrangler deploy`
 
 ## How things fit

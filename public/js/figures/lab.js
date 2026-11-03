@@ -117,6 +117,27 @@ export const LAB = {
     pose: (v) => blend(BY_ID.dips.top, BY_ID.dips.bottom, v.depth / 100),
     guide: () => null, cue: () => [], focus: () => "elbN",
   },
+  pullup: {
+    sliders: [{ key: "depth", label: "Pull", min: 0, max: 100, lo: "Dead hang", hi: "Chin over the bar" }],
+    presets: [{ name: "Good rep", v: { depth: 100 } }],
+    pose: (v) => blend(BY_ID.pullup.top, BY_ID.pullup.bottom, v.depth / 100),
+    guide: () => null, cue: () => [], focus: () => "head",
+  },
+  negative: {
+    sliders: [{ key: "depth", label: "Height", min: 0, max: 100, lo: "Dead hang", hi: "Chin over the bar" }],
+    presets: [{ name: "Top", v: { depth: 100 } }],
+    pose: (v) => blend(BY_ID.negative.top, BY_ID.negative.bottom, v.depth / 100),
+    guide: () => null, cue: () => [], focus: () => "head",
+  },
+  row: {
+    sliders: [
+      { key: "depth", label: "Pull", min: 0, max: 100, lo: "Arms straight", hi: "Chest to the bar" },
+      { key: "hips", label: "Hips", min: -30, max: 40, lo: "Piked", hi: "Sagging" },
+    ],
+    presets: [{ name: "Good rep", v: { depth: 100, hips: 0 } }],
+    pose: (v) => shiftHip(blend(BY_ID.row.top, BY_ID.row.bottom, v.depth / 100), v.hips),
+    guide: () => null, cue: () => [], focus: () => "hip",
+  },
   // Pike push-up: used by the simulator (tests/helpers/synth.mjs); not on the homepage.
   pike: {
     sliders: [

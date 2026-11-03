@@ -31,7 +31,7 @@ export const POSE_EDGES = [
   [27,29],[29,31],[28,30],[30,32],
 ];
 
-export const EXERCISES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up", "Side plank", "Hollow hold", "Mountain climber", "Dead hang", "Bulgarian split squat", "Pistol squat", "Dips"];
+export const EXERCISES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up", "Side plank", "Hollow hold", "Mountain climber", "Dead hang", "Bulgarian split squat", "Pistol squat", "Dips", "Australian row", "Negative pull-up", "Pull-up"];
 
 // What a good rep looks like — shown beside the animated demo on the setup screen.
 export const DEMO_TIPS = {
@@ -48,6 +48,9 @@ export const DEMO_TIPS = {
   "Bulgarian split squat": ["Side-on, back foot up on a bench behind you", "Lower until your front knee is about 90°", "Torso tall over the front leg"],
   "Pistol squat": ["Side-on, standing on the leg nearer the camera", "Sit down until your hip is below your knee", "Keep the other leg straight out, off the floor"],
   "Dips":         ["Side-on to the camera, on parallel bars", "Lower until your elbows reach about 90°", "Press back up to straight arms"],
+  "Australian row": ["Side-on, under a bar at about waist height", "Pull until your chest reaches the bar", "Shoulders, hips and ankles in one line"],
+  "Negative pull-up": ["Face the camera, the bar and your hands in frame", "Start at the top, chin over the bar", "Lower for 3 seconds or more to a dead hang"],
+  "Pull-up":      ["Face the camera, the bar and your hands in frame", "Start from a dead hang, arms straight", "Pull until your chin clears the bar"],
 };
 
 export const EXERCISE_META = {
@@ -64,6 +67,9 @@ export const EXERCISE_META = {
   "Bulgarian split squat": { hint: "Side-on. Back foot on a bench.", live: true },
   "Pistol squat": { hint: "Side-on. One leg out in front.",        live: true  },
   "Dips":         { hint: "Side-on, on parallel bars.",            live: true  },
+  "Australian row": { hint: "Side-on, under a low bar.",          live: true  },
+  "Negative pull-up": { hint: "Face the camera. Lower slowly.",   live: true  },
+  "Pull-up":      { hint: "Face the camera. Chin over the bar.",   live: true  },
 };
 
 // Visibility below this and we don't trust a measurement.

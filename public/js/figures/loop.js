@@ -38,7 +38,7 @@ export function mountLoop(host, id, { start = performance.now() } = {}) {
     const m = ex.measure(s);
     shown = shown == null ? m.score : shown + (m.score - shown) * 0.12;   // a fresh copy starts in the right colour
     g.innerHTML = figureMarkup(s, {
-      color: gradeColor(shown), floor: { x0: x0 + 6, x1: x1 - 6 }, arc: ARCS[id]?.(s), prop: ex.prop,
+      color: gradeColor(shown), floor: ex.ground === false ? null : { x0: x0 + 6, x1: x1 - 6 }, arc: ARCS[id]?.(s), prop: ex.prop,
       guide: id === "plank" ? [s.neck, s.ankN] : null, guideColor: "#eef1fb",
     });
   };

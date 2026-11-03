@@ -18,8 +18,11 @@ run it.
 - **Exercises:** squat, push-up, plank (a timed hold), lunge, jumping jack,
   and (Oct 2026, for the skill tree) pike push-up, side plank (hold), hollow
   hold (hold), mountain climber, dead hang (hold), and (Nov 2026) Bulgarian
-  split squat, pistol squat and dips. All thirteen have their own recorded
-  fault lines and spoken names, so all can go in workouts.
+  split squat, pistol squat, dips, Australian row, negative pull-up and
+  pull-up. All sixteen have their own recorded fault lines and spoken names,
+  so all can go in workouts. A negative is graded on its lowering: the
+  session passes each rep's `phases` (down, bottom, up) to `grade()` and
+  `detectFaults()`.
 - **Exercise library** (`exercises.html`): one plate per exercise, generated
   by `tools/make-library.mjs` from the trainer's code (what it scores, the
   faults and the coach's words, the skills it unlocks); `tests/library.test.mjs`
@@ -31,7 +34,7 @@ run it.
   the Form Lab (sliders that drive the real scoring engine).
 - **Skill path:** five paths (Push, Pull, Legs, Core, Conditioning), 32 skills,
   drawn as blooming trees; tracked skills unlock from real saved sets. The
-  Legs path is fully tracked. The trainer menu's "Nearest unlocks" card names
+  Legs path is fully tracked, and the Pull path up to 10 pull-ups. The trainer menu's "Nearest unlocks" card names
   the two skills you're closest to and what's left (`nearestUnlocks` in
   `skills.js`).
 
@@ -126,6 +129,8 @@ local). `npm test` must pass first, as always.
 | `npm run voice` | Render new or changed coach phrases with Kokoro into `public/audio/` (`--voice af_heart` for one voice). About 1 s per clip on CPU; voices can run in parallel processes |
 | `npm run eval:angles` | 2D vs 3D angle accuracy on the simulator and on any `tests/fixtures/*` recordings |
 | `npm run deploy` | `npm run sw` + `wrangler deploy` (normally not needed: pushing auto-deploys) |
+| `node tools/make-library.mjs` | Regenerate the exercise library (`public/exercises.html`) from the code |
+| `node tools/make-whatsnew.mjs` | Regenerate What's new (`public/whats-new.html`) from `CHANGELOG.md` |
 
 Dev dependencies: `playwright` (Chromium is downloaded by
 `npx playwright install chromium`), `ffmpeg-static` (its install script is

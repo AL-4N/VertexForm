@@ -1038,3 +1038,17 @@ a.ex-open { text-decoration: none; }
 .foot-links { display: inline-flex; gap: 1.4rem; }
 .foot-links a { color: var(--text-dim); font-size: .9rem; font-weight: 600; text-decoration: none; }
 .foot-links a:hover { color: var(--text); }
+
+/* ── What's new (whats-new.html, tools/make-whatsnew.mjs): the changelog as a ruled list ── */
+.news .section-head h1 { font-size: clamp(2rem, 4.4vw, 3.2rem); line-height: 1.08; margin-bottom: 1rem; font-weight: 500; letter-spacing: -.035em; }
+.news-rel { display: grid; grid-template-columns: 12rem 1fr; gap: 2rem; padding: 2rem 0; border-top: 1px solid var(--line); scroll-margin-top: 90px; }
+.news-rel:last-of-type { border-bottom: 1px solid var(--line); }
+.news-when { display: grid; gap: .35rem; align-content: start; }
+.news-v { font-family: var(--mono); font-size: .8rem; font-weight: 600; letter-spacing: .08em; color: var(--g85); }
+.news-when time { font-size: .92rem; color: var(--text-dim); }
+.news-body { max-width: 66ch; }
+.news-body h2 { font-size: 1.15rem; font-weight: 600; margin: 0 0 .6rem; }
+.news-body h2:not(:first-child) { margin-top: 1.6rem; }
+.news-body ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .45rem; color: var(--text-dim); }
+.news-body li::marker { color: var(--line-2); }
+@media (max-width: 760px) { .news-rel { grid-template-columns: 1fr; gap: .8rem; } }

@@ -197,6 +197,6 @@ Rough order: most useful first. Everything stays on-device unless it says otherw
 - [x] Dips, Bulgarian split squat and pistol squat trackers (the Legs path is now fully tracked).
 - [x] Exercise library page, generated from the code; `app.html#train-<id>` links.
 - [x] "Nearest unlocks" on the trainer menu.
-- [ ] Australian row and negative pull-up trackers, then the pull-up (the Pull path's pull-up waits on both).
+- [x] Australian row, negative pull-up and pull-up trackers: the Pull path is tracked up to 10 pull-ups (muscle-up still untracked).
 - [ ] Per-leg counts for split squats and pistols (both legs in one set).
 - [ ] Real recordings of the newer trackers (RECORDING_GUIDE.md).

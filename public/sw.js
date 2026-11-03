@@ -16,7 +16,7 @@
  * and old ones are deleted on activate. Updates are never stuck.
  */
 
-const VERSION = "fc0c2658b112";
+const VERSION = "f8042f883878";
 const PRECACHE = [
   "./",
   "404.html",
@@ -61,10 +61,13 @@ const PRECACHE = [
   "js/exercises/index.js",
   "js/exercises/jumpingjack.js",
   "js/exercises/lunge.js",
+  "js/exercises/negative.js",
   "js/exercises/pike.js",
   "js/exercises/pistol.js",
   "js/exercises/plank.js",
+  "js/exercises/pullup.js",
   "js/exercises/pushup.js",
+  "js/exercises/row.js",
   "js/exercises/sideplank.js",
   "js/exercises/splitsquat.js",
   "js/exercises/squat.js",
@@ -153,6 +156,7 @@ const PRECACHE = [
   "vendor/three/LICENSE",
   "vendor/three/three.core.min.js",
   "vendor/three/three.module.min.js",
+  "whats-new.html",
 ];
 
 const SHELL = `vf-shell-${VERSION}`;

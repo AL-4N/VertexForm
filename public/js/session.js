@@ -440,8 +440,8 @@ export class Session {
       up: (t - bottomEnd) / 1000,
     };
 
-    const graded = ex.grade(m, wobble);
-    const faults = ex.detectFaults({ ...m, bounce, duration, dwell });
+    const graded = ex.grade({ ...m, phases }, wobble);
+    const faults = ex.detectFaults({ ...m, bounce, duration, dwell, phases });
     const score = Math.round(graded.score);
 
     this.reps.push(score);

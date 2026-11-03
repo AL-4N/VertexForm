@@ -78,6 +78,26 @@ export function scoreDip(elbow) {
   return { depth: elbow <= 92 ? 100 : Math.max(0, 100 - (elbow - 92) * 1.8), lockout: null };
 }
 
+/** Pull-up: the chin clears the bar (chin height over the wrists, in torso
+ *  lengths; 0 = level) and the arms bend properly at the top. */
+export function scorePullup(chin, elbow) {
+  const top = chin >= 0.02 ? 100 : Math.max(0, 100 - (0.02 - chin) * 330);
+  const pull = elbow <= 95 ? 100 : Math.max(0, 100 - (elbow - 95) * 2);
+  return { top, pull };
+}
+
+/** Negative pull-up: the lowering. 3 s or more is full marks; a drop in a
+ *  second is an F. */
+export const scoreLowering = (s) => (s >= 3 ? 100 : Math.max(0, 100 - (3 - s) * 35));
+
+/** Australian row: the chest up to the bar (elbow bent at the top) and the
+ *  body kept in one line, like a push-up's. */
+export function scoreRow(elbow, bendOff) {
+  const pull = elbow <= 90 ? 100 : Math.max(0, 100 - (elbow - 90) * 2);
+  const line = bendOff <= 8 ? 100 : Math.max(0, 100 - (bendOff - 8) * 5);
+  return { pull, line };
+}
+
 /** Dead hang: straight arms (the more bent elbow). */
 export const scoreHang = (elbow) => (elbow >= 165 ? 100 : Math.max(0, 100 - (165 - elbow) * 3));
 

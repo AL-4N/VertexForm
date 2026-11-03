@@ -13,7 +13,7 @@
  */
 
 import { angleAt, thighDepth, leanFromVertical, hipSag, SEG } from "./rig.js";
-import { scoreSquat, scorePushup, scorePike, scorePlank, scoreLunge, scoreJack, scoreHollow, scoreClimber, scoreHang, scoreSplitSquat, scorePistol, scoreDip, combine } from "../scoring.js";
+import { scoreSquat, scorePushup, scorePike, scorePlank, scoreLunge, scoreJack, scoreHollow, scoreClimber, scoreHang, scoreSplitSquat, scorePistol, scoreDip, scorePullup, scoreRow, combine } from "../scoring.js";
 
 export const GROUND = 470;
 const STAGE_H = 520;   // used to normalise distances the way the app does
@@ -396,5 +396,81 @@ const dips = {
   },
 };
 
-export const EXERCISES = [squat, pushup, plank, lunge, jack, pike, sidePlank, hollow, climber, hang, splitSquat, pistol, dips];
+/* ── Pull-up (front view, under a bar near the top of the frame) ── */
+const BAR_Y = 46;
+const pullup = {
+  id: "pullup", name: "Pull-up", view: "front",
+  timing: [900, 450, 1100, 900],
+  prop: { overhead: [214, 386, BAR_Y] },
+  ground: false,                                          // the feet hang free: no floor line
+  top: {   // the hang: arms straight up to the bar, feet hanging
+    view: "front", arms: "ik",
+    hip: [300, 288], angTorso: -90, angHead: -90,
+    ankleN: [292, 503], ankleF: [308, 503],
+    angFootN: 100, angFootF: 80, bendKneeN: -1, bendKneeF: -1,
+    handN: [262, BAR_Y], handF: [338, BAR_Y], bendElbowN: -1, bendElbowF: 1,
+  },
+  bottom: {   // chin over the bar: elbows bent out to the sides
+    view: "front", arms: "ik",
+    hip: [300, 188], angTorso: -90, angHead: -90,
+    ankleN: [292, 403], ankleF: [308, 403],
+    angFootN: 100, angFootF: 80, bendKneeN: -1, bendKneeF: -1,
+    handN: [262, BAR_Y], handF: [338, BAR_Y], bendElbowN: -1, bendElbowF: 1,
+  },
+  measure(s) {
+    const elbow = Math.min(angleAt(s.shN, s.elbN, s.wriN), angleAt(s.shF, s.elbF, s.wriF));
+    const chin = (Math.min(s.wriN[1], s.wriF[1]) - (s.head[1] + 19)) / SEG.torso;   // chin height over the bar, in torso lengths
+    const { top, pull } = scorePullup(chin, elbow);
+    return {
+      score: combine([[top, 0.7], [pull, 0.3]]),
+      parts: [["Chin over the bar", top], ["Arms bent", pull]],
+      raw: { elbow, chin },
+      rows: [["Elbows", deg(elbow)], ["Chin", chin >= 0 ? "over the bar" : "under the bar"]],
+    };
+  },
+};
+/* A negative: jump to the top, then lower slowly back to the hang (3 s or more). */
+const negative = {
+  ...pullup, id: "negative", name: "Negative pull-up", timing: [500, 600, 3300, 1100],
+  // Graded on the lowering (timed by the trainer, not visible in one pose) and the start at the top.
+  measure(s) {
+    const m = pullup.measure(s);
+    return { ...m, score: Math.round(combine([[100, 0.7], [m.parts[0][1], 0.3]])), parts: [["Slow lowering", 100], m.parts[0]] };
+  },
+};
+
+/* ── Australian row (side view, lying under a bar at waist height) ── */
+const ROW_BAR = [250, 290];
+const row = {
+  id: "row", name: "Australian row", view: "side",
+  timing: [1000, 400, 1200, 700],
+  prop: { bars: ROW_BAR },
+  top: {   // arms straight, hanging under the bar, heels on the floor
+    view: "side", arms: "ik",
+    hip: [380, 426], angTorso: -169, angHead: -169,
+    ankleN: [589, 463], ankleF: [585, 461],
+    angFootN: -70, angFootF: -70, bendKneeN: -1, bendKneeF: -1,
+    handN: ROW_BAR, handF: [ROW_BAR[0] + 2, ROW_BAR[1] - 1], bendElbowN: 1, bendElbowF: 1,   // elbows drive back toward the feet
+  },
+  bottom: {   // chest up to the bar, body still in one line
+    view: "side", arms: "ik",
+    hip: [384, 399], angTorso: -162, angHead: -162,
+    ankleN: [589, 463], ankleF: [585, 461],
+    angFootN: -70, angFootF: -70, bendKneeN: -1, bendKneeF: -1,
+    handN: ROW_BAR, handF: [ROW_BAR[0] + 2, ROW_BAR[1] - 1], bendElbowN: 1, bendElbowF: 1,   // elbows drive back toward the feet
+  },
+  measure(s) {
+    const elbow = angleAt(s.shN, s.elbN, s.wriN);
+    const bendOff = 180 - angleAt(s.neck, s.hip, s.ankN);
+    const { pull, line } = scoreRow(elbow, bendOff);
+    return {
+      score: combine([[pull, 0.6], [line, 0.4]]),
+      parts: [["Pull", pull], ["Body line", line]],
+      raw: { elbow, bendOff },
+      rows: [["Elbow at the top", deg(elbow)], ["Body line", bendOff < 6 ? "straight" : `${deg(bendOff)} bend`]],
+    };
+  },
+};
+
+export const EXERCISES = [squat, pushup, plank, lunge, jack, pike, sidePlank, hollow, climber, hang, splitSquat, pistol, dips, pullup, negative, row];
 export const BY_ID = Object.fromEntries(EXERCISES.map((e) => [e.id, e]));

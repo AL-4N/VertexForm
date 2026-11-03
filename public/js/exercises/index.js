@@ -13,6 +13,9 @@ import hang from "./hang.js";
 import splitsquat from "./splitsquat.js";
 import pistol from "./pistol.js";
 import dips from "./dips.js";
+import pullup from "./pullup.js";
+import negative from "./negative.js";
+import row from "./row.js";
 
 export const REGISTRY = {
   "Squat": squat,
@@ -28,6 +31,9 @@ export const REGISTRY = {
   "Bulgarian split squat": splitsquat,
   "Pistol squat": pistol,
   "Dips": dips,
+  "Australian row": row,
+  "Negative pull-up": negative,
+  "Pull-up": pullup,
 };
 
 export const getExercise = (name) => REGISTRY[name];

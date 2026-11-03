@@ -60,6 +60,10 @@ export function propMarkup(prop, stroke = "#2e3a63", cls = "") {
     const [x0, x1, top] = prop.bench;
     out += `<path${a} d="M${f(x0)} ${f(top)}H${f(x1)}M${f(x0 + 8)} ${f(top)}V${GROUND}M${f(x1 - 8)} ${f(top)}V${GROUND}"/>`;
   }
+  if (prop.overhead) {                                 // a pull-up bar across the top of the frame
+    const [x0, x1, y] = prop.overhead;
+    out += `<path${a} d="M${f(x0)} ${f(y)}H${f(x1)}"/>`;
+  }
   if (prop.bars) {
     const [x, y] = prop.bars;
     out += `<path${a} d="M${f(x - 46)} ${f(y + 4)}H${f(x + 46)}M${f(x + 30)} ${f(y + 4)}V${GROUND}"/>`;

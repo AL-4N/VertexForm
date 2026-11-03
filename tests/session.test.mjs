@@ -141,6 +141,22 @@ check("Dips: 5 to 90° all A", r.reps.length === 5 && r.min >= 90, fmt(r));
 r = run("Dips", repStream("dips", { depth: 0 }, { depth: 55 }));
 check("Dips: half dips score lower, flagged depth", r.reps.length > 0 && r.max < 80 && r.faults.has("depth"), fmt(r));
 
+/* ── The Pull path: Australian row, negative pull-up, pull-up ── */
+r = run("Australian row", repStream("row", { depth: 0, hips: 0 }, { depth: 100, hips: 0 }));
+check("Row: 5 chest-to-bar reps in one line, all A", r.reps.length === 5 && r.min >= 90, fmt(r));
+r = run("Australian row", repStream("row", { depth: 0, hips: 0 }, { depth: 60, hips: 0 }));
+check("Row: stopping short of the bar flagged", r.reps.length > 0 && r.max < 90 && r.faults.has("short"), fmt(r));
+r = run("Australian row", repStream("row", { depth: 0, hips: 24 }, { depth: 100, hips: 24 }));
+check("Row: sagging hips flagged", r.reps.length > 0 && r.max < 90 && r.faults.has("sag"), fmt(r));
+r = run("Pull-up", repStream("pullup", { depth: 0 }, { depth: 100 }));
+check("Pull-up: 5 from a dead hang, chin over, all A", r.reps.length === 5 && r.min >= 90, fmt(r));
+r = run("Pull-up", repStream("pullup", { depth: 0 }, { depth: 70 }));
+check("Pull-up: chin under the bar scores low, flagged", r.reps.length > 0 && r.max < 60 && r.faults.has("halfRep"), fmt(r));
+r = run("Negative pull-up", repStream("negative", { depth: 0 }, { depth: 100 }, { timing: [0.5, 0.6, 3.4, 1.0] }));
+check("Negative: lowering over 3 s is an A", r.reps.length === 5 && r.min >= 90 && !r.faults.has("fast"), fmt(r));
+r = run("Negative pull-up", repStream("negative", { depth: 0 }, { depth: 100 }, { timing: [0.5, 0.6, 1.0, 1.0] }));
+check("Negative: dropping in a second is flagged and low", r.reps.length > 0 && r.max < 60 && r.faults.has("fast"), fmt(r));
+
 /* ── Push-up ───────────────────────────────────────────── */
 r = run("Push-up", repStream("pushup", { depth: 0, hips: 0 }, { depth: 100, hips: 0 }));
 check("Push-up: 5 good reps all score A", r.reps.length === 5 && r.min >= 90, fmt(r));

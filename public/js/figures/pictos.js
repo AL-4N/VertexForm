@@ -15,7 +15,7 @@ const NS = "http://www.w3.org/2000/svg";
 const P = (p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
 
 // App exercise names → figure ids
-export const BY_NAME = { "Squat": "squat", "Push-up": "pushup", "Plank": "plank", "Lunge": "lunge", "Jumping Jack": "jack", "Pike push-up": "pike", "Side plank": "side_plank", "Hollow hold": "hollow", "Mountain climber": "climber", "Dead hang": "hang", "Bulgarian split squat": "split_squat", "Pistol squat": "pistol", "Dips": "dips" };
+export const BY_NAME = { "Squat": "squat", "Push-up": "pushup", "Plank": "plank", "Lunge": "lunge", "Jumping Jack": "jack", "Pike push-up": "pike", "Side plank": "side_plank", "Hollow hold": "hollow", "Mountain climber": "climber", "Dead hang": "hang", "Bulgarian split squat": "split_squat", "Pistol squat": "pistol", "Dips": "dips", "Australian row": "row", "Negative pull-up": "negative", "Pull-up": "pullup" };
 
 export function renderPictos(root = document) {
   root.querySelectorAll("[data-picto]").forEach((host) => {
@@ -29,7 +29,7 @@ export function renderPictos(root = document) {
     const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
     const pad = 28;
     const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad;
-    const y0 = Math.min(...ys) - pad - 19, y1 = GROUND + 14;
+    const y0 = Math.min(...ys) - pad - 19, y1 = ex.ground === false ? Math.max(...ys) + pad : GROUND + 14;
 
     const id = `pg-${ex.id}`;
     const legs = s.front
@@ -52,7 +52,7 @@ export function renderPictos(root = document) {
             <stop offset="0" stop-color="#c6ef4e"/><stop offset="1" stop-color="#2ee59d"/>
           </linearGradient>
         </defs>`}
-        <line x1="${x0}" y1="${GROUND}" x2="${x1}" y2="${GROUND}" class="picto-floor"/>
+        ${ex.ground === false ? "" : `<line x1="${x0}" y1="${GROUND}" x2="${x1}" y2="${GROUND}" class="picto-floor"/>`}
         ${propMarkup(ex.prop, null, "picto-floor")}
         <g class="picto-far" stroke="${stroke}">${[...farLegs, ...farArms].map((a) => line(a)).join("")}</g>
         <g class="picto-near" stroke="${stroke}">
