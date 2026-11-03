@@ -21,6 +21,9 @@
   Pull path up to ten pull-ups.
 - The trainer's menu shows your nearest unlocks: the two skills your saved
   sets are closest to, what's left in words, and a button to train it.
+- Workouts can plan your next unlocks: one step for each of the skills
+  you're closest to, at its goal amount, so finishing the workout can
+  unlock them.
 
 ### Exercise library
 - A new page with every exercise: what it scores, what a good rep looks

@@ -170,7 +170,10 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     jumping jacks, dead hangs, Australian rows, negative pull-ups, pull-ups,
     L-sits, V-sits); the rest say "Not tracked yet". The menu's
     "Nearest unlocks" card names the two you're closest to, what's left in
-    words ("3 more reps, 2 more points on the average") and a Train button. Tree cards are large (236 px, 42 px flowers) on a wide
+    words ("3 more reps, 2 more points on the average") and a Train button.
+    The workout builder's "Plan my next unlocks" fills a routine with the
+    exercises behind your nearest unlocks at their goal amounts
+    (`unlockRoutine`). Tree cards are large (236 px, 42 px flowers) on a wide
     screen (up to 1600 px), with a thicker trunk.
   - **A skill's panel shows your best try as meters** (`progressOf` in
     `skills.js`): reps or seconds, and the average, each against the goal,

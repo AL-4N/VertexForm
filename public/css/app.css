@@ -1135,3 +1135,5 @@ p { text-wrap: pretty; }
 .unlock-text strong { font-weight: 600; }
 .unlock-bar { display: block; height: 3px; margin-top: .3rem; border-radius: 3px; background: var(--panel-hi2); overflow: hidden; }
 .unlock-bar i { display: block; height: 100%; border-radius: inherit; }
+
+.builder-add { display: flex; flex-wrap: wrap; gap: .5rem; }

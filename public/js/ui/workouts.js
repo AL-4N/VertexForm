@@ -5,6 +5,7 @@
 
 import { EXERCISES } from "../config.js";
 import { store, save } from "../storage.js";
+import { unlockRoutine } from "../skills.js";
 import {
   MAX_ROUTINES, MAX_STEPS, unitFor, normalizeStep, saveRoutine, deleteRoutine, validateRoutine, describeStep,
 } from "../circuit.js";
@@ -32,6 +33,14 @@ export function wireWorkouts(start) {
     renderSteps();
     slide($$("#step-list .step").at(-1), { from: [-40, 0], to: [0, 0], opacity: [0, 1], duration: 360, ease: EASE.outBack });
     $$("#step-list select").at(-1)?.focus();
+  });
+  // One step per nearest unlock, at its goal amount: a set in this workout can unlock it.
+  $("#plan-unlocks").addEventListener("click", () => {
+    const plan = unlockRoutine(store.sessions, store.skills);
+    if (!plan.length) { toast("Every tracked skill is unlocked."); return; }
+    draft = { name: "Next unlocks", rest: draft.rest, steps: plan.map(({ exercise, amount }) => normalizeStep({ exercise, amount })) };
+    renderBuilder();
+    toast(`Planned for ${plan.map((p) => p.skill).join(", ")}.`);
   });
   $("#routine-rest").addEventListener("click", (e) => {
     const b = e.target.closest("button[data-val]");

@@ -198,6 +198,21 @@ export function nearestUnlocks(sessions = [], kept = [], n = 2) {
   return out.sort((a, b) => b.near - a.near).slice(0, n);
 }
 
+/**
+ * A workout aimed at your nearest unlocks: one step per skill (each exercise
+ * once), at the skill's goal amount (reps, or seconds for a hold), so a set
+ * in the workout can unlock it. [{ exercise, amount, skill }]
+ */
+export function unlockRoutine(sessions = [], kept = [], n = 3) {
+  const steps = [];
+  for (const u of nearestUnlocks(sessions, kept, 99)) {
+    if (steps.length >= n || steps.some((s) => s.exercise === u.exercise)) continue;
+    const t = STEP_BY_ID[u.id].test;
+    steps.push({ exercise: u.exercise, amount: t.kind === "hold" ? t.seconds : t.reps, skill: u.name });
+  }
+  return steps;
+}
+
 /** What's still missing from your best try, in words. */
 export function leftToGo(pr) {
   if (!pr) return "No sets of this exercise yet";

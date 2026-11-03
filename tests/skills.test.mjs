@@ -2,7 +2,7 @@
  * skills.test.mjs — the skill tree (js/skills.js) unlocks skills only from
  * real saved sets, after their prerequisites, and never loses one. Run with:  npm test
  */
-import { PATHS, STEP_BY_ID, skillPath, newSkills, heldSeconds, progressOf, nearestUnlocks, leftToGo } from "../public/js/skills.js";
+import { PATHS, STEP_BY_ID, skillPath, newSkills, heldSeconds, progressOf, nearestUnlocks, leftToGo, unlockRoutine } from "../public/js/skills.js";
 import { REGISTRY } from "../public/js/exercises/index.js";
 
 let pass = 0, fail = 0;
@@ -73,6 +73,9 @@ check("Side plank, hollow hold, mountain climbers and dead hang are tracked",
   check("Nearest unlock: the skill your best set is closest to comes first", near[0]?.id === "pushup_clean" && near[0].exercise === "Push-up", JSON.stringify(near.map((u) => u.id)));
   check("...with what's left in words", near[0]?.left === "3 more reps, 2 more points on the average", near[0]?.left);
   check("Untried skills say so", leftToGo(null) === "No sets of this exercise yet" && near.length === 2);
+  const plan = unlockRoutine([set("Push-up", 12, 88)]);
+  check("Unlock routine: the nearest skills' exercises at their goal amounts", plan[0]?.exercise === "Push-up" && plan[0].amount === 15 && plan.length === 3, JSON.stringify(plan));
+  check("...each exercise once, holds in seconds", new Set(plan.map((p) => p.exercise)).size === plan.length && plan.some((p) => p.exercise === "Dead hang" && p.amount === 30), JSON.stringify(plan));
 }
 check("Step ids are unique", new Set(all.map((s) => s.id)).size === all.length);
 check("Every tracked step uses an exercise the app can grade", all.filter((s) => s.test).every((s) => REGISTRY[s.test.exercise]));
