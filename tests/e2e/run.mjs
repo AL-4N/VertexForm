@@ -2,6 +2,7 @@
  * run.mjs — end-to-end tests in a real browser (Playwright + Chromium):
  *     npm run test:e2e          (first time: npx playwright install chromium)
  *     E2E_BASE=https://your-site.workers.dev npm run test:e2e   (test the deployed site)
+ *     E2E_CHANNEL=chrome npm run test:e2e   (use the installed Google Chrome, no download)
  *
  * The camera is Chromium's fake one: a synthetic test pattern by default
  * (two fake cameras, so switching can be tested), or your own clips from
@@ -62,10 +63,11 @@ const videos = fs.existsSync(VIDEOS)
 let pass = 0, fail = 0;
 const results = [];
 const browsers = new Map();
+const CHANNEL = process.env.E2E_CHANNEL ? { channel: process.env.E2E_CHANNEL } : {};
 async function browserFor(video = PATTERN, devices = 2) {
   const key = `${video}|${devices}`;
   if (!browsers.has(key)) {
-    browsers.set(key, await chromium.launch({ args: [
+    browsers.set(key, await chromium.launch({ ...CHANNEL, args: [
       `--use-fake-device-for-media-stream=device-count=${devices}`, "--use-fake-ui-for-media-stream",
       ...(video ? [`--use-file-for-fake-video-capture=${video}`] : []), "--autoplay-policy=no-user-gesture-required",
     ] }));
@@ -75,7 +77,7 @@ async function browserFor(video = PATTERN, devices = 2) {
 
 /** A fresh, isolated page. opts: { camera: true|false, storage: object|null, onboarded, viewport, video } */
 async function newPage({ camera = true, storage = undefined, onboarded = true, viewport = { width: 1280, height: 800 }, video, browser } = {}) {
-  const b = browser ?? (camera ? await browserFor(video) : await chromium.launch());
+  const b = browser ?? (camera ? await browserFor(video) : await chromium.launch(CHANNEL));
   if (!camera && !browser) browsers.set(`nocam${Math.random()}`, b);
   const ctx = await b.newContext({ viewport, permissions: camera ? ["camera"] : [], acceptDownloads: true, serviceWorkers: "block" });
   const seed = storage === undefined ? { settings: { onboarded, voice: false } } : storage;
@@ -223,7 +225,9 @@ await test("Onboarding: shown on first visit, skippable, not shown again", async
 await test("Menu + setup: exercise list, demo, setup pills persist", async (make) => {
   const page = await make();
   await page.goto(`${BASE}/app.html`);
-  assert((await page.locator(".ex-card").count()) === 10, "expected 10 exercises");
+  const { EXERCISES } = await import("../../public/js/config.js");
+  const cards = await page.locator(".ex-card").count();
+  assert(cards === EXERCISES.length, `expected ${EXERCISES.length} exercises, saw ${cards}`);
   await openExercise(page, "Push-up");
   assert(await page.locator("#mode-demo svg").count(), "good-rep demo missing");
   await page.click('#opt-target [data-val="80"]');

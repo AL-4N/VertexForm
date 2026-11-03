@@ -394,6 +394,19 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   put the label above its choices, and the menu's links scroll in one row.
 - Loading: a skeleton of the same shape and height as the real content,
   shown only if loading takes over 150 ms.
+- The footer is a small sitemap on every site page: the brand line, then
+  Train, Learn and About columns of links (mono uppercase heads), and a
+  credit line under a hairline. Generated pages copy it from `index.html`
+  (`tools/page-shell.mjs`), so change it there.
+- Other pages: the exercise library, What's new and Privacy share the
+  homepage's header and footer (`tools/page-shell.mjs`); the 404 is a
+  single centred block on the drafting grid with a solid homepage button
+  and two outlined ones, every path absolute.
+- Fonts used above the fold are preloaded in each page's head, so text
+  never reflows as they arrive (keep layout shift under 0.1).
+- Share card: `public/og.png` (1200 by 630), drawn by `tools/make-og.mjs`
+  from the real exercise count. Canonical and share URLs are the clean
+  ones (`/exercises`, not `/exercises.html`: Cloudflare redirects those).
 
 ## Voice
 
@@ -424,3 +437,7 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - No "made with AI" tags, no fake testimonials.
 - Nothing leaves the device: no uploads, accounts, analytics or server code.
   (Accounts and leaderboards wait until the owner asks for them.)
+- The Privacy page (`privacy.html`, `tools/make-privacy.mjs`) says this in
+  plain words, and `tests/privacy.test.mjs` holds the code to it: no
+  cookies, no analytics beacons, nothing POSTed. If what's stored changes,
+  change the page.

@@ -27,6 +27,11 @@ run it.
   by `tools/make-library.mjs` from the trainer's code (what it scores, the
   faults and the coach's words, the skills it unlocks); `tests/library.test.mjs`
   fails if it's stale. Its Train links use `app.html#train-<id>`.
+- **Other pages:** What's new (`whats-new.html`, from `CHANGELOG.md`),
+  Privacy (`privacy.html`; `tests/privacy.test.mjs` checks the code keeps
+  its promises) and a 404. They share the homepage's header and sitemap
+  footer through `tools/page-shell.mjs`. Share card `og.png` from
+  `tools/make-og.mjs`; `robots.txt` and `sitemap.xml` use clean URLs.
 - **Modes:** Practice (rep by rep until you hit a target grade), Analyze a set
   (N reps or seconds, then a breakdown), and Workouts (circuits of up to 10
   steps with rest; 3 saved routines).
@@ -123,7 +128,7 @@ local). `npm test` must pass first, as always.
 | Command | What it does |
 |---|---|
 | `npm run dev` | Serve `public/` at :8080 |
-| `npm test` | 13 unit and engine suites, ~330 checks |
+| `npm test` | 19 unit and engine suites, about 500 checks |
 | `npm run test:e2e` | Playwright browser suite (23 tests) with Chromium's fake camera. Subset: `node tests/e2e/run.mjs "regex"`. Against the live site: `E2E_BASE=https://vertexform.alan-ht-wang.workers.dev npm run test:e2e` |
 | `npm run sw` | Refresh `public/sw.js` (precache list + version) |
 | `npm run voice` | Render new or changed coach phrases with Kokoro into `public/audio/` (`--voice af_heart` for one voice). About 1 s per clip on CPU; voices can run in parallel processes |
@@ -131,6 +136,8 @@ local). `npm test` must pass first, as always.
 | `npm run deploy` | `npm run sw` + `wrangler deploy` (normally not needed: pushing auto-deploys) |
 | `node tools/make-library.mjs` | Regenerate the exercise library (`public/exercises.html`) from the code |
 | `node tools/make-whatsnew.mjs` | Regenerate What's new (`public/whats-new.html`) from `CHANGELOG.md` |
+| `node tools/make-privacy.mjs` | Regenerate the Privacy page (`public/privacy.html`) |
+| `node tools/make-og.mjs` | Redraw the share card (`public/og.png`, 1200 by 630) |
 
 Dev dependencies: `playwright` (Chromium is downloaded by
 `npx playwright install chromium`), `ffmpeg-static` (its install script is
@@ -199,7 +206,8 @@ webcam → pose.js (MediaPipe PoseLandmarker; lite/full/heavy, "auto" falls back
 ## Repo map (main files)
 
 ```
-public/            index.html  app.html  404.html  sw.js  manifest.webmanifest  _headers
+public/            index.html  app.html  exercises.html  whats-new.html  privacy.html  404.html
+                   sw.js  manifest.webmanifest  _headers  og.png  robots.txt  sitemap.xml
   css/             theme.css (tokens)  app.css  site.css  transitions.css  fonts.css
   audio/           pre-rendered voice pack (npm run voice)
   js/              session.js ★ engine · tracking.js · filters.js · guide.js · coach.js ★ · coaching.js ★ (all phrases)
@@ -218,9 +226,10 @@ README.md · CLAUDE.md · CHANGELOG.md · TODO.md · RECORDING_GUIDE.md · PROJE
 
 ## Tests
 
-- **Unit and engine** (`npm test`): session 54, camera 53, overlay 43,
-  tracking 39, circuit 27, coach 25, speech 24, scoring 18, replay 13,
-  voice 12, storage 10, pwa 8, rig.
+- **Unit and engine** (`npm test`): session 87, skills 65, camera 53,
+  overlay 43, tracking 39, scoring 34, replay 29 + 13, circuit 27, coach 25,
+  speech 24, challenges 20, storage 15, voice 14, pwa 8, library 4,
+  privacy 4, what's new 3, rig.
 - **Simulator:** `tests/helpers/synth.mjs` turns the stick-figure rig into
   MediaPipe-style landmarks. `repStream` supports rotation, 3D world
   landmarks, mutations (glitches, occlusion), rests, custom motion profiles,

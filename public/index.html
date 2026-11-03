@@ -6,8 +6,17 @@
 <title>VertexForm: form feedback for every rep</title>
 <meta name="description" content="VertexForm watches your workouts through your webcam, measures your joint angles, grades every rep and coaches you out loud. Runs in your browser; nothing is uploaded." />
 <meta name="theme-color" content="#090d1c" />
+<link rel="canonical" href="https://vertexform.alan-ht-wang.workers.dev/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="VertexForm" />
+<meta property="og:url" content="https://vertexform.alan-ht-wang.workers.dev/" />
 <meta property="og:title" content="VertexForm: form feedback for every rep" />
 <meta property="og:description" content="Point your webcam at yourself and get every rep graded from 0 to 100, with a spoken fix after each one." />
+<meta property="og:image" content="https://vertexform.alan-ht-wang.workers.dev/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="VertexForm: your webcam grades every rep from 0 to 100." />
+<meta name="twitter:card" content="summary_large_image" />
 
 <!-- The fonts above the fold, so the headline and buttons don't reflow when they arrive. -->
 <link rel="preload" href="fonts/unbounded-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin />
@@ -219,24 +228,29 @@
           </div>
         </article>
       </div>
+      <!-- The rest of the exercises as small figures, each opening its plate in the
+           library (exercises.html), which says the rest. tests/library.test.mjs
+           checks every exercise beyond the five above is here. -->
       <div class="also-ex">
-        <h3>Also tracked in the trainer</h3>
-        <dl class="also">
-          <div><dt>Pike push-up</dt><dd>Elbow angle, with the hips kept folded high. Side-on.</dd></div>
-          <div><dt>Side plank</dt><dd>Hips in line from shoulder to ankle, held for time. Chest to the camera.</dd></div>
-          <div><dt>Hollow hold</dt><dd>Shoulders and legs off the floor in a shallow curve, held for time. Side-on.</dd></div>
-          <div><dt>Mountain climbers</dt><dd>How far the near knee drives toward the chest, and whether the hips stay level. Side-on.</dd></div>
-          <div><dt>Dead hang</dt><dd>Straight arms and no swinging, held for time. Facing the camera; the bar itself isn't tracked.</dd></div>
-          <div><dt>Bulgarian split squat</dt><dd>Front-knee angle and an upright torso, with the back foot up on a bench. Side-on.</dd></div>
-          <div><dt>Pistol squat</dt><dd>Depth on one leg, and whether the free leg stays off the floor. Side-on.</dd></div>
-          <div><dt>Dips</dt><dd>Elbow angle at the bottom, down to about 90°, on parallel bars. Side-on.</dd></div>
-          <div><dt>Australian row</dt><dd>Chest to a low bar with the body in one line, heels on the floor. Side-on.</dd></div>
-          <div><dt>Negative pull-up</dt><dd>How slowly you lower from chin over the bar to a hang: 3 seconds or more. Facing the camera.</dd></div>
-          <div><dt>Pull-up</dt><dd>From a dead hang until the chin clears the bar. Facing the camera; your hands stand in for the bar.</dd></div>
-          <div><dt>L-sit</dt><dd>Legs straight and level with the hips, held for time, hands down beside you. Side-on.</dd></div>
-          <div><dt>V-sit</dt><dd>Feet raised well above the hips, held for time. Side-on.</dd></div>
-        </dl>
-        <a class="lib-link" href="exercises.html">Every exercise in detail: what it scores, flags and unlocks <span aria-hidden="true">&rarr;</span></a>
+        <div class="also-ex-head">
+          <h3>Thirteen more in the trainer</h3>
+          <a class="lib-link" href="exercises.html">Every exercise in detail <span aria-hidden="true">&rarr;</span></a>
+        </div>
+        <ul class="mini-plates">
+          <li><a href="exercises.html#ex-pike"><span class="picto" data-picto="pike" data-picto-plain aria-hidden="true"></span><span>Pike push-up</span></a></li>
+          <li><a href="exercises.html#ex-side_plank"><span class="picto" data-picto="side_plank" data-picto-plain aria-hidden="true"></span><span>Side plank</span></a></li>
+          <li><a href="exercises.html#ex-hollow"><span class="picto" data-picto="hollow" data-picto-plain aria-hidden="true"></span><span>Hollow hold</span></a></li>
+          <li><a href="exercises.html#ex-climber"><span class="picto" data-picto="climber" data-picto-plain aria-hidden="true"></span><span>Mountain climber</span></a></li>
+          <li><a href="exercises.html#ex-hang"><span class="picto" data-picto="hang" data-picto-plain aria-hidden="true"></span><span>Dead hang</span></a></li>
+          <li><a href="exercises.html#ex-split_squat"><span class="picto" data-picto="split_squat" data-picto-plain aria-hidden="true"></span><span>Bulgarian split squat</span></a></li>
+          <li><a href="exercises.html#ex-pistol"><span class="picto" data-picto="pistol" data-picto-plain aria-hidden="true"></span><span>Pistol squat</span></a></li>
+          <li><a href="exercises.html#ex-dips"><span class="picto" data-picto="dips" data-picto-plain aria-hidden="true"></span><span>Dips</span></a></li>
+          <li><a href="exercises.html#ex-row"><span class="picto" data-picto="row" data-picto-plain aria-hidden="true"></span><span>Australian row</span></a></li>
+          <li><a href="exercises.html#ex-negative"><span class="picto" data-picto="negative" data-picto-plain aria-hidden="true"></span><span>Negative pull-up</span></a></li>
+          <li><a href="exercises.html#ex-pullup"><span class="picto" data-picto="pullup" data-picto-plain aria-hidden="true"></span><span>Pull-up</span></a></li>
+          <li><a href="exercises.html#ex-lsit"><span class="picto" data-picto="lsit" data-picto-plain aria-hidden="true"></span><span>L-sit</span></a></li>
+          <li><a href="exercises.html#ex-vsit"><span class="picto" data-picto="vsit" data-picto-plain aria-hidden="true"></span><span>V-sit</span></a></li>
+        </ul>
       </div>
     </div>
   </section>
@@ -608,13 +622,32 @@
   </dialog>
 
 <footer class="foot" data-tone="dark">
-  <div class="wrap foot-row">
-    <a class="logo logo-sm" href="index.html">
-      <svg class="logo-mark" aria-hidden="true"><use href="#mark"/></svg><span>Vertex<em>Form</em></span>
-    </a>
-    <p>Pose tracking by MediaPipe. Hosted on Cloudflare.</p>
-    <span class="foot-links"><a href="exercises.html">Exercise library</a><a href="whats-new.html">What's new</a><a href="app.html">Open the trainer</a></span>
+  <div class="wrap foot-grid">
+    <div class="foot-brand">
+      <a class="logo logo-sm" href="index.html">
+        <svg class="logo-mark" aria-hidden="true"><use href="#mark"/></svg><span>Vertex<em>Form</em></span>
+      </a>
+      <p>Form feedback for every rep, in your browser. Nothing you record leaves your device.</p>
+    </div>
+    <nav class="foot-col" aria-label="Train">
+      <h2>Train</h2>
+      <a href="app.html">Open the trainer</a>
+      <a href="exercises.html">Exercise library</a>
+      <a href="#paths">Skill paths</a>
+    </nav>
+    <nav class="foot-col" aria-label="Learn">
+      <h2>Learn</h2>
+      <a href="#how">How it works</a>
+      <a href="#lab">Form Lab</a>
+      <a href="#faq">Questions</a>
+    </nav>
+    <nav class="foot-col" aria-label="About">
+      <h2>About</h2>
+      <a href="whats-new.html">What's new</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
   </div>
+  <div class="wrap foot-base"><p>Pose tracking by MediaPipe. Hosted on Cloudflare.</p></div>
   <!-- The wordmark, as big as the page is wide; it rises into view (scroll-fx.js). -->
   <div class="foot-mark" aria-hidden="true"><span>Vertex<em>Form</em></span></div>
 </footer>

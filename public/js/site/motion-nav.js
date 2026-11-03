@@ -70,8 +70,8 @@ export function mountMotionNav() {
     // scrolling blur below follows its speed.
     const lenis = smooth();
     if (lenis) {
-      const pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
-      lenis.scrollTo(target, { offset: -pad, duration: DURATION / 1000 * 1.4, easing: ease, onComplete: () => {
+      // Lenis already leaves the page's scroll-padding-top above the target.
+      lenis.scrollTo(target, { duration: DURATION / 1000 * 1.4, easing: ease, onComplete: () => {
         announce(null);
         if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
         target.focus({ preventScroll: true });

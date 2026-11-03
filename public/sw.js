@@ -16,7 +16,7 @@
  * and old ones are deleted on activate. Updates are never stuck.
  */
 
-const VERSION = "a95fc35460de";
+const VERSION = "d91e6f15e413";
 const PRECACHE = [
   "./",
   "404.html",
@@ -147,6 +147,9 @@ const PRECACHE = [
   "js/voice.js",
   "js/voices.js",
   "manifest.webmanifest",
+  "og.png",
+  "privacy.html",
+  "sitemap.xml",
   "vendor/README.md",
   "vendor/gsap/ScrollTrigger.min.js",
   "vendor/gsap/SplitText.min.js",

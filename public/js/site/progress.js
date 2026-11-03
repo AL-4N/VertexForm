@@ -29,7 +29,8 @@ export function mountProgress(nav = document.querySelector(".nav")) {
     shown = reducedMotion() ? g : shown + (g - shown) * 0.2;
     if (Math.abs(g - shown) < 0.0005) shown = g;
     fill.style.transform = `scaleX(${shown.toFixed(4)})`;
-    bead.style.transform = `translateX(${(shown * bar.clientWidth).toFixed(1)}px)`;
+    // The bead stays inside the bar, so it never pokes past the edge of a phone screen.
+    bead.style.transform = `translateX(${(shown * (bar.clientWidth - 6)).toFixed(1)}px)`;
     bar.classList.toggle("moving", shown !== g);
     raf = shown !== g ? requestAnimationFrame(frame) : 0;
   };

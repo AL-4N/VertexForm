@@ -7,6 +7,17 @@
 <title>Exercises: how VertexForm grades each one</title>
 <meta name="description" content="Eighteen exercises VertexForm grades through your webcam: what each one measures, the mistakes it flags, what the coach says, and the skills it unlocks." />
 <meta name="theme-color" content="#090d1c" />
+<link rel="canonical" href="https://vertexform.alan-ht-wang.workers.dev/exercises" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="VertexForm" />
+<meta property="og:url" content="https://vertexform.alan-ht-wang.workers.dev/exercises" />
+<meta property="og:title" content="Exercises: how VertexForm grades each one" />
+<meta property="og:description" content="Eighteen exercises VertexForm grades through your webcam: what each one measures, the mistakes it flags, what the coach says, and the skills it unlocks." />
+<meta property="og:image" content="https://vertexform.alan-ht-wang.workers.dev/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="VertexForm: your webcam grades every rep from 0 to 100." />
+<meta name="twitter:card" content="summary_large_image" />
 <link rel="preload" href="fonts/unbounded-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="fonts/instrument-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="css/fonts.css" />
@@ -340,13 +351,32 @@
 </main>
 
 <footer class="foot" data-tone="dark">
-  <div class="wrap foot-row">
-    <a class="logo logo-sm" href="index.html">
-      <svg class="logo-mark" aria-hidden="true"><use href="#mark"/></svg><span>Vertex<em>Form</em></span>
-    </a>
-    <p>Pose tracking by MediaPipe. Hosted on Cloudflare.</p>
-    <span class="foot-links"><a href="exercises.html">Exercise library</a><a href="whats-new.html">What's new</a><a href="app.html">Open the trainer</a></span>
+  <div class="wrap foot-grid">
+    <div class="foot-brand">
+      <a class="logo logo-sm" href="index.html">
+        <svg class="logo-mark" aria-hidden="true"><use href="index.html#mark"/></svg><span>Vertex<em>Form</em></span>
+      </a>
+      <p>Form feedback for every rep, in your browser. Nothing you record leaves your device.</p>
+    </div>
+    <nav class="foot-col" aria-label="Train">
+      <h2>Train</h2>
+      <a href="app.html">Open the trainer</a>
+      <a href="exercises.html">Exercise library</a>
+      <a href="index.html#paths">Skill paths</a>
+    </nav>
+    <nav class="foot-col" aria-label="Learn">
+      <h2>Learn</h2>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#lab">Form Lab</a>
+      <a href="index.html#faq">Questions</a>
+    </nav>
+    <nav class="foot-col" aria-label="About">
+      <h2>About</h2>
+      <a href="whats-new.html">What's new</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
   </div>
+  <div class="wrap foot-base"><p>Pose tracking by MediaPipe. Hosted on Cloudflare.</p></div>
   <!-- The wordmark, as big as the page is wide; it rises into view (scroll-fx.js). -->
   <div class="foot-mark" aria-hidden="true"><span>Vertex<em>Form</em></span></div>
 </footer>

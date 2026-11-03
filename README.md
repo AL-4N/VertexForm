@@ -157,7 +157,8 @@ webcam ─▶ MediaPipe Pose (in-browser) ─▶ 33 landmarks + 3D world landmar
 ```
 vertexform/
 ├── public/                     ← the website (this is what you deploy)
-│   ├── index.html  app.html  404.html  manifest.webmanifest  sw.js  _headers
+│   ├── index.html  app.html  exercises.html  whats-new.html  privacy.html  404.html
+│   ├── manifest.webmanifest  sw.js  _headers  og.png  robots.txt  sitemap.xml
 │   ├── css/                    fonts, site, theme, app, transitions
 │   ├── audio/              the pre-recorded coach voice (npm run voice): <voice>/<hash>.mp3 + manifest.json
 │   ├── icons/  fonts/  favicon.svg

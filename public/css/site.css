@@ -584,10 +584,7 @@ body::after {
 }
 .foot-mark em { font-style: normal; background: var(--go-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-stroke: 0; }
 
-.foot-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
 .foot p { color: var(--text-faint); font-size: .88rem; }
-.foot-row > a:last-child { color: var(--text-dim); font-size: .9rem; font-weight: 600; text-decoration: none; }
-.foot-row > a:last-child:hover { color: var(--text); }
 
 /* ── Live tag ───────────────────────────────────────── */
 /* The label over a section: plain mono with a short lime rule, like a figure caption. */
@@ -781,13 +778,13 @@ html.split-wait .hero h1 { visibility: hidden; }
 
 /* Links in the nav and footer: an underline draws in from the left on hover
    and leaves to the right. */
-.nav nav a, .foot-row > a:last-child { position: relative; }
-.nav nav a::after, .foot-row > a:last-child::after {
+.nav nav a, .foot-col a { position: relative; }
+.nav nav a::after, .foot-col a::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1.5px; border-radius: 1px;
   background: var(--go-gradient); transform: scaleX(0); transform-origin: right; transition: transform .45s cubic-bezier(.22,.61,.36,1);
 }
-.nav nav a:hover::after, .nav nav a.active::after, .foot-row > a:last-child:hover::after { transform: scaleX(1); transform-origin: left; }
-@media (prefers-reduced-motion: reduce) { .nav nav a::after, .foot-row > a:last-child::after { transition: none; } }
+.nav nav a:hover::after, .nav nav a.active::after, .foot-col a:hover::after { transform: scaleX(1); transform-origin: left; }
+@media (prefers-reduced-motion: reduce) { .nav nav a::after, .foot-col a::after { transition: none; } }
 
 /* No glows (Nov 2026): next to Linear, Raycast and Apple, haloes on scores,
    cards and the cursor read as a template. Light stays only where it is
@@ -944,7 +941,7 @@ circle.su-body { fill: var(--ink-2); }
 .nav-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; pointer-events: none; }
 .nav-progress i { position: absolute; inset: 0; transform-origin: left; transform: scaleX(0);
   background: var(--go-gradient); box-shadow: 0 0 8px rgba(46,229,157,.45); }
-.nav-progress b { position: absolute; left: -3px; top: -2px; width: 6px; height: 6px; border-radius: 99px;
+.nav-progress b { position: absolute; left: 0; top: -2px; width: 6px; height: 6px; border-radius: 99px;
   background: #eafff5; box-shadow: 0 0 10px 2px rgba(46,229,157,.8); opacity: .35; transition: opacity .4s; }
 .nav-progress.moving b { opacity: 1; transition-duration: .1s; }
 @media (min-width: 1400px) { .nav-progress { display: none; } }
@@ -982,8 +979,21 @@ h1 .dim, h2 .dim { color: var(--text-faint); }
 
 a.ex-open { text-decoration: none; }
 
-/* "Also tracked in the trainer": the newer exercises as a ruled list under
-   the cards (no 3D clip of their own yet). */
+/* The rest of the exercises: small captioned figures in a ruled grid, each a
+   link to its plate in the library. */
+.also-ex-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.also-ex-head .lib-link { margin-top: 0; }
+.mini-plates { list-style: none; margin: 1.1rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.mini-plates a { display: grid; gap: .55rem; justify-items: center; padding: 1rem .6rem .9rem; height: 100%; box-sizing: border-box;
+  border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); text-decoration: none;
+  color: var(--text-dim); font-size: .88rem; font-weight: 600; text-align: center; transition: color .2s, background .2s; }
+.mini-plates .picto { height: 62px; padding: 0; color: var(--text-faint); transition: color .2s; }
+.mini-plates .picto svg { max-width: 120px; }
+.mini-plates .picto-near polyline, .mini-plates .picto-far polyline { stroke-width: 3.2; }
+.mini-plates .picto-near circle { fill: none; stroke-width: 3; }
+.mini-plates a:hover { color: var(--text); background: rgba(238,241,251,.025); }
+.mini-plates a:hover .picto { color: var(--g100); }
 .also-ex { margin-top: clamp(2.5rem, 5vw, 3.5rem); }
 .also-ex h3 { font-size: 1.05rem; letter-spacing: -.01em; }
 .also-ex .also { margin-top: 1rem; }
@@ -1035,9 +1045,6 @@ a.ex-open { text-decoration: none; }
 .lib-link { display: inline-flex; gap: .5rem; margin-top: 1.4rem; font-weight: 600; color: var(--text); text-decoration: none; }
 .lib-link span { transition: transform .3s var(--ease); }
 .lib-link:hover span { transform: translateX(4px); }
-.foot-links { display: inline-flex; gap: 1.4rem; }
-.foot-links a { color: var(--text-dim); font-size: .9rem; font-weight: 600; text-decoration: none; }
-.foot-links a:hover { color: var(--text); }
 
 /* ── What's new (whats-new.html, tools/make-whatsnew.mjs): the changelog as a ruled list ── */
 .news .section-head h1 { font-size: clamp(2rem, 4.4vw, 3.2rem); line-height: 1.08; margin-bottom: 1rem; font-weight: 500; letter-spacing: -.035em; }
@@ -1052,3 +1059,22 @@ a.ex-open { text-decoration: none; }
 .news-body ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .45rem; color: var(--text-dim); }
 .news-body li::marker { color: var(--line-2); }
 @media (max-width: 760px) { .news-rel { grid-template-columns: 1fr; gap: .8rem; } }
+
+/* ── Footer: brand line and three columns of links ── */
+.foot-grid { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 2rem; padding-block: 1.4rem 1.6rem; }
+.foot-brand p { margin-top: .8rem; max-width: 34ch; }
+.foot-col { display: grid; align-content: start; gap: .55rem; }
+.foot-col h2 { font-family: var(--mono); font-size: .68rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--text-faint); margin: 0 0 .2rem; }
+.foot-col a { color: var(--text-dim); font-size: .92rem; font-weight: 500; text-decoration: none; width: fit-content; }
+.foot-col a:hover { color: var(--text); }
+.foot-base p { padding: 1.1rem 0 .4rem; border-top: 1px solid var(--line); }
+@media (max-width: 760px) { .foot-grid { grid-template-columns: 1fr 1fr; } .foot-brand { grid-column: 1 / -1; } }
+
+/* ── Privacy (privacy.html): short sections in a ruled column ── */
+.legal .section-head h1 { font-size: clamp(2rem, 4.4vw, 3.2rem); line-height: 1.08; margin-bottom: 1rem; font-weight: 500; letter-spacing: -.035em; }
+.legal-part { display: grid; grid-template-columns: 16rem 1fr; gap: 2rem; padding: 1.6rem 0; border-top: 1px solid var(--line); max-width: 1000px; }
+.legal-part:last-of-type { border-bottom: 1px solid var(--line); }
+.legal-part h2 { font-size: 1.1rem; font-weight: 600; }
+.legal-part ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .55rem; color: var(--text-dim); max-width: 64ch; }
+.legal-part li::marker { color: var(--line-2); }
+@media (max-width: 760px) { .legal-part { grid-template-columns: 1fr; gap: .7rem; } }

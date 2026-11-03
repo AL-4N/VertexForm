@@ -21,11 +21,11 @@ How it looks, sounds and reads (colours, type, figures, motion, writing rules):
 ## Commands
 - `npm run dev` — serve `public/` at http://localhost:8080 (`?debug` for the readout + landmark recorder, `?cpu` to skip the GPU)
 - `npm test` — all unit/engine suites (must pass before every commit)
-- `npm run test:e2e` — Playwright browser suite (first time: `npx playwright install chromium`); pass a regex to run a subset: `node tests/e2e/run.mjs "camera"`
+- `npm run test:e2e` — Playwright browser suite (first time: `npx playwright install chromium`); pass a regex to run a subset: `node tests/e2e/run.mjs "camera"`; `E2E_CHANNEL=chrome` uses the installed Google Chrome instead
 - `npm run sw` — **run after changing any file in `public/`**: refreshes the precache list + content-hash version in `public/sw.js` (`tests/pwa.test.mjs` fails otherwise; a missing file there breaks offline loading)
 - `npm run voice` — render new/changed coach phrases with Kokoro (incremental; first run downloads ~90 MB model). **Any new spoken text must be added to `coaching.js` (and so to `js/phrases.js`) and rendered**, or `tests/voice.test.mjs` fails. Then `npm run sw`.
 - `npm run eval:angles` — 2D vs 3D angle accuracy on the simulator and on `tests/fixtures/*`
-- `node tools/make-library.mjs` — regenerate `public/exercises.html` (the exercise library) after changing exercises, coaching lines, tips or skills; `node tools/make-whatsnew.mjs` — regenerate `public/whats-new.html` after editing `CHANGELOG.md` (user-facing entries go at the top). Both have staleness tests in `npm test`; run `npm run sw` after.
+- `node tools/make-library.mjs` — regenerate `public/exercises.html` (the exercise library) after changing exercises, coaching lines, tips or skills; `node tools/make-whatsnew.mjs` — regenerate `public/whats-new.html` after editing `CHANGELOG.md` (user-facing entries go at the top). `node tools/make-privacy.mjs` — regenerate `public/privacy.html` (what's stored, what's downloaded) when that changes. All three share `tools/page-shell.mjs` (head, nav, footer copied from `index.html`) and have staleness tests in `npm test`; run `npm run sw` after. `node tools/make-og.mjs` redraws the share card `public/og.png`. `public/robots.txt` and `sitemap.xml` list clean URLs; add new pages there.
 - `npm run deploy` — `npm run sw` + `wrangler deploy`
 
 ## How things fit

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vertexform.alan-ht-wang.workers.dev/sitemap.xml

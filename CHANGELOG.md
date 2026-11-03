@@ -1,5 +1,32 @@
 # Changelog
 
+## 2.4.0 — 2026-11-03
+
+### Privacy page
+- A page that says what happens to your camera and your data, in plain
+  words: what's kept in this browser and for how long, what your browser
+  downloads and from where, and how to export or erase everything. The
+  tests check the code keeps its promises: no cookies, no analytics, no
+  uploads.
+
+### Finding your way around
+- The footer is a small sitemap: the trainer, the library, the skill
+  paths, how it works, the Form Lab, questions, What's new and privacy.
+- The homepage's exercise list is now a row of small drawings, one per
+  exercise, each opening its page in the library.
+- A missing page says so and offers the homepage, the library and the
+  trainer.
+- Menu links on the homepage stop with the section right under the
+  header, instead of a little way down.
+
+### Sharing
+- Links to VertexForm show a preview card with its name and what it does.
+
+### Easier to read
+- Hint text is brighter, so it's readable on every background.
+- Pages no longer jump as their fonts load, and nothing scrolls sideways
+  on a phone.
+
 ## 2.3.0 — 2026-11-02
 
 ### Eight more exercises

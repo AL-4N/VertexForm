@@ -7,6 +7,17 @@
 <title>What's new in VertexForm</title>
 <meta name="description" content="Every change to VertexForm you can see or hear, newest first: new exercises, skill paths, the exercise library and design changes." />
 <meta name="theme-color" content="#090d1c" />
+<link rel="canonical" href="https://vertexform.alan-ht-wang.workers.dev/whats-new" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="VertexForm" />
+<meta property="og:url" content="https://vertexform.alan-ht-wang.workers.dev/whats-new" />
+<meta property="og:title" content="What's new in VertexForm" />
+<meta property="og:description" content="Every change to VertexForm you can see or hear, newest first: new exercises, skill paths, the exercise library and design changes." />
+<meta property="og:image" content="https://vertexform.alan-ht-wang.workers.dev/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="VertexForm: your webcam grades every rep from 0 to 100." />
+<meta name="twitter:card" content="summary_large_image" />
 <link rel="preload" href="fonts/unbounded-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="fonts/instrument-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="css/fonts.css" />
@@ -63,6 +74,19 @@
         <h1>What changed, <span class="dim">release by release.</span></h1>
         <p>Every change to VertexForm that you can see or hear, newest first. It's the project's changelog, so nothing here is planned work: all of it is live.</p>
       </div>
+      <article class="news-rel" id="v2-4-0">
+        <header class="news-when"><span class="news-v">2.4.0</span><time datetime="2026-11-03">3 November 2026</time></header>
+        <div class="news-body">
+          <h2>Privacy page</h2>
+          <ul><li>A page that says what happens to your camera and your data, in plain words: what's kept in this browser and for how long, what your browser downloads and from where, and how to export or erase everything. The tests check the code keeps its promises: no cookies, no analytics, no uploads.</li></ul>
+          <h2>Finding your way around</h2>
+          <ul><li>The footer is a small sitemap: the trainer, the library, the skill paths, how it works, the Form Lab, questions, What's new and privacy.</li><li>The homepage's exercise list is now a row of small drawings, one per exercise, each opening its page in the library.</li><li>A missing page says so and offers the homepage, the library and the trainer.</li><li>Menu links on the homepage stop with the section right under the header, instead of a little way down.</li></ul>
+          <h2>Sharing</h2>
+          <ul><li>Links to VertexForm show a preview card with its name and what it does.</li></ul>
+          <h2>Easier to read</h2>
+          <ul><li>Hint text is brighter, so it's readable on every background.</li><li>Pages no longer jump as their fonts load, and nothing scrolls sideways on a phone.</li></ul>
+        </div>
+      </article>
       <article class="news-rel" id="v2-3-0">
         <header class="news-when"><span class="news-v">2.3.0</span><time datetime="2026-11-02">2 November 2026</time></header>
         <div class="news-body">
@@ -96,13 +120,32 @@
 </main>
 
 <footer class="foot" data-tone="dark">
-  <div class="wrap foot-row">
-    <a class="logo logo-sm" href="index.html">
-      <svg class="logo-mark" aria-hidden="true"><use href="#mark"/></svg><span>Vertex<em>Form</em></span>
-    </a>
-    <p>Pose tracking by MediaPipe. Hosted on Cloudflare.</p>
-    <span class="foot-links"><a href="exercises.html">Exercise library</a><a href="whats-new.html">What's new</a><a href="app.html">Open the trainer</a></span>
+  <div class="wrap foot-grid">
+    <div class="foot-brand">
+      <a class="logo logo-sm" href="index.html">
+        <svg class="logo-mark" aria-hidden="true"><use href="index.html#mark"/></svg><span>Vertex<em>Form</em></span>
+      </a>
+      <p>Form feedback for every rep, in your browser. Nothing you record leaves your device.</p>
+    </div>
+    <nav class="foot-col" aria-label="Train">
+      <h2>Train</h2>
+      <a href="app.html">Open the trainer</a>
+      <a href="exercises.html">Exercise library</a>
+      <a href="index.html#paths">Skill paths</a>
+    </nav>
+    <nav class="foot-col" aria-label="Learn">
+      <h2>Learn</h2>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#lab">Form Lab</a>
+      <a href="index.html#faq">Questions</a>
+    </nav>
+    <nav class="foot-col" aria-label="About">
+      <h2>About</h2>
+      <a href="whats-new.html">What's new</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
   </div>
+  <div class="wrap foot-base"><p>Pose tracking by MediaPipe. Hosted on Cloudflare.</p></div>
   <!-- The wordmark, as big as the page is wide; it rises into view (scroll-fx.js). -->
   <div class="foot-mark" aria-hidden="true"><span>Vertex<em>Form</em></span></div>
 </footer>

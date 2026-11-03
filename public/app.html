@@ -18,6 +18,17 @@
      page as a circle from that point (css/transitions.css, js/page-transition.js). -->
 <script>addEventListener("pagereveal",function(e){try{var o=JSON.parse(sessionStorage.getItem("vf-vt")||"null");sessionStorage.removeItem("vf-vt");if(!e.viewTransition||!o)return;var d=document.documentElement;d.style.setProperty("--vt-x",o.x+"px");d.style.setProperty("--vt-y",o.y+"px");d.style.setProperty("--vt-r",Math.ceil(Math.hypot(Math.max(o.x,innerWidth-o.x),Math.max(o.y,innerHeight-o.y)))+"px");d.classList.add("vt-circle");var R=Math.ceil(Math.hypot(Math.max(o.x,innerWidth-o.x),Math.max(o.y,innerHeight-o.y)));var g=document.createElement("div");g.className="vt-ring";g.setAttribute("aria-hidden","true");d.appendChild(g);if(g.animate){g.animate([{left:o.x+"px",top:o.y+"px",width:"0px",height:"0px",opacity:1},{left:(o.x-R)+"px",top:(o.y-R)+"px",width:2*R+"px",height:2*R+"px",opacity:.15}],{duration:1100,easing:"cubic-bezier(.7,0,.84,0)",fill:"forwards"})}e.viewTransition.finished.finally(function(){d.classList.remove("vt-circle");g.remove()})}catch(_){}});</script>
 
+<link rel="canonical" href="https://vertexform.alan-ht-wang.workers.dev/app" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="VertexForm" />
+<meta property="og:url" content="https://vertexform.alan-ht-wang.workers.dev/app" />
+<meta property="og:title" content="Train with VertexForm" />
+<meta property="og:description" content="Pick an exercise, step back from your webcam and get every rep graded, with a spoken fix after each one." />
+<meta property="og:image" content="https://vertexform.alan-ht-wang.workers.dev/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="VertexForm: your webcam grades every rep from 0 to 100." />
+<meta name="twitter:card" content="summary_large_image" />
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
