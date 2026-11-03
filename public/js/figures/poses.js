@@ -13,7 +13,7 @@
  */
 
 import { angleAt, thighDepth, leanFromVertical, hipSag, SEG } from "./rig.js";
-import { scoreSquat, scorePushup, scorePike, scorePlank, scoreLunge, scoreJack, scoreHollow, scoreClimber, scoreHang, scoreSplitSquat, scorePistol, scoreDip, scorePullup, scoreRow, combine } from "../scoring.js";
+import { scoreSquat, scorePushup, scorePike, scorePlank, scoreLunge, scoreJack, scoreHollow, scoreClimber, scoreHang, scoreSplitSquat, scorePistol, scoreDip, scorePullup, scoreRow, scoreLSit, scoreVSit, combine } from "../scoring.js";
 
 export const GROUND = 470;
 const STAGE_H = 520;   // used to normalise distances the way the app does
@@ -472,5 +472,59 @@ const row = {
   },
 };
 
-export const EXERCISES = [squat, pushup, plank, lunge, jack, pike, sidePlank, hollow, climber, hang, splitSquat, pistol, dips, pullup, negative, row];
+/* ── L-sit and V-sit (side view, hands on low parallettes beside the hips) ── */
+const PARALLETTES = [300, 404];
+const SIT_ARMS = { arms: "ik", handN: PARALLETTES, handF: [PARALLETTES[0] - 3, PARALLETTES[1] - 1], bendElbowN: 1, bendElbowF: 1 };
+function sitMeasure(scoreFn, legsLabel) {
+  return (s) => {
+    const hipAngle = angleAt(s.neck, s.hip, s.ankN);
+    const knee = angleAt(s.hip, s.kneeN, s.ankN);
+    const lift = (s.hip[1] - s.ankN[1]) / (SEG.thigh + SEG.shin);       // + = feet above the hips, in leg lengths
+    const { legs, straight } = scoreFn(hipAngle, lift, knee);
+    return {
+      score: combine([[legs, 0.7], [straight, 0.3]]),
+      parts: [[legsLabel, legs], ["Straight legs", straight]],
+      raw: { hipAngle, lift, knee },
+      rows: [["Hip angle", deg(hipAngle)], ["Knees", deg(knee)]],
+    };
+  };
+}
+const lsit = {
+  id: "lsit", name: "L-sit", view: "side", good: "top",
+  timing: [1600, 1200, 1600, 1400],
+  prop: { parallettes: PARALLETTES },
+  top: {   // legs straight out at hip height
+    view: "side", ...SIT_ARMS,
+    hip: [284, 424], angTorso: -85, angHead: -86,
+    ankleN: [500, 419], ankleF: [496, 417],
+    angFootN: -20, angFootF: -20, bendKneeN: -1, bendKneeF: -1,
+  },
+  bottom: {   // the legs sinking toward the floor
+    view: "side", ...SIT_ARMS,
+    hip: [284, 424], angTorso: -85, angHead: -86,
+    ankleN: [488, 466], ankleF: [484, 464],
+    angFootN: 10, angFootF: 10, bendKneeN: -1, bendKneeF: -1,
+  },
+  measure: sitMeasure(scoreLSit, "Legs level"),
+};
+const vsit = {
+  id: "vsit", name: "V-sit", view: "side", good: "top",
+  timing: [1600, 1200, 1600, 1400],
+  prop: { parallettes: PARALLETTES },
+  top: {   // leaning back, legs raised well above the hips
+    view: "side", ...SIT_ARMS,
+    hip: [280, 420], angTorso: -70, angHead: -68,
+    ankleN: [446, 281], ankleF: [442, 279],
+    angFootN: -60, angFootF: -60, bendKneeN: -1, bendKneeF: -1,
+  },
+  bottom: {   // legs down to level: an L-sit, not a V
+    view: "side", ...SIT_ARMS,
+    hip: [280, 420], angTorso: -70, angHead: -68,
+    ankleN: [496, 412], ankleF: [492, 410],
+    angFootN: -20, angFootF: -20, bendKneeN: -1, bendKneeF: -1,
+  },
+  measure: sitMeasure(scoreVSit, "Legs high"),
+};
+
+export const EXERCISES = [squat, pushup, plank, lunge, jack, pike, sidePlank, hollow, climber, hang, splitSquat, pistol, dips, pullup, negative, row, lsit, vsit];
 export const BY_ID = Object.fromEntries(EXERCISES.map((e) => [e.id, e]));

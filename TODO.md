@@ -115,12 +115,12 @@ step in `js/skills.js`. Order = most useful first.
 - [x] **Dead hang**: done (`exercises/hang.js`, front-on; wrists above the head stand in for the bar; steadiness watches sideways sway). Was planned as: wrists above head, elbows > 160°, feet off the floor (ankles move
       up with the body, no floor contact for the whole hold). Fault: shrugged shoulders
       (shoulder-to-ear distance shrinks vs the calibrated standing value).
-- [ ] **L-sit** (hold, side-on): hip angle 80–100°, knees > 165°, ankles at or above hip height.
+- [x] **L-sit**: done (`exercises/sit.js`, with the V-sit). Was planned as (hold, side-on): hip angle 80–100°, knees > 165°, ankles at or above hip height.
       In-position only when the hips are above the wrists' floor line (hands on floor or
       parallettes). Faults: bent knees, legs dropping (ankle below hip), leaning back.
 - [x] **Hollow hold**: done (`exercises/hollow.js`; in position while shoulders and feet are lifted; graded on the hip angle). Was planned as: shoulders and ankles both off the floor line,
       hip angle 140–170°. Fault: legs too high (easy), lower back arching (hip lifts).
-- [ ] **V-sit** (hold): like the L-sit with ankles clearly above hip height (hip angle < 75°).
+- [x] **V-sit**: done, judged by the feet's height over the hips. Was planned as (hold): like the L-sit with ankles clearly above hip height (hip angle < 75°).
 - [ ] **Diamond push-up**: push-up module plus wrists close together (wrist gap < shoulder
       width x 0.5, front-on or 45°). Needs a facing check that allows a 45° camera.
 - [x] **Pike push-up**: done (`exercises/pike.js`). Hip angle (shoulder–hip–ankle) must stay folded; reps by elbow angle; its own recorded fault lines and name. To do: a 3D clip for the homepage popup.
@@ -133,7 +133,7 @@ step in `js/skills.js`. Order = most useful first.
 Rough order: most useful first. Everything stays on-device unless it says otherwise.
 
 ### Training
-- [ ] **Pull-up, dead hang and L-sit trackers** (plan above): opens up the Pull path and most of
+- [x] **Pull-up, dead hang and L-sit trackers** (done Nov 2026; plan above): opens up the Pull path and most of
       the Core path of the skill tree, which right now mostly says "Not tracked yet"
 - [x] **Rep replay**: every rep of a set is kept as a skeleton clip (js/repclips.js, ~5 KB each,
       IndexedDB via js/replay-store.js). Results show a player (protractor reads the key angle
@@ -197,6 +197,7 @@ Rough order: most useful first. Everything stays on-device unless it says otherw
 - [x] Dips, Bulgarian split squat and pistol squat trackers (the Legs path is now fully tracked).
 - [x] Exercise library page, generated from the code; `app.html#train-<id>` links.
 - [x] "Nearest unlocks" on the trainer menu.
+- [x] L-sit and V-sit: the Core path is tracked end to end.
 - [x] Australian row, negative pull-up and pull-up trackers: the Pull path is tracked up to 10 pull-ups (muscle-up still untracked).
 - [ ] Per-leg counts for split squats and pistols (both legs in one set).
 - [ ] Real recordings of the newer trackers (RECORDING_GUIDE.md).

@@ -40,7 +40,7 @@ export const MILESTONES = {
 
 /* ── System lines: countdown, start, finish, rest timer, workouts ── */
 
-export const EXERCISE_NAMES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up", "Side plank", "Hollow hold", "Mountain climber", "Dead hang", "Bulgarian split squat", "Pistol squat", "Dips", "Australian row", "Negative pull-up", "Pull-up"];
+export const EXERCISE_NAMES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up", "Side plank", "Hollow hold", "Mountain climber", "Dead hang", "Bulgarian split squat", "Pistol squat", "Dips", "Australian row", "Negative pull-up", "Pull-up", "L-sit", "V-sit"];
 export const REST_SECONDS = [15, 30, 45, 60, 75, 90, 105, 120];
 
 export const SYSTEM = {
@@ -278,6 +278,37 @@ export const FAULTS = {
     ]],
   },
 
+  "L-sit": {
+    legsLow: [3, "Legs up", [
+      "Lift your legs to hip height",
+      "Legs up, keep them level with your hips",
+      "Don't let your heels drop",
+    ]],
+    bentKnees: [2, "Straight legs", [
+      "Lock your knees, legs straight",
+      "Straighten your legs all the way",
+    ]],
+    drift: [1, "Hold still", [
+      "Stay still, press down through your hands",
+      "Hold it steady, shoulders down",
+    ]],
+  },
+
+  "V-sit": {
+    legsLow: [3, "Legs higher", [
+      "Lift your legs higher, above your hips",
+      "Higher. Point your toes up toward the ceiling",
+    ]],
+    bentKnees: [2, "Straight legs", [
+      "Lock your knees, legs straight",
+      "Straighten your legs all the way",
+    ]],
+    drift: [1, "Hold still", [
+      "Stay still, press down through your hands",
+      "Hold it steady, shoulders down",
+    ]],
+  },
+
   "Lunge": {
     shallow: [3, "Depth", [
       "Bend the front knee more, aim for ninety degrees",
@@ -361,6 +392,8 @@ export const POSITION_CUES = {
   "Australian row":    "Side-on, lie under a low bar, heels on the floor, arms straight",
   "Negative pull-up":  "Face the camera, start at the top with your chin over the bar",
   "Pull-up":           "Face the camera, hang from the bar with straight arms",
+  "L-sit":             "Side-on, hands down beside your hips, legs straight out in front",
+  "V-sit":             "Side-on, hands down beside your hips, lift your legs up high",
 };
 
 /** Framing, lighting and camera hints (shown on screen, and said if they last). */
@@ -448,6 +481,16 @@ export const CONCRETE = {
     head: ["Look at the floor just in front of your hands"],
     drift: ["Freeze. Imagine a glass of water balanced on your back"],
   },
+  "L-sit": {
+    legsLow: ["Squeeze your thighs and point your toes away from you"],
+    bentKnees: ["Pull your kneecaps up and push your heels away"],
+    drift: ["Push the floor away so your shoulders stay down"],
+  },
+  "V-sit": {
+    legsLow: ["Lean back a little and pull your legs up toward your chest"],
+    bentKnees: ["Pull your kneecaps up and push your heels away"],
+    drift: ["Push the floor away so your shoulders stay down"],
+  },
   "Australian row": {
     short: ["Lead with your chest and pull your elbows past your ribs"],
     sag: ["Squeeze your glutes like you're holding a plank under the bar"],
@@ -518,6 +561,8 @@ export const FIXED = {
   "Australian row": { short: "chest got to the bar", sag: "body stayed straight" },
   "Negative pull-up": { fast: "a nice slow lower", halfRep: "started at the top" },
   "Pull-up":      { halfRep: "chin cleared the bar" },
+  "L-sit":        { legsLow: "legs came up level", bentKnees: "legs are straight now", drift: "nice and steady now" },
+  "V-sit":        { legsLow: "legs are up high", bentKnees: "legs are straight now", drift: "nice and steady now" },
 };
 
 export const FOCUS = {
@@ -537,6 +582,8 @@ export const FOCUS = {
   "Australian row": { short: "pulling your chest to the bar", sag: "keeping your body straight" },
   "Negative pull-up": { fast: "lowering for three full seconds", halfRep: "starting with your chin over the bar" },
   "Pull-up":      { halfRep: "getting your chin over the bar" },
+  "L-sit":        { legsLow: "keeping your legs at hip height", bentKnees: "keeping your legs straight", drift: "holding still" },
+  "V-sit":        { legsLow: "lifting your legs above your hips", bentKnees: "keeping your legs straight", drift: "holding still" },
 };
 
 /** Personality-flavoured lines for the smarter coach. `{x}` is filled in. */

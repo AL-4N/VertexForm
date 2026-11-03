@@ -15,7 +15,7 @@ const NS = "http://www.w3.org/2000/svg";
 const P = (p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
 
 // App exercise names → figure ids
-export const BY_NAME = { "Squat": "squat", "Push-up": "pushup", "Plank": "plank", "Lunge": "lunge", "Jumping Jack": "jack", "Pike push-up": "pike", "Side plank": "side_plank", "Hollow hold": "hollow", "Mountain climber": "climber", "Dead hang": "hang", "Bulgarian split squat": "split_squat", "Pistol squat": "pistol", "Dips": "dips", "Australian row": "row", "Negative pull-up": "negative", "Pull-up": "pullup" };
+export const BY_NAME = { "Squat": "squat", "Push-up": "pushup", "Plank": "plank", "Lunge": "lunge", "Jumping Jack": "jack", "Pike push-up": "pike", "Side plank": "side_plank", "Hollow hold": "hollow", "Mountain climber": "climber", "Dead hang": "hang", "Bulgarian split squat": "split_squat", "Pistol squat": "pistol", "Dips": "dips", "Australian row": "row", "Negative pull-up": "negative", "Pull-up": "pullup", "L-sit": "lsit", "V-sit": "vsit" };
 
 export function renderPictos(root = document) {
   root.querySelectorAll("[data-picto]").forEach((host) => {

@@ -5,7 +5,7 @@
  * app uses (bottom window → medians → component scores → weighted blend), and
  * checks each case lands in its intended band. Run with:  npm test
  */
-import { scoreSquat, scorePushup, scorePlank, scoreLunge, scoreControl, scorePike, scoreHollow, scoreClimber, scoreHang, scoreSplitSquat, scorePistol, scoreDip, scorePullup, scoreLowering, scoreRow, combine } from "../public/js/scoring.js";
+import { scoreSquat, scorePushup, scorePlank, scoreLunge, scoreControl, scorePike, scoreHollow, scoreClimber, scoreHang, scoreSplitSquat, scorePistol, scoreDip, scorePullup, scoreLowering, scoreRow, scoreLSit, scoreVSit, combine } from "../public/js/scoring.js";
 import { thighAngleDeg, leanFromVertical, median, bottomWindow } from "../public/js/geometry.js";
 import { gradeColor, gradeLetter } from "../public/js/grade.js";
 import { gradeLetter as appLetter } from "../public/js/geometry.js";
@@ -86,6 +86,11 @@ letterCheck("69 is a D, 59 an F", gradeLetter(69) + gradeLetter(59), "DF");
   // The Pull path. Pull-up: the chin has to clear the wrists' line; a rep
   // that stops with the chin a fifth of a torso under it is an F.
   ok("Pull-up: chin over = 100, a fifth of a torso under = F", scorePullup(0.05, 70).top === 100 && scorePullup(-0.2, 70).top < 30, scorePullup(-0.2, 70).top);
+  // L-sit: feet at hip height (lift 0) and straight knees; V-sit: feet a third
+  // of a leg above the hips, judged by the feet because leaning back alone
+  // closes the hip angle.
+  ok("L-sit: level and straight = 100; feet a fifth of a leg low = F", scoreLSit(90, 0, 170).legs === 100 && scoreLSit(90, 0, 170).straight === 100 && scoreLSit(95, -0.2, 170).legs < 30);
+  ok("V-sit: feet well up = 100; legs only level is under 40", scoreVSit(40, 0.5, 170).legs === 100 && scoreVSit(65, 0, 170).legs < 40, scoreVSit(65, 0, 170).legs);
   ok("Negative: 3 s lowering = 100, 1 s = F", scoreLowering(3.2) === 100 && scoreLowering(1) < 40, scoreLowering(1));
   const rw = scoreRow(80, 4), rwSag = scoreRow(80, 20);
   ok("Row: chest to the bar in one line = 100; a 20° sag costs", rw.pull === 100 && rw.line === 100 && rwSag.line < 50, JSON.stringify(rwSag));

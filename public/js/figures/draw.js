@@ -64,6 +64,10 @@ export function propMarkup(prop, stroke = "#2e3a63", cls = "") {
     const [x0, x1, y] = prop.overhead;
     out += `<path${a} d="M${f(x0)} ${f(y)}H${f(x1)}"/>`;
   }
+  if (prop.parallettes) {                              // a low bar under the hands, on two short legs
+    const [x, y] = prop.parallettes;
+    out += `<path${a} d="M${f(x - 34)} ${f(y + 4)}H${f(x + 34)}M${f(x - 26)} ${f(y + 4)}L${f(x - 32)} ${GROUND}M${f(x + 26)} ${f(y + 4)}L${f(x + 32)} ${GROUND}"/>`;
+  }
   if (prop.bars) {
     const [x, y] = prop.bars;
     out += `<path${a} d="M${f(x - 46)} ${f(y + 4)}H${f(x + 46)}M${f(x + 30)} ${f(y + 4)}V${GROUND}"/>`;

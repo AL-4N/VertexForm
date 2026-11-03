@@ -157,6 +157,18 @@ check("Negative: lowering over 3 s is an A", r.reps.length === 5 && r.min >= 90 
 r = run("Negative pull-up", repStream("negative", { depth: 0 }, { depth: 100 }, { timing: [0.5, 0.6, 1.0, 1.0] }));
 check("Negative: dropping in a second is flagged and low", r.reps.length > 0 && r.max < 60 && r.faults.has("fast"), fmt(r));
 
+/* ── L-sit and V-sit (holds) ── */
+r = run("L-sit", holdStream("lsit", { legs: 0, bend: 0 }));
+check("L-sit: 30 s, legs level and straight, all A", r.done && r.reps.length === 6 && r.min >= 90, fmt(r));
+r = run("L-sit", holdStream("lsit", { legs: 70, bend: 0 }));
+check("L-sit: legs sinking toward the floor flagged", r.reps.length > 0 && r.max < 70 && r.faults.has("legsLow"), fmt(r));
+r = run("L-sit", holdStream("lsit", { legs: 0, bend: 100 }));
+check("L-sit: bent knees flagged", r.reps.length > 0 && r.max < 90 && r.faults.has("bentKnees"), fmt(r));
+r = run("V-sit", holdStream("vsit", { legs: 0, bend: 0 }));
+check("V-sit: 30 s, feet well above the hips, all A", r.done && r.reps.length === 6 && r.min >= 90, fmt(r));
+r = run("V-sit", holdStream("vsit", { legs: 80, bend: 0 }));
+check("V-sit: legs only at level is flagged (an L, not a V)", r.reps.length > 0 && r.max < 70 && r.faults.has("legsLow"), fmt(r));
+
 /* ── Push-up ───────────────────────────────────────────── */
 r = run("Push-up", repStream("pushup", { depth: 0, hips: 0 }, { depth: 100, hips: 0 }));
 check("Push-up: 5 good reps all score A", r.reps.length === 5 && r.min >= 90, fmt(r));

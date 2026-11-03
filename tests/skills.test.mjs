@@ -38,6 +38,14 @@ check("Dips, Bulgarian split squat and pistol squat are tracked",
   const q = skillPath([set("Push-up", 15, 92), set("Dips", 5, 84)]);
   check("Dips unlock after clean push-ups and 5 real dips", step(q, "dips").status === "done");
 }
+check("The Core path is tracked end to end", PATHS.find((x) => x.id === "core").steps.every((s) => s.test));
+{
+  const hold = (exercise, sec, average) => ({ exercise, reps: Array(Math.ceil(sec / 5)).fill(average), average, best: average, heldS: sec });
+  const core = [hold("Plank", 61, 92), hold("Hollow hold", 31, 85), set("Push-up", 15, 92), set("Dips", 5, 85)];
+  const p = skillPath([...core, hold("L-sit", 11, 86), hold("V-sit", 6, 84)]);
+  check("L-sit unlocks after hollow holds and dips; then the V-sit", step(p, "l_sit").status === "done" && step(p, "v_sit").status === "done");
+  check("V-sit waits for the L-sit", step(skillPath([...core, hold("V-sit", 6, 90)]), "v_sit").status === "locked");
+}
 check("The Pull path is tracked up to 10 pull-ups", ["dead_hang", "row", "negative", "pullup", "pullup_10"].every((id) => STEP_BY_ID[id]?.test) && !STEP_BY_ID.muscle_up.test);
 {
   const hang = { exercise: "Dead hang", reps: Array(7).fill(90), average: 90, best: 90, heldS: 33 };
@@ -82,7 +90,7 @@ check("L-sit and pull-up are on the path", !!step(PATHS, "l_sit") && !!step(PATH
 let p = skillPath([]);
 check("No history: first tracked steps are next", ["pushup", "squat", "plank"].every((id) => step(p, id).status === "next"));
 check("No history: later tracked steps are locked", step(p, "pushup_clean").status === "locked" && step(p, "squat_deep").status === "locked");
-check("Untracked steps show as planned", step(p, "l_sit").status === "planned" && step(p, "muscle_up").status === "planned");
+check("Untracked steps show as planned", step(p, "diamond").status === "planned" && step(p, "muscle_up").status === "planned");
 check("No history: next step says there are no sets yet", step(p, "pushup").closest === null);
 
 p = skillPath([set("Push-up", 10, 80)]);

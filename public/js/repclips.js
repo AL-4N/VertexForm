@@ -56,6 +56,8 @@ export const KEY_ANGLE = {
   "Australian row": { name: "Elbow angle", a: "sh", b: "el", c: "wr", pick: "near", deepest: "min" },
   "Negative pull-up": { name: "Elbow angle", a: "sh", b: "el", c: "wr", pick: "min", deepest: "min" },
   "Pull-up":      { name: "Elbow angle", a: "sh",  b: "el", c: "wr", pick: "min",  deepest: "min" },
+  "L-sit":        { name: "Hip angle",   a: "sh",  b: "hip", c: "an", pick: "near", deepest: "min" },
+  "V-sit":        { name: "Hip angle",   a: "sh",  b: "hip", c: "an", pick: "near", deepest: "min" },
   "Plank":        { name: "Body line",   a: "sh",  b: "hip", c: "an", pick: "near", deepest: "min" },
   "Jumping Jack": { name: "Arm raise",   a: "hip", b: "sh", c: "wr", pick: "max",  deepest: "max" },
 };

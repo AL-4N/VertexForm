@@ -98,6 +98,23 @@ export function scoreRow(elbow, bendOff) {
   return { pull, line };
 }
 
+/** L-sit: legs held at hip height (lift: the feet's height over the hips, in
+ *  leg lengths; level is 0) and straight (the knee). */
+export function scoreLSit(hipAngle, lift, knee) {
+  const legs = lift >= -0.04 ? 100 : Math.max(0, 100 - (-0.04 - lift) * 520);
+  const straight = knee >= 165 ? 100 : Math.max(0, 100 - (165 - knee) * 3);
+  return { legs, straight };
+}
+
+/** V-sit: the feet raised well above the hips (lift a third of a leg length
+ *  or more). Measured by the feet, not the hip angle: leaning back alone
+ *  closes the angle without lifting the legs. */
+export function scoreVSit(hipAngle, lift, knee) {
+  const legs = lift >= 0.33 ? 100 : Math.max(0, 100 - (0.33 - lift) * 200);
+  const straight = knee >= 165 ? 100 : Math.max(0, 100 - (165 - knee) * 3);
+  return { legs, straight };
+}
+
 /** Dead hang: straight arms (the more bent elbow). */
 export const scoreHang = (elbow) => (elbow >= 165 ? 100 : Math.max(0, 100 - (165 - elbow) * 3));
 

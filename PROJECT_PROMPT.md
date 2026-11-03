@@ -18,8 +18,8 @@ run it.
 - **Exercises:** squat, push-up, plank (a timed hold), lunge, jumping jack,
   and (Oct 2026, for the skill tree) pike push-up, side plank (hold), hollow
   hold (hold), mountain climber, dead hang (hold), and (Nov 2026) Bulgarian
-  split squat, pistol squat, dips, Australian row, negative pull-up and
-  pull-up. All sixteen have their own recorded fault lines and spoken names,
+  split squat, pistol squat, dips, Australian row, negative pull-up,
+  pull-up, L-sit (hold) and V-sit (hold). All eighteen have their own recorded fault lines and spoken names,
   so all can go in workouts. A negative is graded on its lowering: the
   session passes each rep's `phases` (down, bottom, up) to `grade()` and
   `detectFaults()`.
@@ -34,7 +34,7 @@ run it.
   the Form Lab (sliders that drive the real scoring engine).
 - **Skill path:** five paths (Push, Pull, Legs, Core, Conditioning), 32 skills,
   drawn as blooming trees; tracked skills unlock from real saved sets. The
-  Legs path is fully tracked, and the Pull path up to 10 pull-ups. The trainer menu's "Nearest unlocks" card names
+  Legs and Core paths are fully tracked, and the Pull path up to 10 pull-ups. The trainer menu's "Nearest unlocks" card names
   the two skills you're closest to and what's left (`nearestUnlocks` in
   `skills.js`).
 
@@ -178,7 +178,8 @@ webcam → pose.js (MediaPipe PoseLandmarker; lite/full/heavy, "auto" falls back
   voice, and `voices.json`.
   - Voices: Heart (`af_heart`, Chill), Bella (`af_bella`, Hype), Michael
     (`am_michael`, Coach); configured in `js/voices.js`.
-  - 3 × 737 clips, 18.8 MB at 32 kbps mono MP3. Not precached; cached the
+  - About 3 × 970 clips, ~25 MB at 32 kbps mono MP3 (the voice test allows
+    40 MB). Not precached; cached the
     first time they play.
   - Coach lines are PARTS, e.g. `[92, "Better, that one hit parallel."]`.
     Pauses: 250 ms after a number, 400 ms between sentences.

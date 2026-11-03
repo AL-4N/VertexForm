@@ -2,7 +2,7 @@
 
 ## 2.3.0 — 2026-11-02
 
-### Six more exercises
+### Eight more exercises
 - Bulgarian split squat: the front knee and an upright torso, counted only
   with the back foot up on a bench.
 - Pistol squat: depth on the standing leg, and the free leg has to stay off
@@ -11,12 +11,14 @@
 - Australian row: chest to a low bar with the body in one straight line.
 - Negative pull-up: graded on how slowly you lower, 3 seconds or more.
 - Pull-up: from a dead hang until the chin clears the bar.
+- L-sit: legs straight and level with the hips, held for time.
+- V-sit: feet raised well above the hips, held for time.
 - Each has its own coaching lines and spoken name in all three voices, so
-  all sixteen exercises can go in a workout.
+  all eighteen exercises can go in a workout.
 
 ### Skill paths
-- The Legs path is now tracked from start to finish, and the Pull path up to
-  ten pull-ups.
+- The Legs and Core paths are now tracked from start to finish, and the
+  Pull path up to ten pull-ups.
 - The trainer's menu shows your nearest unlocks: the two skills your saved
   sets are closest to, what's left in words, and a button to train it.
 
@@ -24,6 +26,9 @@
 - A new page with every exercise: what it scores, what a good rep looks
   like, the mistakes it flags in the coach's own words, and the skills it
   unlocks. Each one links straight to its setup in the trainer.
+
+### What's new
+- This page: every change you can see or hear, newest first.
 
 ### A quieter design
 - Lighter headings, solid buttons and ruled figure plates, after comparing

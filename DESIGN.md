@@ -105,7 +105,7 @@ its exact colour):
   (`text-wrap: balance`), body text `pretty`; changing numbers are tabular. (The hero frame's single shadow is the exception.)
 - Kit is drawn like the floor (`prop` on a pose, `propMarkup` in
   `figures/draw.js`): the bench under a split squat's back foot, the bar
-  under a dip or a row, the pull-up bar overhead (the pull-up hangs free,
+  under a dip or a row, low parallettes under an L-sit or V-sit, the pull-up bar overhead (the pull-up hangs free,
   so it has no floor line: `ground: false`). The exercise library (`exercises.html`) is the same plates,
   one per exercise, generated from the code.
 - Figures sit in ruled plates (exercises, camera setup): hairlines between
@@ -167,7 +167,8 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     Conditioning, 32 skills. Tracked ones unlock from real saved sets
     (push-ups, pike push-ups, dips, squats, lunges, Bulgarian split squats,
     pistol squats, planks, side planks, hollow holds, mountain climbers,
-    jumping jacks, dead hangs, Australian rows, negative pull-ups, pull-ups); the rest say "Not tracked yet". The menu's
+    jumping jacks, dead hangs, Australian rows, negative pull-ups, pull-ups,
+    L-sits, V-sits); the rest say "Not tracked yet". The menu's
     "Nearest unlocks" card names the two you're closest to, what's left in
     words ("3 more reps, 2 more points on the average") and a Train button. Tree cards are large (236 px, 42 px flowers) on a wide
     screen (up to 1600 px), with a thicker trunk.

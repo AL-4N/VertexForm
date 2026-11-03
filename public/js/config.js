@@ -31,7 +31,7 @@ export const POSE_EDGES = [
   [27,29],[29,31],[28,30],[30,32],
 ];
 
-export const EXERCISES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up", "Side plank", "Hollow hold", "Mountain climber", "Dead hang", "Bulgarian split squat", "Pistol squat", "Dips", "Australian row", "Negative pull-up", "Pull-up"];
+export const EXERCISES = ["Squat", "Push-up", "Plank", "Lunge", "Jumping Jack", "Pike push-up", "Side plank", "Hollow hold", "Mountain climber", "Dead hang", "Bulgarian split squat", "Pistol squat", "Dips", "Australian row", "Negative pull-up", "Pull-up", "L-sit", "V-sit"];
 
 // What a good rep looks like — shown beside the animated demo on the setup screen.
 export const DEMO_TIPS = {
@@ -51,6 +51,8 @@ export const DEMO_TIPS = {
   "Australian row": ["Side-on, under a bar at about waist height", "Pull until your chest reaches the bar", "Shoulders, hips and ankles in one line"],
   "Negative pull-up": ["Face the camera, the bar and your hands in frame", "Start at the top, chin over the bar", "Lower for 3 seconds or more to a dead hang"],
   "Pull-up":      ["Face the camera, the bar and your hands in frame", "Start from a dead hang, arms straight", "Pull until your chin clears the bar"],
+  "L-sit":        ["Side-on, hands on the floor or parallettes beside your hips", "Press down until your hips lift", "Legs straight, feet at hip height"],
+  "V-sit":        ["Side-on, hands down beside your hips", "Lean back a little and lift your legs", "Feet well above your hips, knees straight"],
 };
 
 export const EXERCISE_META = {
@@ -70,6 +72,8 @@ export const EXERCISE_META = {
   "Australian row": { hint: "Side-on, under a low bar.",          live: true  },
   "Negative pull-up": { hint: "Face the camera. Lower slowly.",   live: true  },
   "Pull-up":      { hint: "Face the camera. Chin over the bar.",   live: true  },
+  "L-sit":        { hint: "Side-on. Legs straight out, level.",    live: true  },
+  "V-sit":        { hint: "Side-on. Legs up high.",                live: true  },
 };
 
 // Visibility below this and we don't trust a measurement.

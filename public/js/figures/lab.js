@@ -35,6 +35,12 @@ function shiftHip(p, dy) {
 
 const ARM_KEYS = ["angUpperN", "angForeN", "angUpperF", "angForeF"];
 
+/** Pull the feet back toward the hips by `k` % so the knees bend (an L-sit's bent legs). */
+function bendKnees(p, k) {
+  const pull = (a) => [a[0] + (p.hip[0] - a[0]) * 0.3 * (k / 100), a[1] + (p.hip[1] - a[1]) * 0.3 * (k / 100)];
+  return { ...p, ankleN: pull(p.ankleN), ankleF: pull(p.ankleF) };
+}
+
 export const LAB = {
   squat: {
     sliders: [
@@ -137,6 +143,18 @@ export const LAB = {
     presets: [{ name: "Good rep", v: { depth: 100, hips: 0 } }],
     pose: (v) => shiftHip(blend(BY_ID.row.top, BY_ID.row.bottom, v.depth / 100), v.hips),
     guide: () => null, cue: () => [], focus: () => "hip",
+  },
+  lsit: {
+    sliders: [{ key: "legs", label: "Legs", min: 0, max: 100, lo: "Level", hi: "Dropped" }, { key: "bend", label: "Knees", min: 0, max: 100, lo: "Straight", hi: "Bent" }],
+    presets: [{ name: "Good hold", v: { legs: 0, bend: 0 } }],
+    pose: (v) => bendKnees(blend(BY_ID.lsit.top, BY_ID.lsit.bottom, v.legs / 100), v.bend),
+    guide: () => null, cue: () => [], focus: () => "ankN",
+  },
+  vsit: {
+    sliders: [{ key: "legs", label: "Legs", min: 0, max: 100, lo: "High", hi: "Level" }, { key: "bend", label: "Knees", min: 0, max: 100, lo: "Straight", hi: "Bent" }],
+    presets: [{ name: "Good hold", v: { legs: 0, bend: 0 } }],
+    pose: (v) => bendKnees(blend(BY_ID.vsit.top, BY_ID.vsit.bottom, v.legs / 100), v.bend),
+    guide: () => null, cue: () => [], focus: () => "ankN",
   },
   // Pike push-up: used by the simulator (tests/helpers/synth.mjs); not on the homepage.
   pike: {

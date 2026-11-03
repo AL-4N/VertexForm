@@ -16,6 +16,7 @@ import dips from "./dips.js";
 import pullup from "./pullup.js";
 import negative from "./negative.js";
 import row from "./row.js";
+import { lsit, vsit } from "./sit.js";
 
 export const REGISTRY = {
   "Squat": squat,
@@ -34,6 +35,8 @@ export const REGISTRY = {
   "Australian row": row,
   "Negative pull-up": negative,
   "Pull-up": pullup,
+  "L-sit": lsit,
+  "V-sit": vsit,
 };
 
 export const getExercise = (name) => REGISTRY[name];

@@ -63,8 +63,8 @@ export const PATHS = [
       { id: "plank_2min",    name: "Two-minute plank",  requires: ["plank_solid"],         goal: "Hold 120 s, average 90+",                    test: hold("Plank", 120, 90) },
       { id: "side_plank",    name: "Side plank",        requires: ["plank"],               goal: "Hold 30 s, hips up in line, average 80+ (do both sides)", test: hold("Side plank", 30, 80) },
       { id: "hollow",        name: "Hollow hold",       requires: ["plank_solid"],         goal: "Hold 30 s, shoulders and legs up, average 80+", test: hold("Hollow hold", 30, 80) },
-      { id: "l_sit",         name: "L-sit",             requires: ["hollow", "dips"],      goal: "Hold 10 s, legs straight and level" },
-      { id: "v_sit",         name: "V-sit",             requires: ["l_sit"],               goal: "Hold 5 s, legs above level" },
+      { id: "l_sit",         name: "L-sit",             requires: ["hollow", "dips"],      goal: "Hold 10 s, legs straight and level, average 80+", test: hold("L-sit", 10, 80) },
+      { id: "v_sit",         name: "V-sit",             requires: ["l_sit"],               goal: "Hold 5 s, feet well above the hips, average 80+", test: hold("V-sit", 5, 80) },
     ],
   },
   {

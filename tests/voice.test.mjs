@@ -50,7 +50,9 @@ for (const voice of Object.keys(VOICES)) {
 const { EXERCISES } = await import("../public/js/config.js");
 check("Every exercise's name is recorded (workouts say it)", EXERCISES.every((e) => EXERCISE_NAMES.includes(e)), EXERCISES.filter((e) => !EXERCISE_NAMES.includes(e)).join(", "));
 check("Each personality has a voice", PERSONALITIES.every((p) => VOICES[PERSONALITY_VOICE[p]]));
-check(`Voice pack under 25 MB in total`, totalBytes < 25 * 1048576, `${(totalBytes / 1048576).toFixed(1)} MB`);
+// Clips aren't precached (each is fetched the first time it plays), so this
+// guards the repo's size, not a page load: 40 MB leaves room for more exercises.
+check(`Voice pack under 40 MB in total`, totalBytes < 40 * 1048576, `${(totalBytes / 1048576).toFixed(1)} MB`);
 
 /* ── The coach only ever says recorded phrases ─────────────── */
 const known = new Set(keys);
