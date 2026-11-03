@@ -1,5 +1,65 @@
 # Changelog
 
+## 2.3.0 — 2026-11-02
+
+### Six more exercises
+- Bulgarian split squat: the front knee and an upright torso, counted only
+  with the back foot up on a bench.
+- Pistol squat: depth on the standing leg, and the free leg has to stay off
+  the floor.
+- Dips: elbows to about 90° on parallel bars.
+- Australian row: chest to a low bar with the body in one straight line.
+- Negative pull-up: graded on how slowly you lower, 3 seconds or more.
+- Pull-up: from a dead hang until the chin clears the bar.
+- Each has its own coaching lines and spoken name in all three voices, so
+  all sixteen exercises can go in a workout.
+
+### Skill paths
+- The Legs path is now tracked from start to finish, and the Pull path up to
+  ten pull-ups.
+- The trainer's menu shows your nearest unlocks: the two skills your saved
+  sets are closest to, what's left in words, and a button to train it.
+
+### Exercise library
+- A new page with every exercise: what it scores, what a good rep looks
+  like, the mistakes it flags in the coach's own words, and the skills it
+  unlocks. Each one links straight to its setup in the trainer.
+
+### A quieter design
+- Lighter headings, solid buttons and ruled figure plates, after comparing
+  the site with Linear, Raycast and Apple. The grade colours now only mean
+  scores.
+- Removed effects that made the site look generated: the light following the
+  pointer, click sparks, magnetic buttons, tilting cards and decoding text.
+- Nothing flashes while the homepage loads, and screens in the trainer grow
+  out of the button you pressed.
+
+## 2.2.0 — 2026-10-28
+
+### Exercises and coaching
+- Pike push-up, side plank, hollow hold, mountain climbers and dead hang.
+- Every exercise says its own setup line when you're out of position.
+- Rep replay: watch each rep back beside the ideal form and save the ones
+  you want.
+- Daily challenges for 7, 14 or 30 days.
+
+### Skill paths
+- 32 skills in five paths (Push, Pull, Legs, Core, Conditioning), drawn as
+  trees that grow and bloom. Tracked skills unlock from your real saved sets,
+  and each skill shows your best try against its goal.
+
+### The website
+- A 3D hero that grades a simulated rep with the real engine, a pinned
+  "How it works" story, exercise popups that turn the drawing into a 3D
+  model, and the Form Lab, where sliders drive the real scoring.
+- The homepage speaks in the trainer's recorded voice.
+
+### The trainer
+- The exercise picker is an instrument: the exercise you point at does its
+  rep live.
+- Results land with a grade dial, a rep chart that draws itself and fault
+  dots for every rep they were flagged in.
+
 ## 2.1.0 — 2026-10-04
 
 ### Overlay only when it's really you exercising
