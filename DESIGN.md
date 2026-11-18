@@ -80,16 +80,16 @@ its exact colour):
 
 | Role | Face | Notes |
 |---|---|---|
-| Display | Unbounded 500/600 | h1/h2 at 500 (`-.035em`), h3 and names at 600. The face is wide; heavier cuts shout |
+| Display | Unbounded 500–800 | section headings in two weights (the fact 700, the rest 500 and dim, `-.045em`), the hero's "every rep" 800, h3 and names at 600. Big and confident, like the instrument it sits in |
 | Body | Instrument Sans 400–700 | everything else |
 | Measurements | system mono (`--mono`) | angles, times, readouts, rail labels. Tabular numbers |
 | Coach notes | system handwriting (`--hand`) | only for the coach's notes on figures |
 
 - Fonts are self-hosted (`public/fonts/`). Never load fonts from a CDN.
 - Headings are sentence case. Never Title Case.
-- Two-tone headings: the fact in white, the rest of the sentence in
-  `--text-faint` (`<span class="dim">`): "Ten exercises, each measured its
-  own way." Not on every heading; short ones stay one tone.
+- Two-weight headings: the fact in white at 700, the rest of the sentence
+  in `--text-faint` at 500 (`<span class="dim">`): "Eighteen exercises,
+  each measured its own way." Short ones stay one weight.
 - Questions, list labels and other small headings use the body face
   (Instrument Sans 600), not Unbounded.
 - Body lines under 75 characters (`max-width: 60–70ch`).
@@ -129,6 +129,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - Limbs 7px, round caps and joins, stroked in the live grade colour.
   Far-side limbs at 38% opacity. Head: radius 19, filled `--ink-2`.
 - Floor: `--line-2`, 2px. The ideal form is green `#2ee59d`.
+- Drawn in light: the 2D figures (exercise plates, the small drawings, the
+  Form Lab) glow in their own stroke colour (`#fig-glow`, an SVG filter
+  in the page's defs), so they read as the same light as the 3D figure.
 - Drafting grid behind figures: 1px lines every 24px at 6% opacity.
 - Protractor (`angleMark`): thin arc, a tick every 10° (longer every 30°),
   the angle in a boxed mono label.
@@ -250,8 +253,10 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   the camera round (about 100°) and lets it coast to a stop. Every score shown is the
   real engine's (`tools/make-rep3d.mjs`, `tests/rep3d.test.mjs`).
 - **"How it works" is a pinned scroll story** (`site/story.js`): the
-  section holds still while scrolling walks one 3D squat through the four
-  steps and moves the camera round it. Progress is eased, so a flick glides.
+  section holds still while scrolling walks one 3D squat, drawn in light
+  like the hero's (a WebGL layer over the story's 2D canvas, which keeps
+  the floor, points, angle and note), through the four steps and moves the
+  camera round it. Progress is eased, so a flick glides.
   Changing step is impossible to miss: the old step's words fly up out of
   their line masks while the new step's rise in (reversed when scrolling
   back), a big outlined step number rolls over like an odometer, the fact
@@ -366,13 +371,12 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **Scores count up the scale on the homepage too** (`scroll-fx.js`): the
   scoring test results and example chips climb from 0 through each grade
   colour as they come into view; the example chart's bars grow up in turn.
-- **Section index numbers** (`site/sections.js`): on wide screens, sections
-  whose heading has its row to itself get a big outlined number and a mono
-  label in the empty space to the right, numbered as the side rail numbers
-  them (a section without room, like Coaching, is skipped, not renumbered),
-  and the heading row is always tall enough to clear it; the digits roll up as
-  the section arrives, and the number drifts slower
-  than the page.
+- **Section rules** (`site/sections.js`): each section opens like the
+  hero's instrument: "N°01" and the section name in mono on the left, a
+  hairline that the scroll draws across as the section arrives, ending in
+  a dot, and on the right a reading counted from the section itself ("18
+  exercises", "4 steps"). Numbered as the side rail numbers them. (They
+  replaced the big outlined section numbers in Nov 2026.)
 - **Exercise cards do their rep on hover** (`site/card-reps.js`): the
   still figure is swapped for the trainer's live loop, coloured by its live
   score (coral at the top, green at depth), and swapped back on leave.

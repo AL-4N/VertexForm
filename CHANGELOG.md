@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.7.0 — 2026-11-18
+
+### The rest of the page
+- Every section now opens like the first screen: its number and name, a
+  line that draws across as you scroll to it, and a count from the section
+  itself, like "18 exercises" or "4 steps".
+- Section headings are bigger and set in two weights.
+- The drawings of each exercise, the setup figure and the Form Lab figure
+  glow in their own colours, like the figure at the top.
+- "How it works" walks through its four steps with the same figure drawn
+  in light.
+
 ## 2.6.0 — 2026-11-18
 
 ### The stick figure, drawn in light

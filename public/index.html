@@ -64,6 +64,11 @@ try{if(!location.hash&&!sessionStorage.getItem("vf-boot")){d.classList.add("boot
       <stop offset=".75" stop-color="#c6ef4e"/><stop offset="1" stop-color="#2ee59d"/>
     </linearGradient>
     <!-- Vertical motion blur for in-page link scrolls; js/site/motion-nav.js drives it. -->
+    <!-- Figures drawn in light: a soft copy of each stroke under it, in the stroke's own colour (css/site.css). -->
+    <filter id="fig-glow" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3.2" result="soft"/>
+      <feMerge><feMergeNode in="soft"/><feMergeNode in="soft"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
     <filter id="motion-blur" x="0" y="-5%" width="100%" height="110%" color-interpolation-filters="sRGB">
       <feGaussianBlur stdDeviation="0 0"/>
     </filter>

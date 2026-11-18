@@ -41,6 +41,11 @@
       <stop offset=".75" stop-color="#c6ef4e"/><stop offset="1" stop-color="#2ee59d"/>
     </linearGradient>
     <!-- Vertical motion blur for in-page link scrolls; js/site/motion-nav.js drives it. -->
+    <!-- Figures drawn in light: a soft copy of each stroke under it, in the stroke's own colour (css/site.css). -->
+    <filter id="fig-glow" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3.2" result="soft"/>
+      <feMerge><feMergeNode in="soft"/><feMergeNode in="soft"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
     <filter id="motion-blur" x="0" y="-5%" width="100%" height="110%" color-interpolation-filters="sRGB">
       <feGaussianBlur stdDeviation="0 0"/>
     </filter>
@@ -75,6 +80,13 @@
         <h1>What changed, <span class="dim">release by release.</span></h1>
         <p>Every change to VertexForm that you can see or hear, newest first. It's the project's changelog, so nothing here is planned work: all of it is live.</p>
       </div>
+      <article class="news-rel" id="v2-7-0">
+        <header class="news-when"><span class="news-v">2.7.0</span><time datetime="2026-11-18">18 November 2026</time></header>
+        <div class="news-body">
+          <h2>The rest of the page</h2>
+          <ul><li>Every section now opens like the first screen: its number and name, a line that draws across as you scroll to it, and a count from the section itself, like &quot;18 exercises&quot; or &quot;4 steps&quot;.</li><li>Section headings are bigger and set in two weights.</li><li>The drawings of each exercise, the setup figure and the Form Lab figure glow in their own colours, like the figure at the top.</li><li>&quot;How it works&quot; walks through its four steps with the same figure drawn in light.</li></ul>
+        </div>
+      </article>
       <article class="news-rel" id="v2-6-0">
         <header class="news-when"><span class="news-v">2.6.0</span><time datetime="2026-11-18">18 November 2026</time></header>
         <div class="news-body">

@@ -40,6 +40,17 @@ export async function mountStory(section) {
   const fill = story.querySelector(".story-fill");
   const chip = story.querySelector("[data-chip]");
   const scene = new Scene(canvas, { target: [0, 0.72, 0], zoom: 1.32, maxDpr: 1.5 });
+  // The figure in light (figures/figure-gl.js), as in the hero: a WebGL layer
+  // over this canvas, which keeps the floor, the points, the angle and the
+  // note. Until it loads (or without WebGL) the 2D figure draws instead.
+  let gl = null;
+  import("../figures/figure-gl.js").then(({ GLFigure }) => {
+    const layer = document.createElement("canvas");
+    layer.className = "story-canvas story-gl";
+    layer.setAttribute("aria-hidden", "true");
+    canvas.after(layer);
+    gl = new GLFigure(layer);
+  }).catch(() => { /* no WebGL: the 2D figure */ });
   const wide = () => matchMedia("(min-width: 900px)").matches;
 
   const st = { p: 0, shown: 0, t: 0, last: 0, raf: 0, visible: false, step: -1 };
@@ -138,7 +149,8 @@ export async function mountStory(section) {
     scene.begin();
     scene.floorCached(cam, { size: 9, alpha: +(0.6 + 0.4 * smooth(0.6, 1.2, c)).toFixed(2) });
     if (grow < 1) scene.points(cam, P, pts * (1 - grow));
-    scene.figure(cam, P, colour, { grow, dots: grow, shadow: grow > 0 });
+    if (gl) gl.render(scene, cam, P, colour, { grow, frames: clip.frames });
+    else scene.figure(cam, P, colour, { grow, dots: grow, shadow: grow > 0 });
     const [a, b, k] = ["hipL", "knL", "anL"].map((x) => P[x.replace("L", clip.side)]);
     const a3 = scene.angle(cam, a, b, k, { alpha: marks });
     const flat = scene.flatAngle(cam, a, b, k);

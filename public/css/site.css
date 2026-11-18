@@ -517,7 +517,7 @@ body::after {
 /* ── Sections ────────────────────────────────────────── */
 .section { padding: clamp(4rem, 9vw, 7rem) 0; }
 .section-head { max-width: 60ch; margin-bottom: clamp(2rem, 4vw, 3rem); }
-.section-head h2 { font-size: clamp(1.75rem, 3.4vw, 2.6rem); line-height: 1.1; margin-bottom: 1rem; }
+.section-head h2 { font-size: clamp(2rem, 4.2vw, 3.5rem); line-height: 1.04; margin-bottom: 1rem; }
 .section-head p { color: var(--text-dim); font-size: 1.06rem; }
 
 .tag { display: inline-block; font-size: .76rem; font-weight: 700; padding: .28rem .65rem; border-radius: 999px; background: var(--surface-2); color: var(--text-dim); box-shadow: inset 0 0 0 1px var(--line-2); }
@@ -553,6 +553,8 @@ body::after {
 /* Line weight stays constant whatever the figure's scale, so wide and tall poses match. */
 .picto-near polyline, .picto-far polyline { fill: none; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .picto-far polyline { opacity: .4; }
+/* Figures drawn in light, like the 3D one: each stroke glows in its own colour (#fig-glow in the page's SVG defs). */
+.picto-near, .picto-far, .mini-plates svg g, .lab-stage svg polyline, .lab-stage svg circle { filter: url(#fig-glow); }
 .picto-near circle { fill: var(--surface); stroke-width: 4.5; vector-effect: non-scaling-stroke; }
 .ex-body { padding: 1.1rem 1.35rem 1.4rem; }
 .ex-title { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .55rem; }
@@ -759,6 +761,7 @@ body::after {
 .has-story .steps { display: none; }
 .story-pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
 .story-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.story-gl { pointer-events: none; }
 .story-steps { list-style: none; margin: 0; padding: 0; position: absolute; left: 0; top: 52%; width: min(430px, 40%); }
 .story-steps li { position: absolute; left: 0; right: 0; top: 0; transform: translateY(-50%); opacity: 0; visibility: hidden; transition: opacity .3s, visibility 0s .3s; }
 .story-steps li.on { opacity: 1; visibility: visible; transition: opacity .3s; }
@@ -851,20 +854,21 @@ html.split-wait .hero h1 { visibility: hidden; }
 .cue.speaking .cue-play svg { display: none; }
 .cue.speaking .cue-wave { display: flex; }
 
-/* ── Section index numbers (js/site/sections.js) ── */
+/* ── Section rules (js/site/sections.js): each section opens like the hero's
+   instrument: number and name in mono, a hairline drawn across by the
+   scroll, a reading counted from the section on the right. ── */
 .section > .wrap { position: relative; }
-.sec-index { display: none; }
-@media (min-width: 1000px) {
-  .sec-index { display: grid; justify-items: end; gap: .4rem; position: absolute; right: var(--gutter); top: -1rem; pointer-events: none; }
-  .sec-index b { display: block; overflow: hidden; line-height: .9; padding-bottom: .04em; }
-  .sec-index i {
-    display: block; font-style: normal; font-family: var(--display); font-weight: 800; font-size: clamp(6rem, 11vw, 10rem); letter-spacing: -.05em;
-    color: transparent; -webkit-text-stroke: 1.5px rgba(166,174,203,.22); font-variant-numeric: tabular-nums;
-  }
-  .sec-index span { font-family: var(--mono); font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); }
-  /* A short heading still clears its number, so it never sits over the cards below. */
-  .sec-index + .section-head { min-height: calc(clamp(6rem, 11vw, 10rem) * .94 + .9rem); }
+.sec-rule {
+  display: flex; align-items: center; gap: 1rem; margin-bottom: clamp(1.4rem, 3vw, 2.4rem);
+  font-family: var(--mono); font-size: .7rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--text-faint);
 }
+.sec-rule span { display: inline-block; white-space: nowrap; }
+.sec-rule-n { color: var(--text); font-variant-numeric: tabular-nums; }
+.sec-rule-n i { font-style: normal; color: var(--g85); margin-right: .2em; }
+.sec-rule-line { position: relative; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line-2), rgba(46,58,99,.4)); transform-origin: left; }
+.sec-rule-line::after { content: ""; position: absolute; right: -3px; top: -3px; width: 7px; height: 7px; border-radius: 50%; background: #737d9f; }
+.sec-rule-read { color: var(--text-dim); }
+@media (max-width: 560px) { .sec-rule-name { display: none !important; } }
 
 /* Links in the nav and footer: an underline draws in from the left on hover
    and leaves to the right. */
@@ -1043,7 +1047,10 @@ circle.su-body { fill: var(--ink-2); }
    not flat), primary buttons with a lit top edge, numbers that don't jitter. */
 h1, h2, h3 { text-wrap: balance; }
 p, li, dd { text-wrap: pretty; }
-.section-head h2, .hero h1, .cta-band h2 { letter-spacing: -.035em; font-weight: 500; }
+.hero h1, .cta-band h2 { letter-spacing: -.035em; font-weight: 500; }
+/* Section headings in two weights, like the hero: the fact heavy, the rest of the sentence light and dim. */
+.section-head h2 { letter-spacing: -.045em; font-weight: 700; }
+.section-head h2 .dim { font-weight: 500; }
 /* Two-tone headings: the fact in white, the rest of the sentence in grey. */
 h1 .dim, h2 .dim { color: var(--text-faint); }
 .section { padding: clamp(5rem, 11vw, 8.5rem) 0; }
