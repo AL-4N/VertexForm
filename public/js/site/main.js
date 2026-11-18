@@ -20,6 +20,7 @@ import { mountLab } from "./lab.js";
 import { renderHow } from "./how.js";
 import { mountMotionNav, landOnHash } from "./motion-nav.js";
 import { mountExerciseRing } from "./ex-ring.js";
+import { mountScenes } from "./scenes.js";
 import { mountNavSpy } from "./nav-spy.js";
 import { mountRail } from "./rail.js";
 import { mountProgress } from "./progress.js";
@@ -70,6 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
   mountCoach(document.querySelector("[data-coach]"));
   renderHow();
   mountTones();
+  mountScenes();                      // the page scrolls in: each section a full-screen scene
   const hero = document.querySelector("[data-hero3d]");
   if (hero) mountHero3d(hero);
   const how = document.getElementById("how");

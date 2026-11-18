@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.10.0 — 2026-11-18
+
+### The homepage scrolls in
+- On a wide screen, scrolling now moves you forward through the page
+  instead of down it. Each section fills the screen; between them the page
+  holds still while the one you're leaving flies past you and the next one
+  rises out of the distance. From the top, the camera dives into the figure.
+
 ## 2.9.0 — 2026-11-18
 
 ### The trainer's exercises on a ring

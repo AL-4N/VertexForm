@@ -1248,3 +1248,11 @@ html.booting .boot::before, html.booting .boot::after, .boot.closing::before, .b
 .ex-ring-read span:first-child, .ex-ring-read b { color: var(--text); font-weight: 600; }
 .ex-ring-read b { margin-left: .8rem; }
 .ex-ring-hint { right: var(--gutter); }
+
+/* ── Scenes (js/site/scenes.js, wide screens with motion): every section is
+   at least a full screen, its content centred when it's shorter; at a
+   boundary the two sections are held in place and moved through depth. */
+.scenes main > section { position: relative; min-height: 100svh; }
+.scenes main > section:not(.hero) { display: flex; flex-direction: column; justify-content: center; }
+.scenes main > section.in-scene { will-change: transform, opacity; backface-visibility: hidden; }
+.scenes main { overflow: clip; }

@@ -389,6 +389,17 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **Scores count up the scale on the homepage too** (`scroll-fx.js`): the
   scoring test results and example chips climb from 0 through each grade
   colour as they come into view; the example chart's bars grow up in turn.
+- **The page scrolls in, not down** (`site/scenes.js`, ≥1100 px wide and
+  ≥620 px tall, motion allowed). Every section is at least a full screen, a
+  scene, its content centred when shorter. Where two scenes meet, the page
+  holds still for one screen of scroll and the camera moves forward
+  instead: the scene you leave stays where it was, grows and fades as it
+  passes you; the next is already in place, coming up from small and faint.
+  The hero dives into the figure (it grows about 3.6× around it). Inside a
+  scene you read as usual. One transform and one opacity on the two
+  sections at a boundary; scroll-progress.js measures layout boxes
+  (offsets) so a measure mid-transition isn't thrown off. Narrow screens
+  and reduced motion keep the plain page. Measured 60 fps (p95 16.7 ms).
 - **The exercise ring** (`site/ex-ring.js`, wide screens, motion allowed):
   all eighteen exercises as cards on a tilted ring round the section's
   heading. The section holds still while the scroll turns the ring; it

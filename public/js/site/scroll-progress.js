@@ -72,12 +72,14 @@ export function refresh() {
 
 function measure() {
   measureRaf = 0;
-  const y = scrollY;                                            // measuring reads layout anyway
   vh = innerHeight;
   docH = document.documentElement.scrollHeight;
+  // Layout boxes, not painted ones: scenes.js moves and scales sections at a
+  // boundary, and a measure taken then must not see that.
   boxes = tracked.map(({ key, el }) => {
-    const r = el.getBoundingClientRect();
-    return { key, el, top: r.top + y, height: r.height };
+    let top = 0;
+    for (let e = el; e; e = e.offsetParent) top += e.offsetTop;
+    return { key, el, top, height: el.offsetHeight };
   }).sort((a, b) => a.top - b.top);                             // page order, outer boxes first
   version++;
   update(true);

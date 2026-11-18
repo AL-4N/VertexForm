@@ -16,7 +16,7 @@
  * and old ones are deleted on activate. Updates are never stuck.
  */
 
-const VERSION = "0225fe60d0cd";
+const VERSION = "f9110a3b07e3";
 const PRECACHE = [
   "./",
   "404.html",
@@ -117,6 +117,7 @@ const PRECACHE = [
   "js/site/paths.js",
   "js/site/progress.js",
   "js/site/rail.js",
+  "js/site/scenes.js",
   "js/site/scroll-fx.js",
   "js/site/scroll-progress.js",
   "js/site/sections.js",
