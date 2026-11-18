@@ -122,7 +122,10 @@ const activeScreen = (page) => page.$eval(".screen.active", (e) => e.id);
 const overflow = (page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 const waitLive = (page, timeout = 90_000) => page.waitForFunction(() => window.__vfDebug && window.__vfDebug.fps > 0, null, { timeout });
 async function openExercise(page, name = "Squat") {
-  await page.click(`.ex-card:has(.name:text-is("${name}"))`);
+  // Focus + Enter: on a wide screen the cards stand on a turning ring (picker-ring.js).
+  const card = page.locator(`.ex-card:has(.name:text-is("${name}"))`);
+  await card.focus();
+  await page.keyboard.press("Enter");
   await page.waitForSelector("#screen-mode.active");
 }
 async function assertCameraOff(page, when) {

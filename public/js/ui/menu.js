@@ -4,7 +4,8 @@ import { EXERCISES, EXERCISE_META } from "../config.js";
 import { store, globalAverage, resetExercise, dayStreak, lastWeek } from "../storage.js";
 import { $, showScreen, confirmAction, toast } from "./components.js";
 import { gradeVar } from "../geometry.js";
-import { BY_NAME } from "../figures/pictos.js";
+import { BY_NAME, renderPictos } from "../figures/pictos.js";
+import { mountPickerRing } from "./picker-ring.js";
 import { mountLoop } from "../figures/loop.js";
 import { slide } from "./motion.js";
 import { gradeColor } from "../grade.js";
@@ -30,6 +31,7 @@ export function addSessionEntry(exercise, score) {
  * and its stage becomes the setup panel (morphInto in main.js).
  */
 let stopStage = () => {};
+let stopRing = () => {};
 let countRaf = 0;
 let pickHandler = null;      // renderMenu's onPick, for the "Nearest unlocks" Train buttons
 
@@ -38,9 +40,12 @@ export function renderMenu(onPick) {
   const list = $("#exercise-list");
   list.removeAttribute("aria-busy");
   const quiet = matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  list.innerHTML = `
-    <div class="picker">
+  // Wide screens with motion: the names stand on a ring of cards around the
+  // stage (picker-ring.js). Otherwise the dial of names beside it.
+  const ringMode = !quiet && matchMedia("(min-width: 1180px)").matches;
+  stopRing();
+  stopRing = () => {};
+  const stageHtml = `
       <div class="pk-stage" aria-live="polite">
         <span class="pk-num" aria-hidden="true"><i>01</i><b>/ ${pad(EXERCISES.length)}</b></span>
         <div class="pk-fig picto"></div>
@@ -55,11 +60,11 @@ export function renderMenu(onPick) {
           <text x="60" y="67" text-anchor="middle" class="pk-gk">BEST</text>
         </svg>
         <button type="button" class="btn primary pk-go"></button>
-      </div>
-      <div class="pk-list${EXERCISES.length > 6 ? " many" : ""}" role="list">
-        ${EXERCISES.map((name, i) => {
-          const best = store.bests[name];
-          return `<button type="button" role="listitem" class="ex-card" data-i="${i}" data-name="${name}">
+      </div>`;
+  const cardHtml = (name, i) => {
+    const best = store.bests[name];
+    return `<button type="button" role="listitem" class="ex-card" data-i="${i}" data-name="${name}">
+            ${ringMode ? `<span class="pk-pic picto" data-picto="${name}" aria-hidden="true"></span>` : ""}
             <span class="pk-i">${pad(i + 1)}</span>
             <span class="name">${name}</span>
             <span class="hint">${EXERCISE_META[name].hint}</span>
@@ -67,10 +72,28 @@ export function renderMenu(onPick) {
               ? `<span class="best" style="color:${gradeVar(best)}">${best}</span><span class="reset" role="button" tabindex="0" title="Reset best">reset</span>`
               : `<span class="best dim">No best yet</span>`}
           </button>`;
-        }).join("")}
+  };
+
+  list.innerHTML = ringMode ? `
+    <div class="picker ring">
+      <div class="pk-view">
+        <div class="pk-ring" role="list">
+          <div class="pk-centre">${stageHtml}</div>
+          ${EXERCISES.map((name, i) => `<div class="pk-item">${cardHtml(name, i)}</div>`).join("")}
+        </div>
+        <button type="button" class="pk-turn" data-dir="-1" aria-label="Turn to the previous exercise">&larr;</button>
+        <button type="button" class="pk-turn" data-dir="1" aria-label="Turn to the next exercise">&rarr;</button>
+        <p class="pk-ring-hint" aria-hidden="true">Scroll or drag to turn &middot; Click a card to train</p>
+      </div>
+    </div>` : `
+    <div class="picker">
+      ${stageHtml}
+      <div class="pk-list${EXERCISES.length > 6 ? " many" : ""}" role="list">
+        ${EXERCISES.map(cardHtml).join("")}
         <span class="pk-marker" aria-hidden="true"></span>
       </div>
     </div>`;
+  if (ringMode) renderPictos(list);
 
   const stage = list.querySelector(".pk-stage");
   const items = [...list.querySelectorAll(".ex-card")];
@@ -89,8 +112,8 @@ export function renderMenu(onPick) {
     });
     // The marker glides to the name, stretching on the way like a needle.
     const it = items[i];
-    marker.style.translate = `0 ${it.offsetTop + it.offsetHeight / 2 - 1}px`;   // translate, not transform: the stretch below scales the marker, not its distance down the list
-    if (dir && !quiet) marker.animate([{ scale: "1 1" }, { scale: "1.5 6", offset: .35 }, { scale: "1 1" }], { duration: 520, easing: "cubic-bezier(.3,.7,.4,1)" });
+    if (marker) marker.style.translate = `0 ${it.offsetTop + it.offsetHeight / 2 - 1}px`;   // translate, not transform: the stretch below scales the marker, not its distance down the list
+    if (marker && dir && !quiet) marker.animate([{ scale: "1 1" }, { scale: "1.5 6", offset: .35 }, { scale: "1 1" }], { duration: 520, easing: "cubic-bezier(.3,.7,.4,1)" });
     // The stage: the old figure leaves the way you moved (through a blur) as
     // the new one, doing its rep, comes in behind it.
     stopStage();
@@ -157,8 +180,10 @@ export function renderMenu(onPick) {
     el.addEventListener("focus", () => show(i));
     el.addEventListener("click", (e) => pick(i, e));
     el.addEventListener("keydown", (e) => {
-      const to = { ArrowDown: i + 1, ArrowUp: i - 1 }[e.key];
-      if (to == null || !items[to]) return;
+      let to = { ArrowDown: i + 1, ArrowUp: i - 1, ...(ringMode && { ArrowRight: i + 1, ArrowLeft: i - 1 }) }[e.key];
+      if (to == null) return;
+      if (ringMode) to = (to + items.length) % items.length;    // a ring has no ends
+      if (!items[to]) return;
       e.preventDefault();
       items[to].focus();
     });
@@ -180,15 +205,23 @@ export function renderMenu(onPick) {
     });
     stage.addEventListener("pointerleave", () => ["--rx", "--ry", "--px", "--py"].forEach((k) => stage.style.removeProperty(k)));
   }
-  list.querySelector(".pk-list").addEventListener("pointerleave", () => clearTimeout(hoverT));
+  list.querySelector(".pk-list, .pk-view").addEventListener("pointerleave", () => clearTimeout(hoverT));
 
   // Start on the last exercise you trained, or the first.
   const last = store.sessions?.at?.(-1)?.exercise;
-  show(Math.max(0, EXERCISES.indexOf(last)));
-  requestAnimationFrame(() => { marker.style.translate = `0 ${items[at].offsetTop + items[at].offsetHeight / 2 - 1}px`; });
+  const first = Math.max(0, EXERCISES.indexOf(last));
+  show(first);
+  if (ringMode) {
+    stopRing = mountPickerRing(list.querySelector(".pk-view"), {
+      items: [...list.querySelectorAll(".pk-item")], start: first, intro: !renderMenu.shown,
+      onFront: (i) => { clearTimeout(hoverT); show(i); },
+    });
+    stage.animate([{ opacity: 0, transform: "scale(.9)" }, { opacity: 1, transform: "none" }],
+      { duration: renderMenu.shown ? 1 : 700, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards", composite: "add" });
+  } else requestAnimationFrame(() => { marker.style.translate = `0 ${items[at].offsetTop + items[at].offsetHeight / 2 - 1}px`; });
 
   // The first time the menu shows, the names wind on like a dial and the stage draws in.
-  if (!renderMenu.shown && !quiet) {
+  if (!renderMenu.shown && !quiet && !ringMode) {
     items.forEach((c, i) => c.animate(
       [{ opacity: 0, transform: "translateY(40px) rotateX(-70deg)" }, { opacity: 1, transform: "none" }],
       { duration: 640, delay: 80 + i * 75, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards", composite: "add" }));

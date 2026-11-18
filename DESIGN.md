@@ -208,6 +208,17 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     stage becomes the setup panel: the flying figure keeps doing its rep in
     step with the stage (`mountLoop`'s `start`), and lands on the setup
     demo's figure in the same pose and size.
+    On a wide screen (≥1180 px, motion allowed) the names become a **ring
+    of cards** (`ui/picker-ring.js`), the same instrument as the homepage's
+    ring: the stage stands above the centre of a tilted, elliptical ring of
+    18 cards (each with its figure, number, name and best) that always
+    face you; the back of the ring passes behind the stage. It turns on its
+    own (0.06 rad/s), stops under the pointer, and the wheel, a drag, the
+    arrow buttons or the arrow keys turn it and settle a card at the front.
+    The front card is the one on the stage; a focused card turns to the
+    front; Enter or a click trains it. The first time, the cards fly out
+    from the stage and wind into place. Narrower screens and reduced
+    motion keep the dial.
   - **Trainer screen moments** (`ui/flair.js`), each different:
     an **exercise card becomes its setup panel** (the card stretches to the
     demo panel while its stick figure hops into the demo figure, then the

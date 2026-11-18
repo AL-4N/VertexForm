@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.9.0 — 2026-11-18
+
+### The trainer's exercises on a ring
+- On a wide screen, the trainer's exercise picker is now a ring of all
+  eighteen cards standing around the live figure. It turns slowly on its
+  own; scroll, drag, the arrow buttons or the arrow keys turn it, and the
+  card at the front is the one on the stage. Click a card (or press Enter)
+  to train it.
+
 ## 2.8.0 — 2026-11-18
 
 ### Ink you can stir
