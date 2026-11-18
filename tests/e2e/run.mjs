@@ -194,6 +194,31 @@ await test("Site: Form Lab sliders re-grade the figure", async (make) => {
   if (await presets.count()) { await presets.nth(1).click(); await page.waitForTimeout(150); }
 });
 
+await test("Site: links from other pages land on their section", async (make) => {
+  // The story and skill paths grow once they mount; a link like the
+  // footer's index.html#faq must still end with the section under the header.
+  for (const id of ["lab", "faq"]) {
+    const page = await make({ camera: false });
+    await page.goto(`${BASE}/index.html#${id}`);
+    await page.waitForTimeout(2500);
+    const top = await page.$eval(`#${id}`, (e) => Math.round(e.getBoundingClientRect().top));
+    assert(Math.abs(top - 80) < 30, `#${id} landed at ${top}px, not under the header`);
+  }
+});
+
+await test("Site: ?stage shows the 3D stage and its scroll numbers", async (make) => {
+  const page = await make({ camera: false });
+  await page.goto(`${BASE}/index.html`);
+  await page.waitForTimeout(800);
+  assert(!(await page.$("canvas.scroll-stage")), "the stage was created without ?stage");
+  await page.goto(`${BASE}/index.html?stage`);
+  await page.waitForSelector("canvas.scroll-stage, .scroll-stage-fallback", { timeout: 8000 });
+  await page.evaluate(() => scrollTo(0, document.getElementById("lab").getBoundingClientRect().top + scrollY));
+  await page.waitForTimeout(800);
+  const hud = await page.$eval(".scroll-stage-hud", (e) => e.textContent);
+  assert(/section\s+lab/.test(hud) && /overall\s+0\.\d{3}/.test(hud), `stage readout wrong: ${hud}`);
+});
+
 await test("Site: 404 page and links back", async (make) => {
   const page = await make({ camera: false });
   const res = await page.goto(`${BASE}/nope.html`);

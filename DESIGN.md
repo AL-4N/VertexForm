@@ -283,6 +283,15 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   brightens while moving and dims at rest.
 - **Loops idle when nothing moves**: every per-frame loop on the homepage
   stops, or skips its writes, once its inputs stop changing.
+- **One scroll measure** (`site/scroll-progress.js`): everything that moves
+  with the scroll reads the same 0 to 1 numbers (overall, and per section),
+  and the page is measured only when its layout changes, so scrolling never
+  re-measures the page every frame. **The 3D stage** (`site/stage.js`) is a
+  fixed canvas behind the content for a model that travels down the page;
+  it shows nothing until a model is plugged in (`?stage` shows a stand-in).
+- **Links land where they point**: `index.html#faq` from another page ends
+  with the section under the header, even though the story and skill paths
+  grow after the page loads.
 - **Smooth scrolling** (Lenis, `site/smooth.js`): wheel and trackpad
   scrolling glide; touch stays native. Paused while a popup is open.
 - **Headings rise in line by line** from a mask, no blur (GSAP

@@ -21,7 +21,10 @@ export function mountSmooth() {
   lenis = new window.Lenis({ lerp: 0.15, smoothWheel: true, autoRaf: !gsap });   // 0.15: glides, but keeps up with the hand
   if (gsap && ScrollTrigger) {
     lenis.on("scroll", ScrollTrigger.update);
-    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    // First in GSAP's frame (prioritize), before it draws the scroll-linked
+    // tweens: moving the page after those style writes made the browser
+    // recompute every style first, twice a frame (Lenis, then ScrollTrigger).
+    gsap.ticker.add((time) => lenis.raf(time * 1000), false, true);
     gsap.ticker.lagSmoothing(0);
   }
   const sync = () => (document.querySelector("dialog[open]") ? lenis.stop() : lenis.start());

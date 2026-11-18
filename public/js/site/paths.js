@@ -19,6 +19,7 @@ import { PATHS, skillPath } from "../skills.js";
 import { miniTree } from "../ui/mini-tree.js";
 import { reducedMotion } from "../ui/motion.js";
 import { smooth as smoothScroll } from "./smooth.js";
+import { scrollState, track } from "./scroll-progress.js";
 
 const KEY = "workout-analyzer:v1";
 const pad = (n) => String(n).padStart(2, "0");
@@ -109,14 +110,21 @@ export function mountPaths(root = document.querySelector("[data-paths]")) {
 
   const st = { p: 0, shown: 0, v: 0, bow: 0, on: -1, mx: 0, my: 0, tmx: 0, tmy: 0, idle: 0 };
 
+  // Where the pinned run sits comes from scroll-progress.js, measured only
+  // when the page changes; each frame just subtracts scrollY (fresh, since
+  // this runs on GSAP's ticker before the hook's own frame).
+  track(root, "paths-run");
+  const box = () => scrollState().sections["paths-run"];
+
   function frame(time, dt) {
-    // One read of the section's box: whether it's on screen, and how far through it you are.
-    const r = root.getBoundingClientRect();
-    if (r.bottom < -50 || r.top > innerHeight + 50) return;
-    const run = Math.max(1, r.height - innerHeight);
+    const b = box();
+    if (!b) return;
+    const top = b.top - (smoothScroll()?.scroll ?? scrollY);
+    if (top + b.height < -50 || top > innerHeight + 50) return;
+    const run = Math.max(1, b.height - innerHeight);
     const step = Math.min(64, dt || 16) / 16.7;
     const prev = st.shown;
-    st.p = clamp(-r.top / run, 0, 1) * (n - 1);
+    st.p = clamp(-top / run, 0, 1) * (n - 1);
     st.shown += (st.p - st.shown) * (1 - Math.pow(1 - 0.14, step));
     if (Math.abs(st.p - st.shown) < 0.0005) st.shown = st.p;
     const v = (st.shown - prev) / step;                     // slides per frame
@@ -197,9 +205,9 @@ export function mountPaths(root = document.querySelector("[data-paths]")) {
     if (time - lastMove < 0.22 || Math.abs(off) < 0.02 || st.p <= 0 || st.p >= n - 1) return;
     lastMove = Infinity;                                    // once per stop
     const lenis = smoothScroll();
-    const r = root.getBoundingClientRect();
-    const run = Math.max(1, r.height - innerHeight);
-    const y = scrollY + r.top + (Math.round(st.p) / (n - 1)) * run;
+    const b = box();
+    const run = Math.max(1, b.height - innerHeight);
+    const y = b.top + (Math.round(st.p) / (n - 1)) * run;
     if (lenis) lenis.scrollTo(y, { duration: 0.7, easing: (t) => 1 - Math.pow(1 - t, 3) });
     else scrollTo({ top: y, behavior: "smooth" });
   }
@@ -213,8 +221,10 @@ export function mountPaths(root = document.querySelector("[data-paths]")) {
     lastArrived = part;
     const { card, info, wood, marks } = part;
     const H = card.querySelector(".mini-tree")?.viewBox.baseVal.height || 200;
-    wood.forEach((w) => {
-      const y = w.getBBox().y + w.getBBox().height;           // branches nearer the ground grow first
+    // Where each branch ends, read once per path (getBBox forces a layout).
+    part.woodY ??= wood.map((w) => { const bb = w.getBBox(); return bb.y + bb.height; });
+    wood.forEach((w, k) => {
+      const y = part.woodY[k];                                // branches nearer the ground grow first
       const dashed = w.classList.contains("planned");         // dashed ones (not tracked yet) fade in instead
       w.animate(dashed ? [{ opacity: 0 }, { opacity: 1 }] : [{ strokeDasharray: "1 1", strokeDashoffset: 1 }, { strokeDasharray: "1 1", strokeDashoffset: 0 }],
         { duration: 520, delay: (1 - y / H) * 520, easing: "cubic-bezier(.3,.6,.3,1)", fill: "backwards" });

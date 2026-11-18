@@ -74,6 +74,13 @@
         <h1>What changed, <span class="dim">release by release.</span></h1>
         <p>Every change to VertexForm that you can see or hear, newest first. It's the project's changelog, so nothing here is planned work: all of it is live.</p>
       </div>
+      <article class="news-rel" id="v2-4-1">
+        <header class="news-when"><span class="news-v">2.4.1</span><time datetime="2026-11-17">17 November 2026</time></header>
+        <div class="news-body">
+          <h2>Scrolling</h2>
+          <ul><li>Links into the homepage from other pages (the footer's Form Lab, Setup and Questions) now land on their section. Before, they stopped thousands of pixels short, because the story and skill paths grow after the page loads.</li><li>Scrolling the homepage does less work each frame: the page is measured once when its layout changes instead of by every effect on every frame, and the 3D views no longer re-measure their canvases while they draw.</li></ul>
+        </div>
+      </article>
       <article class="news-rel" id="v2-4-0">
         <header class="news-when"><span class="news-v">2.4.0</span><time datetime="2026-11-03">3 November 2026</time></header>
         <div class="news-body">
@@ -119,7 +126,7 @@
   </section>
 </main>
 
-<footer class="foot" data-tone="dark">
+<footer class="foot" data-tone="dark" data-scroll="footer">
   <div class="wrap foot-grid">
     <div class="foot-brand">
       <a class="logo logo-sm" href="index.html">

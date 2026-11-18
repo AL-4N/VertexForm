@@ -17,12 +17,13 @@ import { mountCoach } from "./coach.js";
 import { gradeColor } from "../grade.js";
 import { mountLab } from "./lab.js";
 import { renderHow } from "./how.js";
-import { mountMotionNav } from "./motion-nav.js";
+import { mountMotionNav, landOnHash } from "./motion-nav.js";
 import { mountNavSpy } from "./nav-spy.js";
 import { mountRail } from "./rail.js";
 import { mountProgress } from "./progress.js";
 import { mountPageTransitions } from "../page-transition.js";
 import { mountHoverFill } from "../ui/hover-fill.js";
+import { onScroll } from "./scroll-progress.js";
 
 function colourScores() {
   // Any element with data-score gets its exact colour on the grade scale.
@@ -44,9 +45,7 @@ function headerCta() {
 
 function stickyNav() {
   const nav = document.querySelector(".nav");
-  const onScroll = () => nav.classList.toggle("scrolled", window.scrollY > 8);
-  onScroll();
-  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll((s) => nav.classList.toggle("scrolled", s.y > 8));
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -80,6 +79,10 @@ document.addEventListener("DOMContentLoaded", () => {
   mountFaq();
   const lab = document.querySelector("[data-lab]");
   if (lab) mountLab(lab);
+  landOnHash();                       // last: everything that changes the page's height has mounted
+  // ?stage: the 3D stage's placeholder and the scroll numbers it gets
+  // (stage-placeholder.js), for building the 3D. Not loaded otherwise.
+  if (new URLSearchParams(location.search).has("stage")) import("./stage-placeholder.js").then((m) => m.mountStagePlaceholder());
 });
 // The service worker is registered by the trainer (js/main.js), not here: in
 // Chrome, the first navigation from a page loaded before the worker existed to

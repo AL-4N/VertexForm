@@ -13,6 +13,7 @@
  */
 
 import { smooth } from "./smooth.js";
+import { onScroll } from "./scroll-progress.js";
 
 const DURATION = 750;     // ms for a full glide
 const BLUR_PER_SPEED = 4.5; // px of blur per (px/ms) of scroll speed
@@ -25,6 +26,41 @@ const SCROLL_MAX = 9;
 
 // Ease in and out (cubic), so the blur builds, peaks mid-flight, and clears.
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+
+/**
+ * Arriving from another page with #section (the footer's links, the
+ * library's "How it works"): the browser jumps before the story (which
+ * waits for its 3D clips) and the skill paths have grown to their full
+ * height, so it lands thousands of pixels short. Land again each time the
+ * page's layout changes in the first few seconds (scroll-progress.js
+ * measures it again), unless you've started scrolling yourself. Reloads
+ * and back/forward keep the browser's own restored position.
+ */
+export function landOnHash() {
+  const id = decodeURIComponent(location.hash.slice(1));
+  const target = id && document.getElementById(id);
+  if (!target || !target.matches("main section")) return;
+  const nav = performance.getEntriesByType?.("navigation")[0];
+  if (nav && nav.type !== "navigate") return;
+  let moved = false;
+  for (const type of ["wheel", "touchstart", "keydown", "mousedown"]) {
+    addEventListener(type, () => { moved = true; }, { once: true, passive: true });
+  }
+  const land = () => {
+    if (moved) return;
+    const lenis = smooth();
+    // Both leave the page's scroll-padding-top (the header) above it.
+    // Lenis caps scrolling at the page height it last measured: refresh it first.
+    if (lenis) { lenis.resize(); lenis.scrollTo(target, { immediate: true, force: true }); }
+    else target.scrollIntoView({ block: "start", behavior: "instant" });
+  };
+  const until = performance.now() + 6000;
+  let version = -1;
+  const stop = onScroll((s) => {
+    if (moved || performance.now() > until) { stop(); return; }
+    if (s.version !== version) { version = s.version; land(); }
+  });
+}
 
 export function mountMotionNav() {
   const main = document.querySelector("main");

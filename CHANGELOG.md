@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.4.1 — 2026-11-17
+
+### Scrolling
+- Links into the homepage from other pages (the footer's Form Lab, Setup
+  and Questions) now land on their section. Before, they stopped thousands
+  of pixels short, because the story and skill paths grow after the page
+  loads.
+- Scrolling the homepage does less work each frame: the page is measured
+  once when its layout changes instead of by every effect on every frame,
+  and the 3D views no longer re-measure their canvases while they draw.
+
 ## 2.4.0 — 2026-11-03
 
 ### Privacy page

@@ -17,7 +17,11 @@
  *
  * Below 1400px wide there's no room beside the content, so the CSS keeps
  * the header nav instead (and this does nothing while the rail is hidden).
+ * Section positions come from scroll-progress.js; the ruler's own ticks are
+ * measured only when the page is (s.version), not every frame.
  */
+
+import { onScroll } from "./scroll-progress.js";
 
 const FOLLOW_MS = 110;   // smoothing time constant: lower = snappier
 
@@ -33,12 +37,17 @@ export function mountRail() {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)");
   const wide = matchMedia("(min-width: 1400px)");      // same breakpoint as css/site.css
 
-  /** Where the fill should end (px down the ruler) for the current scroll. */
-  function target() {
-    const H = inner.offsetHeight;
-    const ticks = links.map((a) => a.offsetTop + a.offsetHeight / 2);
-    const line = scrollY + innerHeight * 0.4;                  // nav-spy's "current" line
-    const tops = sections.map((s) => s.getBoundingClientRect().top + scrollY);
+  let H = 1, ticks = [], version = -1;
+
+  /** Where the fill should end (px down the ruler) for scroll state s. */
+  function target(s) {
+    if (s.version !== version) {
+      version = s.version;
+      H = inner.offsetHeight || 1;
+      ticks = links.map((a) => a.offsetTop + a.offsetHeight / 2);
+    }
+    const line = s.y + s.vh * 0.4;                              // nav-spy's "current" line
+    const tops = sections.map((el) => s.sections[el.id]?.top ?? 0);
     const lerp = (a, b, t) => a + (b - a) * Math.max(0, Math.min(1, t));
 
     // Before the first section (the hero): rest on the first tick.
@@ -47,14 +56,13 @@ export function mountRail() {
       if (line < tops[i + 1]) return lerp(ticks[i], ticks[i + 1], (line - tops[i]) / (tops[i + 1] - tops[i]));
     }
     // After the last: on to the end of the ruler by the bottom of the page.
-    const end = document.documentElement.scrollHeight - innerHeight * 0.6;
+    const end = s.max + s.vh * 0.4;                             // the page's height less 60% of the screen
     return lerp(ticks.at(-1), H, (line - tops.at(-1)) / Math.max(1, end - tops.at(-1)));
   }
 
   let shown = null, goal = 0, raf = 0, last = 0;
 
   const paint = (y) => {
-    const H = inner.offsetHeight || 1;
     fill.style.transform = `scaleY(${(y / H).toFixed(4)})`;
     marker.style.transform = `translateY(${y.toFixed(2)}px)`;
   };
@@ -71,13 +79,11 @@ export function mountRail() {
     else last = 0;
   }
 
-  const update = () => {
+  let lastVh = 0;
+  onScroll((s) => {
     if (!wide.matches) return;                         // narrow screen: no rail
-    goal = target();
+    if (s.vh !== lastVh) { lastVh = s.vh; shown = null; }   // resized: jump, don't glide
+    goal = target(s);
     if (!raf) raf = requestAnimationFrame(frame);
-  };
-  addEventListener("scroll", update, { passive: true });
-  addEventListener("resize", () => { shown = null; update(); });
-  addEventListener("load", update);     // fonts and figures can shift section positions
-  update();
+  });
 }

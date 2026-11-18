@@ -9,8 +9,10 @@
  * header lights only its own sections (nothing in between or after); the
  * side rail, which links every section, lights the last one you reached. While a nav glide runs (motion-nav.js sets
  * html[data-gliding]) the clicked link lights up at once instead of every
- * section on the way.
+ * section on the way. Section positions come from scroll-progress.js.
  */
+
+import { onScroll, scrollState } from "./scroll-progress.js";
 
 export function mountNavSpy() {
   const nav = document.querySelector(".nav nav");
@@ -22,26 +24,21 @@ export function mountNavSpy() {
   // The side rail links every section, the header only some: each lights its own.
   const railLinks = [...document.querySelectorAll('.rail a[href^="#"]')];
   const railSections = railLinks.map((a) => document.getElementById(a.hash.slice(1)));
-  let current, railCurrent, raf = 0;
+  let current, railCurrent;
+  const inMain = (b) => b.el.parentElement?.tagName === "MAIN";
 
-  /** The section under a line 40% down the screen (null above the first). */
-  function sectionHere() {
-    const line = innerHeight * 0.4;
-    let found = null;
-    for (const s of document.querySelectorAll("main > section")) if (s.getBoundingClientRect().top <= line) found = s;
-    return found;
-  }
   /** Header: lit only while you're in a section it links to (the hero and
    *  unlinked sections light nothing; nothing stays lit to the page's end). */
-  function whereAmI() {
-    const i = sections.indexOf(sectionHere());
+  function whereAmI(s) {
+    const here = s.list.findLast((b) => inMain(b) && b.top <= s.y + s.vh * 0.4);   // the last section you've reached
+    const i = here ? sections.indexOf(here.el) : -1;
     return i < 0 ? null : i;
   }
   /** Rail: the last of its sections you've reached (its first on the hero). */
-  function railWhere() {
-    const line = innerHeight * 0.4;
+  function railWhere(s) {
+    const line = s.y + s.vh * 0.4;
     let k = 0;
-    railSections.forEach((s, i) => { if (s && s.getBoundingClientRect().top <= line) k = i; });
+    railSections.forEach((el, i) => { const b = el && s.sections[el.id]; if (b && b.top <= line) k = i; });
     return k;
   }
 
@@ -62,14 +59,11 @@ export function mountNavSpy() {
     document.dispatchEvent(new CustomEvent("vf:section", { detail: hash }));
   }
 
-  const update = () => {
-    raf = 0;
+  const update = (s = scrollState()) => {
     const gliding = document.documentElement.dataset.gliding;
     if (gliding) show(links.findIndex((a) => a.hash === gliding), Math.max(0, railLinks.findIndex((a) => a.hash === gliding)));
-    else show(whereAmI(), railWhere());
+    else show(whereAmI(s), railWhere(s));
   };
-  const schedule = () => { if (!raf) raf = requestAnimationFrame(update); };
-  addEventListener("scroll", schedule, { passive: true });
-  document.addEventListener("vf:glide", schedule);
-  update();
+  onScroll(update);
+  document.addEventListener("vf:glide", () => update());
 }

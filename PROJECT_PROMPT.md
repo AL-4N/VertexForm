@@ -128,8 +128,8 @@ local). `npm test` must pass first, as always.
 | Command | What it does |
 |---|---|
 | `npm run dev` | Serve `public/` at :8080 |
-| `npm test` | 19 unit and engine suites, about 500 checks |
-| `npm run test:e2e` | Playwright browser suite (23 tests) with Chromium's fake camera. Subset: `node tests/e2e/run.mjs "regex"`. Against the live site: `E2E_BASE=https://vertexform.alan-ht-wang.workers.dev npm run test:e2e` |
+| `npm test` | 20 unit and engine suites, about 520 checks |
+| `npm run test:e2e` | Playwright browser suite (24 tests; `E2E_CHANNEL=chrome` uses installed Chrome) with Chromium's fake camera. Subset: `node tests/e2e/run.mjs "regex"`. Against the live site: `E2E_BASE=https://vertexform.alan-ht-wang.workers.dev npm run test:e2e` |
 | `npm run sw` | Refresh `public/sw.js` (precache list + version) |
 | `npm run voice` | Render new or changed coach phrases with Kokoro into `public/audio/` (`--voice af_heart` for one voice). About 1 s per clip on CPU; voices can run in parallel processes |
 | `npm run eval:angles` | 2D vs 3D angle accuracy on the simulator and on any `tests/fixtures/*` recordings |
@@ -216,7 +216,7 @@ public/            index.html  app.html  exercises.html  whats-new.html  privacy
      exercises/    squat, pushup, plank, lunge, jumpingjack (thresholds, measure, grade, faults, fixes, posture, guide)
      ui/           live.js ★ · overlay.js · motion.js · settings.js · results.js · stats.js · workouts.js
                    rest-screen.js · onboarding.js · camera-picker.js · camera-preview.js · menu.js · components.js
-     site/         website scripts (hero3d, story, expop, lab, how, smooth, scroll-fx, sections, card-reps, paths, faq, tones, motion-nav, nav-spy, rail, progress)
+     site/         website scripts (hero3d, story, expop, lab, how, smooth, scroll-progress, stage, scroll-fx, sections, card-reps, paths, faq, tones, motion-nav, nav-spy, rail, progress)
   vendor/          self-hosted GSAP, Lenis, Three.js (vendor/README.md)
      figures/      stick-figure rig used by the site, the setup demo and the simulator
 tests/             *.test.mjs (npm test) · e2e/run.mjs · helpers/synth.mjs (simulated people) · fixtures/ · videos/ (git-ignored)
@@ -228,8 +228,8 @@ README.md · CLAUDE.md · CHANGELOG.md · TODO.md · RECORDING_GUIDE.md · PROJE
 
 - **Unit and engine** (`npm test`): session 87, skills 65, camera 53,
   overlay 43, tracking 39, scoring 34, replay 29 + 13, circuit 27, coach 25,
-  speech 24, challenges 20, storage 15, voice 14, pwa 8, library 4,
-  privacy 4, what's new 3, rig.
+  speech 24, challenges 20, scroll 17, storage 15, voice 14, pwa 8,
+  library 4, privacy 4, what's new 3, rig.
 - **Simulator:** `tests/helpers/synth.mjs` turns the stick-figure rig into
   MediaPipe-style landmarks. `repStream` supports rotation, 3D world
   landmarks, mutations (glitches, occlusion), rests, custom motion profiles,

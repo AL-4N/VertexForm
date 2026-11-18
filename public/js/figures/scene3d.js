@@ -193,16 +193,23 @@ export class Scene {
     this.ctx = canvas.getContext("2d");
     Object.assign(this, { target, dist, zoom, at, ring, bg, maxDpr });
     this.w = 0; this.h = 0; this.dpr = 1;
+    // The canvas's layout size, kept by a ResizeObserver, so fit() never
+    // measures (a forced layout every frame) and ignores scroll transforms
+    // like the hero's shrink on the way out.
+    this.box = null;
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(([e]) => { this.box = [e.contentRect.width, e.contentRect.height]; }).observe(canvas);
+    }
   }
 
   /** Match the backing store to the element's size. Returns true if it changed. */
   fit() {
-    const r = this.canvas.getBoundingClientRect();
+    const [w, h] = this.box ?? [this.canvas.clientWidth, this.canvas.clientHeight];
     const dpr = Math.min(this.maxDpr, window.devicePixelRatio || 1);
-    if (r.width === this.w && r.height === this.h && dpr === this.dpr) return false;
-    this.w = r.width; this.h = r.height; this.dpr = dpr;
-    this.canvas.width = Math.round(r.width * dpr);
-    this.canvas.height = Math.round(r.height * dpr);
+    if (w === this.w && h === this.h && dpr === this.dpr) return false;
+    this.w = w; this.h = h; this.dpr = dpr;
+    this.canvas.width = Math.round(w * dpr);
+    this.canvas.height = Math.round(h * dpr);
     return true;
   }
 

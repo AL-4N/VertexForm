@@ -7,21 +7,16 @@
  * those are registered custom properties (@property in site.css) the whole
  * page blends from one tone to the next instead of jumping at a hard edge.
  * Cards, figures and the 3D views keep their own dark colours throughout.
+ * Where the sections are comes from scroll-progress.js (no measuring here).
  */
 
+import { onScroll, sectionAt } from "./scroll-progress.js";
+
 export function mountTones() {
-  const parts = [...document.querySelectorAll("main > [data-tone], body > footer[data-tone]")];
-  if (!parts.length) return;
-  let raf = 0;
-  const update = () => {
-    raf = 0;
-    const y = innerHeight * 0.5;
-    const at = parts.find((s) => { const r = s.getBoundingClientRect(); return r.top <= y && r.bottom > y; })
-      ?? (scrollY < 10 ? parts[0] : parts[parts.length - 1]);
-    const tone = at.dataset.tone;
-    if (document.body.dataset.tone !== tone) document.body.dataset.tone = tone;
-  };
-  addEventListener("scroll", () => { raf ||= requestAnimationFrame(update); }, { passive: true });
-  addEventListener("resize", () => { raf ||= requestAnimationFrame(update); });
-  update();
+  onScroll((s) => {
+    const at = sectionAt(s, 0.5, (b) => b.el.dataset.tone)
+      ?? (s.y < 10 ? s.list.find((b) => b.el.dataset.tone) : s.list.findLast((b) => b.el.dataset.tone));
+    const tone = at?.el.dataset.tone;
+    if (tone && document.body.dataset.tone !== tone) document.body.dataset.tone = tone;
+  });
 }
