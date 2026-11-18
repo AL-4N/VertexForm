@@ -68,12 +68,12 @@ export function mountScrollFx() {
     const strokes = [...svg.querySelectorAll("path, line, circle, rect")];
     strokes.forEach((s) => s.setAttribute("pathLength", "1"));
     gsap.set(strokes, { strokeDasharray: "1 1", strokeDashoffset: 1 });
-    const text = svg.querySelectorAll("text");
-    gsap.set(text, { opacity: 0 });
-    gsap.timeline({ scrollTrigger: { trigger: svg, start: "top 85%", once: true }, delay: 0.25 })
-      .to(strokes, { strokeDashoffset: 0, duration: 0.9, ease: "power2.inOut", stagger: 0.09 })
-      .to(text, { opacity: 1, duration: 0.4 }, "-=0.3")
-      .add(() => strokes.forEach((s) => { s.removeAttribute("pathLength"); s.style.strokeDasharray = ""; s.style.strokeDashoffset = ""; }));
+    const text = [...svg.querySelectorAll("text")];          // not every plan has labels
+    if (text.length) gsap.set(text, { opacity: 0 });
+    const tl = gsap.timeline({ scrollTrigger: { trigger: svg, start: "top 85%", once: true }, delay: 0.25 })
+      .to(strokes, { strokeDashoffset: 0, duration: 0.9, ease: "power2.inOut", stagger: 0.09 });
+    if (text.length) tl.to(text, { opacity: 1, duration: 0.4 }, "-=0.3");
+    tl.add(() => strokes.forEach((s) => { s.removeAttribute("pathLength"); s.style.strokeDasharray = ""; s.style.strokeDashoffset = ""; }));
   });
 
   /* ── Hero depth on the way out (wide screens: stacked on a phone, the
