@@ -19,6 +19,7 @@ import { gradeColor } from "../grade.js";
 import { mountLab } from "./lab.js";
 import { renderHow } from "./how.js";
 import { mountMotionNav, landOnHash } from "./motion-nav.js";
+import { mountExerciseRing } from "./ex-ring.js";
 import { mountNavSpy } from "./nav-spy.js";
 import { mountRail } from "./rail.js";
 import { mountProgress } from "./progress.js";
@@ -73,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (hero) mountHero3d(hero);
   const how = document.getElementById("how");
   if (how) mountStory(how);
-  mountExercisePopups(document.querySelector(".ex-grid"), document.getElementById("ex-pop"));
+  mountExercisePopups(document.getElementById("exercises"), document.getElementById("ex-pop"));   // the grid, or the ring
   mountPaths();
   mountSectionIndex();
   mountCardReps(document.querySelector(".ex-grid"));
@@ -81,6 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
   mountFaq();
   const lab = document.querySelector("[data-lab]");
   if (lab) mountLab(lab);
+  mountExerciseRing();                // after the section rules and card reveals have counted the cards
   landOnHash();                       // last: everything that changes the page's height has mounted
   // ?stage: the 3D stage's placeholder and the scroll numbers it gets
   // (stage-placeholder.js), for building the 3D. Not loaded otherwise.

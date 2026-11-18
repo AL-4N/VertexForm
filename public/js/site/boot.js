@@ -3,13 +3,18 @@
  * inline script in index.html's <head> decides and adds html.booting; it
  * also gives up after 6 s if this never runs).
  *
- * MediaPipe's 33 body points are found one by one on a standing figure,
- * top to bottom, while a counter climbs to 33; the bones are drawn between
- * them (MediaPipe's own connections); a scan passes down the figure; a
- * horizon line runs out to both edges; then the screen closes onto that
- * line, which is where the hero's own horizon sits, and "vf:booted" lets
- * the hero's figure and headline arrive. It waits for the hero's 3D and
- * the fonts, for at least 2.2 s and at most 5 s in all.
+ *   1. MediaPipe's 33 body points start scattered across the screen and
+ *      lock onto a standing figure one by one, top to bottom, the way the
+ *      tracker finds a body, while a big counter climbs to 33.
+ *   2. The bones draw in between them (MediaPipe's own connections),
+ *      glowing, and a scan passes down the figure.
+ *   3. A horizon line runs out to both edges; then the screen splits open
+ *      along it, top half up and bottom half down, with a flash on the
+ *      line, which is where the hero's own horizon sits. "vf:booted" lets
+ *      the hero's figure and headline arrive as it opens.
+ *
+ * It waits for the hero's 3D and the fonts, for at least 2.4 s and at most
+ * 5 s in all.
  */
 
 import { smooth } from "./smooth.js";
@@ -22,7 +27,7 @@ const PTS = [
 ];
 const LINKS = [[0, 1], [1, 2], [2, 3], [3, 7], [0, 4], [4, 5], [5, 6], [6, 8], [9, 10], [11, 12], [11, 13], [13, 15], [15, 17], [15, 19], [15, 21], [17, 19],
   [12, 14], [14, 16], [16, 18], [16, 20], [16, 22], [18, 20], [11, 23], [12, 24], [23, 24], [23, 25], [24, 26], [25, 27], [26, 28], [27, 29], [28, 30], [29, 31], [30, 32], [27, 31], [28, 32]];
-const MIN = 2200, MAX = 5000;
+const MIN = 2400, MAX = 5000;
 const EASE = "cubic-bezier(.65,.05,.25,1)";
 
 export function mountBoot() {
@@ -48,30 +53,35 @@ export function mountBoot() {
   });
   const dots = PTS.map(([x, y]) => {
     const c = document.createElementNS(ns, "circle");
-    c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 2.6);
+    c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 2.8);
+    c.style.opacity = "0";
     svg.append(c);
     return { c, y };
   });
   const scan = document.createElementNS(ns, "rect");
   Object.entries({ class: "boot-scan", x: -10, y: -60, width: 260, height: 60 }).forEach(([k, v]) => scan.setAttribute(k, v));
+  scan.style.opacity = "0";
   svg.append(scan);
   boot.querySelector(".boot-fig").append(svg);
   const count = boot.querySelector(".boot-n"), state = boot.querySelector(".boot-state");
 
-  // Points top to bottom, the counter climbing with them.
+  // 1. Scattered points lock on, top to bottom; the counter climbs as each one lands.
   const order = dots.map((d, i) => i).sort((a, b) => dots[a].y - dots[b].y);
-  order.forEach((i, k) => setTimeout(() => {
-    dots[i].c.classList.add("on");
-    count.textContent = String(k + 1).padStart(2, "0");
-  }, 150 + k * 30));
-  // Bones from the head down, then the scan, then the horizon.
+  order.forEach((i, k) => {
+    const from = `translate(${(Math.random() - 0.5) * 900}px, ${(Math.random() - 0.5) * 700}px) scale(.4)`;
+    const delay = 120 + k * 24;
+    dots[i].c.animate([{ transform: from, opacity: 0 }, { opacity: 1, offset: 0.25 }, { transform: "none", opacity: 1 }],
+      { duration: 700, delay, easing: "cubic-bezier(.16,1,.3,1)", fill: "forwards" });
+    setTimeout(() => { count.textContent = String(k + 1).padStart(2, "0"); }, delay + 560);
+  });
+  // 2. Bones from the head down, glowing; then the scan.
   lines.sort((a, b) => a.y - b.y).forEach(({ l }, k) => l.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }],
-    { duration: 380, delay: 760 + k * 14, easing: EASE, fill: "forwards" }));
-  scan.style.opacity = "0";
+    { duration: 380, delay: 1050 + k * 14, easing: EASE, fill: "forwards" }));
   scan.animate([{ transform: "translateY(0)", opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.82 }, { transform: "translateY(420px)", opacity: 0 }],
-    { duration: 650, delay: 1250, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" });
-  boot.querySelector(".boot-line").animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: 700, delay: 1450, easing: EASE, fill: "forwards" });
-  setTimeout(() => { state.textContent = "Tracking"; }, 1900);
+    { duration: 650, delay: 1500, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" });
+  // 3. The horizon runs out to both edges.
+  boot.querySelector(".boot-line").animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: 700, delay: 1650, easing: EASE, fill: "forwards" });
+  setTimeout(() => { state.textContent = "Tracking"; }, 2050);
 
   // Hand over once the hero's 3D and the fonts are in (or at the cap).
   const hero = document.querySelector(".hero");
@@ -80,18 +90,18 @@ export function mountBoot() {
     new MutationObserver((_, mo) => { if (hero.classList.contains("hero-gl")) { mo.disconnect(); resolve(); } }).observe(hero, { attributes: true, attributeFilter: ["class"] });
   });
   const ready = Promise.all([heroReady, document.fonts?.ready]).then(() => new Promise((r) => setTimeout(r, Math.max(0, MIN - (performance.now() - t0)))));
-  Promise.race([ready, new Promise((r) => setTimeout(r, MAX - (performance.now() - t0)))]).then(() => close(boot, html));
+  Promise.race([ready, new Promise((r) => setTimeout(r, MAX - (performance.now() - t0)))]).then(() => open(boot, html));
 }
 
-/** Close the screen onto the horizon line, then hand over to the hero. */
-function close(boot, html) {
-  const y = boot.querySelector(".boot-line").getBoundingClientRect().top;
-  const below = Math.max(0, innerHeight - y - 1);
+/** Split the screen open along the horizon, then hand over to the hero. */
+function open(boot, html) {
   boot.classList.add("closing");             // keeps its look once html.booting is gone
   html.classList.remove("booting");          // the page under it is ready to move
   smooth()?.start();
   document.dispatchEvent(new Event("vf:booted"));
-  const anim = boot.animate([{ clipPath: "inset(0px 0px 0px 0px)" }, { clipPath: `inset(${y}px 0px ${below}px 0px)` }], { duration: 760, easing: "cubic-bezier(.76,0,.24,1)", fill: "forwards" });
-  boot.querySelector(".boot-fig").animate([{ opacity: 1 }, { opacity: 0 }], { duration: 360, fill: "forwards" });
-  anim.finished.then(() => boot.remove(), () => boot.remove());
+  for (const el of boot.querySelectorAll(".boot-fig, .boot-label, .boot-count")) el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, fill: "forwards" });
+  boot.querySelector(".boot-line").animate([{ transform: "scaleX(1) scaleY(1)", opacity: 1, filter: "brightness(1)" }, { transform: "scaleX(1) scaleY(4)", opacity: 1, filter: "brightness(2.2)", offset: 0.25 }, { transform: "scaleX(1) scaleY(1)", opacity: 0 }],
+    { duration: 900, easing: "ease-out", fill: "forwards" });
+  requestAnimationFrame(() => boot.classList.add("open"));    // the two halves part (css/site.css)
+  setTimeout(() => boot.remove(), 1100);
 }

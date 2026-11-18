@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.8.0 — 2026-11-18
+
+### Ink you can stir
+- The background is ink in water now, not one colour: moving your pointer
+  pours ink in greens, teals, blues and ambers and swirls it, scrolling
+  stirs it, and drops fall in on their own now and then. The smoke behind
+  it shifts between teal, blue and green and leans away from your pointer.
+
+### A ring of exercises
+- On a wide screen, all eighteen exercises stand as cards on a ring around
+  the section's heading. Scrolling turns it, it also turns slowly on its
+  own, and clicking a card opens that exercise.
+
+### A stronger opening
+- The first visit's calibration now has the 33 points fly in from all
+  over the screen and lock onto the body, a big counter, and the screen
+  splitting open along the horizon onto the page.
+
 ## 2.7.0 — 2026-11-18
 
 ### The rest of the page

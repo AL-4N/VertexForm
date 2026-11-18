@@ -137,7 +137,7 @@ local). `npm test` must pass first, as always.
 |---|---|
 | `npm run dev` | Serve `public/` at :8080 |
 | `npm test` | 20 unit and engine suites, about 520 checks |
-| `npm run test:e2e` | Playwright browser suite (26 tests; `E2E_CHANNEL=chrome` uses installed Chrome) with Chromium's fake camera. Subset: `node tests/e2e/run.mjs "regex"`. Against the live site: `E2E_BASE=https://vertexform.alan-ht-wang.workers.dev npm run test:e2e` |
+| `npm run test:e2e` | Playwright browser suite (27 tests; `E2E_CHANNEL=chrome` uses installed Chrome) with Chromium's fake camera. Subset: `node tests/e2e/run.mjs "regex"`. Against the live site: `E2E_BASE=https://vertexform.alan-ht-wang.workers.dev npm run test:e2e` |
 | `npm run sw` | Refresh `public/sw.js` (precache list + version) |
 | `npm run voice` | Render new or changed coach phrases with Kokoro into `public/audio/` (`--voice af_heart` for one voice). About 1 s per clip on CPU; voices can run in parallel processes |
 | `npm run eval:angles` | 2D vs 3D angle accuracy on the simulator and on any `tests/fixtures/*` recordings |
@@ -224,7 +224,7 @@ public/            index.html  app.html  exercises.html  whats-new.html  privacy
      exercises/    squat, pushup, plank, lunge, jumpingjack (thresholds, measure, grade, faults, fixes, posture, guide)
      ui/           live.js ★ · overlay.js · motion.js · settings.js · results.js · stats.js · workouts.js
                    rest-screen.js · onboarding.js · camera-picker.js · camera-preview.js · menu.js · components.js
-     site/         website scripts (hero3d, boot, story, expop, lab, how, smooth, scroll-progress, stage, atmosphere, stage-body, scroll-fx, sections, card-reps, paths, faq, tones, motion-nav, nav-spy, rail, progress)
+     site/         website scripts (hero3d, boot, story, expop, lab, how, smooth, scroll-progress, stage, atmosphere, ink, ex-ring, stage-body, scroll-fx, sections, card-reps, paths, faq, tones, motion-nav, nav-spy, rail, progress)
   vendor/          self-hosted GSAP, Lenis, Three.js (vendor/README.md)
      figures/      stick-figure rig used by the site, the setup demo and the simulator
 tests/             *.test.mjs (npm test) · e2e/run.mjs · helpers/synth.mjs (simulated people) · fixtures/ · videos/ (git-ignored)

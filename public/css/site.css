@@ -1173,25 +1173,78 @@ a.ex-open { text-decoration: none; }
 html.booting { overflow: hidden; }
 html.booting .boot, .boot.closing {
   --hy: calc(68px + (100svh - 68px) * .45);    /* the hero's horizon on a wide screen */
-  display: grid; place-items: center; position: fixed; inset: 0; z-index: 200; background: #070a16; pointer-events: none;
-  clip-path: inset(0 0 0 0);
+  display: grid; place-items: center; position: fixed; inset: 0; z-index: 200; pointer-events: none;
 }
+/* The screen is two halves meeting at the horizon; opening, they part. */
+html.booting .boot::before, html.booting .boot::after, .boot.closing::before, .boot.closing::after {
+  content: ""; position: absolute; left: 0; right: 0; background: #070a16; transition: transform .95s cubic-bezier(.76,0,.24,1);
+}
+.boot::before { top: 0; height: var(--hy); }
+.boot::after { top: var(--hy); bottom: 0; }
+.boot.open::before { transform: translateY(-100%); }
+.boot.open::after { transform: translateY(100%); }
+.boot > * { z-index: 1; }
 @media (max-width: 999.98px) {
   html.booting .boot, .boot.closing { --hy: 50svh; }
   .boot-label { top: 12svh; }                       /* clear of the figure's arms on a narrow screen */
-  .boot-count { top: auto; bottom: 12svh; }
+  .boot-count { top: auto; bottom: 10svh; }
 }
 .boot-fig { position: absolute; left: 50%; top: var(--hy); width: min(46vh, 70vw); aspect-ratio: 240 / 340; transform: translate(-50%, -54%); }
-.boot-fig svg { width: 100%; height: 100%; overflow: visible; }
-.boot-fig circle { fill: #eef1fb; transform-box: fill-box; transform-origin: center; transform: scale(0); }
-.boot-fig circle.on { transform: scale(1); transition: transform .35s cubic-bezier(.34,1.6,.5,1); }
-.boot-fig line { stroke: rgba(198,239,78,.75); stroke-width: 1.4; stroke-linecap: round; }
+.boot-fig svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 5px rgba(198,239,78,.55)); }
+.boot-fig circle { fill: #eef1fb; transform-box: fill-box; transform-origin: center; }
+.boot-fig line { stroke: rgba(198,239,78,.85); stroke-width: 1.4; stroke-linecap: round; }
 .boot-fig .boot-scan { fill: url(#boot-scan); }
 .boot-label, .boot-count {
   position: absolute; margin: 0; font-family: var(--mono); font-size: .72rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #737d9f;
 }
 .boot-label { left: var(--gutter); top: calc(var(--hy) - 2.6rem); display: flex; gap: 1rem; }
 .boot-label span:first-child { color: #eef1fb; }
-.boot-count { right: var(--gutter); top: calc(var(--hy) + 1rem); font-variant-numeric: tabular-nums; }
-.boot-count b { color: #eef1fb; font-weight: 600; }
-.boot-line { position: absolute; left: 2.5%; right: 2.5%; top: var(--hy); height: 1px; background: rgba(166,174,203,.4); transform: scaleX(0); }
+.boot-count { right: var(--gutter); top: calc(var(--hy) + 1.2rem); display: grid; justify-items: end; gap: .3rem; font-variant-numeric: tabular-nums; }
+.boot-count b {                                  /* the big counter: outlined, climbing to 33 */
+  font-family: var(--display); font-weight: 800; font-size: clamp(3.5rem, 8vw, 7.5rem); line-height: .9; letter-spacing: -.05em;
+  color: transparent; -webkit-text-stroke: 1.5px rgba(238,241,251,.85);
+}
+.boot-line { position: absolute; left: 2.5%; right: 2.5%; top: var(--hy); height: 1px; background: rgba(198,239,78,.75); box-shadow: 0 0 12px rgba(198,239,78,.7); transform: scaleX(0); }
+
+/* ── The exercise ring (js/site/ex-ring.js): all eighteen exercises on a
+   tilted ring round the section heading, turned by the scroll and slowly
+   on its own (wide screens, motion allowed; otherwise the grid stays). ── */
+.ex-ring-run { position: relative; height: 270vh; margin-top: -1rem; }
+.ex-ring-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; perspective: 2600px; perspective-origin: 50% 42%; }
+.ex-ring { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; }
+.ex-ring-centre { position: absolute; left: 0; top: 0; width: min(700px, 56vw); transform: translate(-50%, -100%) translateZ(0); text-align: center; }
+.ring-on .ex-ring-centre .section-head { max-width: none; margin: 0; }
+.ring-on .ex-ring-centre .section-head p { max-width: 50ch; margin-inline: auto; }
+.ex-ring-item { position: absolute; left: 0; top: 0; width: 168px; height: 216px; margin: -108px 0 0 -84px; will-change: transform, opacity; }
+.ex-ring-item.back { pointer-events: none; }
+.ex-ring-item > * {
+  height: 100%; border-radius: 16px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line), inset 0 1px 0 rgba(238,241,251,.05);
+  transition: transform .45s var(--ease), box-shadow .3s var(--ease);
+}
+.ex-ring-item:hover > *, .ex-ring-item:focus-within > * { transform: translateY(-8px) scale(1.04); box-shadow: inset 0 0 0 1px rgba(198,239,78,.55), 0 18px 50px -20px rgba(46,229,157,.45); }
+/* The five exercise cards, slimmed to a figure, a name and "See it in 3D". */
+.ring-on .ex-ring-item .ex-card { display: grid; grid-template-rows: 1fr auto; grid-column: auto; }
+.ring-on .ex-ring-item .ex-card .picto { height: auto; min-height: 0; padding-top: 2rem; }
+.ring-on .ex-ring-item .ex-card .picto::before, .ex-ring-mini::before {
+  content: var(--fig); position: absolute; left: 1rem; top: .85rem;
+  font-family: var(--mono); font-size: .62rem; font-weight: 600; letter-spacing: .12em; color: var(--text-faint);
+}
+.ring-on .ex-ring-item .ex-body { padding: .7rem 1rem 1rem; }
+.ring-on .ex-ring-item .ex-title { margin-bottom: .35rem; }
+.ring-on .ex-ring-item .ex-title h3 { font-size: .95rem; }
+.ring-on .ex-ring-item .ex-title .tag { display: none; }
+.ring-on .ex-ring-item .ex-open { font-size: .78rem; }
+.ring-on .ex-ring-item .ex-measures, .ring-on .ex-ring-item .ex-flags { display: none; }
+/* The other thirteen: the small figures, as cards. */
+.ex-ring-mini { position: relative; display: grid; grid-template-rows: 1fr auto; padding: 2rem 1rem 1rem; color: var(--text); text-decoration: none; }
+.ex-ring-mini .picto { height: auto; min-height: 0; padding: 0; }
+.ex-ring-mini > span:last-child { font-family: var(--display); font-weight: 600; font-size: .9rem; letter-spacing: -.02em; line-height: 1.2; }
+.ex-ring-mini > span:last-child::after { content: " →"; font-family: var(--body); color: var(--text-faint); }
+.ex-ring-read, .ex-ring-hint {
+  position: absolute; bottom: 5.5vh; margin: 0; font-family: var(--mono); font-size: .7rem; font-weight: 600; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--text-faint); font-variant-numeric: tabular-nums;
+}
+.ex-ring-read { left: var(--gutter); }
+.ex-ring-read span:first-child, .ex-ring-read b { color: var(--text); font-weight: 600; }
+.ex-ring-read b { margin-left: .8rem; }
+.ex-ring-hint { right: var(--gutter); }

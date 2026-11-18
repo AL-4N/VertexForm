@@ -326,11 +326,17 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   exercise index (01 SQUAT…) and the buttons; bottom left the headline in
   two weights ("every rep" huge); bottom right the score, big, glowing in
   its grade colour. Narrow screens stack it in reading order.
-- **The atmosphere** (`site/atmosphere.js`, on the stage): slow navy, teal
-  and blue smoke behind the whole page (domain-warped noise drawn at a
-  quarter of the screen's resolution), brightest over the hero, quieter
-  behind the sections, drifting as you scroll, lit around the hero figure
-  in its live grade colour. Never purple. Reduced motion: one still frame.
+- **The atmosphere** (`site/atmosphere.js`, on the stage): slow smoke
+  behind the whole page in deep navy, teal, blue and green with a faint
+  warm vein (domain-warped noise at a quarter of the screen's resolution),
+  brightest over the hero, drifting as you scroll, leaning away from the
+  pointer, lit around the hero figure in its live grade colour. Over it,
+  **ink** (`site/ink.js`, a stable-fluids simulation on the GPU): moving
+  the pointer pours ink in the brand's colours along its path and stirs
+  it, scrolling stirs it, and now and then a drop falls in on its own. It
+  stays ink in dark water (thin, fading in a couple of seconds, never more
+  than 60% cover) so text over it reads. Never purple. Reduced motion: one
+  still frame of smoke, no ink.
 - **The figure on the stage** (`site/stage-body.js`, wide screens): beside
   the questions its bones draw out, then your scroll scrubs one squat (a
   boxed tag on the knee reads the angle) while the camera walks round it;
@@ -339,12 +345,13 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   in the free space measured beside the text.
 - **The calibration intro** (`site/boot.js`): the first visit in a
   session (not a link into a section, not reduced motion). MediaPipe's 33
-  points are found one by one on a standing figure, top to bottom, while
-  a counter climbs to 33; the bones draw between them; a scan passes down
-  it; a horizon line runs out to both edges; then the screen closes onto
-  that line, which is where the hero's own horizon sits, and the hero's
-  figure and headline arrive. At least 2.2 s, at most 5 s; it waits for
-  the hero's 3D and the fonts.
+  points start scattered across the screen and lock onto a standing figure
+  one by one, top to bottom, while a big outlined counter climbs to 33;
+  the bones draw in, glowing; a scan passes down the figure; a horizon
+  line runs out to both edges; then the screen splits open along it, top
+  half up and bottom half down, with a flash on the line, which is where
+  the hero's own horizon sits, and the hero arrives. At least 2.4 s, at
+  most 5 s; it waits for the hero's 3D and the fonts.
 - **Things grow out of what you clicked** (`ui/popup.js`): exercise-card
   popups, the trainer's confirms and onboarding (the page behind blurs and
   dims; closing runs back into the trigger); trainer screens grow out of
@@ -371,6 +378,15 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **Scores count up the scale on the homepage too** (`scroll-fx.js`): the
   scoring test results and example chips climb from 0 through each grade
   colour as they come into view; the example chart's bars grow up in turn.
+- **The exercise ring** (`site/ex-ring.js`, wide screens, motion allowed):
+  all eighteen exercises as cards on a tilted ring round the section's
+  heading. The section holds still while the scroll turns the ring; it
+  also turns slowly on its own, pauses under the pointer, and a card that
+  gets keyboard focus turns to the front. Cards always face you; the back
+  of the ring fades behind the heading. The five main cards open their 3D
+  popup; the other thirteen link to their plate in the library. A mono
+  reading names the card at the front. Narrow screens and reduced motion
+  keep the grid.
 - **Section rules** (`site/sections.js`): each section opens like the
   hero's instrument: "N°01" and the section name in mono on the left, a
   hairline that the scroll draws across as the section arrives, ending in

@@ -233,6 +233,25 @@ await test("Site: the figure in light poses in the hero and squats beside the qu
   assert(/^KNEE ANGLE \d+°$/.test(tag.text) && Number(tag.shown) > 0.5, `knee tag: ${JSON.stringify(tag)}`);
 });
 
+await test("Site: the exercise ring turns, and a card opens its exercise in 3D", async (make) => {
+  const page = await make({ camera: false, viewport: { width: 1440, height: 900 } });
+  await page.goto(`${BASE}/index.html`);
+  await page.waitForSelector(".ex-ring-item", { timeout: 8000 });
+  assert((await page.locator(".ex-ring-item").count()) === 18, "the ring doesn't hold all eighteen exercises");
+  await page.evaluate(() => { const r = document.querySelector(".ex-ring-run"); scrollTo(0, r.getBoundingClientRect().top + scrollY + 200); });
+  await page.waitForTimeout(900);
+  const before = await page.$eval(".ex-ring-item", (e) => e.style.transform);
+  await page.waitForTimeout(700);
+  const after = await page.$eval(".ex-ring-item", (e) => e.style.transform);
+  assert(before && before !== after, "the ring isn't turning on its own");
+  // Turn the squat card to the front by focusing it, then open it.
+  await page.focus(".ex-ring-item .ex-card .ex-open");
+  await page.waitForTimeout(1200);
+  await page.click(".ex-ring-item .ex-card .ex-open");
+  await page.waitForSelector("#ex-pop[open]", { timeout: 5000 });
+  await page.keyboard.press("Escape");
+});
+
 await test("Site: the calibration intro plays once, then hands over to the hero", async (make) => {
   const page = await make({ camera: false, boot: true, viewport: { width: 1440, height: 900 } });
   await page.goto(`${BASE}/index.html`);
