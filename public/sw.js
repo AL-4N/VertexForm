@@ -16,7 +16,7 @@
  * and old ones are deleted on activate. Updates are never stuck.
  */
 
-const VERSION = "a5f03dd327a0";
+const VERSION = "74ba6f022336";
 const PRECACHE = [
   "./",
   "404.html",
@@ -77,9 +77,11 @@ const PRECACHE = [
   "js/figures/figure-gl.js",
   "js/figures/lab.js",
   "js/figures/loop.js",
+  "js/figures/mannequin.js",
   "js/figures/pictos.js",
   "js/figures/poses.js",
   "js/figures/rig.js",
+  "js/figures/satin.js",
   "js/figures/scene3d.js",
   "js/filters.js",
   "js/geometry.js",
@@ -116,6 +118,7 @@ const PRECACHE = [
   "js/site/scroll-progress.js",
   "js/site/sections.js",
   "js/site/smooth.js",
+  "js/site/stage-body.js",
   "js/site/stage-placeholder.js",
   "js/site/stage.js",
   "js/site/story.js",
@@ -130,7 +133,6 @@ const PRECACHE = [
   "js/ui/components.js",
   "js/ui/digits.js",
   "js/ui/flair.js",
-  "js/ui/hover-fill.js",
   "js/ui/live.js",
   "js/ui/menu.js",
   "js/ui/mini-tree.js",
@@ -141,6 +143,7 @@ const PRECACHE = [
   "js/ui/replay.js",
   "js/ui/rest-screen.js",
   "js/ui/results.js",
+  "js/ui/scan-buttons.js",
   "js/ui/segmented.js",
   "js/ui/settings.js",
   "js/ui/sharecard.js",
@@ -150,6 +153,7 @@ const PRECACHE = [
   "js/voice.js",
   "js/voices.js",
   "manifest.webmanifest",
+  "models/mannequin.bin",
   "og.png",
   "privacy.html",
   "sitemap.xml",

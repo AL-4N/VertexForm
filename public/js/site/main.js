@@ -22,7 +22,7 @@ import { mountNavSpy } from "./nav-spy.js";
 import { mountRail } from "./rail.js";
 import { mountProgress } from "./progress.js";
 import { mountPageTransitions } from "../page-transition.js";
-import { mountHoverFill } from "../ui/hover-fill.js";
+import { mountScanButtons } from "../ui/scan-buttons.js";
 import { onScroll } from "./scroll-progress.js";
 
 function colourScores() {
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.gsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger, ...(window.SplitText ? [SplitText] : []));
   mountSmooth();
   stickyNav();
-  mountHoverFill();
+  mountScanButtons();
   headerCta();
   mountMotionNav();
   mountRail();
@@ -83,6 +83,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // ?stage: the 3D stage's placeholder and the scroll numbers it gets
   // (stage-placeholder.js), for building the 3D. Not loaded otherwise.
   if (new URLSearchParams(location.search).has("stage")) import("./stage-placeholder.js").then((m) => m.mountStagePlaceholder());
+  // The mannequin beside the questions and the closing band (wide screens).
+  import("./stage-body.js").then((m) => m.mountStageBody());
 });
 // The service worker is registered by the trainer (js/main.js), not here: in
 // Chrome, the first navigation from a page loaded before the worker existed to

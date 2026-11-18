@@ -4,7 +4,7 @@
  * site's small touches (the header rule, button fills, the page transition,
  * the reading line) and draws each figure in its grade colour as it scrolls in.
  */
-import { mountHoverFill } from "../ui/hover-fill.js";
+import { mountScanButtons } from "../ui/scan-buttons.js";
 import { mountPageTransitions } from "../page-transition.js";
 import { mountProgress } from "./progress.js";
 import { reducedMotion } from "../ui/motion.js";
@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const onScroll = () => nav?.classList.toggle("scrolled", scrollY > 8);
   onScroll();
   addEventListener("scroll", onScroll, { passive: true });
-  mountHoverFill();
+  mountScanButtons();
   mountPageTransitions();
   mountProgress(nav);
 

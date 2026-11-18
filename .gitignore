@@ -8,3 +8,6 @@ tests/videos/*
 !tests/videos/README.md
 tests/e2e/.cache/
 test-results/
+
+# Blender keeps a backup of the previous save
+*.blend1

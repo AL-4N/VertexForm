@@ -65,11 +65,15 @@ its exact colour):
   removed in Nov 2026: next to pro sites they read as a template.
 - Section labels are eyebrows, not chips: mono uppercase, `--text-dim`,
   after a short lime rule (`.tag-live`).
-- Buttons: on hover a circle grows from where the pointer came in until it
-  fills the button, and shrinks back toward where it left
-  (`js/ui/hover-fill.js` + `.btn::before` clip-path). Every button fills
-  with the go gradient; the primary is solid paper at rest. Danger
-  buttons fill coral.
+- Buttons: a scan passes over them (`js/ui/scan-buttons.js`, `.btn::before`
+  fill, `::after` beam, `.ch` letters). On hover a bright beam sweeps left
+  to right with the go gradient filling in behind it, and each letter rolls
+  over to the hover colour as the beam reaches it, as if the scanner
+  rewrote the word; leaving, a second beam runs the fill out through the
+  right edge. Transform and opacity only; buttons squash to 97% when
+  pressed. The primary is solid paper at rest. Danger buttons fill coral.
+  (The Oct 2026 circle that grew from the pointer was dropped in Nov 2026:
+  the owner found it generic.)
 - Tones: sections alternate the two navies (`--ink`, `--ink-2`), and the
   page glides from one to the other as you scroll (`site/tones.js`, a fixed
   `body::before` layer fading in and out).
@@ -148,9 +152,11 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   never jumps.
 - Signature moments (each tied to what VertexForm does, not decoration):
   - **"It finds you"** (`site/hero3d.js`): once per visit, the 3D hero
-    figure's tracked points pop in, then the bones grow out between them.
-    When the engine grades a rep, its score counts up the scale and the
-    figure takes that grade's colour.
+    figure's tracked points pop in, then a scan passes down the mannequin
+    (a band of light in the grade colour, `figures/satin.js`), leaving it
+    solid, its joint beads lighting as the scan reaches them. When the
+    engine grades a rep, its score counts up the scale and the figure takes
+    that grade's colour.
   - **Written notes** (`coachNote` with `write`): the coach's note is penned
     in line by line, then its arrow draws to the body part. Only when the
     cue is new.
@@ -300,12 +306,23 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **Cards rise in** group by group as they enter (ScrollTrigger batch), and
   the hero has depth on the way out: the copy drifts up faster than the
   page while the 3D scene sinks and fades.
-- **The hero figure is lit 3D geometry** (Three.js, `figures/figure-gl.js`):
-  a dark satin body lit at the edges in the grade colour (a fresnel rim on
-  the standard material) with small white beads on the tracked joints, so
-  it reads as a scanned figure, not a plastic toy; a key
+- **The hero figure is a mannequin** (Three.js, `figures/figure-gl.js`,
+  `figures/mannequin.js`): MakeHuman's CC0 body with a blank face, skinned
+  to a 23-bone skeleton that's aimed at the engine's tracked points every
+  frame (torso from hips and shoulders, limbs along their segments bending
+  about their own hinge). Dark satin lit at the edges in the grade colour
+  (`figures/satin.js`), small white beads on the tracked joints, a key
   light casting a soft floor shadow, a rim light tinted by the grade. The
-  floor grid, protractors and notes stay drawing-board 2D on top.
+  floor grid, protractors and notes stay drawing-board 2D on top. Capsules
+  draw until the body file (`models/mannequin.bin`, about 300 KB) is in.
+- **The mannequin on the stage** (`site/stage-body.js`, wide screens):
+  beside the questions it scans in, then your scroll scrubs one squat (a
+  boxed tag on the knee reads the angle) while the camera walks round it,
+  and it scans out from the feet up; beside "Try it on your next set" it
+  scans in again and raises its arms in a jumping jack, ending in green at
+  the bottom of the page. It travels with its section, sized to fit inside
+  it, in the free space measured beside the text. Coloured by the measured
+  angle on the grade scale.
 - **Things grow out of what you clicked** (`ui/popup.js`): exercise-card
   popups, the trainer's confirms and onboarding (the page behind blurs and
   dims; closing runs back into the trigger); trainer screens grow out of

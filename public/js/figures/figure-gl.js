@@ -8,17 +8,29 @@
  * length, where the target sits on the canvas) is copied onto a Three.js
  * perspective camera each frame, so everything lines up exactly.
  *
- * Limbs are capsules (a cylinder per bone plus a sphere per joint), the
- * head a sphere, all in the grade colour with a little of it glowing, so
- * the figure reads on navy. A key light casts the shadow onto an invisible
- * floor that only shows shadows; a cool fill and a rim light give depth.
+ * The body is the mannequin (mannequin.js: MakeHuman's CC0 mesh, skinned
+ * to a 23-bone skeleton aimed at the tracked points each frame). Until it
+ * has loaded, or if it can't, limbs are capsules (a cylinder per bone plus
+ * a sphere per joint) and the head a sphere. Either way it's dark satin lit
+ * at the edges in the grade colour, with a bead on each tracked joint. A
+ * key light casts the shadow onto an invisible floor that only shows
+ * shadows; a cool fill and a rim light give depth.
+ *
+ * The intro ("it finds you") is a scan: a band of light in the grade colour
+ * passes down the body and leaves it solid behind it, the beads lighting
+ * as it reaches them (grow 0 → 1).
  */
 
 import * as THREE from "../../vendor/three/three.module.min.js";
 import { BONES } from "./scene3d.js";
+import { loadMannequin } from "./mannequin.js";
+import { makeSatin } from "./satin.js";
 
 const R_LIMB = 0.032, R_HEAD = 0.105;
 const JOINTS = ["shL", "shR", "elL", "elR", "wrL", "wrR", "hipL", "hipR", "knL", "knR", "anL", "anR", "heL", "heR", "toL", "toR"];
+// On the mannequin, each bead sits on the joint's bone, pushed toward the
+// camera by about the body's thickness there so it rides the visible surface.
+const ON_BODY = { sh: ["upperarm_", 0.075], el: ["lowerarm_", 0.05], wr: ["hand_", 0.04], hip: ["thigh_", 0.1], kn: ["calf_", 0.065], an: ["foot_", 0.055] };
 const UP = new THREE.Vector3(0, 1, 0);
 
 export class GLFigure {
@@ -52,20 +64,12 @@ export class GLFigure {
     floor.receiveShadow = true;
     scene.add(floor);
 
-    // The body: dark, satin, lit from the edges in the grade colour (a
-    // fresnel rim added to the standard material), so it reads as a scanned
-    // figure rather than a plastic toy. The tracked joints are small bright
-    // beads on it: the points the tracker actually follows.
-    this.rimU = { uRim: { value: new THREE.Color(0x2ee59d) }, uRimStrength: { value: 1.6 } };
-    this.material = new THREE.MeshStandardMaterial({ color: 0x141c36, roughness: 0.55, metalness: 0.15 });
-    this.material.onBeforeCompile = (sh) => {
-      Object.assign(sh.uniforms, this.rimU);
-      sh.fragmentShader = sh.fragmentShader
-        .replace("#include <common>", "#include <common>\nuniform vec3 uRim; uniform float uRimStrength;")
-        .replace("#include <emissivemap_fragment>", `#include <emissivemap_fragment>
-          float rimF = pow(1.0 - clamp(abs(dot(normal, normalize(vViewPosition))), 0.0, 1.0), 2.4);
-          totalEmissiveRadiance += uRim * rimF * uRimStrength;`);
-    };
+    // The body: dark satin lit at the edges in the grade colour, with the
+    // scan (satin.js). The tracked joints are small bright beads on it: the
+    // points the tracker actually follows.
+    const satin = makeSatin(THREE);
+    this.material = satin.material;
+    this.rimU = satin.u;
     this.jointMat = new THREE.MeshStandardMaterial({ color: 0xeef1fb, roughness: 0.3, metalness: 0, emissive: 0xffffff, emissiveIntensity: 0.35 });
     const cyl = new THREE.CylinderGeometry(1, 1, 1, 20, 1, true);
     const ball = new THREE.SphereGeometry(1, 24, 16);
@@ -76,6 +80,15 @@ export class GLFigure {
     this.base = new THREE.Color(0x141c36); this.white = new THREE.Color(0xeef1fb); this.grade = new THREE.Color();
     this.tmp = { a: new THREE.Vector3(), b: new THREE.Vector3(), d: new THREE.Vector3() };
     this.w = 0; this.h = 0;
+
+    // The mannequin replaces the capsules once it's in (and a repaint is due).
+    this.body = null; this.fitted = null;
+    loadMannequin(THREE).then((kit) => {
+      this.body = kit.make(this.material);
+      this.body.mesh.castShadow = true;
+      scene.add(this.body.object);
+      this.onBody?.();
+    }).catch(() => { /* keep the capsules */ });
   }
 
   /** Copy a scene3d Scene's camera (from scene.camera()) onto the Three.js one. */
@@ -97,8 +110,12 @@ export class GLFigure {
     c.updateProjectionMatrix();
   }
 
-  /** Draw the body at pose P (scene space). grow 0..1 draws each bone out from its first joint. */
-  render(scene, cam, P, colour, { grow = 1 } = {}) {
+  /**
+   * Draw the body at pose P (scene space). grow 0..1: the intro (the scan
+   * down the mannequin, or each capsule bone drawn out from its first
+   * joint). frames: the clip's frames, so the mannequin is sized to it.
+   */
+  render(scene, cam, P, colour, { grow = 1, frames = null } = {}) {
     this.syncCamera(scene, cam);
     const g = this.grade.set(colour);
     this.material.color.copy(this.base).lerp(g, 0.14);      // a hint of the grade in the body itself
@@ -107,6 +124,9 @@ export class GLFigure {
     this.rimU.uRim.value.copy(g);
     this.jointMat.emissive.copy(g).lerp(this.white, 0.45);
     this.rim.color.copy(g).lerp(this.white, 0.3);
+    // The mannequin's curves catch far more of the edge light than capsules: ease it so the body stays dark satin.
+    this.rimU.uRimStrength.value = this.body ? 1.05 : 1.6;
+    if (this.body) { this.renderBody(P, grow, frames); return; }
 
     const { a, b, d } = this.tmp;
     const ears = a.set(...P.earL).add(b.set(...P.earR)).multiplyScalar(0.5).clone();
@@ -139,6 +159,30 @@ export class GLFigure {
     this.head.position.copy(headC);
     this.head.scale.setScalar(Math.max(1e-4, R_HEAD * Math.min(1, grow * 1.3)));
 
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  renderBody(P, grow, frames) {
+    const body = this.body, { a, d } = this.tmp;
+    for (const m of [...this.bones, this.head]) m.visible = false;
+    if (frames && frames !== this.fitted) { body.fit(frames); this.fitted = frames; }
+    body.pose(P);
+    // The scan runs from just above the head to just below the floor.
+    const top = Math.max(...Object.values(P).map((p) => p[1])) + 0.12;
+    const scan = grow >= 1 ? -10 : top - (top + 0.08) * grow;
+    this.rimU.uScan.value = scan;
+    body.mesh.castShadow = grow >= 1;                      // the shadow arrives with the whole body
+    JOINTS.forEach((k, i) => {
+      const m = this.joints[i];
+      const spec = ON_BODY[k.slice(0, -1)];
+      if (!spec) { m.visible = false; return; }
+      body.joint(spec[0] + k.slice(-1).toLowerCase(), m.position);
+      d.copy(this.camera.position).sub(m.position).normalize();
+      m.position.addScaledVector(d, spec[1] * body.scale);
+      const lit = grow >= 1 ? 1 : Math.min(1, Math.max(0, (m.position.y - scan) / 0.12));   // pops as the scan passes it
+      m.visible = lit > 0;
+      m.scale.setScalar(Math.max(1e-4, R_LIMB * 0.72 * lit));
+    });
     this.renderer.render(this.scene, this.camera);
   }
 }

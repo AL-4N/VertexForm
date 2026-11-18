@@ -210,13 +210,42 @@ await test("Site: ?stage shows the 3D stage and its scroll numbers", async (make
   const page = await make({ camera: false });
   await page.goto(`${BASE}/index.html`);
   await page.waitForTimeout(800);
-  assert(!(await page.$("canvas.scroll-stage")), "the stage was created without ?stage");
+  assert(!(await page.$(".scroll-stage-hud")), "the stage readout showed without ?stage");
   await page.goto(`${BASE}/index.html?stage`);
   await page.waitForSelector("canvas.scroll-stage, .scroll-stage-fallback", { timeout: 8000 });
   await page.evaluate(() => scrollTo(0, document.getElementById("lab").getBoundingClientRect().top + scrollY));
   await page.waitForTimeout(800);
   const hud = await page.$eval(".scroll-stage-hud", (e) => e.textContent);
   assert(/section\s+lab/.test(hud) && /overall\s+0\.\d{3}/.test(hud), `stage readout wrong: ${hud}`);
+});
+
+await test("Site: the mannequin poses in the hero and squats beside the questions", async (make) => {
+  const page = await make({ camera: false, viewport: { width: 1440, height: 900 } });
+  const got = page.waitForResponse((r) => r.url().endsWith("/models/mannequin.bin"));
+  await page.goto(`${BASE}/index.html`);
+  const res = await got;
+  assert(res.status() === 200, `mannequin.bin: ${res.status()}`);
+  await page.waitForSelector(".hero.hero-gl", { timeout: 8000 });
+  // Scrub halfway through the questions: the stage body squats and its knee tag reads an angle.
+  await page.evaluate(() => { const el = document.getElementById("faq"); scrollTo(0, el.getBoundingClientRect().top + scrollY - innerHeight + 0.55 * (el.offsetHeight + innerHeight)); });
+  await page.waitForTimeout(1500);
+  const tag = await page.$eval(".stage-tag", (e) => ({ text: e.textContent, shown: getComputedStyle(e).opacity }));
+  assert(/^KNEE ANGLE \d+°$/.test(tag.text) && Number(tag.shown) > 0.5, `knee tag: ${JSON.stringify(tag)}`);
+});
+
+await test("Site: buttons scan on hover and keep their label for screen readers", async (make) => {
+  const page = await make({ camera: false });
+  await page.goto(`${BASE}/index.html`);
+  const btn = page.locator(".hero-actions .btn").first();
+  await btn.hover();
+  await page.waitForTimeout(700);
+  const st = await btn.evaluate((b) => ({ cls: b.className, sr: b.querySelector(".btn-sr")?.textContent, hidden: b.querySelector(".btn-word-wrap")?.getAttribute("aria-hidden"), letters: b.querySelectorAll(".ch").length }));
+  assert(st.cls.includes("scan-in") && st.sr === "Start training" && st.hidden === "true" && st.letters === 13, `scan state: ${JSON.stringify(st)}`);
+  const name = await page.getByRole("link", { name: "Start training" }).first().count();
+  assert(name > 0, "the button lost its accessible name");
+  await page.mouse.move(5, 5);
+  await page.waitForTimeout(100);
+  assert((await btn.getAttribute("class")).includes("scan-out"), "leaving didn't scan out");
 });
 
 await test("Site: 404 page and links back", async (make) => {

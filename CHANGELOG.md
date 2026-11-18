@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.5.0 — 2026-11-18
+
+### A real 3D body
+- The figure in the 3D view at the top of the homepage is now a smooth
+  mannequin with a skeleton, instead of sticks and balls. Every pose comes
+  from the same tracked points the engine scored, so each bend of a knee
+  or elbow is the real one.
+- It arrives as a scan: a band of light passes down the body and leaves it
+  solid, the joint points lighting up as the scan reaches them.
+- Further down, beside the questions, the mannequin does one squat as you
+  scroll: your scroll moves its knees, a tag reads the knee angle, and the
+  view turns around it. At the end of the page it raises its arms beside
+  "Try it on your next set". Wide screens only.
+
+### Buttons
+- Buttons scan instead of filling with a circle: a beam sweeps across, the
+  colour follows it, and each letter rolls over as the beam passes.
+
 ## 2.4.1 — 2026-11-17
 
 ### Scrolling

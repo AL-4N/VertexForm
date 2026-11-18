@@ -80,6 +80,7 @@ export async function mountHero3d(root) {
     glCanvas.setAttribute("aria-hidden", "true"); top.setAttribute("aria-hidden", "true");
     canvas.after(glCanvas, top);
     gl = new GLFigure(glCanvas);
+    gl.onBody = () => { st.floorKey = null; if (reduced || !st.raf) draw(); };   // the mannequin arrived: repaint now
     marks = new Scene(top, { ring: 0.8, maxDpr: 1.25 });
     hero.classList.add("hero-gl");
     if (reduced) draw();
@@ -172,7 +173,7 @@ export async function mountHero3d(root) {
       scene.floor(cam, { size: 9 });
     }
     if (gl) {
-      gl.render(scene, cam, P, st.colour, { grow });
+      gl.render(scene, cam, P, st.colour, { grow, frames: clip.frames });
       marks.begin();
       if (grow < 1) marks.points(cam, P, dots);
     } else scene.figure(cam, P, st.colour, { grow, dots });
