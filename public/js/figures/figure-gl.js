@@ -1,37 +1,16 @@
 /**
- * figure-gl.js — the 3D figure as real geometry, lit and casting a soft
- * shadow (Three.js, vendor/three). Used by the homepage hero.
+ * figure-gl.js — the hero's figure in real 3D (Three.js, vendor/three): the
+ * stick figure drawn in light (glow.js), with the hero's 2D canvases.
  *
- * It draws only the body. The floor grid, protractor ring, angle marks and
- * coach notes stay on the 2D canvases above and below it (scene3d.js),
+ * It draws only the figure. The floor grid, protractor ring, angle marks
+ * and coach notes stay on the 2D canvases above and below it (scene3d.js),
  * and both use the same camera: a Scene's camera (position, target, focal
  * length, where the target sits on the canvas) is copied onto a Three.js
  * perspective camera each frame, so everything lines up exactly.
- *
- * The body is the mannequin (mannequin.js: MakeHuman's CC0 mesh, skinned
- * to a 23-bone skeleton aimed at the tracked points each frame). Until it
- * has loaded, or if it can't, limbs are capsules (a cylinder per bone plus
- * a sphere per joint) and the head a sphere. Either way it's dark satin lit
- * at the edges in the grade colour, with a bead on each tracked joint. A
- * key light casts the shadow onto an invisible floor that only shows
- * shadows; a cool fill and a rim light give depth.
- *
- * The intro ("it finds you") is a scan: a band of light in the grade colour
- * passes down the body and leaves it solid behind it, the beads lighting
- * as it reaches them (grow 0 → 1).
  */
 
 import * as THREE from "../../vendor/three/three.module.min.js";
-import { BONES } from "./scene3d.js";
-import { loadMannequin } from "./mannequin.js";
-import { makeSatin } from "./satin.js";
-
-const R_LIMB = 0.032, R_HEAD = 0.105;
-const JOINTS = ["shL", "shR", "elL", "elR", "wrL", "wrR", "hipL", "hipR", "knL", "knR", "anL", "anR", "heL", "heR", "toL", "toR"];
-// On the mannequin, each bead sits on the joint's bone, pushed toward the
-// camera by about the body's thickness there so it rides the visible surface.
-const ON_BODY = { sh: ["upperarm_", 0.075], el: ["lowerarm_", 0.05], wr: ["hand_", 0.04], hip: ["thigh_", 0.1], kn: ["calf_", 0.065], an: ["foot_", 0.055] };
-const UP = new THREE.Vector3(0, 1, 0);
+import { GlowStick } from "./glow.js";
 
 export class GLFigure {
   /** Throws if WebGL isn't available; callers fall back to the 2D figure. */
@@ -39,56 +18,13 @@ export class GLFigure {
     this.canvas = canvas;
     this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "low-power" });
     this.renderer.setClearColor(0x000000, 0);
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.NoToneMapping;    // keep the grade colours true
-
-    const scene = (this.scene = new THREE.Scene());
+    this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(30, 1, 0.1, 60);
-
-    scene.add(new THREE.HemisphereLight(0xdfe6ff, 0x0b1125, 1.25));
-    const key = new THREE.DirectionalLight(0xffffff, 2.4);
-    key.position.set(2.2, 5, 3.2);
-    key.castShadow = true;
-    key.shadow.mapSize.set(1024, 1024);
-    Object.assign(key.shadow.camera, { left: -2.5, right: 2.5, top: 2.5, bottom: -2.5, near: 0.5, far: 14 });
-    key.shadow.radius = 6;
-    key.shadow.bias = -0.0005;
-    scene.add(key);
-    this.rim = new THREE.DirectionalLight(0x9fb4ff, 1.4);
-    this.rim.position.set(-3, 2.5, -3.5);
-    scene.add(this.rim);
-
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), new THREE.ShadowMaterial({ opacity: 0.38 }));
-    floor.rotation.x = -Math.PI / 2;
-    floor.receiveShadow = true;
-    scene.add(floor);
-
-    // The body: dark satin lit at the edges in the grade colour, with the
-    // scan (satin.js). The tracked joints are small bright beads on it: the
-    // points the tracker actually follows.
-    const satin = makeSatin(THREE);
-    this.material = satin.material;
-    this.rimU = satin.u;
-    this.jointMat = new THREE.MeshStandardMaterial({ color: 0xeef1fb, roughness: 0.3, metalness: 0, emissive: 0xffffff, emissiveIntensity: 0.35 });
-    const cyl = new THREE.CylinderGeometry(1, 1, 1, 20, 1, true);
-    const ball = new THREE.SphereGeometry(1, 24, 16);
-    const mesh = (g, mat = this.material) => { const m = new THREE.Mesh(g, mat); m.castShadow = true; scene.add(m); return m; };
-    this.bones = [...BONES, ["neck", "headBase"]].map(() => mesh(cyl));
-    this.joints = JOINTS.map(() => mesh(ball, this.jointMat));
-    this.head = mesh(ball);
-    this.base = new THREE.Color(0x141c36); this.white = new THREE.Color(0xeef1fb); this.grade = new THREE.Color();
-    this.tmp = { a: new THREE.Vector3(), b: new THREE.Vector3(), d: new THREE.Vector3() };
+    this.figure = new GlowStick(THREE);
+    this.scene.add(this.figure.object);
     this.w = 0; this.h = 0;
-
-    // The mannequin replaces the capsules once it's in (and a repaint is due).
-    this.body = null; this.fitted = null;
-    loadMannequin(THREE).then((kit) => {
-      this.body = kit.make(this.material);
-      this.body.mesh.castShadow = true;
-      scene.add(this.body.object);
-      this.onBody?.();
-    }).catch(() => { /* keep the capsules */ });
+    this.clip = null;
   }
 
   /** Copy a scene3d Scene's camera (from scene.camera()) onto the Three.js one. */
@@ -111,78 +47,14 @@ export class GLFigure {
   }
 
   /**
-   * Draw the body at pose P (scene space). grow 0..1: the intro (the scan
-   * down the mannequin, or each capsule bone drawn out from its first
-   * joint). frames: the clip's frames, so the mannequin is sized to it.
+   * Draw the figure at pose P (scene space) in colour. grow 0..1: the intro
+   * (each bone drawn out from its first joint). frames: the clip's frames;
+   * a new clip clears the trails so they don't streak across the change.
    */
   render(scene, cam, P, colour, { grow = 1, frames = null } = {}) {
     this.syncCamera(scene, cam);
-    const g = this.grade.set(colour);
-    this.material.color.copy(this.base).lerp(g, 0.14);      // a hint of the grade in the body itself
-    this.material.emissive.copy(g);
-    this.material.emissiveIntensity = 0.05;
-    this.rimU.uRim.value.copy(g);
-    this.jointMat.emissive.copy(g).lerp(this.white, 0.45);
-    this.rim.color.copy(g).lerp(this.white, 0.3);
-    // The mannequin's curves catch far more of the edge light than capsules: ease it so the body stays dark satin.
-    this.rimU.uRimStrength.value = this.body ? 1.05 : 1.6;
-    if (this.body) { this.renderBody(P, grow, frames); return; }
-
-    const { a, b, d } = this.tmp;
-    const ears = a.set(...P.earL).add(b.set(...P.earR)).multiplyScalar(0.5).clone();
-    const headC = ears.clone().add(b.set(...P.nose).sub(ears).multiplyScalar(0.3));
-    const neck = a.set(...P.shL).add(b.set(...P.shR)).multiplyScalar(0.5).clone();
-    const headBase = neck.clone().add(d.copy(headC).sub(neck).setLength(Math.max(0, headC.distanceTo(neck) - R_HEAD)));
-    const at = (k) => (k === "neck" ? neck : k === "headBase" ? headBase : new THREE.Vector3(...P[k]));
-
-    [...BONES, ["neck", "headBase"]].forEach(([p, q], i) => {
-      const m = this.bones[i];
-      const s = at(p), e = at(q);
-      d.copy(e).sub(s).multiplyScalar(grow);
-      const len = d.length();
-      m.visible = len > 1e-4;
-      if (!m.visible) return;
-      const r = i < 4 ? R_LIMB * 0.85 : R_LIMB;          // arms a touch slimmer
-      m.position.copy(s).addScaledVector(d, 0.5);
-      m.quaternion.setFromUnitVectors(UP, d.clone().normalize());
-      m.scale.set(r, len, r);
-    });
-    JOINTS.forEach((k, i) => {
-      const m = this.joints[i];
-      m.visible = grow > 0;
-      m.position.set(...P[k]);
-      const foot = k.startsWith("he") || k.startsWith("to");
-      const r = (k.startsWith("el") || k.startsWith("wr") ? R_LIMB * 0.85 : R_LIMB) * (foot ? 0.8 : 1.22) * Math.min(1, grow * 1.5);   // beads stand just proud of the limb
-      m.scale.setScalar(Math.max(1e-4, r));
-    });
-    this.head.visible = grow > 0;
-    this.head.position.copy(headC);
-    this.head.scale.setScalar(Math.max(1e-4, R_HEAD * Math.min(1, grow * 1.3)));
-
-    this.renderer.render(this.scene, this.camera);
-  }
-
-  renderBody(P, grow, frames) {
-    const body = this.body, { a, d } = this.tmp;
-    for (const m of [...this.bones, this.head]) m.visible = false;
-    if (frames && frames !== this.fitted) { body.fit(frames); this.fitted = frames; }
-    body.pose(P);
-    // The scan runs from just above the head to just below the floor.
-    const top = Math.max(...Object.values(P).map((p) => p[1])) + 0.12;
-    const scan = grow >= 1 ? -10 : top - (top + 0.08) * grow;
-    this.rimU.uScan.value = scan;
-    body.mesh.castShadow = grow >= 1;                      // the shadow arrives with the whole body
-    JOINTS.forEach((k, i) => {
-      const m = this.joints[i];
-      const spec = ON_BODY[k.slice(0, -1)];
-      if (!spec) { m.visible = false; return; }
-      body.joint(spec[0] + k.slice(-1).toLowerCase(), m.position);
-      d.copy(this.camera.position).sub(m.position).normalize();
-      m.position.addScaledVector(d, spec[1] * body.scale);
-      const lit = grow >= 1 ? 1 : Math.min(1, Math.max(0, (m.position.y - scan) / 0.12));   // pops as the scan passes it
-      m.visible = lit > 0;
-      m.scale.setScalar(Math.max(1e-4, R_LIMB * 0.72 * lit));
-    });
+    if (frames !== this.clip) { this.clip = frames; this.figure.resetTrails(); }
+    this.figure.update(P, colour, this.camera, { grow });
     this.renderer.render(this.scene, this.camera);
   }
 }

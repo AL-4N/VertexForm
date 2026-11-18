@@ -34,11 +34,19 @@ export function mountScrollFx() {
   function split(h, k) {
     SplitText.create(h, {
       type: "lines", mask: "lines", autoSplit: true, linesClass: "split-line",
-      onSplit: (self) => gsap.from(self.lines, {
-        yPercent: 110, duration: 1.1, ease: "expo.out", stagger: 0.08,   // a clean rise out of the line's mask, no blur
-        delay: k === 0 ? 0.15 : 0,
-        scrollTrigger: k === 0 ? undefined : { trigger: h, start: "top 88%", once: true },
-      }),
+      onSplit: (self) => {
+        const tw = gsap.from(self.lines, {
+          yPercent: 110, duration: 1.1, ease: "expo.out", stagger: 0.08,   // a clean rise out of the line's mask, no blur
+          delay: k === 0 ? 0.15 : 0,
+          scrollTrigger: k === 0 ? undefined : { trigger: h, start: "top 88%", once: true },
+        });
+        // The hero's headline waits, hidden, behind the calibration intro (boot.js).
+        if (k === 0 && document.documentElement.classList.contains("booting")) {
+          tw.pause(0);
+          document.addEventListener("vf:booted", () => tw.play(), { once: true });
+        }
+        return tw;
+      },
     });
   }
 
@@ -68,13 +76,14 @@ export function mountScrollFx() {
       .add(() => strokes.forEach((s) => { s.removeAttribute("pathLength"); s.style.strokeDasharray = ""; s.style.strokeDashoffset = ""; }));
   });
 
-  /* ── Hero depth on the way out ──────────────────────── */
+  /* ── Hero depth on the way out (wide screens: stacked on a phone, the
+     layers would slide over each other) ── */
   const hero = document.querySelector(".hero");
-  if (hero) {
+  if (hero && matchMedia("(min-width: 1000px)").matches) {
     const tl = gsap.timeline({ scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: 0.6 } });
     tl.to(".hero-copy", { yPercent: -18, opacity: 0.2, ease: "none" }, 0)
       .to(".hero-scene", { yPercent: 12, scale: 0.94, opacity: 0.35, ease: "none" }, 0)
-      .to(".hero-hud", { yPercent: -10, opacity: 0, ease: "none" }, 0);
+      .to(".hero-side, .hero-read, .hero-depth, .hero-tag", { yPercent: -30, opacity: 0, ease: "none" }, 0);
   }
 
   /* ── Scores count up the scale as they come into view ──── */

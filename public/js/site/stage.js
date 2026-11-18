@@ -1,7 +1,7 @@
 /**
  * stage.js — a fixed WebGL layer behind the homepage content, for 3D that
- * travels down the page with the scroll (next: the mannequin body in
- * art/mannequin.blend, exported as a GLB).
+ * travels down the page with the scroll: the atmosphere (atmosphere.js)
+ * and the figure beside the questions and the closing band (stage-body.js).
  *
  * The canvas covers the screen behind every section and in front of the
  * page's tone layer (body::before), so a model shows through between the
@@ -23,7 +23,9 @@
  *   });
  *
  * s is scroll-progress.js's state (overall, sections[key].progress and
- * .inside, velocity, direction…). The stage draws only when something
+ * .inside, velocity, direction…). A layer can also push a function onto
+ * ctx.passes to draw a backdrop before the scene each frame (the
+ * atmosphere does: atmosphere.js). The stage draws only when something
  * changed: the scroll moved, the window resized, or a layer's frame
  * returned true because it's still easing toward where the scroll puts it.
  * So it idles when the page is still, and stops while the tab is hidden.
@@ -47,7 +49,13 @@ function draw(now) {
   const s = scrollState();
   let again = false;
   for (const frame of layers) if (frame(s, dt, now / 1000) === true) again = true;
-  ctx.renderer.render(ctx.scene, ctx.camera);
+  // Backdrops first (ctx.passes: the atmosphere), then the scene over them.
+  const r = ctx.renderer;
+  r.autoClear = false;
+  r.setRenderTarget(null);
+  r.clear();
+  for (const pass of ctx.passes) pass(r);
+  r.render(ctx.scene, ctx.camera);
   if (again) request(); else last = 0;
 }
 
@@ -70,12 +78,13 @@ async function create() {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
   camera.position.set(0, 0, 8);
-  ctx = { THREE, scene, camera, renderer, canvas, request, reduced: reducedMotion() };
+  ctx = { THREE, scene, camera, renderer, canvas, request, reduced: reducedMotion(), passes: [] };
 
   // The canvas is 100lvh tall (css/site.css), so a phone's toolbars sliding
   // in and out don't resize it mid-scroll.
   const fit = (w, h) => {
     if (!w || !h) return;
+    ctx.width = w; ctx.height = h;                // the canvas's CSS size, for layers (no per-frame reads)
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, small() ? 1.25 : 1.75));
     renderer.setSize(w, h, false);
     camera.aspect = w / h;

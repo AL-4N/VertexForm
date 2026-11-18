@@ -1,5 +1,32 @@
 # Changelog
 
+## 2.6.0 — 2026-11-18
+
+### The stick figure, drawn in light
+- The figure at the top of the homepage is a stick figure again, now in
+  3D and made of light: glowing bones, a ring for a head, a bright point on
+  every tracked joint, and faint trails behind the hands and feet, so each
+  rep leaves a trace of its path. The mannequin from 2.5.0 is gone.
+- The same figure squats beside the questions as you scroll and raises its
+  arms at the end of the page.
+
+### A new first screen
+- The top of the homepage fills the screen like an instrument: the figure
+  in the middle, a line through it with live readings (the measured angle,
+  the rep, the view angle), an orbit that turns as you drag the view, the
+  exercise as one big word, and the score large in its grade colour.
+- Slow smoke drifts behind the whole page and lights up in the colour of
+  each graded rep.
+- The first visit starts with a short calibration: the 33 points the
+  tracker follows are found one by one, the skeleton is drawn between
+  them, and the screen opens onto the page.
+
+### Smoother
+- Start training opens the trainer as a smooth circle with no stutter, and
+  in Chrome the trainer starts loading while your pointer is still on the
+  button.
+- Buttons fill with a circle of colour from the pointer again.
+
 ## 2.5.0 — 2026-11-18
 
 ### A real 3D body

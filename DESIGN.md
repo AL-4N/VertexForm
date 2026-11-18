@@ -65,15 +65,12 @@ its exact colour):
   removed in Nov 2026: next to pro sites they read as a template.
 - Section labels are eyebrows, not chips: mono uppercase, `--text-dim`,
   after a short lime rule (`.tag-live`).
-- Buttons: a scan passes over them (`js/ui/scan-buttons.js`, `.btn::before`
-  fill, `::after` beam, `.ch` letters). On hover a bright beam sweeps left
-  to right with the go gradient filling in behind it, and each letter rolls
-  over to the hover colour as the beam reaches it, as if the scanner
-  rewrote the word; leaving, a second beam runs the fill out through the
-  right edge. Transform and opacity only; buttons squash to 97% when
-  pressed. The primary is solid paper at rest. Danger buttons fill coral.
-  (The Oct 2026 circle that grew from the pointer was dropped in Nov 2026:
-  the owner found it generic.)
+- Buttons: on hover a circle of ink grows from where the pointer came in
+  until it fills the button, and shrinks back toward where it left
+  (`js/ui/hover-fill.js` + `.btn::before` clip-path). Every button fills
+  with the go gradient; the primary is solid paper at rest. Danger
+  buttons fill coral. (A scanning beam with rolling letters was tried in
+  Nov 2026 and dropped: the owner prefers this fill.)
 - Tones: sections alternate the two navies (`--ink`, `--ink-2`), and the
   page glides from one to the other as you scroll (`site/tones.js`, a fixed
   `body::before` layer fading in and out).
@@ -151,12 +148,11 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - The side rail's fill eases toward the scroll position every frame, so it
   never jumps.
 - Signature moments (each tied to what VertexForm does, not decoration):
-  - **"It finds you"** (`site/hero3d.js`): once per visit, the 3D hero
-    figure's tracked points pop in, then a scan passes down the mannequin
-    (a band of light in the grade colour, `figures/satin.js`), leaving it
-    solid, its joint beads lighting as the scan reaches them. When the
-    engine grades a rep, its score counts up the scale and the figure takes
-    that grade's colour.
+  - **"It finds you"** (`site/hero3d.js`): once per visit, after the
+    calibration intro, the hero figure's tracked points pop in, then its
+    bones of light draw out between them. When the engine grades a rep,
+    its score counts up the scale and the figure, and the smoke around it,
+    take that grade's colour.
   - **Written notes** (`coachNote` with `write`): the coach's note is penned
     in line by line, then its arrow draws to the body part. Only when the
     cue is new.
@@ -306,23 +302,44 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 - **Cards rise in** group by group as they enter (ScrollTrigger batch), and
   the hero has depth on the way out: the copy drifts up faster than the
   page while the 3D scene sinks and fades.
-- **The hero figure is a mannequin** (Three.js, `figures/figure-gl.js`,
-  `figures/mannequin.js`): MakeHuman's CC0 body with a blank face, skinned
-  to a 23-bone skeleton that's aimed at the engine's tracked points every
-  frame (torso from hips and shoulders, limbs along their segments bending
-  about their own hinge). Dark satin lit at the edges in the grade colour
-  (`figures/satin.js`), small white beads on the tracked joints, a key
-  light casting a soft floor shadow, a rim light tinted by the grade. The
-  floor grid, protractors and notes stay drawing-board 2D on top. Capsules
-  draw until the body file (`models/mannequin.bin`, about 300 KB) is in.
-- **The mannequin on the stage** (`site/stage-body.js`, wide screens):
-  beside the questions it scans in, then your scroll scrubs one squat (a
-  boxed tag on the knee reads the angle) while the camera walks round it,
-  and it scans out from the feet up; beside "Try it on your next set" it
-  scans in again and raises its arms in a jumping jack, ending in green at
-  the bottom of the page. It travels with its section, sized to fit inside
-  it, in the free space measured beside the text. Coloured by the measured
-  angle on the grade scale.
+- **The figure is drawn in light** (`figures/glow.js`, used by the hero's
+  `figures/figure-gl.js` and the stage): the same stick figure as the
+  drawings, in 3D. Each bone is a thin white-hot core inside a soft tube
+  of light in the live grade colour, the head a ring that always faces
+  you, a bright point on every tracked joint, a pool of its light on the
+  floor, and faint trails behind the hands and feet, so a rep leaves a
+  light-painting of its path. Additive, so it reads on the dark page. (A
+  realistic MakeHuman mannequin was tried in Nov 2026 and dropped: the
+  owner prefers the stick figure.)
+- **The hero is an instrument** (wide screens, `index.html` + `site.css`):
+  full screen, the figure in the middle on its protractor floor, a horizon
+  line through it carrying live readings in mono (points, the measured
+  angle, the rep, the view angle to a tenth of a degree), three quarters
+  of an orbit round it that turns with the camera, faint crosshairs. Top
+  left a mono tag; top right a two-line spec, the exercise as one huge
+  lowercase word that rolls in when the figure changes exercise, the
+  exercise index (01 SQUAT…) and the buttons; bottom left the headline in
+  two weights ("every rep" huge); bottom right the score, big, glowing in
+  its grade colour. Narrow screens stack it in reading order.
+- **The atmosphere** (`site/atmosphere.js`, on the stage): slow navy, teal
+  and blue smoke behind the whole page (domain-warped noise drawn at a
+  quarter of the screen's resolution), brightest over the hero, quieter
+  behind the sections, drifting as you scroll, lit around the hero figure
+  in its live grade colour. Never purple. Reduced motion: one still frame.
+- **The figure on the stage** (`site/stage-body.js`, wide screens): beside
+  the questions its bones draw out, then your scroll scrubs one squat (a
+  boxed tag on the knee reads the angle) while the camera walks round it;
+  beside "Try it on your next set" it raises its arms in a jumping jack,
+  ending in green at the bottom of the page. It travels with its section,
+  in the free space measured beside the text.
+- **The calibration intro** (`site/boot.js`): the first visit in a
+  session (not a link into a section, not reduced motion). MediaPipe's 33
+  points are found one by one on a standing figure, top to bottom, while
+  a counter climbs to 33; the bones draw between them; a scan passes down
+  it; a horizon line runs out to both edges; then the screen closes onto
+  that line, which is where the hero's own horizon sits, and the hero's
+  figure and headline arrive. At least 2.2 s, at most 5 s; it waits for
+  the hero's 3D and the fonts.
 - **Things grow out of what you clicked** (`ui/popup.js`): exercise-card
   popups, the trainer's confirms and onboarding (the page behind blurs and
   dims; closing runs back into the trigger); trainer screens grow out of
@@ -373,11 +390,13 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   turns back to the flat side view and the floor fades, then the popup
   folds into the card (`openPopup(..., { beforeClose })`).
 - **Page changes open as a circle** from where you clicked (home ↔
-  trainer), over 1.1 s on a slow-to-fast curve, sized to just reach the
-  farthest corner, with a glowing green rim riding its edge; the new page
-  settles in from slightly enlarged and blurred while the old one sinks
-  back and blurs: the inline `pagereveal` script in each page's head +
-  `css/transitions.css` `vt-circle`.
+  trainer), .9 s on one smooth curve that moves from the first frame,
+  sized to just reach the farthest corner, with a glowing green rim riding
+  its edge (scaled by transform); the old page sinks back toward the click
+  and dims. No blur: blurring two full-page snapshots every frame made it
+  stutter. Hovering a link to the trainer pre-renders it (speculation
+  rules), so the circle opens onto a page that's already there: the inline
+  `pagereveal` script in each page's head + `css/transitions.css`.
 - **No custom cursor.** Tried twice in Oct 2026 and removed at the owner's
   request: the Mac pointer kept showing alongside it. Use the system pointer;
   `cursor: grab` on things you can drag.

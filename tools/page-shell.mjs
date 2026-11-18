@@ -17,6 +17,10 @@ export const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "
 /** The site's other pages, in header order: [href, label]. */
 const PAGES = [["exercises.html", "Exercises"], ["whats-new.html", "What's new"]];   // privacy.html is linked from the footer
 
+// Hovering a link to the trainer loads it in the background (Chrome's
+// speculation rules), so its page transition opens onto a page that's already there.
+const SPECULATE = `<script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/app*"},"eagerness":"moderate"}]}</script>\n`;
+
 export function shell({ generator, title, description, active, body, script = "js/site/library.js" }) {
   const index = fs.readFileSync(INDEX, "utf8");
   const cut = (from, to) => { const i = index.indexOf(from); const j = index.indexOf(to, i); if (i < 0 || j < 0) throw new Error(`index.html is missing ${from}`); return index.slice(i, j); };
@@ -50,7 +54,7 @@ export function shell({ generator, title, description, active, body, script = "j
 <link rel="stylesheet" href="css/fonts.css" />
 <link rel="stylesheet" href="css/site.css" />
 <link rel="stylesheet" href="css/transitions.css" />
-${reveal}<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+${reveal}${SPECULATE}<link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <link rel="manifest" href="manifest.webmanifest" />
 <script>document.documentElement.classList.add("js");</script>
 </head>

@@ -31,16 +31,28 @@
 <link rel="stylesheet" href="css/transitions.css" />
 <!-- A link click on the previous page saved where it was clicked: open this
      page as a circle from that point (css/transitions.css, js/page-transition.js). -->
-<script>addEventListener("pagereveal",function(e){try{var o=JSON.parse(sessionStorage.getItem("vf-vt")||"null");sessionStorage.removeItem("vf-vt");if(!e.viewTransition||!o)return;var d=document.documentElement;d.style.setProperty("--vt-x",o.x+"px");d.style.setProperty("--vt-y",o.y+"px");d.style.setProperty("--vt-r",Math.ceil(Math.hypot(Math.max(o.x,innerWidth-o.x),Math.max(o.y,innerHeight-o.y)))+"px");d.classList.add("vt-circle");var R=Math.ceil(Math.hypot(Math.max(o.x,innerWidth-o.x),Math.max(o.y,innerHeight-o.y)));var g=document.createElement("div");g.className="vt-ring";g.setAttribute("aria-hidden","true");d.appendChild(g);if(g.animate){g.animate([{left:o.x+"px",top:o.y+"px",width:"0px",height:"0px",opacity:1},{left:(o.x-R)+"px",top:(o.y-R)+"px",width:2*R+"px",height:2*R+"px",opacity:.15}],{duration:1100,easing:"cubic-bezier(.7,0,.84,0)",fill:"forwards"})}e.viewTransition.finished.finally(function(){d.classList.remove("vt-circle");g.remove()})}catch(_){}});</script>
+<script>addEventListener("pagereveal",function(e){try{var o=JSON.parse(sessionStorage.getItem("vf-vt")||"null");sessionStorage.removeItem("vf-vt");if(!e.viewTransition||!o)return;var d=document.documentElement;d.style.setProperty("--vt-x",o.x+"px");d.style.setProperty("--vt-y",o.y+"px");d.style.setProperty("--vt-r",Math.ceil(Math.hypot(Math.max(o.x,innerWidth-o.x),Math.max(o.y,innerHeight-o.y)))+"px");d.classList.add("vt-circle");var R=Math.ceil(Math.hypot(Math.max(o.x,innerWidth-o.x),Math.max(o.y,innerHeight-o.y)));var g=document.createElement("div");g.className="vt-ring";g.setAttribute("aria-hidden","true");d.appendChild(g);g.style.cssText="left:"+(o.x-R)+"px;top:"+(o.y-R)+"px;width:"+2*R+"px;height:"+2*R+"px;transform:scale(0)";if(g.animate){g.animate([{transform:"scale(0)",opacity:1},{transform:"scale(1)",opacity:.15}],{duration:900,easing:"cubic-bezier(.65,.05,.25,1)",fill:"forwards"})}e.viewTransition.finished.finally(function(){d.classList.remove("vt-circle");g.remove()})}catch(_){}});</script>
+<!-- Hovering a link to the trainer loads it in the background, so the circle opens onto a page that is already there. -->
+<script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/app*"},"eagerness":"moderate"}]}</script>
 
 <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 <!-- Marks that scripts run, so script-driven states (like the header button
      waiting until you scroll past the hero's) never hide anything without them. -->
-<script>(function(d){d.classList.add("js");if(!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("split-wait");setTimeout(function(){d.classList.remove("split-wait")},2500)}})(document.documentElement);</script>
+<script>(function(d){d.classList.add("js");if(!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("split-wait");setTimeout(function(){d.classList.remove("split-wait")},2500);
+/* The calibration intro (js/site/boot.js): the first visit in a session, not when a link points into a section. Never longer than 6 s. */
+try{if(!location.hash&&!sessionStorage.getItem("vf-boot")){d.classList.add("booting");setTimeout(function(){d.classList.remove("booting")},6000)}}catch(e){}}})(document.documentElement);</script>
 </head>
 <body data-tone="dark">
+<!-- The calibration intro (js/site/boot.js): 33 points found one by one, the
+     bones drawn between them, then the screen closes onto the hero's horizon. -->
+<div class="boot" aria-hidden="true">
+  <div class="boot-fig"></div>
+  <p class="boot-label"><span>VertexForm</span><span class="boot-state">Calibrating</span></p>
+  <p class="boot-count"><b class="boot-n">00</b>/33 points</p>
+  <i class="boot-line"></i>
+</div>
 
 <a class="skip" href="#main">Skip to content</a>
 
@@ -107,67 +119,76 @@
 
   <!-- ═════════════ HERO ═════════════ -->
   <section class="hero" data-tone="dark" data-scroll="hero">
+    <!-- The 3D figure (js/site/hero3d.js) fills the hero, drawn in light on
+         the atmosphere behind the page (js/site/atmosphere.js). Until it
+         loads (or without JavaScript) the flat figure shows instead. The
+         lines and readings around it are an instrument: a horizon through
+         the figure, an orbit that turns with the camera, and crosshairs. -->
+    <div class="hero-scene" data-hero3d>
+      <div class="hero-instrument" aria-hidden="true">
+        <i class="hero-horizon"></i>
+        <div class="hero-orbit" data-hero-orbit><i></i><i></i><i></i></div>
+        <i class="hero-plus" style="--x:6%;--y:22%"></i><i class="hero-plus" style="--x:44%;--y:12%"></i>
+        <i class="hero-plus" style="--x:93%;--y:64%"></i><i class="hero-plus" style="--x:58%;--y:88%"></i>
+      </div>
+      <canvas class="hero-canvas" role="img"
+              aria-label="A stick figure drawn in light doing each exercise in 3D. It turns the colour of each rep's score when the rep ends. Move the pointer to look around it, or drag to spin it."></canvas>
+      <div class="hero-fallback stage-frame">
+        <svg class="stage-svg" viewBox="0 18 600 482" role="img"
+               aria-label="A figure demonstrating each exercise. It changes colour from coral to green as its form score rises."><line x1="30" y1="470" x2="570" y2="470" stroke="#2e3a63" stroke-width="2"/><g class="stage-fallback"><g opacity="0.38"><polyline points="215.6,373.5 327.4,367.4 294.0,468.0 322.0,468.0" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><polyline points="281.6,259.2 337.9,245.2 391.4,237.6" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g><polyline points="215.6,373.5 281.6,259.2" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><polyline points="215.6,373.5 327.4,367.6 300.0,470.0 328.0,470.0" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><polyline points="281.6,259.2 339.0,251.1 392.9,247.3" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="299.1" cy="223.2" r="19" fill="#0d1326" stroke="#4ce78d" stroke-width="6.02"/><path d="M297.5 369.2 A30 30 0 0 0 319.7 396.6" fill="none" stroke="#fff" stroke-width="2.5" opacity=".85"/></g></svg>
+      </div>
+      <div class="hero-readings" aria-hidden="true">
+        <span>33 points</span>
+        <dl data-r="rows"><div><dt>Knee angle</dt><dd>72°</dd></div><div><dt>Rep</dt><dd>1 of 3</dd></div></dl>
+        <span class="hero-view" data-hero-view>VIEW 32.0°</span>
+      </div>
+    </div>
+
     <div class="wrap hero-grid">
+      <p class="hero-tag"><i class="hero-plus-inline" aria-hidden="true"></i>Form coach · runs in your browser</p>
+
+      <div class="hero-side">
+        <p class="hero-spec">33 points tracked on your device<br>every rep scored from 0 to 100</p>
+        <p class="hero-word" aria-hidden="true"><span class="hero-word-in" data-r="name">Squat</span></p>
+        <div class="tabs hero-index" role="tablist" aria-label="Choose an exercise to demo">
+          <button role="tab" data-ex="squat"  aria-selected="true"><b>01</b>Squat</button>
+          <button role="tab" data-ex="pushup" aria-selected="false"><b>02</b>Push-up</button>
+          <button role="tab" data-ex="plank"  aria-selected="false"><b>03</b>Plank</button>
+          <button role="tab" data-ex="lunge"  aria-selected="false"><b>04</b>Lunge</button>
+          <button role="tab" data-ex="jack"   aria-selected="false"><b>05</b>Jumping jack</button>
+        </div>
+        <div class="hero-actions">
+          <a class="btn btn-grad" href="app.html">Start training</a>
+          <a class="btn btn-ghost" href="#how">See how it works</a>
+        </div>
+      </div>
+
       <div class="hero-copy">
-        <h1 data-reveal>Your webcam grades every rep from 0 to 100.</h1>
+        <h1 data-reveal><span class="h1-a">Your webcam grades</span> <span class="h1-b">every rep</span> <span class="h1-c">from 0 to 100.</span></h1>
         <p class="lede">
           Point your webcam at yourself and VertexForm tracks 33 points on your body,
           measures the angles that matter for each exercise, and grades every rep as
           you do it. Then it tells you, out loud, the one thing to fix.
         </p>
-        <div class="hero-actions">
-          <a class="btn btn-grad" href="app.html">Start training</a>
-          <a class="btn btn-ghost" href="#how">See how it works</a>
-        </div>
-        <ul class="facts">
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg>Free, no account</li>
-          <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9"/></svg>Video never leaves your device</li>
-        </ul>
       </div>
 
-      <!-- The 3D figure (js/site/hero3d.js) fills the hero behind the copy on
-           wide screens. Until it loads (or without JavaScript) the flat
-           figure shows instead. -->
-      <div class="hero-scene" data-hero3d>
-        <canvas class="hero-canvas" role="img"
-                aria-label="A figure doing each exercise in 3D. It turns the colour of each rep's score when the rep ends. Move the pointer to look around it, or drag to spin it."></canvas>
-        <div class="hero-fallback stage-frame">
-          <svg class="stage-svg" viewBox="0 18 600 482" role="img"
-               aria-label="A figure demonstrating each exercise. It changes colour from coral to green as its form score rises."><line x1="30" y1="470" x2="570" y2="470" stroke="#2e3a63" stroke-width="2"/><g class="stage-fallback"><g opacity="0.38"><polyline points="215.6,373.5 327.4,367.4 294.0,468.0 322.0,468.0" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><polyline points="281.6,259.2 337.9,245.2 391.4,237.6" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g><polyline points="215.6,373.5 281.6,259.2" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><polyline points="215.6,373.5 327.4,367.6 300.0,470.0 328.0,470.0" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><polyline points="281.6,259.2 339.0,251.1 392.9,247.3" fill="none" stroke="#4ce78d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="299.1" cy="223.2" r="19" fill="#0d1326" stroke="#4ce78d" stroke-width="6.02"/><path d="M297.5 369.2 A30 30 0 0 0 319.7 396.6" fill="none" stroke="#fff" stroke-width="2.5" opacity=".85"/></g></svg>
+      <div class="hero-read readout" aria-hidden="true">
+        <span class="readout-live">Last rep · scored by the engine</span>
+        <div class="readout-score">
+          <span class="score-num" data-r="score" style="color:var(--text-faint)">–</span>
+          <span class="score-letter" data-r="letter"></span>
         </div>
-        <span class="hero-view" data-hero-view aria-hidden="true">VIEW 32° FROM WEBCAM</span>
+        <div class="scale" aria-hidden="true">
+          <div class="scale-bar"><span class="scale-marker" data-r="marker" style="left:0%"></span></div>
+          <div class="scale-labels"><span style="left:30%">F</span><span style="left:65%">D</span><span style="left:75%">C</span><span style="left:85%">B</span><span style="left:95%">A</span></div>
+        </div>
+      </div>
+      <div class="hero-depth" data-hero-depth role="group" aria-label="Squat depth">
+        <span>See it grade</span>
+        <button type="button" data-depth="full" aria-pressed="true">Full squat</button>
+        <button type="button" data-depth="half" aria-pressed="false">Half squat</button>
       </div>
       <span class="hero-cue" aria-hidden="true"><i></i>Scroll</span>
-
-      <div class="hero-hud">
-        <div class="readout" aria-hidden="true">
-          <div class="readout-top">
-            <span class="readout-name" data-r="name">Squat</span>
-            <span class="readout-live">simulated, scored by the engine</span>
-          </div>
-          <div class="readout-score">
-            <span class="score-num" data-r="score" style="color:var(--text-faint)">–</span>
-            <span class="score-letter" data-r="letter"></span>
-          </div>
-          <dl class="readout-rows" data-r="rows"><div><dt>Knee angle</dt><dd>72°</dd></div><div><dt>Rep</dt><dd>1 of 3</dd></div></dl>
-          <div class="scale" aria-hidden="true">
-            <div class="scale-bar"><span class="scale-marker" data-r="marker" style="left:0%"></span></div>
-            <div class="scale-labels"><span style="left:30%">F</span><span style="left:65%">D</span><span style="left:75%">C</span><span style="left:85%">B</span><span style="left:95%">A</span></div>
-          </div>
-        </div>
-        <div class="hero-depth" data-hero-depth role="group" aria-label="Squat depth">
-          <span>See it grade</span>
-          <button type="button" data-depth="full" aria-pressed="true">Full squat</button>
-          <button type="button" data-depth="half" aria-pressed="false">Half squat</button>
-        </div>
-        <div class="tabs" role="tablist" aria-label="Choose an exercise to demo">
-          <button role="tab" data-ex="squat"  aria-selected="true"><span class="tab-picto" data-picto="squat" data-picto-plain></span><span class="tab-name">Squat</span></button>
-          <button role="tab" data-ex="pushup" aria-selected="false"><span class="tab-picto" data-picto="pushup" data-picto-plain></span><span class="tab-name">Push-up</span></button>
-          <button role="tab" data-ex="plank"  aria-selected="false"><span class="tab-picto" data-picto="plank" data-picto-plain></span><span class="tab-name">Plank</span></button>
-          <button role="tab" data-ex="lunge"  aria-selected="false"><span class="tab-picto" data-picto="lunge" data-picto-plain></span><span class="tab-name">Lunge</span></button>
-          <button role="tab" data-ex="jack"   aria-selected="false"><span class="tab-picto" data-picto="jack" data-picto-plain></span><span class="tab-name">Jumping jack</span></button>
-        </div>
-      </div>
     </div>
   </section>
 

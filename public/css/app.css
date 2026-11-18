@@ -49,58 +49,35 @@ p  { margin: 0; line-height: 1.55; }
 .header-actions { display: flex; gap: .5rem; }
 
 /* ── Buttons ─────────────────────────────────────────── */
-/* Flat at rest; a scan passes over them on hover, as on the site (below;
-   danger buttons fill coral). No glow, no lift. */
+/* Flat at rest. On hover the grade gradient grows as a circle from where the
+   pointer came in (danger buttons fill coral), and shrinks back toward where
+   it left (js/ui/hover-fill.js sets --fx/--fy). No glow, no lift. Same as the site. */
 .btn {
-  --btn-bg: var(--panel-hi); --btn-fill: var(--go-gradient); --btn-ink: var(--ink);
+  --btn-bg: var(--panel-hi); --btn-fill: var(--go-gradient);
   position: relative; isolation: isolate; overflow: hidden;
   font: inherit; font-size: .85rem; font-weight: 600;
   padding: .55rem 1rem; border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--btn-bg);
   color: var(--text); cursor: pointer;
-  transition: color .2s linear, border-color .25s var(--ease), transform .15s var(--ease);
+  transition: color .25s var(--ease) .1s, border-color .25s var(--ease);
 }
-.btn.scan-in, .btn.scan-ready:hover { border-color: transparent; }
-/* The scan (js/ui/scan-buttons.js adds .scan-in / .scan-out and splits the
-   label into .ch letters, each with its own --d delay): the fill grows from
-   the left behind a bright beam, letters roll over to --btn-ink as the beam
-   reaches them, and leaving, the fill runs out through the right edge behind
-   a second beam. Transform and opacity only. Without the script, hovering
-   just fills (.btn:not(.scan-ready):hover). */
 .btn::before {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: var(--btn-fill, var(--go-gradient));
-  transform: scaleX(0); transform-origin: 0 50%;
-  transition: transform .55s cubic-bezier(.65,0,.35,1);
+  background: var(--btn-fill);
+  clip-path: circle(0% at var(--fx, 50%) var(--fy, 50%));
+  transition: clip-path .95s cubic-bezier(.25,.6,.3,1);
 }
-.btn::after {               /* the beam */
-  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 2px; z-index: -1; pointer-events: none;
-  background: #fff; box-shadow: 0 0 12px 3px rgba(198,239,78,.85), 0 0 3px 1px #fff;
-  opacity: 0; transform: translateX(-6px);
+@media (hover: hover) {
+  .btn:hover { color: var(--ink); border-color: transparent; }
+  .btn:hover::before { clip-path: circle(150% at var(--fx, 50%) var(--fy, 50%)); }
+  .btn.danger:hover { color: #fff; }
 }
-.btn.scan-in::before { transform: scaleX(1); }
-.btn.scan-out::before { transform: scaleX(0); transform-origin: 100% 50%; }
-.btn.scan-in::after { animation: btn-beam-in .55s cubic-bezier(.65,0,.35,1) forwards; }
-.btn.scan-out::after { animation: btn-beam-out .55s cubic-bezier(.65,0,.35,1) forwards; }
-@keyframes btn-beam-in  { 0% { opacity: 1; transform: translateX(-6px); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateX(var(--bw, 220px)); } }
-@keyframes btn-beam-out { 0% { opacity: 1; transform: translateX(-6px); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateX(var(--bw, 220px)); } }
-.btn.scan-in { color: var(--btn-ink); transition: color .2s linear .25s, box-shadow .3s var(--ease), border-color .3s var(--ease), transform .15s var(--ease); }
-.btn-word-wrap { display: inline-flex; flex-wrap: wrap; justify-content: center; column-gap: .28em; }
-.btn-word { display: inline-flex; overflow: hidden; line-height: 1.2; padding: .05em 0; margin: -.05em 0; }
-.btn .ch { display: inline-block; text-shadow: 0 1.25em var(--btn-ink); transition: transform .42s cubic-bezier(.65,0,.35,1) var(--d, 0ms); }
-.btn.scan-in .ch { transform: translateY(-1.25em); }
-.btn-sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.btn:active { transform: scale(.97); }
-@media (hover: hover) { .btn:not(.scan-ready):hover::before { transform: scaleX(1); } .btn:not(.scan-ready):hover { color: var(--btn-ink); } }
-@media (prefers-reduced-motion: reduce) {
-  .btn, .btn::before, .btn .ch { transition: none !important; }
-  .btn::after { display: none; }
-}
-/* Primary: solid paper at rest (grade colours stay for scores); the scan fills it with the go gradient. */
+@media (prefers-reduced-motion: reduce) { .btn, .btn::before { transition: none; } }
+/* Primary: solid paper at rest (grade colours stay for scores); the go gradient grows in on hover. */
 .btn.primary { --btn-bg: var(--paper); border-color: transparent; color: #090d1c; box-shadow: inset 0 -1px 0 rgba(9,13,28,.16); }
 .btn.ghost   { --btn-bg: transparent; color: var(--text-dim); }
-.btn.danger  { --btn-bg: transparent; --btn-fill: linear-gradient(var(--coral), var(--coral)); --btn-ink: #fff; border-color: var(--coral); color: var(--coral); }
+.btn.danger  { --btn-bg: transparent; --btn-fill: linear-gradient(var(--coral), var(--coral)); border-color: var(--coral); color: var(--coral); }
 
 /* ── Cards ───────────────────────────────────────────── */
 .card {

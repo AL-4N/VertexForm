@@ -75,19 +75,21 @@ async function browserFor(video = PATTERN, devices = 2) {
   return browsers.get(key);
 }
 
-/** A fresh, isolated page. opts: { camera: true|false, storage: object|null, onboarded, viewport, video } */
-async function newPage({ camera = true, storage = undefined, onboarded = true, viewport = { width: 1280, height: 800 }, video, browser } = {}) {
+/** A fresh, isolated page. opts: { camera: true|false, storage: object|null, onboarded, viewport, video, boot }
+ *  boot: let the homepage's calibration intro play (it's skipped otherwise, as on a second visit). */
+async function newPage({ camera = true, storage = undefined, onboarded = true, viewport = { width: 1280, height: 800 }, video, browser, boot = false } = {}) {
   const b = browser ?? (camera ? await browserFor(video) : await chromium.launch(CHANNEL));
   if (!camera && !browser) browsers.set(`nocam${Math.random()}`, b);
   const ctx = await b.newContext({ viewport, permissions: camera ? ["camera"] : [], acceptDownloads: true, serviceWorkers: "block" });
   const seed = storage === undefined ? { settings: { onboarded, voice: false } } : storage;
-  await ctx.addInitScript(({ seed }) => {
+  await ctx.addInitScript(({ seed, boot }) => {
     try { if (seed && !sessionStorage.getItem("seeded")) { localStorage.setItem("workout-analyzer:v1", JSON.stringify(seed)); sessionStorage.setItem("seeded", "1"); } } catch {}
+    try { if (!boot) sessionStorage.setItem("vf-boot", "1"); } catch {}
     // Record every camera stream ever opened (to prove Back turns them ALL off).
     window.__streams = [];
     const gum = navigator.mediaDevices?.getUserMedia?.bind(navigator.mediaDevices);
     if (gum) navigator.mediaDevices.getUserMedia = async (c) => { const s = await gum(c); window.__streams.push(s); return s; };
-  }, { seed });
+  }, { seed, boot });
   const page = await ctx.newPage();
   page.errors = [];
   page.on("console", (m) => { if (m.type() === "error") page.errors.push(m.text()); });
@@ -219,12 +221,9 @@ await test("Site: ?stage shows the 3D stage and its scroll numbers", async (make
   assert(/section\s+lab/.test(hud) && /overall\s+0\.\d{3}/.test(hud), `stage readout wrong: ${hud}`);
 });
 
-await test("Site: the mannequin poses in the hero and squats beside the questions", async (make) => {
+await test("Site: the figure in light poses in the hero and squats beside the questions", async (make) => {
   const page = await make({ camera: false, viewport: { width: 1440, height: 900 } });
-  const got = page.waitForResponse((r) => r.url().endsWith("/models/mannequin.bin"));
   await page.goto(`${BASE}/index.html`);
-  const res = await got;
-  assert(res.status() === 200, `mannequin.bin: ${res.status()}`);
   await page.waitForSelector(".hero.hero-gl", { timeout: 8000 });
   // Scrub halfway through the questions: the stage body squats and its knee tag reads an angle.
   await page.evaluate(() => { const el = document.getElementById("faq"); scrollTo(0, el.getBoundingClientRect().top + scrollY - innerHeight + 0.55 * (el.offsetHeight + innerHeight)); });
@@ -233,19 +232,17 @@ await test("Site: the mannequin poses in the hero and squats beside the question
   assert(/^KNEE ANGLE \d+°$/.test(tag.text) && Number(tag.shown) > 0.5, `knee tag: ${JSON.stringify(tag)}`);
 });
 
-await test("Site: buttons scan on hover and keep their label for screen readers", async (make) => {
-  const page = await make({ camera: false });
+await test("Site: the calibration intro plays once, then hands over to the hero", async (make) => {
+  const page = await make({ camera: false, boot: true, viewport: { width: 1440, height: 900 } });
   await page.goto(`${BASE}/index.html`);
-  const btn = page.locator(".hero-actions .btn").first();
-  await btn.hover();
-  await page.waitForTimeout(700);
-  const st = await btn.evaluate((b) => ({ cls: b.className, sr: b.querySelector(".btn-sr")?.textContent, hidden: b.querySelector(".btn-word-wrap")?.getAttribute("aria-hidden"), letters: b.querySelectorAll(".ch").length }));
-  assert(st.cls.includes("scan-in") && st.sr === "Start training" && st.hidden === "true" && st.letters === 13, `scan state: ${JSON.stringify(st)}`);
-  const name = await page.getByRole("link", { name: "Start training" }).first().count();
-  assert(name > 0, "the button lost its accessible name");
-  await page.mouse.move(5, 5);
-  await page.waitForTimeout(100);
-  assert((await btn.getAttribute("class")).includes("scan-out"), "leaving didn't scan out");
+  assert(await page.evaluate(() => document.documentElement.classList.contains("booting") && !!document.querySelector(".boot")), "the intro didn't start on a first visit");
+  await page.waitForFunction(() => !document.querySelector(".boot") && !document.documentElement.classList.contains("booting"), null, { timeout: 7000 });
+  await page.waitForTimeout(1600);
+  const hero = await page.evaluate(() => ({ gl: document.querySelector(".hero").classList.contains("hero-gl"), h1: getComputedStyle(document.querySelector(".hero h1")).visibility }));
+  assert(hero.gl && hero.h1 === "visible", `hero after the intro: ${JSON.stringify(hero)}`);
+  await page.reload();
+  await page.waitForTimeout(300);
+  assert(!(await page.evaluate(() => document.documentElement.classList.contains("booting") || !!document.querySelector(".boot"))), "the intro played twice in one visit");
 });
 
 await test("Site: 404 page and links back", async (make) => {

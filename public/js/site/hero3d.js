@@ -59,6 +59,7 @@ export async function mountHero3d(root) {
   const card = Object.fromEntries([...hero.querySelectorAll("[data-r]")].map((n) => [n.dataset.r, n]));
   const tabs = [...hero.querySelectorAll("[data-ex]")];
   const view = hero.querySelector("[data-hero-view]");
+  const orbit = hero.querySelector("[data-hero-orbit]");
 
   let clips;
   try { clips = await loadClips(); }
@@ -80,7 +81,6 @@ export async function mountHero3d(root) {
     glCanvas.setAttribute("aria-hidden", "true"); top.setAttribute("aria-hidden", "true");
     canvas.after(glCanvas, top);
     gl = new GLFigure(glCanvas);
-    gl.onBody = () => { st.floorKey = null; if (reduced || !st.raf) draw(); };   // the mannequin arrived: repaint now
     marks = new Scene(top, { ring: 0.8, maxDpr: 1.25 });
     hero.classList.add("hero-gl");
     if (reduced) draw();
@@ -96,7 +96,11 @@ export async function mountHero3d(root) {
 
   /* ── Readout ────────────────────────────────────────── */
   function readout(clip, P, n, a3) {
-    card.name.textContent = NAME[st.id];
+    // The big word: the exercise, rolling up into place when it changes.
+    if (card.name.textContent !== NAME[st.id]) {
+      card.name.textContent = NAME[st.id];
+      if (!reduced) card.name.animate([{ transform: "translateY(105%)" }, { transform: "none" }], { duration: 750, easing: "cubic-bezier(.22,.61,.36,1)" });
+    }
     const rows = [[clip.measure.label, `${Math.round(a3)}°`]];
     if (clip.kind === "hold") rows.push(["Held", `${Math.floor(st.t / 1000)} s`]);
     else rows.push(["Rep", `${Math.min(n + (reduced ? 1 : 2), clip.reps.length)} of ${clip.reps.length}`]);   // the rep under way (the still: the graded one)
@@ -134,7 +138,7 @@ export async function mountHero3d(root) {
 
   /* ── Draw ───────────────────────────────────────────── */
   function draw(now = performance.now()) {
-    if (scene.fit()) { scene.at = wide() ? [0.7, 0.4] : [0.5, 0.5]; scene.zoom = wide() ? 0.88 : 1.6; }
+    if (scene.fit()) { scene.at = wide() ? [0.55, 0.45] : [0.5, 0.54]; scene.zoom = wide() ? 0.78 : 1.45; }   // wide: the middle of the instrument, clear of the headline
     const clip = clips[st.id];
     Object.assign(scene, { target: st.target, dist: st.dist });
     if (marks !== scene) { marks.fit(); Object.assign(marks, { at: scene.at, zoom: scene.zoom, target: st.target, dist: st.dist }); }
@@ -152,7 +156,9 @@ export async function mountHero3d(root) {
       } else { st.from = st.colour; st.flood = 0; clearScore(); }
     }
     const goal = n >= 0 ? gradeColor(clip.reps[n].score) : PAPER;
-    st.colour = mixColor(st.from, goal, st.flood);
+    const colour = mixColor(st.from, goal, st.flood);
+    if (colour !== st.colour) document.dispatchEvent(new CustomEvent("vf:live", { detail: colour }));   // the atmosphere lights to match
+    st.colour = colour;
     hero.style.setProperty("--hero-live", st.colour);
 
     // The intro: points, then bones.
@@ -188,14 +194,16 @@ export async function mountHero3d(root) {
       // Named for its rep: it's the verdict on the rep just finished, shown
       // while the figure stands back up, so it mustn't read as describing the pose.
       const say = clip.kind === "hold" ? text : `Rep ${n + 1}: ${text[0].toLowerCase()}${text.slice(1)}`;
-      if (since >= 0 && since < 2200) marks.note(cam, P[joint + s], say, { write: reduced ? 1 : clamp(since / 900, 0, 1), side: 1, good: clip.reps[n].score >= 90 });
+      if (since >= 0 && since < 2200) marks.note(cam, P[joint + s], say, { write: reduced ? 1 : clamp(since / 900, 0, 1), side: wide() ? -1 : 1, good: clip.reps[n].score >= 90 });
     }
 
     readout(clip, P, n, a3);
+    const look = st.yaw + st.aimYaw + st.spin;
     if (view) {
-      const yaw = ((Math.round(st.yaw + st.aimYaw + st.spin) % 360) + 540) % 360 - 180;
-      view.textContent = `VIEW ${yaw}° FROM WEBCAM`;
+      const yaw = (((look % 360) + 540) % 360) - 180;
+      view.textContent = `VIEW ${yaw.toFixed(1)}°`;
     }
+    if (orbit) orbit.style.transform = `rotate(${(-look).toFixed(2)}deg)`;   // the orbit turns with the camera
   }
 
   /* ── Loop ───────────────────────────────────────────── */
@@ -317,6 +325,11 @@ export async function mountHero3d(root) {
     let first = true;
     try { first = !sessionStorage.getItem("vf-intro-seen"); sessionStorage.setItem("vf-intro-seen", "1"); } catch { /* storage blocked: play it */ }
     st.intro = first ? { at: performance.now() + 150, pts: 700, bones: 650 } : { at: performance.now(), pts: 300, bones: 350 };
+    // Behind the calibration intro (boot.js): wait, drawing nothing, until it opens.
+    if (document.documentElement.classList.contains("booting")) {
+      st.intro.at = Infinity;
+      document.addEventListener("vf:booted", () => { st.intro.at = performance.now() + 120; }, { once: true });
+    }
   }
   hero.classList.add("ready");
   want();

@@ -2,12 +2,12 @@
    transitions.css — moving between pages and screens.
    Shared by the site and the trainer.
 
-   Home → trainer (and back): the old page streaks upward with a motion
-   blur while the new one settles in. Browsers with cross-document View
-   Transitions do it natively; others get the same animation from
-   js/page-transition.js. Inside the trainer, screen changes are a quicker,
-   lighter blur-fade. Everything here is GPU-only (opacity, transform,
-   filter) and switched off for reduced motion.
+   Home → trainer (and back): the new page opens as a circle from where you
+   clicked. Browsers with cross-document View Transitions do it natively;
+   others get a short slide from js/page-transition.js. Inside the trainer,
+   screen changes are a quicker, lighter fade. Page changes animate only
+   clip-path, transform, opacity and brightness: blurring two full-page
+   snapshots every frame made them stutter (Nov 2026). Off for reduced motion.
    =========================================================== */
 
 @view-transition { navigation: auto; }
@@ -16,28 +16,31 @@
 ::view-transition-new(root) { animation: vf-arrive .42s cubic-bezier(.16, .84, .3, 1) both; }
 
 @keyframes vf-leave {
-  to { opacity: 0; transform: translateY(-7vh) scale(1.02); filter: blur(18px) saturate(1.25); }
+  to { opacity: 0; transform: translateY(-5vh) scale(1.015); }
 }
 @keyframes vf-arrive {
-  from { opacity: 0; transform: translateY(6vh) scale(.985); filter: blur(14px); }
+  from { opacity: 0; transform: translateY(4vh) scale(.99); }
 }
 
 /* Arriving from a link click: the new page opens as a circle growing out
    of the point you clicked (--vt-x/--vt-y, set by the inline script in
-   each page's <head>), over the old page, which holds still.
-   It starts slow and finishes fast (an accelerating curve), over 1.1 s,
-   while the old page dims and softens underneath. */
-html.vt-circle::view-transition-old(root) { animation: vf-hold 1.1s cubic-bezier(.5, 0, .75, 0) both; }
-html.vt-circle::view-transition-new(root) { animation: vf-circle 1.1s cubic-bezier(.7, 0, .84, 0) both; will-change: clip-path; }
-@keyframes vf-hold { to { filter: blur(14px) brightness(.55); transform: scale(.96); } }
+   each page's <head>), while the old page sinks back toward that point
+   and dims. One curve for both, moving from the first frame and settling
+   gently, over .9 s (the ring in each page's <head> script uses it too). */
+html.vt-circle::view-transition-old(root),
+html.vt-circle::view-transition-new(root) { transform-origin: var(--vt-x, 50%) var(--vt-y, 50%); }
+html.vt-circle::view-transition-old(root) { animation: vf-hold .9s cubic-bezier(.65, .05, .25, 1) both; }
+html.vt-circle::view-transition-new(root) { animation: vf-circle .9s cubic-bezier(.65, .05, .25, 1) both; will-change: clip-path, transform; }
+@keyframes vf-hold { to { transform: scale(.95); filter: brightness(.5); } }
 @keyframes vf-circle {
-  from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 50%)); transform: scale(1.08); filter: blur(10px); }
-  to   { clip-path: circle(var(--vt-r, 150vmax) at var(--vt-x, 50%) var(--vt-y, 50%)); transform: none; filter: blur(0); }   /* --vt-r: just reaches the farthest corner */
+  from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 50%)); transform: scale(1.035); }
+  to   { clip-path: circle(var(--vt-r, 150vmax) at var(--vt-x, 50%) var(--vt-y, 50%)); transform: none; }   /* --vt-r: just reaches the farthest corner */
 }
-/* The circle's glowing rim: a ring on the new page the same size as the
-   circle, so only its inner glow shows, riding the edge as it grows. */
+/* The circle's glowing rim: a ring on the new page as big as the circle
+   will get, scaled up from nothing on the same curve, so only its inner
+   glow shows, riding the edge as it grows (transform only). */
 .vt-ring {
-  position: fixed; z-index: 2147483647; pointer-events: none; border-radius: 50%;
+  position: fixed; z-index: 2147483647; pointer-events: none; border-radius: 50%; will-change: transform, opacity;
   box-shadow: inset 0 0 0 2px rgba(198,239,78,.9), inset 0 0 60px 10px rgba(46,229,157,.45);
 }
 

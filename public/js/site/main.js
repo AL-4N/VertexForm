@@ -7,6 +7,7 @@ import { mountStory } from "./story.js";
 import { mountExercisePopups } from "./expop.js";
 import { mountTones } from "./tones.js";
 import { mountSmooth } from "./smooth.js";
+import { mountBoot } from "./boot.js";
 import { mountScrollFx } from "./scroll-fx.js";
 import { mountSectionIndex } from "./sections.js";
 import { mountCardReps } from "./card-reps.js";
@@ -22,7 +23,7 @@ import { mountNavSpy } from "./nav-spy.js";
 import { mountRail } from "./rail.js";
 import { mountProgress } from "./progress.js";
 import { mountPageTransitions } from "../page-transition.js";
-import { mountScanButtons } from "../ui/scan-buttons.js";
+import { mountHoverFill } from "../ui/hover-fill.js";
 import { onScroll } from "./scroll-progress.js";
 
 function colourScores() {
@@ -54,8 +55,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // works if they didn't.
   if (window.gsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger, ...(window.SplitText ? [SplitText] : []));
   mountSmooth();
+  mountBoot();                        // the calibration intro, first visit in a session
   stickyNav();
-  mountScanButtons();
+  mountHoverFill();
   headerCta();
   mountMotionNav();
   mountRail();
@@ -83,7 +85,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // ?stage: the 3D stage's placeholder and the scroll numbers it gets
   // (stage-placeholder.js), for building the 3D. Not loaded otherwise.
   if (new URLSearchParams(location.search).has("stage")) import("./stage-placeholder.js").then((m) => m.mountStagePlaceholder());
-  // The mannequin beside the questions and the closing band (wide screens).
+  // The space the page sits in (atmosphere.js), and the figure beside the
+  // questions and the closing band (stage-body.js, wide screens).
+  import("./atmosphere.js").then((m) => m.mountAtmosphere());
   import("./stage-body.js").then((m) => m.mountStageBody());
 });
 // The service worker is registered by the trainer (js/main.js), not here: in

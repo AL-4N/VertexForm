@@ -136,7 +136,7 @@ local). `npm test` must pass first, as always.
 | Command | What it does |
 |---|---|
 | `npm run dev` | Serve `public/` at :8080 |
-| `npm test` | 21 unit and engine suites, about 535 checks |
+| `npm test` | 20 unit and engine suites, about 520 checks |
 | `npm run test:e2e` | Playwright browser suite (26 tests; `E2E_CHANNEL=chrome` uses installed Chrome) with Chromium's fake camera. Subset: `node tests/e2e/run.mjs "regex"`. Against the live site: `E2E_BASE=https://vertexform.alan-ht-wang.workers.dev npm run test:e2e` |
 | `npm run sw` | Refresh `public/sw.js` (precache list + version) |
 | `npm run voice` | Render new or changed coach phrases with Kokoro into `public/audio/` (`--voice af_heart` for one voice). About 1 s per clip on CPU; voices can run in parallel processes |
@@ -146,7 +146,6 @@ local). `npm test` must pass first, as always.
 | `node tools/make-whatsnew.mjs` | Regenerate What's new (`public/whats-new.html`) from `CHANGELOG.md` |
 | `node tools/make-privacy.mjs` | Regenerate the Privacy page (`public/privacy.html`) |
 | `node tools/make-og.mjs` | Redraw the share card (`public/og.png`, 1200 by 630) |
-| Blender `--python tools/export-mannequin.py` | Re-export the 3D body (`public/models/mannequin.bin`) from `art/mannequin.blend`; Blender 5.3 is in `~/Applications`, and the MCP for Blender connection is set up for this project (telemetry off) |
 
 Dev dependencies: `playwright` (Chromium is downloaded by
 `npx playwright install chromium`), `ffmpeg-static` (its install script is
@@ -225,12 +224,11 @@ public/            index.html  app.html  exercises.html  whats-new.html  privacy
      exercises/    squat, pushup, plank, lunge, jumpingjack (thresholds, measure, grade, faults, fixes, posture, guide)
      ui/           live.js ★ · overlay.js · motion.js · settings.js · results.js · stats.js · workouts.js
                    rest-screen.js · onboarding.js · camera-picker.js · camera-preview.js · menu.js · components.js
-     site/         website scripts (hero3d, story, expop, lab, how, smooth, scroll-progress, stage, stage-body, scroll-fx, sections, card-reps, paths, faq, tones, motion-nav, nav-spy, rail, progress)
-  models/          mannequin.bin (the 3D body; tools/export-mannequin.py from art/mannequin.blend)
+     site/         website scripts (hero3d, boot, story, expop, lab, how, smooth, scroll-progress, stage, atmosphere, stage-body, scroll-fx, sections, card-reps, paths, faq, tones, motion-nav, nav-spy, rail, progress)
   vendor/          self-hosted GSAP, Lenis, Three.js (vendor/README.md)
      figures/      stick-figure rig used by the site, the setup demo and the simulator
 tests/             *.test.mjs (npm test) · e2e/run.mjs · helpers/synth.mjs (simulated people) · fixtures/ · videos/ (git-ignored)
-art/mannequin.blend (Blender source of the 3D body)   scripts/build-voice.mjs   tools/update-sw.mjs   tools/make-synthetic-fixture.mjs   tools/export-mannequin.py
+scripts/build-voice.mjs   tools/update-sw.mjs   tools/make-synthetic-fixture.mjs
 README.md · CLAUDE.md · CHANGELOG.md · TODO.md · RECORDING_GUIDE.md · PROJECT_PROMPT.md (this file)
 ```
 
@@ -238,8 +236,8 @@ README.md · CLAUDE.md · CHANGELOG.md · TODO.md · RECORDING_GUIDE.md · PROJE
 
 - **Unit and engine** (`npm test`): session 87, skills 65, camera 53,
   overlay 43, tracking 39, scoring 34, replay 29 + 13, circuit 27, coach 25,
-  speech 24, challenges 20, scroll 17, storage 15, mannequin 14, voice 14,
-  pwa 8, library 4, privacy 4, what's new 3, rig.
+  speech 24, challenges 20, scroll 17, storage 15, voice 14, pwa 8,
+  library 4, privacy 4, what's new 3, rig.
 - **Simulator:** `tests/helpers/synth.mjs` turns the stick-figure rig into
   MediaPipe-style landmarks. `repStream` supports rotation, 3D world
   landmarks, mutations (glitches, occlusion), rests, custom motion profiles,
