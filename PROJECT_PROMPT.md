@@ -58,6 +58,14 @@ repo. Every push to `main` auto-deploys in about 1–2 minutes. `wrangler.jsonc`
 serves `./public` with `html_handling: auto-trailing-slash`, which redirects
 `app.html` to `/app` (`sw.js` handles that). To check a deploy has landed,
 compare `const VERSION` in the live `/sw.js` with the local `public/sw.js`.
+Cloudflare's build runs `npm clean-install` before `npx wrangler deploy`, so
+every dev tool installs there too. `.npmrc` skips onnxruntime-node's Linux GPU
+download (under kokoro-js), which 404s and failed deploys in Nov 2026. npm
+warns that npm 12 will stop passing that setting; if deploys break again the
+same way, add `ONNXRUNTIME_NODE_INSTALL_CUDA=skip` as a build variable in the
+Cloudflare dashboard. A failed build shows on the commit's GitHub check run
+(`api.github.com/repos/AL-4N/VertexForm/commits/<sha>/check-runs`); the log
+itself is only in the dashboard.
 
 **Git:** pushes work over HTTPS with cached credentials, using
 `GIT_TERMINAL_PROMPT=0 git push origin main`. The credential is a classic GitHub token
