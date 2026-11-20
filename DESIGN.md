@@ -258,6 +258,26 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     unlocked skills (paper petals, green heart), the next skill shows an
     amber bud, untracked and locked ones are bare twigs. A small blossom
     sits on each branch between two unlocked skills.
+    On a wide screen (>900 px, motion allowed) the tree is **a real tree in
+    3D** (`ui/tree3d.js`, Three.js): a trunk from the ground and tapered
+    branches spread round it by tier, lit green out of unlocked skills,
+    dashed toward ones that can't be tracked yet; an open flower (paper
+    petals, green heart, turned to face you) on each unlocked skill, an
+    amber bud on the next, bare twig tips on the rest; leaves along the
+    branches you've earned, so the tree leafs out as you unlock; roots and
+    a protractor ring on the drafting floor. Opening it grows the trunk,
+    then each tier, each flower opening as its branch arrives, while the
+    camera cranes up from the roots. Each skill has a label pinned by a
+    leader line: its name, **the workout that trains it** ("Push-up × 15 ·
+    avg 90+", with that exercise's figure in the status colour) and its
+    status. As a label arrives its leader draws out, the name's letters
+    rise one by one from their word's mask, the workout line wipes in and
+    the status follows; the panel's heading rises letter by letter each
+    time a skill is picked. It turns slowly; drag to turn it, pointing at
+    a label stops it, and picking a skill swings it to the front and
+    lights its branches down to the trunk. Labels on the far side dim and
+    can't be clicked. Narrow screens, reduced motion or no WebGL keep the
+    flat tree.
 - **The hero can grade a half squat**: under the readout, a Full / Half
   squat switch (squat only) swaps in the half-squat clip, so you watch the
   same engine score it in the 70s (coral to amber) with a fix note.

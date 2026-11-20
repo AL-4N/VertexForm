@@ -1195,3 +1195,72 @@ p { text-wrap: pretty; }
 .unlock-bar i { display: block; height: 100%; border-radius: inherit; }
 
 .builder-add { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* ── The skill tree in 3D (js/ui/tree3d.js, wide screens with motion) ──
+   A canvas with the tree, and the page's own buttons pinned to each skill
+   by a leader line: name, the workout that trains it, status. */
+.tree.is-3d { display: block; min-width: 0; padding: 0; height: clamp(540px, calc(100svh - 190px), 820px); overflow: hidden; touch-action: pan-y; }
+.t3-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+.tree.is-3d.dragging .t3-canvas { cursor: grabbing; }
+.t3-labels { position: absolute; inset: 0; pointer-events: none; }
+.t3-label {
+  --lead: 22px; position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: .5rem; max-width: 290px;
+  padding: .42rem .65rem .42rem .45rem; border: 0; border-radius: 9px; font: inherit; color: var(--text); text-align: left; cursor: pointer; pointer-events: auto;
+  background: color-mix(in srgb, var(--panel) 90%, transparent); box-shadow: inset 0 0 0 1px var(--border), 0 10px 30px -14px rgba(0,0,0,.8);
+  translate: var(--lead) -50%; opacity: 0; scale: .92;
+  transition: opacity .35s var(--ease), scale .35s var(--ease), box-shadow .2s, translate .35s var(--ease);
+}
+.t3-label.in { opacity: 1; scale: 1; }
+.t3-label.left { translate: calc(-100% - var(--lead)) -50%; }
+/* The leader: a hairline from the skill to the label, with a dot on the skill. */
+.t3-label::before { content: ""; position: absolute; top: 50%; right: 100%; width: var(--lead); height: 1px; background: var(--line-2, #2e3a63); }
+.t3-label::after { content: ""; position: absolute; top: calc(50% - 3px); right: calc(100% + var(--lead) - 3px); width: 6px; height: 6px; border-radius: 50%; background: var(--text-dim); }
+.t3-label.left::before { right: auto; left: 100%; }
+.t3-label.left::after { right: auto; left: calc(100% + var(--lead) - 3px); }
+.t3-label.back { opacity: .22; scale: .9; pointer-events: none; }
+.t3-label:hover, .t3-label:focus-visible { box-shadow: inset 0 0 0 1px var(--text-dim), 0 10px 30px -14px rgba(0,0,0,.8); }
+.t3-label:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+.t3-label[aria-pressed="true"] { box-shadow: inset 0 0 0 1px var(--lime), 0 0 0 3px color-mix(in srgb, var(--lime) 18%, transparent); }
+.t3-label.done::after { background: var(--lime); box-shadow: 0 0 8px var(--lime); }
+.t3-label.next::after { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+.t3-pic { width: 56px; height: 36px; flex: none; display: grid; place-items: center; }
+.t3-pic svg { width: 100%; height: 100%; }
+/* Drawn plain (their gradient ids live on the hidden menu too), in the skill's status colour. */
+.t3-pic { color: var(--text-dim); }
+.t3-label.done .t3-pic { color: var(--lime); }
+.t3-label.next .t3-pic { color: var(--amber); }
+.t3-text { display: grid; gap: .08rem; min-width: 0; }
+.t3-text strong { font-size: .86rem; line-height: 1.2; font-weight: 600; }
+.t3-work { font-family: var(--mono); font-size: .66rem; color: var(--text-dim); white-space: nowrap; }
+.t3-status, .t3-path { font-family: var(--mono); font-size: .6rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); }
+.t3-label.done .t3-status { color: var(--lime); }
+.t3-label.next .t3-status { color: var(--amber); }
+.t3-label.locked, .t3-label.planned:not(.ready) { background: color-mix(in srgb, var(--panel) 78%, transparent); }
+.t3-label.locked .t3-text strong, .t3-label.planned .t3-text strong { color: var(--text-dim); }
+.tree.is-3d .t3-ghost { width: auto; padding: .3rem .55rem; border-style: dashed; box-shadow: inset 0 0 0 1px var(--border); background: color-mix(in srgb, var(--bg) 85%, transparent); }
+.tree.is-3d .t3-ghost strong { font-size: .74rem; }
+.t3-hint { position: absolute; left: 1rem; bottom: .8rem; margin: 0; pointer-events: none; font-family: var(--mono); font-size: .66rem; letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint); }
+
+/* Text arriving in the 3D tree: the leader draws out from the skill, the
+   name's letters rise one after another from their word's mask, then the
+   workout line wipes in left to right and the status follows. The panel's
+   heading rises the same way each time a skill is picked. */
+.ch-w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .08em; margin-bottom: -.08em; }
+.ch { display: inline-block; }
+@media (prefers-reduced-motion: no-preference) {
+  .t3-label::before { transform: scaleX(0); transform-origin: 100% 50%; transition: transform .3s cubic-bezier(.6,0,.2,1); }
+  .t3-label:not(.left)::before { transform-origin: 0 50%; }           /* grows from the skill's end */
+  .t3-label.in::before { transform: none; }
+  .t3-label .ch { transform: translateY(110%); }
+  .t3-label.in .ch { transform: none; transition: transform .55s cubic-bezier(.2,.8,.2,1) calc(.18s + var(--i) * 24ms); }
+  .t3-label .t3-work { clip-path: inset(0 100% 0 0); }
+  .t3-label.in .t3-work { clip-path: inset(0 0 0 0); transition: clip-path .6s cubic-bezier(.6,0,.2,1) .42s; }
+  .t3-label .t3-status { opacity: 0; translate: -6px 0; }
+  .t3-label.in .t3-status { opacity: 1; translate: 0 0; transition: opacity .3s .7s, translate .4s cubic-bezier(.2,.8,.2,1) .7s; }
+  .t3-label .t3-pic svg { transform: scale(.6); opacity: 0; }
+  .t3-label.in .t3-pic svg { transform: none; opacity: 1; transition: transform .5s cubic-bezier(.34,1.56,.64,1) .3s, opacity .3s .3s; }
+  .rise-letters .ch { animation: ch-rise .55s cubic-bezier(.2,.8,.2,1) calc(var(--i) * 26ms) backwards; }
+  .tree-detail .tree-goal { animation: ch-rise-line .5s cubic-bezier(.2,.8,.2,1) .2s backwards; }
+}
+@keyframes ch-rise { from { transform: translateY(110%); } }
+@keyframes ch-rise-line { from { opacity: 0; transform: translateY(10px); } }

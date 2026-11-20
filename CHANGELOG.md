@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.11.0 — 2026-11-20
+
+### The skill tree grows in 3D
+- On a wide screen, each skill path is now a real tree in 3D. The trunk
+  and branches grow up from the ground tier by tier, unlocked skills open
+  into flowers, the next one is an amber bud, and leaves come in along the
+  branches you've earned.
+- Every skill carries a label with the workout that trains it, like
+  "Push-up × 15 · avg 90+", and its status. The names rise in letter by
+  letter as the tree grows.
+- The tree turns slowly on its own. Drag to turn it; pick a skill and it
+  swings to the front and lights its branches down to the trunk.
+
 ## 2.10.1 — 2026-11-20
 
 ### Cards that catch the light

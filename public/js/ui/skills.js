@@ -20,6 +20,13 @@ import { store } from "../storage.js";
 import { skillPath } from "../skills.js";
 import { miniTree, tiersOf, avgPos } from "./mini-tree.js";
 import { $, showScreen } from "./components.js";
+import { renderPictos } from "../figures/pictos.js";
+
+// The tree in 3D (tree3d.js, Three.js) on wide screens with motion; the
+// flat tree otherwise, or if WebGL or the module fails.
+const want3d = () => !reducedMotion() && matchMedia("(min-width: 901px)").matches;
+let tree3dMod = null, tree3dLoad = null, tree3d = null;
+const load3d = () => (tree3dLoad ??= import("./tree3d.js").then((m) => (tree3dMod = m)).catch(() => (tree3dMod = false)));
 
 const NS = "http://www.w3.org/2000/svg";
 
@@ -52,6 +59,7 @@ const stepOf = (id) => paths.flatMap((p) => p.steps).find((s) => s.id === id);
 /** Render the overview. `train(exercise)` opens that exercise's setup. */
 export function renderSkills(train) {
   if (train) onTrain = train;
+  if (want3d()) load3d();                         // ready by the time a tree opens
   paths = skillPath(store.sessions, store.skills);
   $("#skills-wrap").innerHTML = paths.map((p) => `
     <button type="button" class="card path-card" data-path="${p.id}">
@@ -175,7 +183,53 @@ function ghostHTML(req, child) {
   </button>`;
 }
 
+/** A name as words of letters, each letter able to rise from its word's mask (CSS --i staggers them). */
+function letters(text) {
+  let i = 0;
+  return text.split(" ").map((w) => `<span class="ch-w">${[...w].map((c) => `<span class="ch" style="--i:${i++}">${c}</span>`).join("")}</span>`).join(" ");
+}
+
+/** What the label on a 3D skill says: the workout that trains it. */
+function workLine(s) {
+  const t = s.test;
+  if (!t) return "Not tracked yet";
+  return t.kind === "hold" ? `${t.exercise} · ${t.seconds} s · avg ${t.avg}+` : `${t.exercise} × ${t.reps} · avg ${t.avg}+`;
+}
+function label3d(s, { ghost, child }) {
+  if (ghost) return `<button type="button" class="t3-ghost tree-ghost ${s.status}" data-skill="${s.id}" data-for="${child}">
+    <span class="t3-text"><span class="t3-path">${pathOf(s.path).name} path</span><strong>${s.name}</strong></span></button>`;
+  return `<button type="button" class="t3-node ${s.status}${s.ready ? " ready" : ""}" data-skill="${s.id}" aria-pressed="${s.id === selected}" aria-label="${s.name}: ${workLine(s)}, ${statusText(s)}">
+    ${s.test ? `<span class="t3-pic picto" data-picto="${s.test.exercise}" data-picto-plain aria-hidden="true"></span>` : ""}
+    <span class="t3-text" aria-hidden="true"><strong class="t3-name">${letters(s.name)}</strong><span class="t3-work">${workLine(s)}</span><span class="t3-status">${statusText(s)}</span></span>
+  </button>`;
+}
+
 function drawTree() {
+  tree3d?.destroy();
+  tree3d = null;
+  const host = $("#tree");
+  if (want3d() && tree3dMod !== false) {
+    host.innerHTML = "";
+    host.className = "tree is-3d";
+    resizeObs?.disconnect();
+    const mount = () => {
+      if (!tree3dMod) { drawTree2d(); requestAnimationFrame(drawEdges); return; }
+      try {
+        tree3d = tree3dMod.mountTree3d(host, { path: current, stepOf, selected, labelFor: label3d, intro: true });
+        renderPictos(host);
+      } catch { tree3dMod = false; drawTree2d(); requestAnimationFrame(drawEdges); return; }
+    };
+    if (tree3dMod) mount();
+    else { const forPath = current; load3d().then(() => { if (current === forPath && !tree3d) mount(); }); }
+    wireTree();
+    drawDetail();
+    return;
+  }
+  drawTree2d();
+}
+
+function drawTree2d() {
+  $("#tree").className = "tree";
   const rows = tiersOf(current);
   // Order each row by where its prerequisites sit in the row above, so lines cross less.
   const pos = {};
@@ -197,17 +251,7 @@ function drawTree() {
         <div class="tree-row-nodes">${row.map(nodeHTML).join("")}${(ghosts[t] ?? []).map(([r, c]) => ghostHTML(r, c)).join("")}</div>
       </div>`).join("")}`;
 
-  $("#tree").onclick = (e) => {
-    const ghost = e.target.closest(".tree-ghost");
-    if (ghost) { openTree(stepOf(ghost.dataset.skill).path, ghost.dataset.skill); return; }
-    const node = e.target.closest("[data-skill]");
-    if (!node) return;
-    selected = node.dataset.skill;
-    $$tree("[data-skill]").forEach((n) => n.setAttribute("aria-pressed", String(n.dataset.skill === selected)));
-    drawDetail();
-    const panel = $("#tree-detail");
-    growFrom(panel, node.getBoundingClientRect(), { duration: 480, items: [...panel.children] });
-  };
+  wireTree();
   drawDetail();
 
   resizeObs?.disconnect();
@@ -216,6 +260,23 @@ function drawTree() {
 }
 
 const $$tree = (sel) => [...$("#tree").querySelectorAll(sel)];
+
+/** Clicking a skill (flat or 3D) shows it in the panel; a prerequisite from
+ *  another path opens that path's tree. */
+function wireTree() {
+  $("#tree").onclick = (e) => {
+    const ghost = e.target.closest(".tree-ghost");
+    if (ghost) { openTree(stepOf(ghost.dataset.skill).path, ghost.dataset.skill); return; }
+    const node = e.target.closest("[data-skill]");
+    if (!node) return;
+    selected = node.dataset.skill;
+    $$tree("[data-skill]").forEach((n) => n.setAttribute("aria-pressed", String(n.dataset.skill === selected)));
+    tree3d?.select(selected);
+    drawDetail();
+    const panel = $("#tree-detail");
+    growFrom(panel, node.getBoundingClientRect(), { duration: 480, items: [...panel.children] });
+  };
+}
 
 /**
  * The wood: a trunk from the ground up to every starting skill, then a
@@ -324,7 +385,7 @@ function drawDetail() {
 
   $("#tree-detail").innerHTML = `
     <span class="tree-detail-status ${s.status}">${statusText(s)}</span>
-    <h2>${s.name}</h2>
+    <h2 class="rise-letters" aria-label="${s.name}"><span aria-hidden="true">${letters(s.name)}</span></h2>
     <p class="tree-goal">${s.goal}</p>
     ${s.status === "next" ? progressHTML(s) : ""}
     ${why}
@@ -339,6 +400,7 @@ function drawDetail() {
       if (x.path !== current.id) { openTree(x.path, x.id); return; }
       selected = x.id;
       $$tree("[data-skill]").forEach((n) => n.setAttribute("aria-pressed", String(n.dataset.skill === selected)));
+      tree3d?.select(selected);
       drawDetail();
       return;
     }
