@@ -16,7 +16,7 @@
  * and old ones are deleted on activate. Updates are never stuck.
  */
 
-const VERSION = "f9110a3b07e3";
+const VERSION = "5ac9df11bc63";
 const PRECACHE = [
   "./",
   "404.html",

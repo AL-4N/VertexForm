@@ -10,6 +10,11 @@
  * settles with a card at the front. A card that gets keyboard focus turns
  * to the front. Whichever card is at the front is the one on the stage
  * (onFront). One transform per card per frame, only while it's on screen.
+ *
+ * A card catches a glint (a band of light sweeping across it) as it turns
+ * to the front, and the whole ring catches one, card after card from the
+ * front, once the cards have flown into place. Pointing at a card glints
+ * it too (CSS, app.css).
  */
 
 const TILT = 24 * (Math.PI / 180);   // the ring leans toward you: the front of it lower
@@ -17,6 +22,16 @@ const AUTO = 0.06;                   // radians a second, on its own
 const WHEEL_STEP = 90;               // px of wheel per card
 const IDLE = 3500;
 const DEPTH = 0.78;                  // the ring is an ellipse: less deep than wide, so it fits under the stage                   // ms after you touch it before it turns on its own again
+
+// The glint runs on the card's ::after. Browsers that can't animate a
+// pseudo-element would move the card itself instead, so they get none.
+const CAN_GLINT = typeof KeyframeEffect !== "undefined" && "pseudoElement" in KeyframeEffect.prototype;
+const GLINT = [{ transform: "translateX(-140%) skewX(-18deg)" }, { transform: "translateX(240%) skewX(-18deg)" }];
+function glint(item, delay = 0) {
+  const card = item?.querySelector(".ex-card");
+  if (!CAN_GLINT || !card) return;
+  card.animate(GLINT, { duration: 900, delay, easing: "cubic-bezier(.5,0,.3,1)", pseudoElement: "::after" });
+}
 
 export function mountPickerRing(view, { items, start = 0, intro = false, onFront }) {
   const N = items.length, STEP = (2 * Math.PI) / N, TAU = 2 * Math.PI;
@@ -90,7 +105,14 @@ export function mountPickerRing(view, { items, start = 0, intro = false, onFront
     if (idle) st.want -= AUTO * dt;                          // the next card comes round
     st.shown += (st.want - st.shown) * (1 - Math.exp(-dt * 7));
     // The first time: the cards fly out from the stage and wind into place.
-    if (st.grow < 1) st.grow = Math.min(1, st.grow + dt / 1.3);
+    if (st.grow < 1) {
+      st.grow = Math.min(1, st.grow + dt / 1.3);
+      // Landed: a glint runs round the ring, both ways from the front card.
+      if (st.grow === 1) items.forEach((el, i) => {
+        const k = (i - st.front + N) % N;
+        glint(el, Math.min(k, N - k) * 55);
+      });
+    }
     const g = 1 - Math.pow(1 - st.grow, 3);
     const R = st.R * g, spin = (1 - g) * 2.2;
     let best = -2, front = st.front;
@@ -104,7 +126,11 @@ export function mountPickerRing(view, { items, start = 0, intro = false, onFront
       if (c > best) { best = c; front = i; }
     });
     items.forEach((el, i) => el.classList.toggle("front", i === front));
-    if (front !== st.front) { st.front = front; if (!st.hover) onFront(front); }
+    if (front !== st.front) {
+      st.front = front;
+      if (st.grow === 1) glint(items[front], 120);          // catches the light as it comes round
+      if (!st.hover) onFront(front);
+    }
     // Keep drawing while it moves or turns on its own.
     const moving = idle || st.grow < 1 || Math.abs(st.want - st.shown) > 1e-4 || st.drag;
     if (moving && st.visible && !document.hidden) st.raf = requestAnimationFrame(frame);

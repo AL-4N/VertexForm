@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.10.1 — 2026-11-20
+
+### Cards that catch the light
+- In the trainer's ring of exercises, a card catches a glint as it turns
+  to the front and when you point at it, and a glint runs round the whole
+  ring once the cards have flown in.
+
 ## 2.10.0 — 2026-11-18
 
 ### The homepage scrolls in

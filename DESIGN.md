@@ -217,8 +217,11 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     arrow buttons or the arrow keys turn it and settle a card at the front.
     The front card is the one on the stage; a focused card turns to the
     front; Enter or a click trains it. The first time, the cards fly out
-    from the stage and wind into place. Narrower screens and reduced
-    motion keep the dial.
+    from the stage and wind into place, then a glint runs round the ring
+    both ways from the front card. A card catches a glint (a diagonal band
+    of light with a faint lime edge, on its `::after`) as it turns to the
+    front and when you point at it. Narrower screens and reduced motion
+    keep the dial.
   - **Trainer screen moments** (`ui/flair.js`), each different:
     an **exercise card becomes its setup panel** (the card stretches to the
     demo panel while its stick figure hops into the demo figure, then the
