@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.12.0 — 2026-11-22
+
+### A tree in flower
+- In the 3D skill tree, every skill now grows on its own stem out of the
+  branches instead of sitting inside them. Unlocked skills carry a spray
+  of flowers and buds, the next skill is a bud just starting to open, and
+  locked ones are dormant buds on a bare twig. Branches between two
+  unlocked skills flower along their length.
+
+### Words that move
+- Homepage headings rise in letter by letter, each section's opening
+  paragraph lights up word by word as you reach it, and the section
+  labels spell themselves in.
+
 ## 2.11.0 — 2026-11-20
 
 ### The skill tree grows in 3D

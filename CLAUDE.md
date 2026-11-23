@@ -48,7 +48,7 @@ How it looks, sounds and reads (colours, type, figures, motion, writing rules):
 - `js/site/boot.js`: the calibration intro (first visit in a session; the inline script in index.html's head adds `html.booting` and gives up after 6 s). It dispatches `vf:booted`; the hero's intro and headline reveal wait for it. The e2e harness skips it unless `make({ boot: true })`.
 - Page transitions: `css/transitions.css` + the inline `pagereveal` script in each page head: a circle from the click, .9 s, no blur (clip-path, transform, brightness only). index.html and the generated pages pre-render the trainer on hover (`<script type="speculationrules">`; DevTools/Playwright disables pre-rendering, so tests can't see it).
 - Buttons: `js/ui/hover-fill.js` (the circle of ink from the pointer; `.btn::before` in site.css and app.css). The owner prefers it to the scanning beam tried in Nov 2026.
-- `js/site/scroll-fx.js`: SplitText line reveals for headings, ScrollTrigger batch reveals for card groups, hero parallax on the way out.
+- `js/site/scroll-fx.js`: SplitText letter-by-letter reveals for headings, lead paragraphs lit word by word as their section lands (timed, not scrubbed: scenes.js holds sections still while they arrive), ScrollTrigger batch reveals for card groups, hero parallax on the way out.
 - `js/site/story.js`: ScrollTrigger progress for the pinned 3D story.
 - `js/figures/figure-gl.js`: the hero's figure in light (Three.js, glow.js) under the same camera as `figures/scene3d.js`, which still draws the floor, protractors and notes on 2D canvases.
 - Removed Nov 2026 as template tells (DESIGN.md "Removed in Nov 2026"): click sparks, magnetic buttons, the fact ticker, tilting cards, decoding text, the pointer glow. Don't re-add them.

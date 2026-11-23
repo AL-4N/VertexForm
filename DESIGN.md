@@ -261,9 +261,15 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
     On a wide screen (>900 px, motion allowed) the tree is **a real tree in
     3D** (`ui/tree3d.js`, Three.js): a trunk from the ground and tapered
     branches spread round it by tier, lit green out of unlocked skills,
-    dashed toward ones that can't be tracked yet; an open flower (paper
-    petals, green heart, turned to face you) on each unlocked skill, an
-    amber bud on the next, bare twig tips on the rest; leaves along the
+    dashed toward ones that can't be tracked yet. Every skill grows its
+    own short stem out of the wood (skills on the trunk alternate sides),
+    so nothing sits inside the trunk, and the stem carries a spray that
+    faces you and sways a little: three flowers of different sizes
+    (cupped petals, pale green at the base to paper white, a green heart
+    and amber stamens) with two buds when unlocked, a big amber bud with
+    its petals just parting when next, dormant buds on a bare twig when
+    locked. A branch between two unlocked skills flowers along its length.
+    Leaves along the
     branches you've earned, so the tree leafs out as you unlock; roots and
     a protractor ring on the drafting floor. Opening it grows the trunk,
     then each tier, each flower opening as its branch arrives, while the
@@ -335,9 +341,12 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   grow after the page loads.
 - **Smooth scrolling** (Lenis, `site/smooth.js`): wheel and trackpad
   scrolling glide; touch stays native. Paused while a popup is open.
-- **Headings rise in line by line** from a mask, no blur (GSAP
+- **Headings rise in letter by letter** from their line's mask, no blur,
+  each letter tipping back slightly and settling as it lands (GSAP
   SplitText, `site/scroll-fx.js`): the hero's on load, each section's the
-  first time it comes on screen.
+  first time it comes on screen. **Lead paragraphs light up word by
+  word** (dim to full, at reading pace) as their section lands, and each
+  **section rule's name** rises letter by letter as its hairline draws.
 - **Cards rise in** group by group as they enter (ScrollTrigger batch), and
   the hero has depth on the way out: the copy drifts up faster than the
   page while the 3D scene sinks and fades.

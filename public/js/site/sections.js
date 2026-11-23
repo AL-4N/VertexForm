@@ -38,7 +38,7 @@ export function mountSectionIndex() {
     const el = document.createElement("div");
     el.className = "sec-rule";
     el.setAttribute("aria-hidden", "true");
-    el.innerHTML = `<span class="sec-rule-n"><i>N°</i>${n}</span><span class="sec-rule-name">${label}</span><i class="sec-rule-line"></i>`
+    el.innerHTML = `<span class="sec-rule-n"><i>N°</i>${n}</span><span class="sec-rule-name">${[...label].map((c) => `<b>${c === " " ? "&nbsp;" : c}</b>`).join("")}</span><i class="sec-rule-line"></i>`
       + (k ? `<span class="sec-rule-read">${k} ${k === 1 ? one : many}</span>` : "");
     // Its own row at the top of the section (a heading can sit inside a grid).
     const row = document.createElement("div");
@@ -54,7 +54,9 @@ export function mountSectionIndex() {
     // The hairline draws across as the section comes up; the labels arrive with it.
     gsap.fromTo(el.querySelector(".sec-rule-line"), { scaleX: 0 }, { scaleX: 1, ease: "none",
       scrollTrigger: { trigger: el, start: "top 92%", end: "top 55%", scrub: 0.5 } });
-    gsap.from(el.querySelectorAll("span"), { yPercent: 100, opacity: 0, duration: 0.8, ease: "expo.out", stagger: 0.06,
-      scrollTrigger: { trigger: el, start: "top 88%", once: true } });
+    // The number and reading rise in; the name's letters follow one by one.
+    const tl = gsap.timeline({ scrollTrigger: { trigger: el, start: "top 88%", once: true } });
+    tl.from(el.querySelectorAll(".sec-rule-n, .sec-rule-read"), { yPercent: 100, opacity: 0, duration: 0.8, ease: "expo.out", stagger: 0.08 }, 0)
+      .from(el.querySelectorAll(".sec-rule-name b"), { yPercent: 110, duration: 0.6, ease: "expo.out", stagger: 0.035 }, 0.1);
   }
 }

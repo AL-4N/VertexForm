@@ -217,7 +217,7 @@ function drawTree() {
       try {
         tree3d = tree3dMod.mountTree3d(host, { path: current, stepOf, selected, labelFor: label3d, intro: true });
         renderPictos(host);
-      } catch { tree3dMod = false; drawTree2d(); requestAnimationFrame(drawEdges); return; }
+      } catch (err) { console.warn("3D tree failed, showing the flat one:", err); tree3dMod = false; drawTree2d(); requestAnimationFrame(drawEdges); return; }
     };
     if (tree3dMod) mount();
     else { const forPath = current; load3d().then(() => { if (current === forPath && !tree3d) mount(); }); }

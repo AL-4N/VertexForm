@@ -2,9 +2,14 @@
  * scroll-fx.js — what happens as you scroll the homepage (GSAP ScrollTrigger
  * and SplitText, vendor/gsap).
  *
- *   Headings   split into lines; each line rises out of its own mask, with
- *              a little blur, the first time it comes on screen (the hero's
- *              on load). Screen readers get the heading as one label.
+ *   Headings   split into lines and letters; the letters rise out of their
+ *              line's mask one after another, the first time the heading
+ *              comes on screen (the hero's on load). Screen readers get the
+ *              heading as one label.
+ *   Leads      each section's opening paragraph starts dim and lights up
+ *              word by word, at reading pace, as the section lands (with
+ *              scenes.js the section is held still while it arrives, so a
+ *              scroll-scrubbed light would finish before you could see it).
  *   Cards      each group (exercise cards, steps, modes, cues, panels…)
  *              rises in one after another as it enters.
  *   Hero       as you scroll away, the copy drifts up faster than the page
@@ -29,14 +34,30 @@ export function mountScrollFx() {
     const heads = [document.querySelector(".hero h1"), ...document.querySelectorAll("main section .section-head h2, .cta-band h2")].filter(Boolean);
     document.documentElement.classList.add("split-wait");
     const fonts = Promise.race([document.fonts?.ready ?? Promise.resolve(), new Promise((r) => setTimeout(r, 1000))]);
-    fonts.then(() => { document.documentElement.classList.remove("split-wait"); heads.forEach(split); });
+    fonts.then(() => { document.documentElement.classList.remove("split-wait"); heads.forEach(split); leads.forEach(light); });
+  }
+  const leads = SplitText ? gsap.utils.toArray("main section .section-head p, .cta-band .wrap > p") : [];
+  // Lit as you read: every word dim, then each one comes up to full in
+  // turn, like a reading line moving through it.
+  const scenes = document.documentElement.classList.contains("scenes");
+  function light(p) {
+    SplitText.create(p, {
+      type: "words", wordsClass: "lit-w", autoSplit: true,
+      onSplit: (self) => gsap.fromTo(self.words, { opacity: 0.16 }, {
+        opacity: 1, duration: 0.5, ease: "power1.out", stagger: Math.min(0.06, 2.2 / Math.max(1, self.words.length)), delay: 0.25,
+        scrollTrigger: { trigger: p, start: scenes ? "top 62%" : "top 85%", once: true },
+      }),
+    });
   }
   function split(h, k) {
     SplitText.create(h, {
-      type: "lines", mask: "lines", autoSplit: true, linesClass: "split-line",
+      type: "lines,words,chars", mask: "lines", autoSplit: true, linesClass: "split-line", charsClass: "split-ch",
       onSplit: (self) => {
-        const tw = gsap.from(self.lines, {
-          yPercent: 110, duration: 1.1, ease: "expo.out", stagger: 0.08,   // a clean rise out of the line's mask, no blur
+        // Letter by letter out of the line's mask: a clean rise, no blur, a
+        // slight tip back that settles as each letter lands.
+        const tw = gsap.from(self.chars, {
+          yPercent: 115, rotate: 7, transformOrigin: "0% 100%", duration: 0.95, ease: "expo.out",
+          stagger: { each: Math.min(0.024, 0.9 / Math.max(1, self.chars.length)) },
           delay: k === 0 ? 0.15 : 0,
           scrollTrigger: k === 0 ? undefined : { trigger: h, start: "top 88%", once: true },
         });

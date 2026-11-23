@@ -1256,3 +1256,7 @@ html.booting .boot::before, html.booting .boot::after, .boot.closing::before, .b
 .scenes main > section:not(.hero) { display: flex; flex-direction: column; justify-content: center; }
 .scenes main > section.in-scene { will-change: transform, opacity; backface-visibility: hidden; }
 .scenes main { overflow: clip; }
+
+/* Letters of a section rule's name rise from the name's own mask (sections.js). */
+.sec-rule-name { display: inline-flex; overflow: hidden; }
+.sec-rule-name b { display: inline-block; font-weight: inherit; }

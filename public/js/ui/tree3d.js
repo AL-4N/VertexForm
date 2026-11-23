@@ -175,56 +175,163 @@ function bend(a, b, straight = false) {
 
 const stdMat = (color, emissive = 0, k = 0, extra = {}) => new THREE.MeshStandardMaterial({ color, emissive, emissiveIntensity: k, roughness: 0.65, metalness: 0, ...extra });
 
-function bloom(T) {
-  const g = new T.Group(), petals = [];
-  const pg = new T.SphereGeometry(1, 14, 8), petal = stdMat(COL.paper, COL.paper, 0.18);
+// A petal: a teardrop that cups toward you, pale green at its base and
+// paper white at its tip. Made once, shared by every flower.
+let petalGeo = null;
+function petalGeometry() {
+  if (petalGeo) return petalGeo;
+  const sh = new THREE.Shape();
+  sh.moveTo(0, 0);
+  sh.bezierCurveTo(0.5, 0.12, 0.5, 0.8, 0, 1);
+  sh.bezierCurveTo(-0.5, 0.8, -0.5, 0.12, 0, 0);
+  const g = new THREE.ShapeGeometry(sh, 10);
+  const p = g.attributes.position, col = [], base = new THREE.Color(0xc9ef8a), tip = new THREE.Color(COL.paper), c = new THREE.Color();
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), y = p.getY(i);
+    p.setZ(i, 0.12 * y * y + 0.22 * x * x);                  // cupped, edges curling up
+    c.copy(base).lerp(tip, ease(y / 0.55));
+    col.push(c.r, c.g, c.b);
+  }
+  g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+  g.computeVertexNormals();
+  return (petalGeo = g);
+}
+
+let shared = null;
+function sharedMats() {
+  if (shared) return shared;
+  const T = THREE;
+  shared = {
+    petal: new T.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, emissive: 0xeef1fb, emissiveIntensity: 0.12, side: T.DoubleSide }),
+    heart: stdMat(COL.green, COL.green, 0.9),
+    stamen: stdMat(0xffd27a, 0xffbe3d, 0.6),
+    stem: stdMat(0x4f7d3c, 0x2e5a26, 0.2),
+    sepal: stdMat(0x5f8a45, 0x2e5a26, 0.15),
+    budPaper: stdMat(0xe4f3c8, 0xeef1fb, 0.1),
+    amber: stdMat(COL.amber, COL.amber, 0.45),
+    dormant: stdMat(0x6b5a3e, 0x2a2010, 0.1),
+    sphere: new T.SphereGeometry(1, 14, 10),
+    cyl: new T.CylinderGeometry(1, 1, 1, 6, 1, true),
+  };
+  return shared;
+}
+/** A thin cylinder from a to b (stalks inside a spray). */
+function stalk(a, b, r, mat) {
+  const S = sharedMats(), m = new THREE.Mesh(S.cyl, mat), d = b.clone().sub(a);
+  m.scale.set(r, d.length(), r);
+  m.position.copy(a).addScaledVector(d, 0.5);
+  m.quaternion.setFromUnitVectors(V(0, 1, 0), d.normalize());
+  return m;
+}
+/** One flower facing +z: five petals that unfold from a closed bud (open 0..1), a green heart, stamens. */
+function blossom(T, size = 1) {
+  const S = sharedMats(), g = new T.Group(), petals = [];
   for (let k = 0; k < 5; k++) {
     const pivot = new T.Group();
-    pivot.rotation.y = (k / 5) * TAU;
-    const m = new T.Mesh(pg, petal);
-    m.scale.set(0.058, 0.012, 0.034);
-    m.position.x = 0.052;
+    pivot.rotation.z = (k / 5) * TAU + 0.3;
+    const m = new T.Mesh(petalGeometry(), S.petal);
+    m.scale.setScalar(0.085);
     pivot.add(m);
     g.add(pivot);
-    petals.push(pivot);
+    petals.push(m);
   }
-  const heart = new T.Mesh(new T.SphereGeometry(0.026, 14, 10), stdMat(COL.green, COL.green, 0.9));
-  heart.position.y = 0.012;
+  const heart = new T.Mesh(S.sphere, S.heart);
+  heart.scale.set(0.017, 0.017, 0.012);
+  heart.position.z = 0.012;
   g.add(heart);
-  const halo = new T.Sprite(new T.SpriteMaterial({ map: glow(), color: COL.green, blending: T.AdditiveBlending, transparent: true, depthWrite: false, opacity: 0.75 }));
-  halo.scale.setScalar(0.42);
-  g.add(halo);
-  g.userData = { kind: "bloom", petals, halo };
-  return g;
-}
-function bud(T) {
-  const g = new T.Group();
-  const body = new T.Mesh(new T.SphereGeometry(1, 16, 12), stdMat(COL.amber, COL.amber, 0.45));
-  body.scale.set(0.036, 0.062, 0.036);
-  body.position.y = 0.05;
-  g.add(body);
-  const sepal = stdMat(0x5f8a45);
-  for (let k = 0; k < 3; k++) {
-    const s = new T.Mesh(new T.ConeGeometry(0.014, 0.05, 6), sepal);
-    s.position.set(Math.sin((k / 3) * TAU) * 0.018, 0.022, Math.cos((k / 3) * TAU) * 0.018);
-    s.rotation.set(Math.cos((k / 3) * TAU) * 0.6, 0, -Math.sin((k / 3) * TAU) * 0.6);
-    g.add(s);
+  for (let k = 0; k < 7; k++) {
+    const st = new T.Mesh(S.sphere, S.stamen);
+    st.scale.setScalar(0.0055);
+    st.position.set(Math.cos((k / 7) * TAU) * 0.021, Math.sin((k / 7) * TAU) * 0.021, 0.02);
+    g.add(st);
   }
-  const halo = new T.Sprite(new T.SpriteMaterial({ map: glow(), color: COL.amber, blending: T.AdditiveBlending, transparent: true, depthWrite: false, opacity: 0.6 }));
-  halo.scale.setScalar(0.34);
-  halo.position.y = 0.05;
-  g.add(halo);
-  g.userData = { kind: "bud", halo };
+  g.scale.setScalar(size);
+  g.userData = { petals, open: (o) => petals.forEach((m, i) => { m.rotation.x = 1.35 - 1.2 * easeBack(Math.min(1, Math.max(0, o * 1.4 - i * 0.08))); }) };
+  g.userData.open(0);
   return g;
 }
-function twig(T, dim) {
-  const g = new T.Group(), m = woodMat({ base: dim ? COL.woodDim : COL.wood, rimK: 0.3 });
-  const geo = new T.CylinderGeometry(0.004, 0.009, 0.11, 6);
-  const a = new T.Mesh(geo, m); a.position.set(-0.025, 0.045, 0); a.rotation.z = 0.6; g.add(a);
-  const b = new T.Mesh(geo, m); b.position.set(0.02, 0.055, 0.01); b.rotation.z = -0.5; b.rotation.x = 0.3; g.add(b);
-  const knob = new T.Mesh(new T.SphereGeometry(0.02, 10, 8), m); g.add(knob);
-  g.userData = { kind: "twig" };
-  return g;
+function softLight(T, color, scale, opacity, at) {
+  const h = new T.Sprite(new T.SpriteMaterial({ map: glow(), color, blending: T.AdditiveBlending, transparent: true, depthWrite: false, opacity }));
+  h.scale.setScalar(scale);
+  if (at) h.position.copy(at);
+  return h;
+}
+/**
+ * The spray at the tip of a skill's stem, in its own space (it faces you;
+ * the stem comes up from below). done: three flowers of different sizes,
+ * two buds, leaves. next: a big amber bud with its petals just parting,
+ * and a small one. locked: dormant buds on a bare twig. Returns the group
+ * and opening(t) to run its intro (t = seconds since it appeared).
+ */
+function spray(T, status, rand) {
+  const S = sharedMats(), g = new T.Group(), steps = [];
+  const base = V(0, -0.085, -0.01);
+  if (status === "done") {
+    const spots = [[V(0, 0.005, 0.02), 1], [V(-0.078, -0.035, 0), 0.74], [V(0.072, -0.05, -0.005), 0.64]];
+    spots.forEach(([p, sz], i) => {
+      g.add(stalk(base, p, 0.0035, S.stem));
+      const f = blossom(T, sz);
+      f.position.copy(p);
+      f.rotation.set(-0.2 + rand() * 0.3, (rand() - 0.5) * 0.6, rand() * TAU);
+      g.add(f);
+      steps.push((t) => f.userData.open((t - 0.1 - i * 0.14) / 0.6));
+    });
+    for (const p of [V(0.032, 0.075, -0.01), V(-0.045, 0.06, -0.015)]) {
+      g.add(stalk(base, p, 0.0025, S.stem));
+      const b = new T.Mesh(S.sphere, S.budPaper);
+      b.scale.set(0.013, 0.02, 0.013);
+      b.position.copy(p);
+      g.add(b);
+    }
+    g.add(softLight(T, COL.green, 0.36, 0.55, V(0, -0.01, -0.02)));
+  } else if (status === "next") {
+    const top = V(0, 0.01, 0.01);
+    g.add(stalk(base, top, 0.004, S.stem));
+    const bud = new T.Mesh(S.sphere, S.amber);
+    bud.scale.set(0.03, 0.05, 0.03);
+    bud.position.copy(top).add(V(0, 0.035, 0));
+    g.add(bud);
+    // Its petals, just parting round it.
+    const petals = [];
+    for (let k = 0; k < 4; k++) {
+      const pivot = new T.Group();
+      pivot.position.copy(top);
+      pivot.rotation.y = (k / 4) * TAU;
+      const m = new T.Mesh(petalGeometry(), S.petal);
+      m.scale.setScalar(0.062);
+      m.rotation.x = -0.12;
+      pivot.add(m);
+      g.add(pivot);
+      petals.push(m);
+    }
+    for (let k = 0; k < 3; k++) {
+      const sp = new T.Mesh(new T.ConeGeometry(0.012, 0.04, 6), S.sepal);
+      sp.position.copy(top).add(V(Math.sin((k / 3) * TAU) * 0.014, -0.006, Math.cos((k / 3) * TAU) * 0.014));
+      sp.rotation.set(Math.cos((k / 3) * TAU) * 0.8, 0, -Math.sin((k / 3) * TAU) * 0.8);
+      g.add(sp);
+    }
+    const small = V(0.06, -0.035, -0.01);
+    g.add(stalk(base, small, 0.003, S.stem));
+    const b2 = new T.Mesh(S.sphere, S.amber);
+    b2.scale.set(0.015, 0.024, 0.015);
+    b2.position.copy(small);
+    g.add(b2);
+    g.add(softLight(T, COL.amber, 0.34, 0.6, top.clone().add(V(0, 0.035, 0))));
+    steps.push((t) => { const o = easeBack(Math.min(1, Math.max(0, (t - 0.15) / 0.6))); petals.forEach((m) => { m.rotation.x = -0.12 - 0.28 * o; }); });
+  } else {
+    const dim = status === "planned";
+    const m = dim ? S.dormant : S.stem;
+    const tips = [V(0, 0.03, 0), V(-0.05, -0.01, 0.01), V(0.045, -0.025, -0.01)].slice(0, dim ? 2 : 3);
+    for (const p of tips) {
+      g.add(stalk(base, p, 0.003, woodMat({ base: dim ? COL.woodDim : COL.wood, rimK: 0.4 })));
+      const b = new T.Mesh(S.sphere, dim ? S.dormant : S.sepal);
+      b.scale.set(0.009, 0.014, 0.009);
+      b.position.copy(p);
+      g.add(b);
+    }
+    void m;
+  }
+  return { g, opening: (t) => steps.forEach((f) => f(t)) };
 }
 function leafGeometry() {
   const s = new THREE.Shape();
@@ -340,15 +447,24 @@ export function mountTree3d(host, { path, stepOf, selected = null, labelFor, int
     nodeAt.set(`ghost:${g.id}:${g.child}`, st);
   }
 
-  // ── Marks on the skills ──
+  // ── Each skill on its own stem out of the wood, carrying its spray ──
+  // (skills on the trunk alternate sides; the rest lean outward).
   const marks = [];
   for (const n of L.nodes.values()) {
-    const st = n.s.status;
-    const m = st === "done" ? bloom(T) : st === "next" ? bud(T) : twig(T, st === "planned");
-    m.position.copy(n.p);
-    m.userData.size = st === "done" ? 1.8 : st === "next" ? 1.9 : 1.5;
-    tree.add(m);
-    marks.push({ m, at: nodeAt.get(n.s.id) ?? 0, n });
+    const status = n.s.status;
+    const phi = n.r > 0.2 ? n.th : (n.tier % 2 ? 0.9 : 0.9 + Math.PI);
+    const out = V(Math.sin(phi), 0, Math.cos(phi));
+    n.tip = n.p.clone().addScaledVector(out, n.r > 0.2 ? 0.17 : 0.24).add(V(0, 0.13, 0));
+    n.tipR = Math.hypot(n.tip.x, n.tip.z);
+    const at = nodeAt.get(n.s.id) ?? 0;
+    const stem = new T.CubicBezierCurve3(n.p, n.p.clone().addScaledVector(out, 0.08), n.tip.clone().add(V(0, -0.08, 0)), n.tip);
+    const b = addBranch(stem, status === "done" ? 0.016 : 0.013, 0.006, { start: at, dur: 0.28, lit: status === "done", dim: status === "locked" || status === "planned", dash: false, segs: 16 });
+    b.spur = true;
+    const { g, opening } = spray(T, status, rand);
+    g.position.copy(n.tip);
+    g.userData.size = 1.7;
+    tree.add(g);
+    marks.push({ m: g, at: at + 0.22, n, opening, face: true, seed: rand() * TAU });
   }
   for (const g of L.ghosts) {
     const knob = new T.Mesh(new T.SphereGeometry(0.03, 10, 8), stdMat(g.s.status === "done" ? COL.green : 0x5a6488, g.s.status === "done" ? COL.green : 0, 0.5));
@@ -356,12 +472,24 @@ export function mountTree3d(host, { path, stepOf, selected = null, labelFor, int
     tree.add(knob);
     marks.push({ m: knob, at: nodeAt.get(`ghost:${g.id}:${g.child}`), n: g });
   }
+  // Between two unlocked skills the branch itself flowers: small sprays along it.
+  for (const b of branches) {
+    if (!b.parent || !b.child || stepOf(b.parent)?.status !== "done" || stepOf(b.child)?.status !== "done") continue;
+    for (const u of [0.42, 0.7]) {
+      const f = new T.Group(), fl = blossom(T, 0.55);
+      f.add(fl);
+      f.position.copy(b.curve.getPointAt(u)).add(V(0, 0.02, 0));
+      f.userData.size = 1;
+      tree.add(f);
+      marks.push({ m: f, at: b.start + b.dur * u + 0.15, n: null, opening: (t) => fl.userData.open((t - 0.05) / 0.5), face: true, seed: rand() * TAU });
+    }
+  }
 
   // ── Leaves, along the branches out of unlocked skills ──
   const leafSpots = [];
   const up = V(0, 1, 0), tmp = V(0, 0, 0), dir = V(0, 0, 0), q = new T.Quaternion(), roll = new T.Quaternion();
   for (const b of branches) {
-    if (!b.lit) continue;
+    if (!b.lit || b.spur) continue;
     const count = b.parent || b.child ? 6 : 8;
     for (let k = 0; k < count; k++) {
       const u = 0.25 + rand() * 0.72;
@@ -488,12 +616,13 @@ export function mountTree3d(host, { path, stepOf, selected = null, labelFor, int
       const k = intro ? ease((t - b.start) / b.dur) : 1;
       for (const m of b.meshes) { const u = m.geometry.userData; m.geometry.setDrawRange(0, Math.round(u.segs * k) * u.step); }
     }
-    for (const { m, at } of marks) {
-      const k = intro ? Math.min(1, Math.max(0, (t - at) / 0.5)) : 1;
+    for (const mk of marks) {
+      const { m, at } = mk;
+      const k = intro ? Math.min(1, Math.max(0, (t - at) / 0.45)) : 1;
       m.scale.setScalar(Math.max(1e-4, easeBack(k) * (m.userData.size ?? 1)));
-      const ud = m.userData;
-      if (ud.kind === "bloom" || ud.kind === "bud") { m.rotation.order = "YXZ"; m.rotation.set(ud.kind === "bloom" ? 0.95 : 0.25, -st.yaw, 0); }
-      if (ud.kind === "bloom") ud.petals.forEach((p, i) => { const o = intro ? Math.min(1, Math.max(0, (t - at - 0.12 - i * 0.06) / 0.45)) : 1; p.rotation.z = (1 - easeBack(o)) * 1.3 + 0.32; });
+      // Sprays face you whichever way the tree has turned, and sway a little.
+      if (mk.face) { m.rotation.order = "YXZ"; m.rotation.set(0.12, -st.yaw, Math.sin(now / 900 + mk.seed) * 0.05); }
+      if (mk.opening && (growing || !mk.opened)) { mk.opening(intro ? t - at : 9); mk.opened = !growing; }
     }
     if (growing || !setLeaves.done) { setLeaves(t); setLeaves.done = !growing; }
 
@@ -508,7 +637,7 @@ export function mountTree3d(host, { path, stepOf, selected = null, labelFor, int
     // Labels follow their skills.
     const cy = Math.cos(st.yaw), sy = Math.sin(st.yaw);
     for (const it of items) {
-      const p = it.n.p;
+      const p = it.n.tip ?? it.n.p, pr = it.n.tipR ?? it.n.r;
       const x = p.x * cy + p.z * sy, z = -p.x * sy + p.z * cy;
       proj.set(x, p.y, z).project(cam);
       const sx = (proj.x + 1) * 0.5 * st.w, sy2 = (1 - proj.y) * 0.5 * st.h;
@@ -516,13 +645,13 @@ export function mountTree3d(host, { path, stepOf, selected = null, labelFor, int
         it.x = sx; it.y = sy2;
         it.el.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy2.toFixed(1)}px, 0)`;
       }
-      const back = it.n.r > 0.2 && z < -it.n.r * 0.3;
+      const back = pr > 0.2 && z < -pr * 0.3;
       if (back !== it.back) { it.back = back; it.el.classList.toggle("back", back); it.el.tabIndex = back ? -1 : 0; }
       it.el.style.zIndex = String(Math.round(500 + z * 100));
       // Labels sit on the outer side of their skill, flipping with a little slack.
       const mid = st.w / 2;
-      if (!it.left && sx < mid - 40 && it.n.r > 0.2) { it.left = true; it.el.classList.add("left"); }
-      else if (it.left && (sx > mid + 40 || it.n.r <= 0.2)) { it.left = false; it.el.classList.remove("left"); }
+      if (!it.left && sx < mid - 14 && pr > 0.2) { it.left = true; it.el.classList.add("left"); }
+      else if (it.left && (sx > mid + 14 || pr <= 0.2)) { it.left = false; it.el.classList.remove("left"); }
       const show = !intro || t >= it.at;
       if (show !== it.shown) { it.shown = show; it.el.classList.toggle("in", show); }
     }
