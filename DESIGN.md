@@ -390,12 +390,18 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   in the free space measured beside the text.
 - **The calibration intro** (`site/boot.js`): the first visit in a
   session (not a link into a section, not reduced motion). MediaPipe's 33
-  points start scattered across the screen and lock onto a standing figure
-  one by one, top to bottom, while a big outlined counter climbs to 33;
+  points start as a cloud scattered in 3D depth and lock onto a standing
+  figure one by one, top to bottom, while the figure turns from side-on
+  to face you, a big outlined counter climbs to 33 and a mono readout
+  gives each point's coordinates as it lands (each lands with a small
+  ring pulse). Behind it the wordmark rises letter by letter, huge and
+  outlined, and "Form" fills from the bottom up with the go gradient when
+  tracking locks;
   the bones draw in, glowing; a scan passes down the figure; a horizon
   line runs out to both edges; then the screen splits open along it, top
   half up and bottom half down, with a flash on the line, which is where
-  the hero's own horizon sits, and the hero arrives. At least 2.4 s, at
+  the hero's own horizon sits, while the figure rushes toward you and the
+  wordmark's letters fly off up and down, and the hero arrives. At least 2.4 s, at
   most 5 s; it waits for the hero's 3D and the fonts.
 - **Things grow out of what you clicked** (`ui/popup.js`): exercise-card
   popups, the trainer's confirms and onboarding (the page behind blurs and
@@ -432,11 +438,18 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   stage fills the screen, its rule pinned at the top, and the story's and
   paths' heading is a title card over the dimmed stage that zooms out
   past you as you go on. Between scenes the page holds still for one
-  screen of scroll while the camera moves in 3D, taking turns: a cube
-  turning left, a door swinging open onto the next scene coming out of
-  the depth, a cube turning right, a flip down and up. From the hero the
-  camera dives into the figure while the 3D view swings round it
-  (`site/scene-state.js` `heroTurn`, read by hero3d.js). Stop between two
+  screen of scroll while the next scene is revealed over the last
+  through a measuring shape, with a glowing instrument edge riding it
+  (one fixed SVG, `makeEdge`), while the old scene falls back into the
+  dark under it. They take turns: a protractor sweep (a wedge opening
+  clockwise from twelve o'clock, its angle read in a boxed label), a
+  calibration scan (a line passing down, "SCAN 62%"), a portal (a circle
+  with protractor ticks), ruler slats (nine bands opening from their
+  middles, left to right) and the horizon opening from the middle line.
+  From the hero the portal opens out of the figure itself while the hero
+  grows round it and its 3D camera swings round the figure
+  (`site/scene-state.js` `heroTurn`, read by hero3d.js). (Nov 2026: a
+  cube / door / flip set came first; the owner wanted it more creative.) Stop between two
   scenes and the page glides to the nearer one. Links land at a scene's
   top (`scroll-padding-top: 0` with scenes). One transform and one opacity
   on the two sections at a boundary; scroll-progress.js measures layout

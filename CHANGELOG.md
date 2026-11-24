@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.14.0 — 2026-11-23
+
+### A new opening
+- The first visit now opens in 3D: the 33 tracking points fly in from all
+  around the room and lock onto a figure that turns to face you, while the
+  VertexForm wordmark rises behind it and fills in once tracking locks.
+  Then the figure rushes toward you and the screen splits open onto the page.
+
+### New ways into each section
+- Moving between sections on a wide screen now reveals the next one over
+  the last, each in its own way: a protractor sweeping round with its angle
+  shown, a calibration scan passing down, a portal opening out of the
+  figure, ruler slats opening, and the horizon opening from the middle.
+
 ## 2.13.0 — 2026-11-23
 
 ### Scenes that turn
