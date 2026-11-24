@@ -1,5 +1,6 @@
 /** menu.js — exercise list, session log, bests, and reset controls. */
 
+import { CURVE } from "./ease.js";
 import { EXERCISES, EXERCISE_META } from "../config.js";
 import { store, globalAverage, resetExercise, dayStreak, lastWeek } from "../storage.js";
 import { $, showScreen, confirmAction, toast } from "./components.js";
@@ -113,7 +114,7 @@ export function renderMenu(onPick) {
     // The marker glides to the name, stretching on the way like a needle.
     const it = items[i];
     if (marker) marker.style.translate = `0 ${it.offsetTop + it.offsetHeight / 2 - 1}px`;   // translate, not transform: the stretch below scales the marker, not its distance down the list
-    if (marker && dir && !quiet) marker.animate([{ scale: "1 1" }, { scale: "1.5 6", offset: .35 }, { scale: "1 1" }], { duration: 520, easing: "cubic-bezier(.3,.7,.4,1)" });
+    if (marker && dir && !quiet) marker.animate([{ scale: "1 1" }, { scale: "1.5 6", offset: .35 }, { scale: "1 1" }], { duration: 520, easing: CURVE.outQuart });
     // The stage: the old figure leaves the way you moved (through a blur) as
     // the new one, doing its rep, comes in behind it.
     stopStage();
@@ -126,7 +127,7 @@ export function renderMenu(onPick) {
       ghost.classList.add("pk-ghost");
       fig.append(ghost);
       ghost.animate([{ transform: "none", opacity: 1, filter: "blur(0)" }, { transform: `translateY(${-dir * 60}px) scale(.85)`, opacity: 0, filter: "blur(10px)" }],
-        { duration: 360, easing: "cubic-bezier(.5,0,.75,0)", fill: "forwards" }).finished.then(() => ghost.remove(), () => ghost.remove());
+        { duration: 360, easing: CURVE.inQuart, fill: "forwards" }).finished.then(() => ghost.remove(), () => ghost.remove());
     }
     if (dir && !quiet) slide(fig.querySelector("svg:not(.pk-ghost)"), { from: [0, dir * 46], to: [0, 0], opacity: [0, 1], duration: 460, strength: 1 });
     rollTo(stage.querySelector(".pk-num i"), pad(i + 1));
@@ -150,7 +151,7 @@ export function renderMenu(onPick) {
       };
       countRaf = requestAnimationFrame(tick);
     }
-    if (!quiet && dir) arc.animate([{ strokeDasharray: "0 100" }, { strokeDasharray: `${best ?? 0} 100` }], { duration: 800, easing: "cubic-bezier(.22,.61,.36,1)" });
+    if (!quiet && dir) arc.animate([{ strokeDasharray: "0 100" }, { strokeDasharray: `${best ?? 0} 100` }], { duration: 800, easing: CURVE.outCubic });
     stage.querySelector(".pk-go").textContent = `Train ${name.toLowerCase()}`;
     stage.style.setProperty("--pk", best != null ? gradeColor(best) : "#2ee59d");
   }
@@ -217,16 +218,16 @@ export function renderMenu(onPick) {
       onFront: (i) => { clearTimeout(hoverT); show(i); },
     });
     stage.animate([{ opacity: 0, transform: "scale(.9)" }, { opacity: 1, transform: "none" }],
-      { duration: renderMenu.shown ? 1 : 700, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards", composite: "add" });
+      { duration: renderMenu.shown ? 1 : 700, easing: CURVE.outCubic, fill: "backwards", composite: "add" });
   } else requestAnimationFrame(() => { marker.style.translate = `0 ${items[at].offsetTop + items[at].offsetHeight / 2 - 1}px`; });
 
   // The first time the menu shows, the names wind on like a dial and the stage draws in.
   if (!renderMenu.shown && !quiet && !ringMode) {
     items.forEach((c, i) => c.animate(
       [{ opacity: 0, transform: "translateY(40px) rotateX(-70deg)" }, { opacity: 1, transform: "none" }],
-      { duration: 640, delay: 80 + i * 75, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards", composite: "add" }));
+      { duration: 640, delay: 80 + i * 75, easing: CURVE.outCubic, fill: "backwards", composite: "add" }));
     stage.animate([{ clipPath: "inset(0 100% 0 0 round 18px)" }, { clipPath: "inset(0 0 0 0 round 18px)" }],
-      { duration: 700, easing: "cubic-bezier(.65,0,.2,1)", fill: "backwards" });
+      { duration: 700, easing: CURVE.inOutCubic, fill: "backwards" });
   }
   renderMenu.shown = true;
 

@@ -13,6 +13,7 @@
  *             a button to train it.
  */
 
+import { CURVE } from "./ease.js";
 import { gradeColor } from "../grade.js";
 import { reducedMotion } from "./motion.js";
 import { growFrom } from "./popup.js";
@@ -103,12 +104,12 @@ async function zoomIntoTree(card, id) {
   const list = $("#screen-skills");
   const at = (r, radius) => ({ left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px`, borderRadius: radius });
   const over = { left: c.left - 8, top: c.top - 8, width: c.width + 16, height: c.height + 16 };
-  const POP = "cubic-bezier(.2,.9,.3,1.15)", TRAVEL = "cubic-bezier(.65,0,.2,1)";
+  const POP = CURVE.outBackSoft, TRAVEL = CURVE.inOutCubic;
   let fade;
   try {
     // 1. The box appears on the card; the other cards fade away behind it.
     mini.animate([{ transform: "scale(1)" }, { transform: "scale(1.35)" }], { duration: 380, easing: POP, fill: "forwards" });
-    fade = list.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, delay: 120, easing: "ease-out", fill: "forwards" });
+    fade = list.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, delay: 120, easing: CURVE.outQuad, fill: "forwards" });
     await box.animate([at(m, "6px"), at(over, "18px")], { duration: 380, easing: POP, fill: "forwards" }).finished;
     await new Promise((r) => setTimeout(r, 90));
 
@@ -122,7 +123,7 @@ async function zoomIntoTree(card, id) {
     // Motion blur peaks at the fastest point of the flight, and the box glows green on the way.
     box.animate([{ filter: "blur(0)", boxShadow: "0 30px 80px -20px rgba(0,0,0,.7)" },
       { filter: "blur(7px)", boxShadow: "0 0 70px 6px rgba(46,229,157,.35)", offset: 0.5 },
-      { filter: "blur(0)", boxShadow: "0 0 0 0 rgba(46,229,157,0)" }], { duration: 720, easing: "linear" });
+      { filter: "blur(0)", boxShadow: "0 0 0 0 rgba(46,229,157,0)" }], { duration: 720, easing: CURVE.inOutSine });
     await box.animate([at(over, "18px"), at(target, radius)], { duration: 720, easing: TRAVEL, fill: "forwards" }).finished;
 
     // 3. The real panel takes over where the box landed; the rest lays out
@@ -131,10 +132,10 @@ async function zoomIntoTree(card, id) {
     const around = [...screen.querySelectorAll(".app-header > *"), screen.querySelector(".tree-detail")].filter(Boolean);
     around.forEach((el, k) => el.animate(
       [{ opacity: 0, transform: "translateY(22px)" }, { opacity: 1, transform: "none" }],
-      { duration: 520, delay: 60 + k * 70, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }));
+      { duration: 520, delay: 60 + k * 70, easing: CURVE.outCubic, fill: "backwards" }));
     grow = true;
     drawEdges();
-    await box.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: "ease-out", fill: "forwards" }).finished;
+    await box.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: CURVE.outQuad, fill: "forwards" }).finished;
   } finally {
     box.remove();
     fade?.cancel();

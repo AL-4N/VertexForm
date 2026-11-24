@@ -20,8 +20,8 @@
 /* A note being written (coachNote write: true): each line is penned in left
    to right after the one before (--t start, --d length), then the arrow
    draws itself toward the body part. */
-.vf-note-write text { clip-path: inset(-6px 100% -6px 0); animation: vf-pen var(--d, .5s) cubic-bezier(.45, .05, .55, .95) var(--t, 0s) forwards; }
-.vf-note-write .vf-note-arrow { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: vf-arrow .38s cubic-bezier(.22, .61, .36, 1) var(--t, 0s) forwards; }
+.vf-note-write text { clip-path: inset(-6px 100% -6px 0); animation: vf-pen var(--d, .5s) var(--ease-in-out-sine) var(--t, 0s) forwards; }
+.vf-note-write .vf-note-arrow { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: vf-arrow .38s var(--ease-out-cubic) var(--t, 0s) forwards; }
 @keyframes vf-pen { to { clip-path: inset(-6px -6px -6px 0); } }
 @keyframes vf-arrow { to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) {
@@ -38,4 +38,4 @@
    between options; the options themselves go transparent. */
 .has-ind { position: relative; isolation: isolate; }
 .has-ind > button { position: relative; z-index: 1; }
-.seg-ind { position: absolute; z-index: 0; pointer-events: none; opacity: 0; transition: width .32s cubic-bezier(.22,.61,.36,1), height .32s, opacity .2s; }
+.seg-ind { position: absolute; z-index: 0; pointer-events: none; opacity: 0; transition: width .32s var(--ease-out-cubic), height .32s, opacity .2s; }

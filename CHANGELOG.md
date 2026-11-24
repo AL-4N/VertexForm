@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.15.0 — 2026-11-24
+
+### A side rail that stays out of the way
+- On a wide screen the section rail now rests as a thin strip of ticks at
+  the left edge, giving the page its width back. Point at it and it slides
+  open with the section names; it also pops out for a moment when you
+  reach a new section, so you can see where you are.
+
+### Motion on proper curves
+- Every animation in the site and the trainer now moves on a named easing
+  curve (cubic-out for things arriving, quart-out for settling, back-out
+  for pops, in-out cubic for travel), so motion starts, slows and lands
+  the same way everywhere.
+
 ## 2.14.1 — 2026-11-23
 
 ### A cleaner opening

@@ -22,6 +22,7 @@
  * of the first rep, coloured by its score; buttons switch still frames.
  */
 
+import { CURVE } from "../ui/ease.js";
 import { sceneState } from "./scene-state.js";
 import { gradeColor, gradeLetter } from "../grade.js";
 import { reducedMotion } from "../ui/motion.js";
@@ -100,7 +101,7 @@ export async function mountHero3d(root) {
     // The big word: the exercise, rolling up into place when it changes.
     if (card.name.textContent !== NAME[st.id]) {
       card.name.textContent = NAME[st.id];
-      if (!reduced) card.name.animate([{ transform: "translateY(105%)" }, { transform: "none" }], { duration: 750, easing: "cubic-bezier(.22,.61,.36,1)" });
+      if (!reduced) card.name.animate([{ transform: "translateY(105%)" }, { transform: "none" }], { duration: 750, easing: CURVE.outCubic });
     }
     const rows = [[clip.measure.label, `${Math.round(a3)}°`]];
     if (clip.kind === "hold") rows.push(["Held", `${Math.floor(st.t / 1000)} s`]);

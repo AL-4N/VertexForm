@@ -144,12 +144,28 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 
 ## Motion
 
+- **Every curve is a named easing graph** (`js/ui/ease.js`, from
+  easings.net): in / out / in-out × sine, quad, cubic, quart, quint, expo,
+  circ, back, plus `outBackSoft` (a smaller overshoot). In CSS they're
+  custom properties (`var(--ease-out-cubic)`, in theme.css and site.css);
+  in the Web Animations API `CURVE.outCubic`; per-frame code uses the
+  exact functions (`ease.outCubic(t)`). Pick by what the motion does:
+  arriving and settling: cubic-out or quart-out; fast arrivals that land
+  softly: expo-out; pops and stamps: back-out (soft for small things);
+  leaving: cubic-in or quart-in; travelling from A to B: in-out cubic;
+  pulses: in-out sine; linear only for constant motion (spinners, timers,
+  live meters). No unnamed `cubic-bezier()` or keyword `ease` in the code:
+  `tests/ease.test.mjs` fails on them and keeps the CSS and JS in step.
 - Every screen change and moving element slides with a directional motion
   blur (`js/ui/motion.js`, `slide()`).
 - Scrolling: menu-link glides and fast hand scrolls blur vertically
   (`js/site/motion-nav.js`); slow reading-speed scrolling stays sharp.
 - The side rail's fill eases toward the scroll position every frame, so it
-  never jumps.
+  never jumps. The rail rests as a thin strip (the ruler, ticks, fill) and
+  pops out over the page when pointed at or focused, and on its own for
+  1.5 s when you arrive at a new section (`.peek`): the panel opens out on
+  cubic-out and the labels slide in one after another on quart-out;
+  closing is cubic-in.
 - Signature moments (each tied to what VertexForm does, not decoration):
   - **"It finds you"** (`site/hero3d.js`): once per visit, after the
     calibration intro, the hero figure's tracked points pop in, then its
@@ -531,7 +547,7 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
 
 - Content width 1200px, gutter `clamp(1.25rem, 4vw, 2.75rem)`.
 - 1400px and up: the side rail (a ruler with one tick per section) replaces
-  the header links.
+  the header links; it rests as a 44px strip and pops out over the page.
 - 860px and down: header links hide. 480px and down: Settings is just a gear.
 - Every page works at 375px wide with no sideways scroll.
 - Phones (480px and down) in the trainer: header buttons never wrap (the

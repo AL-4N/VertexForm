@@ -13,10 +13,11 @@
  * does that for showModal). Reduced motion: it just opens and closes.
  */
 
+import { CURVE } from "./ease.js";
 import { reducedMotion } from "./motion.js";
 
-const EASE_OUT = "cubic-bezier(.22,.61,.36,1)";
-const EASE_IN = "cubic-bezier(.55,.06,.68,.19)";
+const EASE_OUT = CURVE.outCubic;
+const EASE_IN = CURVE.inCubic;
 
 function shapeOf(dlg, from, radius) {
   const d = dlg.getBoundingClientRect();

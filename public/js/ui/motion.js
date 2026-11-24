@@ -14,14 +14,15 @@ const NS = "http://www.w3.org/2000/svg";
 let host = null, seq = 0;
 const running = new WeakMap();
 
+import { ease } from "./ease.js";
 export const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+// Short names for the curves most JS motion uses (all of them: ./ease.js).
 export const EASE = {
-  out: (t) => 1 - (1 - t) ** 3,
-  in: (t) => t * t * t,
-  inOut: (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2),
-  // Lands with a tiny overshoot: lively without wobbling.
-  outBack: (t) => 1 + 2.2 * (t - 1) ** 3 + 1.2 * (t - 1) ** 2,
+  out: ease.outCubic,
+  in: ease.inCubic,
+  inOut: ease.inOutCubic,
+  outBack: ease.outBackSoft,      // lands with a tiny overshoot: lively without wobbling
 };
 
 function makeFilter() {

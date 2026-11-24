@@ -1,5 +1,6 @@
 /** components.js — small shared UI helpers. */
 
+import { CURVE } from "./ease.js";
 import { askPopup, growFrom } from "./popup.js";
 import { gradeVar } from "../geometry.js";
 import { slide, tween, EASE } from "./motion.js";
@@ -58,11 +59,11 @@ export function toast(message, ms = 2800, { icon = "" } = {}) {
   const shut = "inset(0 calc(50% - 6px) round 99px)", open = "inset(0 0 round 99px)";
   if (el.animate && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
     el.animate([{ clipPath: shut, transform: "translateY(-14px) scale(.9)" }, { clipPath: open, transform: "none" }],
-      { duration: 460, easing: "cubic-bezier(.2,.9,.3,1.2)" });
+      { duration: 460, easing: CURVE.outBackSoft });
   }
   setTimeout(() => {
     if (!el.animate || matchMedia("(prefers-reduced-motion: reduce)").matches) { el.remove(); return; }
-    el.animate([{ clipPath: open, opacity: 1 }, { clipPath: shut, opacity: 0 }], { duration: 300, easing: "cubic-bezier(.55,.06,.68,.19)", fill: "forwards" })
+    el.animate([{ clipPath: open, opacity: 1 }, { clipPath: shut, opacity: 0 }], { duration: 300, easing: CURVE.inCubic, fill: "forwards" })
       .finished.then(() => el.remove());
   }, ms);
   return el;
@@ -97,7 +98,7 @@ export function renderBars(host, bars, cls = "bar-row") {
       [...host.children].forEach((row, i) => {
         const v = Math.round(bars[i].value), fill = row.querySelector(".bar-fill"), num = row.querySelector(".bar-label span:last-child");
         const delay = 250 + i * 110;
-        fill?.animate([{ width: "0%" }, { width: `${v}%` }], { duration: 900, delay, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" });
+        fill?.animate([{ width: "0%" }, { width: `${v}%` }], { duration: 900, delay, easing: CURVE.outCubic, fill: "backwards" });
         if (num) {
           num.textContent = "0";
           setTimeout(() => tween(0, v, (x) => { num.textContent = Math.round(x); }, { duration: 900 }), delay);

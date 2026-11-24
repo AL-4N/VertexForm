@@ -28,6 +28,7 @@ import { onScroll, scrollState, refresh } from "./scroll-progress.js";
 import { reducedMotion } from "../ui/motion.js";
 import { smooth as lenis } from "./smooth.js";
 import { sceneState } from "./scene-state.js";
+import { ease } from "../ui/ease.js";
 
 const HOLD = 0.5;                       // screens a plain scene holds still for
 const TOP = 84, BOTTOM = 24;            // room in a frame for the header and a margin
@@ -36,9 +37,7 @@ const STYLES = ["sweep", "scan", "portal", "slats", "horizon"];
 
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const smooth = (a, b, v) => { const t = clamp01((v - a) / (b - a)); return t * t * (3 - 2 * t); };
-const inOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-const easeIn = (t) => t * t * t;
-const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+const inOut = ease.inOutCubic, easeIn = ease.inCubic, easeOut = ease.outCubic;   // (js/ui/ease.js)
 
 export const scenesOn = () => !reducedMotion() && matchMedia("(min-width: 1100px) and (min-height: 620px)").matches;
 

@@ -17,6 +17,7 @@ How it looks, sounds and reads (colours, type, figures, motion, writing rules):
 - Back must always stop the camera at once, in any state (`stopLive()` in `ui/live.js`). The e2e suite checks every stream ever opened has ended.
 - Brand: grade gradient coral→green on navy, Unbounded + Instrument Sans. Colour tokens in `css/theme.css`.
 - Clickable controls first; keyboard shortcuts are extras.
+- Motion curves come from `js/ui/ease.js` (named easing graphs: `CURVE.outCubic` for WAAPI, `ease.outCubic(t)` per frame, `var(--ease-out-cubic)` in CSS). Never write a raw `cubic-bezier()` or keyword `ease` in JS; `tests/ease.test.mjs` checks it and that theme.css/site.css match.
 
 ## Commands
 - `npm run dev` — serve `public/` at http://localhost:8080 (`?debug` for the readout + landmark recorder, `?cpu` to skip the GPU)

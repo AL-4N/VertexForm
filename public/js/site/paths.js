@@ -15,6 +15,7 @@
  * Without GSAP's ticker, or with reduced motion, the paths are a plain list.
  */
 
+import { CURVE } from "../ui/ease.js";
 import { PATHS, skillPath } from "../skills.js";
 import { miniTree } from "../ui/mini-tree.js";
 import { reducedMotion } from "../ui/motion.js";
@@ -227,20 +228,20 @@ export function mountPaths(root = document.querySelector("[data-paths]")) {
       const y = part.woodY[k];                                // branches nearer the ground grow first
       const dashed = w.classList.contains("planned");         // dashed ones (not tracked yet) fade in instead
       w.animate(dashed ? [{ opacity: 0 }, { opacity: 1 }] : [{ strokeDasharray: "1 1", strokeDashoffset: 1 }, { strokeDasharray: "1 1", strokeDashoffset: 0 }],
-        { duration: 520, delay: (1 - y / H) * 520, easing: "cubic-bezier(.3,.6,.3,1)", fill: "backwards" });
+        { duration: 520, delay: (1 - y / H) * 520, easing: CURVE.outQuart, fill: "backwards" });
     });
     marks.forEach(({ g, y }) => g.animate(
       [{ transform: "scale(0) rotate(-40deg)", opacity: 0 }, { transform: "scale(1.25) rotate(6deg)", opacity: 1, offset: .7 }, { transform: "none", opacity: 1 }],
-      { duration: 460, delay: 300 + (1 - y / H) * 560, easing: "cubic-bezier(.3,.7,.4,1)", fill: "backwards" }));
+      { duration: 460, delay: 300 + (1 - y / H) * 560, easing: CURVE.outQuart, fill: "backwards" }));
     info.querySelectorAll(".pc-ch").forEach((c, k) => c.animate(
       [{ transform: "translateY(.7em) rotateX(-80deg)", opacity: 0 }, { transform: "none", opacity: 1 }],
-      { duration: 560, delay: 60 + k * 38, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }));
+      { duration: 560, delay: 60 + k * 38, easing: CURVE.outCubic, fill: "backwards" }));
     info.querySelectorAll(".pc-tags span").forEach((t, k) => t.animate(
       [{ transform: "translateY(10px) scale(.8)", opacity: 0 }, { transform: "none", opacity: 1 }],
-      { duration: 380, delay: 260 + k * 70, easing: "cubic-bezier(.34,1.5,.5,1)", fill: "backwards" }));
+      { duration: 380, delay: 260 + k * 70, easing: CURVE.outBackSoft, fill: "backwards" }));
     card.querySelector(".pc-glare")?.animate(
       [{ backgroundPosition: "-60% 0" }, { backgroundPosition: "160% 0" }],
-      { duration: 900, delay: 120, easing: "cubic-bezier(.5,0,.3,1)", pseudoElement: "::before" });
+      { duration: 900, delay: 120, easing: CURVE.inOutCubic, pseudoElement: "::before" });
   }
 
   G.ticker.add(frame);

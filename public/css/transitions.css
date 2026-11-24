@@ -12,8 +12,8 @@
 
 @view-transition { navigation: auto; }
 
-::view-transition-old(root) { animation: vf-leave .3s cubic-bezier(.55, 0, .8, .2) both; }
-::view-transition-new(root) { animation: vf-arrive .42s cubic-bezier(.16, .84, .3, 1) both; }
+::view-transition-old(root) { animation: vf-leave .3s var(--ease-in-quart) both; }
+::view-transition-new(root) { animation: vf-arrive .42s var(--ease-out-quart) both; }
 
 @keyframes vf-leave {
   to { opacity: 0; transform: translateY(-5vh) scale(1.015); }
@@ -29,8 +29,8 @@
    gently, over .9 s (the ring in each page's <head> script uses it too). */
 html.vt-circle::view-transition-old(root),
 html.vt-circle::view-transition-new(root) { transform-origin: var(--vt-x, 50%) var(--vt-y, 50%); }
-html.vt-circle::view-transition-old(root) { animation: vf-hold .9s cubic-bezier(.65, .05, .25, 1) both; }
-html.vt-circle::view-transition-new(root) { animation: vf-circle .9s cubic-bezier(.65, .05, .25, 1) both; will-change: clip-path, transform; }
+html.vt-circle::view-transition-old(root) { animation: vf-hold .9s var(--ease-in-out-cubic) both; }
+html.vt-circle::view-transition-new(root) { animation: vf-circle .9s var(--ease-in-out-cubic) both; will-change: clip-path, transform; }
 @keyframes vf-hold { to { transform: scale(.95); filter: brightness(.5); } }
 @keyframes vf-circle {
   from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 50%)); transform: scale(1.035); }
@@ -45,15 +45,15 @@ html.vt-circle::view-transition-new(root) { animation: vf-circle .9s cubic-bezie
 }
 
 /* In-app screen changes: quicker and lighter. */
-html.vt-screen::view-transition-old(root) { animation: vf-screen-out .16s ease-in both; }
-html.vt-screen::view-transition-new(root) { animation: vf-screen-in .26s cubic-bezier(.22, .61, .36, 1) both; }
+html.vt-screen::view-transition-old(root) { animation: vf-screen-out .16s var(--ease-in-quad) both; }
+html.vt-screen::view-transition-new(root) { animation: vf-screen-in .26s var(--ease-out-cubic) both; }
 html.vt-screen .screen.active { animation: none; }
 @keyframes vf-screen-out { to { opacity: 0; filter: blur(6px); } }
 @keyframes vf-screen-in { from { opacity: 0; transform: translateY(10px); filter: blur(5px); } }
 
 /* Fallback for browsers without cross-document view transitions. */
-body.vf-leaving { animation: vf-leave .26s cubic-bezier(.55, 0, .8, .2) both; pointer-events: none; }
-body.vf-arriving { animation: vf-arrive .4s cubic-bezier(.16, .84, .3, 1) both; }
+body.vf-leaving { animation: vf-leave .26s var(--ease-in-quart) both; pointer-events: none; }
+body.vf-arriving { animation: vf-arrive .4s var(--ease-out-quart) both; }
 
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }

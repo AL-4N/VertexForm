@@ -24,6 +24,7 @@
  * 5 s in all. "vf:booted" lets the hero's figure and headline arrive.
  */
 
+import { CURVE } from "../ui/ease.js";
 import { smooth } from "./smooth.js";
 import { sceneState } from "./scene-state.js";
 
@@ -39,7 +40,7 @@ const LINKS = [[11, 12], [11, 13], [13, 15], [15, 17], [15, 19], [15, 21], [17, 
 const HEAD = [120, 40, 21];             // the head's ring: centre and radius
 const TOP = 16, FEET = 332;             // the figure's extent in its box
 const MIN = 2500, MAX = 5000, LOCK = 1900;
-const EASE = "cubic-bezier(.65,.05,.25,1)", OUT = "cubic-bezier(.16,1,.3,1)";
+const EASE = CURVE.inOutCubic, OUT = CURVE.outExpo;
 
 export function mountBoot() {
   const html = document.documentElement;
@@ -101,7 +102,7 @@ export function mountBoot() {
   const count = boot.querySelector(".boot-n"), state = boot.querySelector(".boot-state"), horizon = boot.querySelector(".boot-line");
 
   // ── 0.1 s: points lock on, top to bottom, while the figure turns to face you ──
-  rig.animate([{ transform: "rotateY(-78deg) rotateX(14deg) scale(.82)" }, { transform: "none" }], { duration: 2000, delay: 60, easing: "cubic-bezier(.45,0,.2,1)", fill: "backwards" });
+  rig.animate([{ transform: "rotateY(-78deg) rotateX(14deg) scale(.82)" }, { transform: "none" }], { duration: 2000, delay: 60, easing: CURVE.inOutCubic, fill: "backwards" });
   const order = dots.map((d, i) => i).sort((a, b) => dots[a].y - dots[b].y || dots[a].x - dots[b].x);
   order.forEach((i, k) => {
     const from = `translate3d(${(Math.random() - 0.5) * 900}px, ${(Math.random() - 0.5) * 700}px, ${(Math.random() * 1100 - 700).toFixed(0)}px)`;
@@ -111,7 +112,7 @@ export function mountBoot() {
     setTimeout(() => {
       count.textContent = String(k + 1).padStart(2, "0");
       xy.textContent = `PT ${String(i).padStart(2, "0")} · X ${(dots[i].x / 240).toFixed(3)} Y ${(dots[i].y / 340).toFixed(3)}`;
-      dots[i].c.animate([{ boxShadow: "0 0 0 0 rgba(198,239,78,.9)" }, { boxShadow: "0 0 0 9px rgba(198,239,78,0)" }], { duration: 500, easing: "ease-out" });
+      dots[i].c.animate([{ boxShadow: "0 0 0 0 rgba(198,239,78,.9)" }, { boxShadow: "0 0 0 9px rgba(198,239,78,0)" }], { duration: 500, easing: CURVE.outQuad });
     }, delay + 600);
   });
 
@@ -120,7 +121,7 @@ export function mountBoot() {
     { duration: 420, delay: 1000 + k * 16, easing: EASE, fill: "forwards" }));
   head.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 520, delay: 980, easing: EASE, fill: "forwards" });
   scan.animate([{ top: "0%", opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.85 }, { top: "100%", opacity: 0 }],
-    { duration: 720, delay: 1300, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" });
+    { duration: 720, delay: 1300, easing: CURVE.inOutCubic, fill: "forwards" });
 
   // ── 1.9 s: locked ──
   setTimeout(() => {
@@ -129,7 +130,7 @@ export function mountBoot() {
     brackets.forEach((b) => b.animate([{ transform: "scale(1.5)", opacity: 0 }, { transform: "scale(.94)", opacity: 1, offset: 0.7 }, { transform: "scale(1)", opacity: 1 }],
       { duration: 480, easing: OUT, fill: "forwards" }));
     tag.animate([{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }], { duration: 400, delay: 200, easing: OUT, fill: "forwards" });
-    count.animate([{ color: "transparent" }, { color: "rgba(198,239,78,.9)", offset: 0.2 }, { color: "transparent" }], { duration: 900, easing: "ease-out" });
+    count.animate([{ color: "transparent" }, { color: "rgba(198,239,78,.9)", offset: 0.2 }, { color: "transparent" }], { duration: 900, easing: CURVE.outQuad });
     horizon.animate([{ opacity: 0.5, boxShadow: "0 0 12px rgba(198,239,78,.7)" }, { opacity: 1, boxShadow: "0 0 22px rgba(198,239,78,1)", offset: 0.3 }, { opacity: 0.85, boxShadow: "0 0 12px rgba(198,239,78,.7)" }],
       { duration: 700, fill: "forwards" });
   }, LOCK);
@@ -156,9 +157,9 @@ function open(boot, html) {
   for (const el of boot.querySelectorAll(".boot-label, .boot-count, .boot-read, .boot-meta, .boot-vline, .boot-tag, .boot-grid")) el.animate([{ opacity: getComputedStyle(el).opacity }, { opacity: 0 }], { duration: 300, fill: "forwards" });
   // The wordmark's letters fly off up and down from the horizon.
   boot.querySelectorAll(".boot-word b").forEach((b, i, all) => b.animate([{ transform: "none", opacity: 1 }, { transform: `translateY(${i % 2 ? 130 : -130}%) rotate(${(i - all.length / 2) * 3}deg)`, opacity: 0 }],
-    { duration: 560, delay: Math.abs(i - all.length / 2) * 18, easing: "cubic-bezier(.6,0,.8,.3)", fill: "forwards" }));
+    { duration: 560, delay: Math.abs(i - all.length / 2) * 18, easing: CURVE.inQuart, fill: "forwards" }));
   boot.querySelector(".boot-line").animate([{ transform: "scaleX(1) scaleY(1)", opacity: 0.85 }, { transform: "scaleX(1) scaleY(4)", opacity: 1, offset: 0.25 }, { transform: "scaleX(1) scaleY(1)", opacity: 0 }],
-    { duration: 900, easing: "ease-out", fill: "forwards" });
+    { duration: 900, easing: CURVE.outQuad, fill: "forwards" });
   // The figure glides into the hero's figure: same place, same height.
   const fig = boot.querySelector(".boot-fig"), r = fig.getBoundingClientRect();
   const to = sceneState.heroFigure?.();
@@ -170,7 +171,7 @@ function open(boot, html) {
   fig.style.transformOrigin = `50% ${(((TOP + FEET) / 2) / 340) * 100}%`;
   fig.animate([{ transform: "translate(-50%, -54%)", opacity: 1 }, { opacity: 1, offset: 0.55 },
     { transform: `translate(calc(-50% + ${dx.toFixed(1)}px), calc(-54% + ${dy.toFixed(1)}px)) scale(${k.toFixed(3)})`, opacity: 0 }],
-    { duration: 950, easing: "cubic-bezier(.65,0,.25,1)", fill: "forwards" });
+    { duration: 950, easing: CURVE.inOutCubic, fill: "forwards" });
   requestAnimationFrame(() => boot.classList.add("open"));    // the two halves part (css/site.css)
   setTimeout(() => boot.remove(), 1100);
 }

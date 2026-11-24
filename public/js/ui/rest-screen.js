@@ -9,6 +9,7 @@ import { restCue, mmss } from "../rest.js";
 import { SYSTEM, REST_SECONDS } from "../coaching.js";
 import { stamp } from "./flair.js";
 import { reducedMotion } from "./motion.js";
+import { CURVE } from "./ease.js";
 
 let timer = 0;
 
@@ -49,7 +50,7 @@ export function showRest({ seconds, next, nextExercise = null, kicker = "Rest", 
   $("#rest-add").onclick = () => {
     const prog = $("#rest-prog");
     if (!reducedMotion()) {
-      prog.style.transition = "stroke-dashoffset .7s cubic-bezier(.2,.9,.3,1.3)";
+      prog.style.transition = `stroke-dashoffset .7s ${CURVE.outBackSoft}`;
       setTimeout(() => { prog.style.transition = ""; }, 750);
     }
     endAt += 15000; total += 15; left += 15; draw();

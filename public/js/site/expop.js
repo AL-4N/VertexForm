@@ -14,6 +14,7 @@
  * starts moving: the drawing becomes the 3D model.
  */
 
+import { CURVE } from "../ui/ease.js";
 import { gradeColor, gradeLetter } from "../grade.js";
 import { DEMO_TIPS } from "../config.js";
 import { openPopup } from "../ui/popup.js";
@@ -84,13 +85,13 @@ export function mountExercisePopups(grid, dlg) {
     dlg.appendChild(fly);
     if (host) host.style.visibility = "hidden";                // it has left the card
     const box = (r) => ({ left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px` });
-    const TRAVEL = "cubic-bezier(.65,0,.2,1)";
+    const TRAVEL = CURVE.inOutCubic;
     await fly.animate([box(a), box(b)], { duration: 780, easing: TRAVEL, fill: "forwards" }).finished.catch(() => {});
     if (host) host.style.visibility = "";
     if (run !== st.run) { fly.remove(); return; }
     // Dissolve the flat drawing into the model…
     tween(0, 1, (v) => { st.show = v; if (!st.raf) draw(); }, { duration: 320 });
-    await fly.animate([{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(3px)" }], { duration: 360, easing: "ease-out", fill: "forwards" }).finished.catch(() => {});
+    await fly.animate([{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(3px)" }], { duration: 360, easing: CURVE.outQuad, fill: "forwards" }).finished.catch(() => {});
     fly.remove();
     if (run !== st.run) return;
     // …then turn it round into 3D, the floor coming up as it turns.

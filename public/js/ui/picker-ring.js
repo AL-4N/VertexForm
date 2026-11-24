@@ -1,3 +1,4 @@
+import { CURVE } from "./ease.js";
 /**
  * picker-ring.js — the trainer's exercise picker as a ring of cards in 3D
  * (wide screens, motion allowed), the same instrument as the homepage's
@@ -30,7 +31,7 @@ const GLINT = [{ transform: "translateX(-140%) skewX(-18deg)" }, { transform: "t
 function glint(item, delay = 0) {
   const card = item?.querySelector(".ex-card");
   if (!CAN_GLINT || !card) return;
-  card.animate(GLINT, { duration: 900, delay, easing: "cubic-bezier(.5,0,.3,1)", pseudoElement: "::after" });
+  card.animate(GLINT, { duration: 900, delay, easing: CURVE.inOutCubic, pseudoElement: "::after" });
 }
 
 export function mountPickerRing(view, { items, start = 0, intro = false, onFront }) {

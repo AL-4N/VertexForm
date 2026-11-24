@@ -1,5 +1,6 @@
 /** results.js — post-session breakdown: grade, bars, rep chart, coach notes. */
 
+import { CURVE } from "./ease.js";
 import { $, renderBars, drawRepChart } from "./components.js";
 import { renderReplayCard } from "./replay.js";
 import { gradeLetter, gradeVar } from "../geometry.js";
@@ -49,7 +50,7 @@ function countUp(best) {
   countUp.stampAt = setTimeout(() => {
     stamp(letter, gradeColor(best), undefined, { lift: true });
     if (reducedMotion()) return;
-    letter.closest(".grade-dial")?.animate([{ filter: "brightness(1)" }, { filter: `brightness(1.8) drop-shadow(0 0 14px ${gradeColor(best)})`, offset: .2 }, { filter: "brightness(1)" }], { duration: 700, easing: "ease-out" });
+    letter.closest(".grade-dial")?.animate([{ filter: "brightness(1)" }, { filter: `brightness(1.8) drop-shadow(0 0 14px ${gradeColor(best)})`, offset: .2 }, { filter: "brightness(1)" }], { duration: 700, easing: CURVE.outQuad });
     const again = $("#btn-again");
     again.classList.remove("glint"); void again.offsetWidth; again.classList.add("glint");
   }, 1050);
@@ -158,7 +159,7 @@ function dealCards() {
     [{ opacity: 0, transform: `translateY(34px) rotate(${k % 2 ? 1.4 : -1.4}deg) scale(.97)` },
      { opacity: 1, transform: `translateY(-3px) rotate(${k % 2 ? -0.3 : 0.3}deg)`, offset: .7 },
      { opacity: 1, transform: "none" }],
-    { duration: 620, delay: 380 + k * 110, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }));
+    { duration: 620, delay: 380 + k * 110, easing: CURVE.outCubic, fill: "backwards" }));
 }
 
 /** Coach notes: the tip's words rise in, then each fault's dots light rep by rep. */
@@ -171,14 +172,14 @@ function revealNotes() {
     tip.innerHTML = words.map((w) => `<span class="tw" aria-hidden="true">${esc(w)}</span>`).join(" ");
     tip.querySelectorAll(".tw").forEach((w, k) => w.animate(
       [{ opacity: 0, transform: "translateY(.5em)" }, { opacity: 1, transform: "none" }],
-      { duration: 420, delay: 700 + k * 28, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }));
+      { duration: 420, delay: 700 + k * 28, easing: CURVE.outCubic, fill: "backwards" }));
   }
   document.querySelectorAll("#res-faults .fault-item").forEach((item, f) => {
     item.querySelectorAll(".fault-dots i").forEach((d, k) => d.animate(
       d.classList.contains("hit")
         ? [{ transform: "scale(0)" }, { transform: "scale(1.6)", offset: .6 }, { transform: "scale(1)" }]
         : [{ transform: "scale(0)" }, { transform: "scale(1)" }],
-      { duration: 360, delay: 900 + f * 160 + k * 45, easing: "cubic-bezier(.3,.7,.4,1)", fill: "backwards" }));
+      { duration: 360, delay: 900 + f * 160 + k * 45, easing: CURVE.outQuart, fill: "backwards" }));
   });
 }
 

@@ -7,6 +7,7 @@
  * for reduced motion.
  */
 
+import { CURVE } from "../ui/ease.js";
 import { mountLoop } from "../figures/loop.js";
 import { renderPictos } from "../figures/pictos.js";
 import { reducedMotion } from "../ui/motion.js";
@@ -17,7 +18,7 @@ export function mountCardReps(grid) {
     const host = card.querySelector(".picto[data-picto]");
     if (!host) continue;
     let stop = null;
-    const fade = () => host.animate([{ opacity: 0.25 }, { opacity: 1 }], { duration: 220, easing: "ease-out" });
+    const fade = () => host.animate([{ opacity: 0.25 }, { opacity: 1 }], { duration: 220, easing: CURVE.outQuad });
     card.addEventListener("pointerenter", (e) => {
       if (e.pointerType !== "mouse" || stop) return;
       stop = mountLoop(host, host.dataset.picto);

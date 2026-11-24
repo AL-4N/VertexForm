@@ -23,7 +23,7 @@
   position: absolute; top: .9rem; right: .9rem; z-index: 2; display: grid; place-items: center;
   width: 40px; height: 40px; border-radius: 10px; border: 0; cursor: pointer;
   background: rgba(238,241,251, .08); color: #eef1fb;
-  transition: background .2s, transform .3s cubic-bezier(.22,.61,.36,1);
+  transition: background .2s, transform .3s var(--ease-out-cubic);
 }
 .pop-close:hover { background: rgba(238,241,251, .16); transform: rotate(90deg); }
 .pop-close svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }

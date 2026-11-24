@@ -4,6 +4,7 @@
  * site's small touches (the header rule, button fills, the page transition,
  * the reading line) and draws each figure in its grade colour as it scrolls in.
  */
+import { CURVE } from "../ui/ease.js";
 import { mountHoverFill } from "../ui/hover-fill.js";
 import { mountPageTransitions } from "../page-transition.js";
 import { mountProgress } from "./progress.js";
@@ -27,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
       e.target.querySelectorAll("polyline").forEach((l, k) => {
         const len = l.getTotalLength?.() ?? 400;
         l.animate([{ strokeDasharray: `${len}`, strokeDashoffset: len }, { strokeDasharray: `${len}`, strokeDashoffset: 0 }],
-          { duration: 650, delay: 60 + k * 70, easing: "cubic-bezier(.3,.6,.3,1)", fill: "backwards" });
+          { duration: 650, delay: 60 + k * 70, easing: CURVE.outQuart, fill: "backwards" });
       });
     }
   }, { rootMargin: "0px 0px -15% 0px" });

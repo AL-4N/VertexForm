@@ -22,11 +22,12 @@
  * All Web Animations, no libraries. Reduced motion: none of it runs.
  */
 
+import { CURVE } from "./ease.js";
 import { reducedMotion } from "./motion.js";
 
-const OUT = "cubic-bezier(.22,.61,.36,1)";
-const TRAVEL = "cubic-bezier(.65,0,.2,1)";
-const POP = "cubic-bezier(.2,.9,.3,1.25)";
+const OUT = CURVE.outCubic;
+const TRAVEL = CURVE.inOutCubic;
+const POP = CURVE.outBackSoft;
 const ok = () => !reducedMotion() && !!document.body.animate;
 const rect = (r, radius) => ({ left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px`, borderRadius: radius });
 
@@ -85,7 +86,7 @@ export async function morphInto({ from, figure, figureLoop = null, open, screen,
       [{ opacity: 0, transform: "perspective(800px) rotateX(-55deg) translateY(-12px)", transformOrigin: "50% 0" },
        { opacity: 1, transform: "perspective(800px) rotateX(0) translateY(0)", transformOrigin: "50% 0" }],
       { duration: 560, delay: 40 + k * 80, easing: POP, fill: "backwards" }));
-    await Promise.all([box, fly].filter(Boolean).map((el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: "ease-out", fill: "forwards" }).finished));
+    await Promise.all([box, fly].filter(Boolean).map((el) => el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: CURVE.outQuad, fill: "forwards" }).finished));
   } finally {
     box.remove();
     stopFly();
@@ -110,7 +111,7 @@ export function stamp(el, colour, card = el.closest(".card"), { lift = false } =
     { transform: "scale(.88) rotate(3deg)", opacity: 1, filter: "blur(0)", offset: 0.62 },
     { transform: "scale(1.06) rotate(-1deg)", offset: 0.82 },
     { transform: "scale(1) rotate(0)" },
-  ], { duration: lift ? 620 : 560, easing: "cubic-bezier(.3,.7,.3,1)" });
+  ], { duration: lift ? 620 : 560, easing: CURVE.outQuart });
   const r = el.getBoundingClientRect();
   const ring = document.createElement("span");
   ring.className = "flair-ring";
@@ -124,7 +125,7 @@ export function stamp(el, colour, card = el.closest(".card"), { lift = false } =
   card?.animate([
     { transform: "translate(0, 0)" }, { transform: "translate(0, 5px)", offset: 0.2 },
     { transform: "translate(-3px, -2px)", offset: 0.45 }, { transform: "translate(2px, 1px)", offset: 0.7 }, { transform: "translate(0, 0)" },
-  ], { duration: 360, delay: hit + 10, easing: "ease-out" });
+  ], { duration: 360, delay: hit + 10, easing: CURVE.outQuad });
 }
 
 /** History: stat cards flip down in turn like a departure board; charts draw themselves. */
@@ -140,7 +141,7 @@ export function flipBoard(host) {
     chart.querySelectorAll("polyline").forEach((line) => {
       const len = line.getTotalLength?.() || 600;
       line.animate([{ strokeDasharray: `${len} ${len}`, strokeDashoffset: len }, { strokeDasharray: `${len} ${len}`, strokeDashoffset: 0 }],
-        { duration: 900, delay, easing: "cubic-bezier(.45,.05,.55,.95)", fill: "backwards" });
+        { duration: 900, delay, easing: CURVE.inOutSine, fill: "backwards" });
     });
     chart.querySelectorAll("circle").forEach((dot, i) => dot.animate(
       [{ transform: "scale(0)" }, { transform: "scale(1)" }],
@@ -149,7 +150,7 @@ export function flipBoard(host) {
   });
   host.querySelectorAll(".ach.on").forEach((a, i) => a.animate(
     [{ backgroundPosition: "-120% 0" }, { backgroundPosition: "220% 0" }],
-    { duration: 900, delay: 700 + i * 90, easing: "ease-in-out" }));
+    { duration: 900, delay: 700 + i * 90, easing: CURVE.inOutSine }));
 }
 
 /** Challenges: the cards deal out from a stacked deck; the calendar's days pop in as a wave. */
@@ -206,7 +207,7 @@ export function bestBadge(el, delay = 1350) {
       { transform: "scale(1.18) rotate(2deg)", opacity: 1, filter: "blur(0)", offset: 0.6 },
       { transform: "scale(1) rotate(0)" },
     ], { duration: 520, easing: OUT });
-    el.animate([{ boxShadow: "0 0 0 0 rgba(46,229,157,.7)" }, { boxShadow: "0 0 0 18px rgba(46,229,157,0)" }], { duration: 900, delay: 250, easing: "ease-out" });
+    el.animate([{ boxShadow: "0 0 0 0 rgba(46,229,157,.7)" }, { boxShadow: "0 0 0 18px rgba(46,229,157,0)" }], { duration: 900, delay: 250, easing: CURVE.outQuad });
     setTimeout(() => sparkle(el, { count: 12, reach: 60 }), 260);
   }, delay);
 }
