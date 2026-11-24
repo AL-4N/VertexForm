@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.18.0 — 2026-11-24
+
+### The opening turns into the page
+- When the opening hands over, its figure now turns into the figure on the
+  page joint by joint: it swings round into the same side-on view, settles
+  into the same pose, and takes on its colour, with a brief motion blur
+  while it moves.
+
+### Smoother motion
+- Spinning the trainer's exercise ring fast blurs the cards slightly with
+  their speed, and the result bars and skill meters now grow without
+  making the page lay itself out again every frame.
+
 ## 2.17.1 — 2026-11-24
 
 ### Polish

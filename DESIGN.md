@@ -423,9 +423,15 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   round the figure ("Locked · 33 / 33"), the counter flashes green, the
   horizon brightens and "Form" fills faintly from the bottom up. Then
   the screen splits along the horizon (the hero's own) while the figure
-  glides and shrinks into exactly where the hero's figure stands
-  (`scene-state.js` `heroFigure`, from hero3d.js) and dissolves as the
-  hero's figure assembles under it, and the wordmark's letters fly off.
+  turns into the hero's figure joint for joint (`morphIntoHero`, a canvas
+  for a second): every point travels to its joint on the hero in the hero
+  camera's view (`scene-state.js` `heroJoints`, from hero3d.js), the body
+  turning on the way (the offset from the middle swings round, cos/sin, so
+  the shoulders and hips narrow into the side view), the head's ring
+  settling onto the hero's, lime easing to the hero's colour, a three-frame
+  motion-blur trail while it moves fast; it keeps following the moving
+  hero while it fades as the hero's figure assembles under it. The
+  wordmark's letters fly off.
   At least 2.5 s, at most 5 s; it waits for the hero's 3D and the fonts.
 - **Things grow out of what you clicked** (`ui/popup.js`): exercise-card
   popups, the trainer's confirms and onboarding (the page behind blurs and
@@ -492,6 +498,12 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   it runs the whole page in the margin with a blot at each heading that
   fills once you've reached it. The drawn ink follows the scroll with a
   short lag, so it flows.
+- **Spin blur**: the trainer's picker ring blurs its cards a little with
+  their speed when flicked fast (CSS blur per card, in half-pixel steps,
+  gone as it settles). Not on the homepage's ring, which the scroll turns:
+  blurring its 18 3D cards every frame made fast scrolling stutter.
+- Animations move transforms and opacity, not layout: the results bars and
+  the skill meters grow by scale, the intro's scan moves by translate.
 - **The exercise ring** (`site/ex-ring.js`, wide screens, motion allowed):
   all eighteen exercises as cards on a tilted ring round the section's
   heading. The section holds still while the scroll turns the ring; it
