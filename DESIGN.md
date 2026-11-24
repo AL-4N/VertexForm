@@ -117,6 +117,10 @@ its exact colour):
   "Not tried yet") rather than one empty card each.
 - Buttons that start something look like it: the setup screen's Practice /
   Analyze cards carry an arrow that fills with the go gradient on hover.
+- The homepage tells the story; reference material lives on its own page.
+  Camera setup, how the scoring is tested and what it can't do yet moved
+  to the Guide (`guide.html`, Nov 2026), linked from the questions, the
+  header and the footer.
 - Say each thing once. The homepage had privacy in four places and three
   3D squats in a row (Oct 2026); now privacy is in the hero badges and the
   questions, and the 3D squat is the hero plus the pinned story. Before

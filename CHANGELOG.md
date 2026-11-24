@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.17.0 — 2026-11-24
+
+### Smoother fast scrolling
+- Scrolling fast down the homepage no longer stutters: animations that
+  start as you scroll no longer make the browser recalculate the whole
+  page, and the ink trails stopped measuring themselves every frame.
+- Stopping between two sections still glides you to the nearer one, but
+  it now gives way the moment you scroll again instead of pulling against you.
+
+### A shorter homepage, and a Guide
+- Camera setup, how the scoring is tested and what it can't do yet moved
+  to a new Guide page, linked from the header, the footer and the questions.
+
 ## 2.16.0 — 2026-11-24
 
 ### An ink trail as you read
