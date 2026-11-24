@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.17.1 — 2026-11-24
+
+### Polish
+- Arriving at a section, the side rail now shows just that section's name
+  beside the strip instead of opening over the start of the heading.
+- The exercises heading reads clearly over the ring of cards behind it.
+- The ink trail sits a little further from the rail.
+- History shows a dash instead of "null" if an old save is missing a score.
+
 ## 2.17.0 — 2026-11-24
 
 ### Smoother fast scrolling

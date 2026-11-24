@@ -9,7 +9,8 @@ import { median } from "./geometry.js";
 export function exerciseHistory(sessions, exercise) {
   const list = sessions.filter((s) => s.exercise === exercise);
   const bests = list.map((s) => s.best).filter(Number.isFinite);
-  const points = list.map((s) => ({ date: s.date, best: s.best, average: s.average ?? s.best }));
+  // A set without a score (an old or damaged save) is left off the chart rather than drawn as NaN.
+  const points = list.filter((s) => Number.isFinite(s.best)).map((s) => ({ date: s.date, best: s.best, average: s.average ?? s.best }));
   return {
     count: list.length,
     best: bests.length ? Math.max(...bests) : null,

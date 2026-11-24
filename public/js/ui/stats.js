@@ -48,8 +48,8 @@ export function renderStats() {
     return `
       <div class="card">
         <h2>${name}</h2>
-        <div class="stat-card"><span class="dim">Best</span><strong style="color:${gradeVar(h.best)}">${h.best}</strong></div>
-        <div class="stat-card"><span class="dim">Average</span><strong>${h.average}</strong></div>
+        <div class="stat-card"><span class="dim">Best</span><strong style="color:${h.best != null ? gradeVar(h.best) : "inherit"}">${h.best ?? "--"}</strong></div>
+        <div class="stat-card"><span class="dim">Average</span><strong>${h.average ?? "--"}</strong></div>
         <div class="stat-card"><span class="dim">Sets</span><strong>${h.count}</strong></div>
         ${historyChart(h.points, name)}
         <h3 class="label">Most common faults</h3>

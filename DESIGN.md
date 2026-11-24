@@ -166,8 +166,9 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   (`js/site/motion-nav.js`); slow reading-speed scrolling stays sharp.
 - The side rail's fill eases toward the scroll position every frame, so it
   never jumps. The rail rests as a thin strip (the ruler, ticks, fill) and
-  pops out over the page when pointed at or focused, and on its own for
-  1.5 s when you arrive at a new section (`.peek`): the panel opens out on
+  pops out over the page when pointed at or focused; arriving at a new
+  section it shows just that section's name as a tag beside the strip for
+  1.5 s (`.peek`, so it never covers the heading). Opening fully: the panel opens out on
   cubic-out and the labels slide in one after another on quart-out;
   closing is cubic-in.
 - Signature moments (each tied to what VertexForm does, not decoration):

@@ -214,7 +214,7 @@ webcam → pose.js (MediaPipe PoseLandmarker; lite/full/heavy, "auto" falls back
 ## Repo map (main files)
 
 ```
-public/            index.html  app.html  exercises.html  whats-new.html  privacy.html  404.html
+public/            index.html  app.html  exercises.html  guide.html  whats-new.html  privacy.html  404.html
                    sw.js  manifest.webmanifest  _headers  og.png  robots.txt  sitemap.xml
   css/             theme.css (tokens)  app.css  site.css  transitions.css  fonts.css
   audio/           pre-rendered voice pack (npm run voice)

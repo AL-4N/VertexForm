@@ -249,16 +249,22 @@ body::after {
   }
   /* The strip's own edge, while the rest is tucked away. */
   .rail::after { content: ""; position: absolute; top: 0; bottom: 0; left: calc(var(--rail-w) - 1px); width: 1px; background: var(--line); transition: opacity .25s; }
-  .rail:hover, .rail:focus-within, .rail.peek {
+  .rail:hover, .rail:focus-within {
     clip-path: inset(0 -90px 0 0); box-shadow: 30px 0 70px -30px rgba(0,0,0,.85);
     transition: clip-path .6s var(--ease-out-cubic), box-shadow .6s var(--ease-out-cubic);
   }
-  .rail:hover::after, .rail:focus-within::after, .rail.peek::after { opacity: 0; }
+  .rail:hover::after, .rail:focus-within::after { opacity: 0; }
   .rail-n, .rail-label { opacity: 0; translate: -10px 0; transition: opacity .18s var(--ease-in-cubic), translate .22s var(--ease-in-cubic); }
-  .rail:hover :is(.rail-n, .rail-label), .rail:focus-within :is(.rail-n, .rail-label), .rail.peek :is(.rail-n, .rail-label) {
+  .rail:hover :is(.rail-n, .rail-label), .rail:focus-within :is(.rail-n, .rail-label) {
     opacity: 1; translate: 0 0;
     transition: opacity .4s var(--ease-out-cubic) calc(.1s + var(--i, 0) * 38ms), translate .55s var(--ease-out-quart) calc(.1s + var(--i, 0) * 38ms);
   }
+  /* Arriving at a section (.peek): not the whole panel over the page, just
+     the current section's name as a tag beside the strip. */
+  .rail.peek:not(:hover):not(:focus-within) { clip-path: inset(0 -260px 0 0); background: transparent; border-right-color: transparent; }
+  .rail.peek:not(:hover):not(:focus-within) a.active :is(.rail-n, .rail-label) { opacity: 1; translate: 0 0;
+    transition: opacity .35s var(--ease-out-cubic), translate .5s var(--ease-out-quart); }
+  .rail.peek:not(:hover):not(:focus-within) a.active { padding-right: .7rem; border-radius: 6px; background: color-mix(in srgb, var(--tone, #090d1c) 88%, transparent); box-shadow: inset 0 0 0 1px var(--line); }
   .rail-inner { position: absolute; left: 16px; right: 12px; top: 50%; transform: translateY(-50%); height: min(56vh, 400px); }
   /* The ruler: a hairline with a minor tick every 12px. */
   .rail-track {
@@ -1395,7 +1401,7 @@ html.booting .boot-word b, .boot.closing .boot-word b { animation: boot-rise .95
 .ink-foot { top: calc(100% + .8rem); }
 .ink-foot b { color: var(--text); font-weight: 600; margin-left: .5rem; }
 /* In a homepage text scene: the margin left of the content column, inside the frame. */
-.scene-trail { left: max(14px, calc((100% - 1200px) / 2 - 64px)); top: 128px; bottom: 78px; }
+.scene-trail { left: max(14px, calc((100% - 1200px) / 2 - 34px)); top: 128px; bottom: 78px; }
 /* On an info page: fixed in the left margin, the whole page long. */
 .page-trail { position: fixed; z-index: 2; left: max(14px, calc((100vw - 1200px) / 2 - 70px)); top: 118px; bottom: 64px; }
 @media (max-width: 999.98px) { .page-trail { display: none; } }
@@ -1414,3 +1420,8 @@ html.booting .boot-word b, .boot.closing .boot-word b { animation: boot-rise .95
 .guide-toc { display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; margin-top: 1.2rem; font-family: var(--mono); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; }
 .guide-toc a { color: var(--text-dim); text-decoration: none; border-bottom: 1px solid var(--line-2); padding-bottom: .2rem; transition: color .25s var(--ease-out-cubic), border-color .25s var(--ease-out-cubic); }
 .guide-toc a:hover { color: var(--text); border-color: var(--lime, #c6ef4e); }
+
+/* The exercises heading over the ring: a soft dark pool behind it, so the
+   cards passing behind at the back don't run through the words. */
+.ex-ring-centre::before { content: ""; position: absolute; inset: -18% -14% -22%; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(9,13,28,.82), rgba(9,13,28,.55) 55%, rgba(9,13,28,0)); }
