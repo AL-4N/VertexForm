@@ -34,6 +34,17 @@ function glint(item, delay = 0) {
   card.animate(GLINT, { duration: 900, delay, easing: CURVE.inOutCubic, pseudoElement: "::after" });
 }
 
+// Motion blur while the ring spins fast: each card blurs a little with the
+// ring's speed (rad/s), in steps so it isn't rewritten every frame. Per card,
+// not on the ring: a filter on the 3D container would flatten its depth.
+function spinBlur(items, speed, st) {
+  const px = Math.min(3, Math.max(0, (Math.abs(speed) - 1.1) * 1.4));
+  const step = Math.round(px * 2) / 2;
+  if (step === st.blur) return;
+  st.blur = step;
+  for (const el of items) el.style.filter = step ? `blur(${step}px)` : "";
+}
+
 export function mountPickerRing(view, { items, start = 0, intro = false, onFront }) {
   const N = items.length, STEP = (2 * Math.PI) / N, TAU = 2 * Math.PI;
   const st = {
@@ -104,7 +115,9 @@ export function mountPickerRing(view, { items, start = 0, intro = false, onFront
     st.last = now;
     const idle = !st.hover && st.focus == null && !st.drag && now > st.hold;
     if (idle) st.want -= AUTO * dt;                          // the next card comes round
+    const before = st.shown;
     st.shown += (st.want - st.shown) * (1 - Math.exp(-dt * 7));
+    spinBlur(items, (st.shown - before) / dt, st);
     // The first time: the cards fly out from the stage and wind into place.
     if (st.grow < 1) {
       st.grow = Math.min(1, st.grow + dt / 1.3);

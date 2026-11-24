@@ -16,15 +16,21 @@
  *   1.9 s  Locked: viewfinder brackets snap round the figure, the horizon
  *          brightens and "Form" fills with the go gradient.
  *   open   The screen splits along the horizon (where the hero's own
- *          horizon sits) while the figure glides and shrinks into exactly
- *          where the hero's figure stands (sceneState.heroFigure), so the
- *          figure you watched being found is the one on the page.
+ *          horizon sits) while the figure turns into the hero's figure,
+ *          joint for joint: every point travels to its joint on the hero
+ *          (sceneState.heroJoints, in the hero camera's view), the body
+ *          turning on the way (the shoulders and hips narrow and swing
+ *          round into the side-on view), the head's ring settling onto the
+ *          hero's, the colour easing to the hero's, with a short motion-blur
+ *          trail while it moves fast. The hero's own figure assembles under
+ *          it as it lands; then it fades. So the figure you watched being
+ *          found is the one on the page.
  *
  * It waits for the hero's 3D and the fonts, for at least 2.5 s and at most
  * 5 s in all. "vf:booted" lets the hero's figure and headline arrive.
  */
 
-import { CURVE } from "../ui/ease.js";
+import { CURVE, ease } from "../ui/ease.js";
 import { smooth } from "./smooth.js";
 import { sceneState } from "./scene-state.js";
 
@@ -120,7 +126,8 @@ export function mountBoot() {
   lines.sort((a, b) => a.y - b.y).forEach(({ l }, k) => l.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }],
     { duration: 420, delay: 1000 + k * 16, easing: EASE, fill: "forwards" }));
   head.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 520, delay: 980, easing: EASE, fill: "forwards" });
-  scan.animate([{ top: "0%", opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.85 }, { top: "100%", opacity: 0 }],
+  // (transform, not top: it moves by the figure's height, 100% / 18% of its own)
+  scan.animate([{ transform: "translateY(-100%)", opacity: 0 }, { opacity: 1, offset: 0.12 }, { opacity: 1, offset: 0.85 }, { transform: "translateY(455%)", opacity: 0 }],
     { duration: 720, delay: 1300, easing: CURVE.inOutCubic, fill: "forwards" });
 
   // ── 1.9 s: locked ──
@@ -160,8 +167,10 @@ function open(boot, html) {
     { duration: 560, delay: Math.abs(i - all.length / 2) * 18, easing: CURVE.inQuart, fill: "forwards" }));
   boot.querySelector(".boot-line").animate([{ transform: "scaleX(1) scaleY(1)", opacity: 0.85 }, { transform: "scaleX(1) scaleY(4)", opacity: 1, offset: 0.25 }, { transform: "scaleX(1) scaleY(1)", opacity: 0 }],
     { duration: 900, easing: CURVE.outQuad, fill: "forwards" });
-  // The figure glides into the hero's figure: same place, same height.
-  const fig = boot.querySelector(".boot-fig"), r = fig.getBoundingClientRect();
+  // The figure turns into the hero's figure (or, without its joints, glides into its box).
+  const fig = boot.querySelector(".boot-fig");
+  if (morphIntoHero(fig)) { requestAnimationFrame(() => boot.classList.add("open")); setTimeout(() => boot.remove(), 1100); return; }
+  const r = fig.getBoundingClientRect();
   const to = sceneState.heroFigure?.();
   const fromTop = r.top + (r.height * TOP) / 340, fromBottom = r.top + (r.height * FEET) / 340;
   const fromMid = (fromTop + fromBottom) / 2, fromX = r.left + r.width / 2;
@@ -175,3 +184,100 @@ function open(boot, html) {
   requestAnimationFrame(() => boot.classList.add("open"));    // the two halves part (css/site.css)
   setTimeout(() => boot.remove(), 1100);
 }
+
+/* ── The turn into the hero's figure ──────────────────────────────────── */
+
+// Where each of the 33 points goes on the hero: its joint, or (face, hands,
+// heels) a point near one. [key, toward, amount, fades] with toward/amount
+// placing it part way to another joint.
+const TO = [
+  ["nose"], ["nose", "earL", 0.35, 1], ["nose", "earL", 0.5, 1], ["nose", "earL", 0.65, 1], ["nose", "earR", 0.35, 1], ["nose", "earR", 0.5, 1], ["nose", "earR", 0.65, 1],
+  ["earL", null, 0, 1], ["earR", null, 0, 1], ["nose", "shL", 0.15, 1], ["nose", "shR", 0.15, 1],
+  ["shL"], ["shR"], ["elL"], ["elR"], ["wrL"], ["wrR"],
+  ["wrL", "elL", -0.12, 1], ["wrR", "elR", -0.12, 1], ["wrL", "elL", -0.16, 1], ["wrR", "elR", -0.16, 1], ["wrL", "elL", -0.08, 1], ["wrR", "elR", -0.08, 1],
+  ["hipL"], ["hipR"], ["knL"], ["knR"], ["anL"], ["anR"], ["heL"], ["heR"], ["toL"], ["toR"],
+];
+const BODY = [11, 12, 23, 24];               // the turn swings round the middle of these
+const LIME = [198, 239, 78];
+
+function morphIntoHero(fig) {
+  const J0 = sceneState.heroJoints?.();
+  const dots = [...fig.querySelectorAll(".boot-dot")], headEl = fig.querySelector(".boot-head");
+  if (!J0 || dots.length !== 33 || !headEl || !TO.every(([k]) => J0[k])) return false;
+  const box = fig.getBoundingClientRect(), u = box.height / 340;          // px per unit of the figure's box
+  const start = dots.map((d) => { const r = d.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; });
+  const hr = headEl.getBoundingClientRect();
+  const head0 = [hr.left + hr.width / 2, hr.top + hr.height / 2, hr.width / 2];
+  const canvas = document.createElement("canvas");
+  canvas.className = "boot-morph";
+  document.body.append(canvas);
+  const dpr = Math.min(2, devicePixelRatio || 1), W = innerWidth, H = innerHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const g = canvas.getContext("2d");
+  g.scale(dpr, dpr);
+  g.lineCap = "round";
+  fig.style.visibility = "hidden";                    // the canvas draws it from here, from the same place
+  const at = (J, [k, toward, amt = 0]) => toward ? [J[k][0] + (J[toward][0] - J[k][0]) * amt, J[k][1] + (J[toward][1] - J[k][1]) * amt] : J[k];
+  const centre = (pts) => BODY.reduce((c, i) => [c[0] + pts[i][0] / 4, c[1] + pts[i][1] / 4], [0, 0]);
+  const c0 = centre(start);
+  const hex = (h) => { const n = parseInt(String(h || "#eef1fb").replace("#", ""), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const DUR = 1000, t0 = performance.now(), trail = [];
+  // Top to bottom, a little apart, so the turn runs down the body.
+  const delay = start.map(([, y]) => Math.max(0, Math.min(1, (y - box.top) / box.height)) * 110);
+
+  const pose = (now, J) => {
+    const tgt = TO.map((m) => at(J, m)), c1 = centre(tgt);
+    const pts = start.map((s, i) => {
+      const e = ease.inOutCubic(Math.max(0, Math.min(1, (now - t0 - delay[i]) / DUR)));
+      // A turn, not a slide: the offset from the middle swings round (cos / sin)
+      // while the middle itself travels and the height settles.
+      const a = (e * Math.PI) / 2, cx = c0[0] + (c1[0] - c0[0]) * e, cy = c0[1] + (c1[1] - c0[1]) * e;
+      const sx = s[0] - c0[0], tx = tgt[i][0] - c1[0];
+      return [cx + sx * Math.cos(a) + tx * Math.sin(a), cy + (s[1] - c0[1]) + ((tgt[i][1] - c1[1]) - (s[1] - c0[1])) * e, e];
+    });
+    const e = ease.inOutCubic(Math.max(0, Math.min(1, (now - t0 - 40) / DUR)));
+    const h1 = J.head ?? [tgt[0][0], tgt[0][1], head0[2] * 0.5];
+    const head = [head0[0] + (h1[0] - head0[0]) * e, head0[1] + (h1[1] - head0[1]) * e, head0[2] + (h1[2] - head0[2]) * e];
+    return { pts, head, e };
+  };
+
+  const draw = (P, alpha, col, width) => {
+    const { pts, head, e } = P;
+    g.strokeStyle = `rgba(${col.join(",")},${(0.85 * alpha).toFixed(3)})`;
+    g.lineWidth = width;
+    g.beginPath();
+    for (const [a, b] of LINKS) { g.moveTo(pts[a][0], pts[a][1]); g.lineTo(pts[b][0], pts[b][1]); }
+    // The neck the hero's figure has, coming in as it lands.
+    if (e > 0.3) { const n = [(pts[11][0] + pts[12][0]) / 2, (pts[11][1] + pts[12][1]) / 2]; g.moveTo(n[0], n[1]); g.lineTo(head[0] + (n[0] - head[0]) * (head[2] / Math.max(1, Math.hypot(n[0] - head[0], n[1] - head[1]))), head[1] + (n[1] - head[1]) * (head[2] / Math.max(1, Math.hypot(n[0] - head[0], n[1] - head[1])))); }
+    g.moveTo(head[0] + head[2], head[1]);
+    g.arc(head[0], head[1], Math.max(0.5, head[2]), 0, Math.PI * 2);
+    g.stroke();
+    // Points: the face and fingers fade as they fold into the head and hands.
+    pts.forEach(([x, y, k], i) => {
+      const fade = TO[i][3] ? 1 - k : 1;
+      if (fade <= 0.02) return;
+      g.fillStyle = `rgba(238,241,251,${(alpha * fade).toFixed(3)})`;
+      g.beginPath(); g.arc(x, y, (i <= 10 ? 1.6 : 2.6) * Math.max(0.7, u * (1 - 0.3 * k)), 0, Math.PI * 2); g.fill();
+    });
+  };
+
+  const frame = (now) => {
+    const J = sceneState.heroJoints?.() ?? J0;        // the hero keeps moving: land on where it is now
+    const P = pose(now, J);
+    const col = LIME.map((c, i) => Math.round(c + (hex(J.colour)[i] - c) * P.e));
+    const width = (1.4 * u) * (1 - P.e) + 2 * P.e;
+    // Landed: it keeps following the hero (which keeps moving) while it fades, so there's never a double image.
+    const fade = 1 - ease.outCubic(Math.max(0, Math.min(1, (now - t0 - DUR - 160) / 340)));
+    g.clearRect(0, 0, W, H);
+    g.shadowColor = `rgba(${col.join(",")},.6)`; g.shadowBlur = 8;
+    // Motion blur: the last few frames, fainter, while it moves fast.
+    trail.forEach((T, k) => draw(T, 0.12 * (k + 1) * (1 - P.e * 0.6) * fade, col, width));
+    draw(P, fade, col, width);
+    trail.push(P); if (trail.length > 3) trail.shift();
+    if (fade > 0) requestAnimationFrame(frame);
+    else canvas.remove();
+  };
+  requestAnimationFrame(frame);
+  return true;
+}
+

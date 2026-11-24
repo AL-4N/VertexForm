@@ -26,7 +26,7 @@ import { CURVE } from "../ui/ease.js";
 import { sceneState } from "./scene-state.js";
 import { gradeColor, gradeLetter } from "../grade.js";
 import { reducedMotion } from "../ui/motion.js";
-import { Scene, loadClips, frameAt, doneAt, deepestT, mixColor, clamp, smooth } from "../figures/scene3d.js";
+import { Scene, loadClips, frameAt, doneAt, deepestT, mixColor, clamp, smooth, POINTS, mid, add, sub, mul } from "../figures/scene3d.js";
 
 const ORDER = ["full", "pushup", "plank", "lunge", "jack"];
 const TAB_FOR = { full: "squat", half: "squat", pushup: "pushup", plank: "plank", lunge: "lunge", jack: "jack" };
@@ -154,6 +154,17 @@ export async function mountHero3d(root) {
       const ys = ["nose", "anL", "anR", "toL", "toR"].filter((k) => P[k]).map((k) => scene.proj(cam, P[k]));
       const head = scene.proj(cam, P.nose ?? P.earL);
       return { x: r.left + (ys.reduce((a, q) => a + q[0], 0) / ys.length), top: r.top + head[1] - 0.06 * (Math.max(...ys.map((q) => q[1])) - head[1]), bottom: r.top + Math.max(...ys.map((q) => q[1])) };
+    };
+    // Every joint on screen, and the head's ring (placed as glow.js places it),
+    // for the intro's figure to turn into this one, joint for joint (boot.js).
+    sceneState.heroJoints = () => {
+      const r = scene.canvas.getBoundingClientRect(), out = {};
+      for (const k of POINTS) if (P[k]) { const q = scene.proj(cam, P[k]); out[k] = [r.left + q[0], r.top + q[1]]; }
+      const ears = mid(P.earL, P.earR), headC = add(ears, mul(sub(P.nose, ears), 0.3));
+      const c = scene.proj(cam, headC), e = scene.proj(cam, add(headC, mul(cam.r, 0.1)));
+      out.head = [r.left + c[0], r.top + c[1], Math.hypot(e[0] - c[0], e[1] - c[1])];
+      out.colour = st.colour;
+      return out;
     };
     // The reduced-motion still sits at the bottom of rep 1 and shows that rep's score.
     const n = reduced ? 0 : doneAt(clip, st.t);
@@ -341,7 +352,7 @@ export async function mountHero3d(root) {
       st.intro.at = Infinity;
       // The intro's figure glides into this one and dissolves (boot.js): assemble
       // quickly, under it, as it lands, rather than finding the body all over again.
-      document.addEventListener("vf:booted", () => { Object.assign(st.intro, { at: performance.now() + 420, pts: 140, bones: 420 }); }, { once: true });
+      document.addEventListener("vf:booted", () => { Object.assign(st.intro, { at: performance.now() + 860, pts: 60, bones: 300 }); }, { once: true });
     }
   }
   hero.classList.add("ready");

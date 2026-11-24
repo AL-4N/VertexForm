@@ -27,6 +27,7 @@ const TILT = 12 * (Math.PI / 180);   // the ring leans toward you: the front of 
 const AUTO = 0.05;                   // radians a second, on its own
 const SCROLL_TURN = Math.PI * 1.5;   // how far the whole scroll through the section turns it
 
+
 export function mountExerciseRing(section = document.getElementById("exercises")) {
   if (!section || reducedMotion() || !matchMedia("(min-width: 1000px)").matches) return;
   const grid = section.querySelector(".ex-grid");
@@ -105,7 +106,7 @@ export function mountExerciseRing(section = document.getElementById("exercises")
       want = st.shown - off;
       st.auto = want - st.scroll;
     }
-    st.shown += (want - st.shown) * (1 - Math.exp(-dt * 6));
+    st.shown += (want - st.shown) * (1 - Math.exp(-dt * 6));   // (no spin blur here: the scroll turns this ring fast, and blurring 18 3D cards each frame stuttered)
     const R = st.R;
     let best = -Infinity, front = 0;
     items.forEach(({ item }, i) => {

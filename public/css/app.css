@@ -1121,10 +1121,10 @@ p { text-wrap: pretty; }
 .sp-k { font-size: .82rem; color: var(--text-dim); }
 .sp-v { font-family: var(--mono); font-size: .86rem; font-variant-numeric: tabular-nums; }
 .sp-bar { grid-column: 1 / -1; height: 6px; border-radius: 99px; background: var(--border); overflow: hidden; }
-.sp-bar i { display: block; height: 100%; width: calc(var(--f) * 100%); border-radius: inherit; background: var(--c, var(--go-gradient));
+.sp-bar i { display: block; height: 100%; width: calc(var(--f) * 100%); transform-origin: left center; border-radius: inherit; background: var(--c, var(--go-gradient));
   box-shadow: 0 0 10px color-mix(in srgb, var(--c, #2ee59d) 50%, transparent); animation: sp-fill .9s var(--ease-out-cubic) .25s both; }
 .sp-row.met .sp-k::after { content: "  met"; font-family: var(--mono); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--lime); }
-@keyframes sp-fill { from { width: 0; } }
+@keyframes sp-fill { from { transform: scaleX(0); } }   /* scale, not width: no layout per frame */
 @media (prefers-reduced-motion: reduce) { .sp-bar i { animation: none; } }
 
 /* Ten names: a tighter dial so it fits beside the stage (the tilt is capped

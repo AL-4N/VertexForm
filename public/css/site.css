@@ -1425,3 +1425,6 @@ html.booting .boot-word b, .boot.closing .boot-word b { animation: boot-rise .95
    cards passing behind at the back don't run through the words. */
 .ex-ring-centre::before { content: ""; position: absolute; inset: -18% -14% -22%; z-index: -1; pointer-events: none;
   background: radial-gradient(closest-side, rgba(9,13,28,.82), rgba(9,13,28,.55) 55%, rgba(9,13,28,0)); }
+
+/* The intro's figure turning into the hero's (boot.js morphIntoHero): a canvas over everything for one second. */
+.boot-morph { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 201; pointer-events: none; }

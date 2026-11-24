@@ -98,7 +98,8 @@ export function renderBars(host, bars, cls = "bar-row") {
       [...host.children].forEach((row, i) => {
         const v = Math.round(bars[i].value), fill = row.querySelector(".bar-fill"), num = row.querySelector(".bar-label span:last-child");
         const delay = 250 + i * 110;
-        fill?.animate([{ width: "0%" }, { width: `${v}%` }], { duration: 900, delay, easing: CURVE.outCubic, fill: "backwards" });
+        if (fill) fill.style.transformOrigin = "left center";            // grows by scale: no layout per frame
+        fill?.animate([{ transform: "scaleX(0)" }, { transform: "none" }], { duration: 900, delay, easing: CURVE.outCubic, fill: "backwards" });
         if (num) {
           num.textContent = "0";
           setTimeout(() => tween(0, v, (x) => { num.textContent = Math.round(x); }, { duration: 900 }), delay);
