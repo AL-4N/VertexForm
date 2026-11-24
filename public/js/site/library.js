@@ -3,12 +3,16 @@
  * tools/make-library.mjs). The page is complete without this: it adds the
  * site's small touches (the header rule, button fills, the page transition,
  * the reading line) and draws each figure in its grade colour as it scrolls in.
+ * The same script runs on What's new and Privacy (tools/page-shell.mjs), and
+ * on all three draws an ink trail down the margin as you read (ink-trail.js),
+ * with a blot at each heading that fills once you've reached it.
  */
 import { CURVE } from "../ui/ease.js";
 import { mountHoverFill } from "../ui/hover-fill.js";
 import { mountPageTransitions } from "../page-transition.js";
 import { mountProgress } from "./progress.js";
 import { reducedMotion } from "../ui/motion.js";
+import { InkTrail } from "./ink-trail.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const nav = document.querySelector(".nav");
@@ -18,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   mountHoverFill();
   mountPageTransitions();
   mountProgress(nav);
+  mountPageTrail();
 
   // Each plate's figure is drawn in, stroke by stroke, the first time it shows.
   if (reducedMotion() || !("IntersectionObserver" in window)) return;
@@ -34,3 +39,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }, { rootMargin: "0px 0px -15% 0px" });
   document.querySelectorAll(".lib-fig svg").forEach((svg) => io.observe(svg));
 });
+
+/** The ink trail down the margin: how far down the page you are, a blot per heading. */
+function mountPageTrail() {
+  const main = document.querySelector("main");
+  if (!main || !matchMedia("(min-width: 1000px)").matches) return;
+  const host = document.createElement("div");
+  host.className = "page-trail";
+  document.body.append(host);
+  const heads = [...main.querySelectorAll("h2")];
+  const trail = new InkTrail(host, { seed: location.pathname, top: "Reading" });
+  const max = () => Math.max(1, document.documentElement.scrollHeight - innerHeight);
+  const update = () => trail.set(scrollY / max());
+  // A heading's blot fills as the heading reaches the top third of the screen.
+  const measure = () => { trail.setMarks(heads.map((h) => (h.getBoundingClientRect().top + scrollY - innerHeight * 0.35) / max())); update(); };
+  addEventListener("scroll", update, { passive: true });
+  new ResizeObserver(measure).observe(document.body);
+  measure();
+}

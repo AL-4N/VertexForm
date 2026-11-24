@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.16.0 — 2026-11-24
+
+### An ink trail as you read
+- Where a screen is only words, a line of ink now runs down the margin as
+  you scroll, so you can see you're moving through it even while the page
+  holds still. On the homepage it shows how far through the section you
+  are and names the next one at its foot; on the exercise library, What's
+  new and Privacy it runs the whole page and marks each heading as you
+  reach it.
+
 ## 2.15.0 — 2026-11-24
 
 ### A side rail that stays out of the way

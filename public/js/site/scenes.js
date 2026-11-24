@@ -29,6 +29,7 @@ import { reducedMotion } from "../ui/motion.js";
 import { smooth as lenis } from "./smooth.js";
 import { sceneState } from "./scene-state.js";
 import { ease } from "../ui/ease.js";
+import { InkTrail } from "./ink-trail.js";
 
 const HOLD = 0.5;                       // screens a plain scene holds still for
 const TOP = 84, BOTTOM = 24;            // room in a frame for the header and a margin
@@ -49,7 +50,7 @@ export function mountScenes() {
   secs.forEach((el, i) => { el.style.zIndex = String(i + 1); });   // the scene arriving is revealed over the one you leave
 
   // ── Build the scenes ──
-  const fits = [], titles = [];
+  const fits = [], titles = [], trails = [];
   for (const sec of secs) {
     if (sec.classList.contains("hero")) continue;
     const pin = sec.querySelector(".ex-ring-stage, .story-pin, .paths.live .paths-pin");
@@ -72,6 +73,17 @@ export function mountScenes() {
       frame.append(fit);
       sec.append(frame);
       fits.push(fit);
+      // A scene that's only words (no model, no live figure beside it) gets
+      // an ink trail down its margin: it runs as you scroll through the
+      // scene, and its foot names the scene that comes next.
+      if (!sec.matches("#lab, #faq")) {
+        const host = document.createElement("div");
+        host.className = "scene-trail";
+        frame.append(host);
+        const next = secs[secs.indexOf(sec) + 1];
+        const name = (next?.querySelector(".sec-rule-name")?.textContent || next?.querySelector("h2")?.textContent || "").replace(/\s+/g, " ").trim();
+        trails.push({ key: sec.id || sec.dataset.scroll, trail: new InkTrail(host, { seed: sec.id || sec.dataset.scroll || "scene", top: "Scroll", bottom: name ? `Next <b>${name}</b>` : "" }) });
+      }
     }
   }
   // Fit each frame's content to the screen (only ever scaled down).
@@ -170,6 +182,12 @@ export function mountScenes() {
     for (const el of now) el.classList.add("in-scene");
     touched.clear();
     now.forEach((el) => touched.add(el));
+
+    // Ink trails: how far through its scene you are (it holds still while you scroll).
+    for (const { key, trail } of trails) {
+      const box = s.sections[key];
+      if (box) trail.set((s.y - box.top) / Math.max(1, box.height - vh));
+    }
 
     // Title cards over the pinned stages zoom out past you as you go on.
     for (const { sec, head } of titles) {

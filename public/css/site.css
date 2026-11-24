@@ -1372,3 +1372,31 @@ html.booting .boot-word b, .boot.closing .boot-word b { animation: boot-rise .95
 @keyframes boot-h { from { transform: scaleX(0); opacity: .5; } to { transform: scaleX(1); opacity: .5; } }
 @keyframes boot-v { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 @keyframes boot-rise { from { transform: translateY(112%); } }
+
+/* ── Ink trail (js/site/ink-trail.js): a line of ink down the margin that
+   runs as you scroll through words, its tip a drop, splatter landing as it
+   passes, blots at an info page's headings. ── */
+.ink-trail { position: absolute; width: 40px; pointer-events: none; }
+.ink-trail svg { display: block; overflow: visible; }
+.ink-bed { fill: none; stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 2 7; }
+.ink-bleed, .ink-body, .ink-wet { fill: none; stroke-linecap: round; stroke-dasharray: 1 1; stroke-dashoffset: 1; }
+.ink-bleed { stroke-width: 10; opacity: .13; }
+.ink-body { stroke-width: 2.4; }
+.ink-wet { stroke: rgba(255,255,255,.5); stroke-width: .8; translate: -.6px 0; }
+.ink-glow { opacity: .22; }
+.ink-splat { transform-box: fill-box; transform-origin: center; transform: scale(0); opacity: 0; transition: transform .5s var(--ease-out-back), opacity .25s var(--ease-out-cubic); }
+.ink-splat.on { transform: none; opacity: .75; }
+.ink-mark line { stroke: var(--line-2); stroke-width: 1; transition: stroke .35s var(--ease-out-cubic); }
+.ink-mark circle { fill: var(--bg, #090d1c); stroke: var(--line-2); stroke-width: 1.2; transform-box: fill-box; transform-origin: center;
+  transition: fill .35s var(--ease-out-cubic), stroke .35s var(--ease-out-cubic), transform .5s var(--ease-out-back); }
+.ink-mark.on circle { fill: #c6ef4e; stroke: #c6ef4e; transform: scale(1.2); }
+.ink-mark.on line { stroke: rgba(198,239,78,.8); }
+.ink-top, .ink-foot { position: absolute; left: 8px; white-space: nowrap; font-family: var(--mono); font-size: .62rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--text-faint); }
+.ink-top { bottom: calc(100% + .8rem); }
+.ink-foot { top: calc(100% + .8rem); }
+.ink-foot b { color: var(--text); font-weight: 600; margin-left: .5rem; }
+/* In a homepage text scene: the margin left of the content column, inside the frame. */
+.scene-trail { left: max(14px, calc((100% - 1200px) / 2 - 64px)); top: 128px; bottom: 78px; }
+/* On an info page: fixed in the left margin, the whole page long. */
+.page-trail { position: fixed; z-index: 2; left: max(14px, calc((100vw - 1200px) / 2 - 70px)); top: 118px; bottom: 64px; }
+@media (max-width: 999.98px) { .page-trail { display: none; } }

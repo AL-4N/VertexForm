@@ -474,6 +474,19 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   on the two sections at a boundary; scroll-progress.js measures layout
   boxes (offsets) so a measure mid-transition isn't thrown off. Narrow
   screens and reduced motion keep the plain page. Measured 60 fps.
+- **An ink trail shows you're moving through words** (`site/ink-trail.js`):
+  where a screen is only text, a hand-drawn line of ink runs down the
+  left margin as you scroll (a faint bleed, the ink in the go gradient
+  from amber to green, a wet highlight), its tip a drop that stretches
+  while it runs, splatter landing (back-out) as it passes, over a dotted
+  guide showing how far is left. In a homepage text scene (scoring,
+  coaching, training, setup, limits, the closing band; not the Form Lab
+  or the questions, which have a figure) it measures the scene's hold,
+  "Scroll" at its head and "Next" plus the next scene's name at its foot.
+  On the info pages (exercise library, What's new, Privacy; wide screens)
+  it runs the whole page in the margin with a blot at each heading that
+  fills once you've reached it. The drawn ink follows the scroll with a
+  short lag, so it flows.
 - **The exercise ring** (`site/ex-ring.js`, wide screens, motion allowed):
   all eighteen exercises as cards on a tilted ring round the section's
   heading. The section holds still while the scroll turns the ring; it
