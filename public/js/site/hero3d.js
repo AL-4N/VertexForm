@@ -147,6 +147,13 @@ export async function mountHero3d(root) {
     const turn = sceneState.heroTurn, swing = turn * turn * (3 - 2 * turn);
     const cam = scene.camera(st.yaw + st.aimYaw + st.spin + swing * 160, clamp(st.pitch + st.aimPitch + swing * 22, 2, 60));
     const P = frameAt(clip, st.t);
+    // Where the figure stands on screen, for the intro's handover (boot.js).
+    sceneState.heroFigure = () => {
+      const r = scene.canvas.getBoundingClientRect();
+      const ys = ["nose", "anL", "anR", "toL", "toR"].filter((k) => P[k]).map((k) => scene.proj(cam, P[k]));
+      const head = scene.proj(cam, P.nose ?? P.earL);
+      return { x: r.left + (ys.reduce((a, q) => a + q[0], 0) / ys.length), top: r.top + head[1] - 0.06 * (Math.max(...ys.map((q) => q[1])) - head[1]), bottom: r.top + Math.max(...ys.map((q) => q[1])) };
+    };
     // The reduced-motion still sits at the bottom of rep 1 and shows that rep's score.
     const n = reduced ? 0 : doneAt(clip, st.t);
 
@@ -331,7 +338,9 @@ export async function mountHero3d(root) {
     // Behind the calibration intro (boot.js): wait, drawing nothing, until it opens.
     if (document.documentElement.classList.contains("booting")) {
       st.intro.at = Infinity;
-      document.addEventListener("vf:booted", () => { st.intro.at = performance.now() + 120; }, { once: true });
+      // The intro's figure glides into this one and dissolves (boot.js): assemble
+      // quickly, under it, as it lands, rather than finding the body all over again.
+      document.addEventListener("vf:booted", () => { Object.assign(st.intro, { at: performance.now() + 420, pts: 140, bones: 420 }); }, { once: true });
     }
   }
   hero.classList.add("ready");

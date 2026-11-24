@@ -389,20 +389,23 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   ending in green at the bottom of the page. It travels with its section,
   in the free space measured beside the text.
 - **The calibration intro** (`site/boot.js`): the first visit in a
-  session (not a link into a section, not reduced motion). MediaPipe's 33
-  points start as a cloud scattered in 3D depth and lock onto a standing
-  figure one by one, top to bottom, while the figure turns from side-on
-  to face you, a big outlined counter climbs to 33 and a mono readout
-  gives each point's coordinates as it lands (each lands with a small
-  ring pulse). Behind it the wordmark rises letter by letter, huge and
-  outlined, and "Form" fills from the bottom up with the go gradient when
-  tracking locks;
-  the bones draw in, glowing; a scan passes down the figure; a horizon
-  line runs out to both edges; then the screen splits open along it, top
-  half up and bottom half down, with a flash on the line, which is where
-  the hero's own horizon sits, while the figure rushes toward you and the
-  wordmark's letters fly off up and down, and the hero arrives. At least 2.4 s, at
-  most 5 s; it waits for the hero's 3D and the fonts.
+  session (not a link into a section, not reduced motion). It powers on
+  in CSS from the first paint (the drafting grid spreads out from the
+  middle, crosshairs draw across, the wordmark rises letter by letter
+  behind, huge and outlined; that markup is in index.html), then
+  MediaPipe's 33 points come in from a cloud scattered in 3D depth and
+  lock onto a standing figure one by one, top to bottom, each with a
+  small ring pulse, while the figure turns from side-on to face you, a
+  big outlined counter climbs to 33 and a mono readout gives each
+  point's coordinates. The bones draw in, the head's ring closes, a soft
+  scan line passes down. At 1.9 s it locks: viewfinder brackets snap
+  round the figure ("Locked · 33 / 33"), the counter flashes green, the
+  horizon brightens and "Form" fills faintly from the bottom up. Then
+  the screen splits along the horizon (the hero's own) while the figure
+  glides and shrinks into exactly where the hero's figure stands
+  (`scene-state.js` `heroFigure`, from hero3d.js) and dissolves as the
+  hero's figure assembles under it, and the wordmark's letters fly off.
+  At least 2.5 s, at most 5 s; it waits for the hero's 3D and the fonts.
 - **Things grow out of what you clicked** (`ui/popup.js`): exercise-card
   popups, the trainer's confirms and onboarding (the page behind blurs and
   dims; closing runs back into the trigger); trainer screens grow out of

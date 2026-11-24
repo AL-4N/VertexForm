@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.14.1 — 2026-11-23
+
+### A cleaner opening
+- The opening now starts the moment the page appears: a grid powers on and
+  crosshairs draw out while the points arrive. When all 33 lock, viewfinder
+  brackets snap round the figure, and as the page opens the figure glides
+  straight into its place on the page instead of starting over.
+
 ## 2.14.0 — 2026-11-23
 
 ### A new opening
