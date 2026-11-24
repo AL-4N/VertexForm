@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.13.0 — 2026-11-23
+
+### Scenes that turn
+- On a wide screen, every part of the homepage is now one full screen:
+  you never scroll down inside a section to read it. Each one holds still
+  while you read, then the page turns to the next in 3D: like a cube
+  turning, a door swinging open, a page flipping down and up. From the top,
+  the camera dives into the figure while the figure swings round.
+- Stop between two sections and the page glides to the nearer one.
+- The story and skill paths open on a title card that zooms out as you go on.
+
+### Calmer ink
+- The ink behind the page is fainter and thinner, clears faster and
+  changes colour slowly, so it stays out of the way of the text.
+
 ## 2.12.0 — 2026-11-22
 
 ### A tree in flower

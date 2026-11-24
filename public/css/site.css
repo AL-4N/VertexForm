@@ -1250,12 +1250,26 @@ html.booting .boot::before, html.booting .boot::after, .boot.closing::before, .b
 .ex-ring-hint { right: var(--gutter); }
 
 /* ── Scenes (js/site/scenes.js, wide screens with motion): every section is
-   at least a full screen, its content centred when it's shorter; at a
-   boundary the two sections are held in place and moved through depth. */
-.scenes main > section { position: relative; min-height: 100svh; }
-.scenes main > section:not(.hero) { display: flex; flex-direction: column; justify-content: center; }
-.scenes main > section.in-scene { will-change: transform, opacity; backface-visibility: hidden; }
+   one full-screen scene. Plain ones hold their content in a sticky frame
+   for half a screen of scroll; pinned ones rest where their stage fills
+   the screen. At a boundary the two sections turn through 3D. */
+.scenes { scroll-padding-top: 0; }
 .scenes main { overflow: clip; }
+.scenes main > section { position: relative; min-height: 100svh; }
+.scenes main > section.scene-plain { height: 150svh; padding: 0; }
+.scenes main > section.scene-pinned { padding: 0; }
+.scene-frame { position: sticky; top: 0; height: 100svh; display: flex; flex-direction: column; justify-content: center; padding: 84px 0 24px; box-sizing: border-box; }
+.scene-fit { width: 100%; transform-origin: 50% 50%; }
+.scene-fit > .wrap:first-child { margin-bottom: 1.2rem; }
+/* A pinned scene's rule stays at the top of the screen over its stage. */
+.scene-rule { position: sticky; top: 84px; height: 0; overflow: visible; z-index: 6; }
+/* The heading of a pinned scene, as a title card over its stage. */
+.scene-title { position: absolute; left: 50%; top: 50%; z-index: 5; width: min(920px, 80vw); margin: 0; text-align: center; pointer-events: none;
+  transform: translate(-50%, -50%); padding: 3rem 3.5rem; border-radius: 28px;
+  background: radial-gradient(closest-side, rgba(9,13,28,.92), rgba(9,13,28,.75) 60%, rgba(9,13,28,0)); }
+.scene-title p { margin-inline: auto; max-width: 56ch; }
+.has-title > :not(.scene-title) { opacity: calc(1 - var(--title, 0) * .9); }
+.scenes main > section.in-scene { will-change: transform, opacity; backface-visibility: hidden; }
 
 /* Letters of a section rule's name rise from the name's own mask (sections.js). */
 .sec-rule-name { display: inline-flex; overflow: hidden; }

@@ -22,6 +22,7 @@
  * of the first rep, coloured by its score; buttons switch still frames.
  */
 
+import { sceneState } from "./scene-state.js";
 import { gradeColor, gradeLetter } from "../grade.js";
 import { reducedMotion } from "../ui/motion.js";
 import { Scene, loadClips, frameAt, doneAt, deepestT, mixColor, clamp, smooth } from "../figures/scene3d.js";
@@ -142,7 +143,9 @@ export async function mountHero3d(root) {
     const clip = clips[st.id];
     Object.assign(scene, { target: st.target, dist: st.dist });
     if (marks !== scene) { marks.fit(); Object.assign(marks, { at: scene.at, zoom: scene.zoom, target: st.target, dist: st.dist }); }
-    const cam = scene.camera(st.yaw + st.aimYaw + st.spin, clamp(st.pitch + st.aimPitch, 2, 60));
+    // Diving into the hero (scenes.js): the camera swings round the figure as it goes.
+    const turn = sceneState.heroTurn, swing = turn * turn * (3 - 2 * turn);
+    const cam = scene.camera(st.yaw + st.aimYaw + st.spin + swing * 160, clamp(st.pitch + st.aimPitch + swing * 22, 2, 60));
     const P = frameAt(clip, st.t);
     // The reduced-motion still sits at the bottom of rep 1 and shows that rep's score.
     const n = reduced ? 0 : doneAt(clip, st.t);
@@ -172,7 +175,7 @@ export async function mountHero3d(root) {
 
     // With the WebGL body, this canvas only holds the floor: repaint it only
     // when the camera has actually moved (most frames it hasn't).
-    const camKey = gl ? [st.yaw + st.aimYaw + st.spin, st.pitch + st.aimPitch, st.dist, ...st.target, scene.w, scene.h].map((v) => v.toFixed(2)).join() : null;
+    const camKey = gl ? [st.yaw + st.aimYaw + st.spin + swing * 160, st.pitch + st.aimPitch + swing * 22, st.dist, ...st.target, scene.w, scene.h].map((v) => v.toFixed(2)).join() : null;
     if (!gl || camKey !== st.floorKey) {
       st.floorKey = camKey;
       scene.begin();

@@ -16,8 +16,8 @@
 
 const SIM = 128;            // velocity and pressure grid (shorter side)
 const PRESSURE_ITERATIONS = 18;
-const CURL = 22;            // vorticity: how hard eddies keep curling
-const VELOCITY_FADE = 0.45, DYE_FADE = 1.1, PRESSURE_KEEP = 0.8;   // trails clear in a couple of seconds
+const CURL = 10;            // vorticity: gentle eddies, not a churn
+const VELOCITY_FADE = 0.7, DYE_FADE = 1.9, PRESSURE_KEEP = 0.8;    // trails clear in about a second
 
 const BASE_VERT = `uniform vec2 texelSize;
 varying vec2 vUv; varying vec2 vL; varying vec2 vR; varying vec2 vT; varying vec2 vB;
@@ -52,10 +52,10 @@ const FRAG = {
   gradient: `${HEAD} uniform sampler2D uPressure; uniform sampler2D uVelocity;
     void main() { float L = texture2D(uPressure, vL).x, R = texture2D(uPressure, vR).x, T = texture2D(uPressure, vT).x, B = texture2D(uPressure, vB).x;
       gl_FragColor = vec4(texture2D(uVelocity, vUv).xy - vec2(R - L, T - B), 0.0, 1.0); }`,
-  // The dye as ink in dark water: soft, never past 60% cover, premultiplied.
+  // The dye as ink in dark water: faint, never past 32% cover, premultiplied.
   display: `${HEAD} uniform sampler2D uTexture; uniform float strength;
     void main() { vec3 c = texture2D(uTexture, vUv).rgb * strength; c = c / (1.0 + c); float m = max(c.r, max(c.g, c.b));
-      float a = clamp(m * 1.1, 0.0, 0.6); gl_FragColor = vec4(c * (a / max(m, 1e-4)) * 0.85, a); }`,
+      float a = clamp(m * 0.9, 0.0, 0.32); gl_FragColor = vec4(c * (a / max(m, 1e-4)) * 0.7, a); }`,
 };
 
 export class Ink {

@@ -21,6 +21,7 @@
 
 import { reducedMotion } from "../ui/motion.js";
 import { gradeColor } from "../grade.js";
+import { scenesOn } from "./scenes.js";
 
 export function mountScrollFx() {
   const { gsap, ScrollTrigger, SplitText } = window;
@@ -36,10 +37,11 @@ export function mountScrollFx() {
     const fonts = Promise.race([document.fonts?.ready ?? Promise.resolve(), new Promise((r) => setTimeout(r, 1000))]);
     fonts.then(() => { document.documentElement.classList.remove("split-wait"); heads.forEach(split); leads.forEach(light); });
   }
+  // With scenes, a heading or lead waits until its scene has landed.
+  const scenes = scenesOn();
   const leads = SplitText ? gsap.utils.toArray("main section .section-head p, .cta-band .wrap > p") : [];
   // Lit as you read: every word dim, then each one comes up to full in
   // turn, like a reading line moving through it.
-  const scenes = document.documentElement.classList.contains("scenes");
   function light(p) {
     SplitText.create(p, {
       type: "words", wordsClass: "lit-w", autoSplit: true,
@@ -59,7 +61,7 @@ export function mountScrollFx() {
           yPercent: 115, rotate: 7, transformOrigin: "0% 100%", duration: 0.95, ease: "expo.out",
           stagger: { each: Math.min(0.024, 0.9 / Math.max(1, self.chars.length)) },
           delay: k === 0 ? 0.15 : 0,
-          scrollTrigger: k === 0 ? undefined : { trigger: h, start: "top 88%", once: true },
+          scrollTrigger: k === 0 ? undefined : { trigger: h, start: scenes ? "top 48%" : "top 88%", once: true },
         });
         // The hero's headline waits, hidden, behind the calibration intro (boot.js).
         if (k === 0 && document.documentElement.classList.contains("booting")) {

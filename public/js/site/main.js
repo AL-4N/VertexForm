@@ -71,7 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
   mountCoach(document.querySelector("[data-coach]"));
   renderHow();
   mountTones();
-  mountScenes();                      // the page scrolls in: each section a full-screen scene
   const hero = document.querySelector("[data-hero3d]");
   if (hero) mountHero3d(hero);
   const how = document.getElementById("how");
@@ -85,6 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const lab = document.querySelector("[data-lab]");
   if (lab) mountLab(lab);
   mountExerciseRing();                // after the section rules and card reveals have counted the cards
+  mountScenes();                      // the page scrolls in: each section one full-screen scene (after the ring, story and paths are built)
   landOnHash();                       // last: everything that changes the page's height has mounted
   // ?stage: the 3D stage's placeholder and the scroll numbers it gets
   // (stage-placeholder.js), for building the 3D. Not loaded otherwise.

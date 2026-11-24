@@ -377,8 +377,10 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   **ink** (`site/ink.js`, a stable-fluids simulation on the GPU): moving
   the pointer pours ink in the brand's colours along its path and stirs
   it, scrolling stirs it, and now and then a drop falls in on its own. It
-  stays ink in dark water (thin, fading in a couple of seconds, never more
-  than 60% cover) so text over it reads. Never purple. Reduced motion: one
+  stays faint ink in dark water: a thin trail, one colour at a time
+  changing slowly, gentle eddies, gone in about a second, never more than
+  32% cover, a drop every 5 to 9 seconds. (Nov 2026: the first version
+  was too busy behind the text.) Never purple. Reduced motion: one
   still frame of smoke, no ink.
 - **The figure on the stage** (`site/stage-body.js`, wide screens): beside
   the questions its bones draw out, then your scroll scrubs one squat (a
@@ -422,16 +424,24 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   scoring test results and example chips climb from 0 through each grade
   colour as they come into view; the example chart's bars grow up in turn.
 - **The page scrolls in, not down** (`site/scenes.js`, ≥1100 px wide and
-  ≥620 px tall, motion allowed). Every section is at least a full screen, a
-  scene, its content centred when shorter. Where two scenes meet, the page
-  holds still for one screen of scroll and the camera moves forward
-  instead: the scene you leave stays where it was, grows and fades as it
-  passes you; the next is already in place, coming up from small and faint.
-  The hero dives into the figure (it grows about 3.6× around it). Inside a
-  scene you read as usual. One transform and one opacity on the two
-  sections at a boundary; scroll-progress.js measures layout boxes
-  (offsets) so a measure mid-transition isn't thrown off. Narrow screens
-  and reduced motion keep the plain page. Measured 60 fps (p95 16.7 ms).
+  ≥620 px tall, motion allowed). Every section is one full-screen scene,
+  and you never scroll down through one to read it: a plain section's
+  content sits in a sticky frame that holds still for half a screen of
+  scroll, fitted to the screen (scaled down a little if taller); a pinned
+  section (the exercise ring, the story, the skill paths) rests where its
+  stage fills the screen, its rule pinned at the top, and the story's and
+  paths' heading is a title card over the dimmed stage that zooms out
+  past you as you go on. Between scenes the page holds still for one
+  screen of scroll while the camera moves in 3D, taking turns: a cube
+  turning left, a door swinging open onto the next scene coming out of
+  the depth, a cube turning right, a flip down and up. From the hero the
+  camera dives into the figure while the 3D view swings round it
+  (`site/scene-state.js` `heroTurn`, read by hero3d.js). Stop between two
+  scenes and the page glides to the nearer one. Links land at a scene's
+  top (`scroll-padding-top: 0` with scenes). One transform and one opacity
+  on the two sections at a boundary; scroll-progress.js measures layout
+  boxes (offsets) so a measure mid-transition isn't thrown off. Narrow
+  screens and reduced motion keep the plain page. Measured 60 fps.
 - **The exercise ring** (`site/ex-ring.js`, wide screens, motion allowed):
   all eighteen exercises as cards on a tilted ring round the section's
   heading. The section holds still while the scroll turns the ring; it

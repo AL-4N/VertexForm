@@ -171,8 +171,9 @@ await test("Site: 3D hero animates, nav glides, no overflow", async (make) => {
   await page.click('.nav nav a[href="#lab"]');
   await page.waitForTimeout(1100);
   assert((await page.evaluate(() => location.hash)) === "#lab", "nav link didn't go to #lab");
-  const top = await page.$eval("#lab", (e) => Math.round(e.getBoundingClientRect().top));
-  assert(Math.abs(top - 80) < 30, `Form Lab not at the top after the glide (${top}px)`);
+  // With scenes (scenes.js) a section lands at the very top, its frame filling the screen; otherwise under the header.
+  const [top, want] = await page.$eval("#lab", (e) => [Math.round(e.getBoundingClientRect().top), document.documentElement.classList.contains("scenes") ? 0 : 80]);
+  assert(Math.abs(top - want) < 30, `Form Lab not at the top after the glide (${top}px, want ${want})`);
   assert(await page.evaluate(() => [...document.querySelectorAll("main > *")].every((s) => !s.style.filter)), "blur left behind after the glide");
   const lit = () => page.evaluate(() => document.querySelector(".nav nav a.active")?.hash ?? null);
   assert((await lit()) === "#lab", `nav should highlight Form Lab (got ${await lit()})`);
@@ -207,8 +208,8 @@ await test("Site: links from other pages land on their section", async (make) =>
     const page = await make({ camera: false });
     await page.goto(`${BASE}/index.html#${id}`);
     await page.waitForTimeout(2500);
-    const top = await page.$eval(`#${id}`, (e) => Math.round(e.getBoundingClientRect().top));
-    assert(Math.abs(top - 80) < 30, `#${id} landed at ${top}px, not under the header`);
+    const [top, want] = await page.$eval(`#${id}`, (e) => [Math.round(e.getBoundingClientRect().top), document.documentElement.classList.contains("scenes") ? 0 : 80]);
+    assert(Math.abs(top - want) < 30, `#${id} landed at ${top}px, not where it should (${want}px)`);
   }
 });
 

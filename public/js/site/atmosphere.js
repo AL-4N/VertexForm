@@ -126,7 +126,7 @@ export function mountAtmosphere() {
         r.setRenderTarget(rt); r.clear(); r.render(smokeScene, cam); r.setRenderTarget(null);
       }
       r.render(blitScene, cam);
-      ink?.draw(r, 0.9 + 0.3 * u.uIntensity.value);
+      ink?.draw(r, 0.55 + 0.2 * u.uIntensity.value);
     });
 
     return (s, dt, t) => {
@@ -145,21 +145,21 @@ export function mountAtmosphere() {
       if (!reduced) u.uTime.value = t;
 
       if (ink) {
-        if (t - hueAt > 0.35) { hueAt = t; hue = (hue + 1) % colours.length; }
+        if (t - hueAt > 1.6) { hueAt = t; hue = (hue + 1) % colours.length; }   // one colour at a time, changing slowly
         if (pointer.moved) {
           pointer.moved = false;
           const dx = (pointer.x - pointer.px) * (w / Math.max(1, h) >= 1 ? 1 : w / h), dy = pointer.y - pointer.py;
-          if (Math.abs(dx) + Math.abs(dy) > 0.0004) ink.splat(pointer.x, pointer.y, dx * 6000, dy * 6000, colours[hue]);
+          if (Math.abs(dx) + Math.abs(dy) > 0.0004) ink.splat(pointer.x, pointer.y, dx * 3200, dy * 3200, colours[hue], 0.0011);   // a thin trail
           pointer.px = pointer.x; pointer.py = pointer.y;
         }
         // Scrolling stirs it: a push up or down somewhere across the screen.
-        if (Math.abs(s.velocity) > 40) ink.splat(Math.random(), 0.2 + Math.random() * 0.6, 0, Math.max(-900, Math.min(900, s.velocity * 0.5)), null, 0.012);
+        if (Math.abs(s.velocity) > 160) ink.splat(Math.random(), 0.2 + Math.random() * 0.6, 0, Math.max(-380, Math.min(380, s.velocity * 0.22)), null, 0.012);
         // And now and then a drop falls in on its own.
         nextDrop -= dt;
         if (nextDrop <= 0) {
-          nextDrop = 1.4 + Math.random() * 2.2;
+          nextDrop = 5 + Math.random() * 4;
           const a = Math.random() * Math.PI * 2;
-          ink.splat(0.1 + Math.random() * 0.8, 0.1 + Math.random() * 0.8, Math.cos(a) * 420, Math.sin(a) * 420, colours[Math.floor(Math.random() * colours.length)], 0.004);
+          ink.splat(0.1 + Math.random() * 0.8, 0.1 + Math.random() * 0.8, Math.cos(a) * 220, Math.sin(a) * 220, colours[Math.floor(Math.random() * colours.length)], 0.0022);
         }
         ink.step(Math.min(dt, 1 / 30));
       }
