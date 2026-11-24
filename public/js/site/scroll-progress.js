@@ -85,8 +85,14 @@ function measure() {
   update(true);
 }
 
-function update(force) {
+// One more frame after movement, to see it stop. While Lenis is still
+// gliding it keeps calling update itself, so just look again next frame.
+function follow() {
   raf = 0;
+  if (smooth()?.isScrolling === "smooth") { raf = requestAnimationFrame(follow); return; }
+  update(false);
+}
+function update(force) {
   const y = currentY(), now = performance.now();
   const moved = y !== lastY;
   if (!moved && !force && velocity === 0) return;
@@ -100,7 +106,7 @@ function update(force) {
   state.direction = Math.sign(velocity);
   state.version = version;
   for (const fn of subs) fn(state);
-  if (moved) raf = requestAnimationFrame(() => update(false));   // one more frame to see it stop
+  if (moved) raf ||= requestAnimationFrame(follow);
 }
 
 function start() {
@@ -110,7 +116,14 @@ function start() {
     tracked.push({ key: el.id || el.dataset.scroll || `section-${i}`, el });
   });
   measure();
-  addEventListener("scroll", () => { eventY = scrollY; raf ||= requestAnimationFrame(() => update(false)); }, { passive: true });
+  // With Lenis (on GSAP's ticker), update at the end of GSAP's frame, after
+  // ScrollTrigger has read the page: everything that moves with the scroll
+  // then writes after that read. (Writing before it forced the browser to
+  // recompute every style mid-frame, which stuttered on a fast scroll.)
+  // Added once the page has mounted, so it comes after ScrollTrigger's own.
+  const l = smooth(), gsap = window.gsap;
+  if (l && gsap) setTimeout(() => gsap.ticker.add(() => { if (l.isScrolling === "smooth" || currentY() !== lastY) update(false); }), 0);
+  addEventListener("scroll", () => { eventY = scrollY; if (smooth()?.isScrolling !== "smooth") raf ||= requestAnimationFrame(follow); }, { passive: true });
   addEventListener("resize", refresh);
   addEventListener("load", refresh);
   document.fonts?.ready.then(refresh);

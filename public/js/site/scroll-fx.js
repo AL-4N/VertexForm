@@ -22,6 +22,7 @@
 import { reducedMotion } from "../ui/motion.js";
 import { gradeColor } from "../grade.js";
 import { scenesOn } from "./scenes.js";
+import { CURVE } from "../ui/ease.js";
 
 export function mountScrollFx() {
   const { gsap, ScrollTrigger, SplitText } = window;
@@ -40,35 +41,43 @@ export function mountScrollFx() {
   // With scenes, a heading or lead waits until its scene has landed.
   const scenes = scenesOn();
   const leads = SplitText ? gsap.utils.toArray("main section .section-head p, .cta-band .wrap > p") : [];
+  // These reveals start by adding a class (CSS transitions, css/site.css),
+  // not by GSAP tweens: a tween starting mid-scroll reads the element's
+  // style first, and with the scene transitions writing styles in the same
+  // frame every read forced the whole page to recompute (fast scrolling
+  // started a dozen at once and stuttered). A class change only writes.
+  const once = (el, start, fn) => {
+    if (el.dataset.fxTrig) return;
+    el.dataset.fxTrig = "1";
+    ScrollTrigger.create({ trigger: el, start, once: true, onEnter: fn });
+  };
   // Lit as you read: every word dim, then each one comes up to full in
   // turn, like a reading line moving through it.
   function light(p) {
     SplitText.create(p, {
       type: "words", wordsClass: "lit-w", autoSplit: true,
-      onSplit: (self) => gsap.fromTo(self.words, { opacity: 0.16 }, {
-        opacity: 1, duration: 0.5, ease: "power1.out", stagger: Math.min(0.06, 2.2 / Math.max(1, self.words.length)), delay: 0.25,
-        scrollTrigger: { trigger: p, start: scenes ? "top 62%" : "top 85%", once: true },
-      }),
+      onSplit: (self) => {
+        p.style.setProperty("--each", `${Math.min(0.06, 2.2 / Math.max(1, self.words.length)).toFixed(3)}s`);
+        self.words.forEach((w, i) => w.style.setProperty("--i", String(i)));
+        p.classList.add("lit-ready");
+        once(p, scenes ? "top 62%" : "top 85%", () => p.classList.add("lit"));
+      },
     });
   }
   function split(h, k) {
     SplitText.create(h, {
       type: "lines,words,chars", mask: "lines", autoSplit: true, linesClass: "split-line", charsClass: "split-ch",
       onSplit: (self) => {
-        // Letter by letter out of the line's mask: a clean rise, no blur, a
-        // slight tip back that settles as each letter lands.
-        const tw = gsap.from(self.chars, {
-          yPercent: 115, rotate: 7, transformOrigin: "0% 100%", duration: 0.95, ease: "expo.out",
-          stagger: { each: Math.min(0.024, 0.9 / Math.max(1, self.chars.length)) },
-          delay: k === 0 ? 0.15 : 0,
-          scrollTrigger: k === 0 ? undefined : { trigger: h, start: scenes ? "top 48%" : "top 88%", once: true },
-        });
+        // Letter by letter out of the line's mask: a clean rise (expo-out),
+        // no blur, a slight tip back that settles as each letter lands.
+        h.style.setProperty("--each", `${Math.min(0.024, 0.9 / Math.max(1, self.chars.length)).toFixed(4)}s`);
+        self.chars.forEach((c, i) => c.style.setProperty("--i", String(i)));
+        h.classList.add("rise-ready");
+        if (k !== 0) { once(h, scenes ? "top 48%" : "top 88%", () => h.classList.add("risen")); return; }
         // The hero's headline waits, hidden, behind the calibration intro (boot.js).
-        if (k === 0 && document.documentElement.classList.contains("booting")) {
-          tw.pause(0);
-          document.addEventListener("vf:booted", () => tw.play(), { once: true });
-        }
-        return tw;
+        const go = () => setTimeout(() => h.classList.add("risen"), 150);
+        if (document.documentElement.classList.contains("booting")) document.addEventListener("vf:booted", go, { once: true });
+        else go();
       },
     });
   }
@@ -80,7 +89,8 @@ export function mountScrollFx() {
     if (!items.length) return;
     ScrollTrigger.batch(items, {
       start: "top 90%", once: true,
-      onEnter: (batch) => gsap.from(batch, { y: 28, opacity: 0, duration: 0.9, ease: "expo.out", stagger: 0.06, clearProps: "transform,opacity" }),
+      onEnter: (batch) => batch.forEach((el, k) => el.animate([{ transform: "translateY(28px)", opacity: 0 }, { transform: "none", opacity: 1 }],
+        { duration: 900, delay: k * 60, easing: CURVE.outExpo, fill: "backwards" })),
     });
   });
 
@@ -89,14 +99,18 @@ export function mountScrollFx() {
   // floor, camera, the rays, then the person.
   gsap.utils.toArray(".setup-step svg").forEach((svg) => {
     const strokes = [...svg.querySelectorAll("path, line, circle, rect")];
-    strokes.forEach((s) => s.setAttribute("pathLength", "1"));
-    gsap.set(strokes, { strokeDasharray: "1 1", strokeDashoffset: 1 });
     const text = [...svg.querySelectorAll("text")];          // not every plan has labels
-    if (text.length) gsap.set(text, { opacity: 0 });
-    const tl = gsap.timeline({ scrollTrigger: { trigger: svg, start: "top 85%", once: true }, delay: 0.25 })
-      .to(strokes, { strokeDashoffset: 0, duration: 0.9, ease: "power2.inOut", stagger: 0.09 });
-    if (text.length) tl.to(text, { opacity: 1, duration: 0.4 }, "-=0.3");
-    tl.add(() => strokes.forEach((s) => { s.removeAttribute("pathLength"); s.style.strokeDasharray = ""; s.style.strokeDashoffset = ""; }));
+    strokes.forEach((s) => { s.setAttribute("pathLength", "1"); s.style.strokeDasharray = "1 1"; s.style.strokeDashoffset = "1"; });
+    text.forEach((t) => { t.style.opacity = "0"; });
+    ScrollTrigger.create({ trigger: svg, start: "top 85%", once: true, onEnter: () => {
+      const runs = strokes.map((s, k) => s.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 900, delay: 250 + k * 90, easing: CURVE.inOutQuad, fill: "forwards" }));
+      const words = text.map((t) => t.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, delay: 250 + strokes.length * 90 + 600, easing: CURVE.outCubic, fill: "forwards" }));
+      Promise.all([...runs, ...words].map((a) => a.finished)).then(() => {
+        strokes.forEach((s) => { s.removeAttribute("pathLength"); s.style.strokeDasharray = ""; s.style.strokeDashoffset = ""; });
+        text.forEach((t) => { t.style.opacity = ""; });
+        [...runs, ...words].forEach((a) => a.cancel());
+      }, () => {});
+    } });
   });
 
   /* ── Hero depth on the way out (wide screens: stacked on a phone, the
@@ -126,7 +140,8 @@ export function mountScrollFx() {
   // The example chart's bars grow up from the floor, one after another.
   ScrollTrigger.batch(".mock-chart span", {
     start: "top 92%", once: true,
-    onEnter: (batch) => gsap.from(batch, { scaleY: 0, transformOrigin: "50% 100%", duration: 0.9, ease: "back.out(1.4)", stagger: 0.09, clearProps: "transform" }),
+    onEnter: (batch) => batch.forEach((el, k) => { el.style.transformOrigin = "50% 100%";
+      el.animate([{ transform: "scaleY(0)" }, { transform: "none" }], { duration: 900, delay: k * 90, easing: CURVE.outBackSoft, fill: "backwards" }); }),
   });
 
   /* ── Stages open out of a narrow frame as you reach them ─ */

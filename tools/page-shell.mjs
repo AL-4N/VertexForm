@@ -15,7 +15,7 @@ export const SITE = "https://vertexform.alan-ht-wang.workers.dev";
 export const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 /** The site's other pages, in header order: [href, label]. */
-const PAGES = [["exercises.html", "Exercises"], ["whats-new.html", "What's new"]];   // privacy.html is linked from the footer
+const PAGES = [["exercises.html", "Exercises"], ["guide.html", "Guide"], ["whats-new.html", "What's new"]];   // privacy.html is linked from the footer
 
 // Hovering a link to the trainer loads it in the background (Chrome's
 // speculation rules), so its page transition opens onto a page that's already there.

@@ -9,6 +9,7 @@
  */
 
 import { reducedMotion } from "../ui/motion.js";
+import { CURVE } from "../ui/ease.js";
 
 const LABEL = { exercises: "Exercises", how: "How it works", lab: "Form Lab", coach: "Coaching", progress: "Training", paths: "Skill paths", setup: "Setup", faq: "Questions" };
 // What each rule reads on its right: counted from the page, [selector, one, many].
@@ -55,8 +56,16 @@ export function mountSectionIndex() {
     gsap.fromTo(el.querySelector(".sec-rule-line"), { scaleX: 0 }, { scaleX: 1, ease: "none",
       scrollTrigger: { trigger: el, start: "top 92%", end: "top 55%", scrub: 0.5 } });
     // The number and reading rise in; the name's letters follow one by one.
-    const tl = gsap.timeline({ scrollTrigger: { trigger: el, start: "top 88%", once: true } });
-    tl.from(el.querySelectorAll(".sec-rule-n, .sec-rule-read"), { yPercent: 100, opacity: 0, duration: 0.8, ease: "expo.out", stagger: 0.08 }, 0)
-      .from(el.querySelectorAll(".sec-rule-name b"), { yPercent: 110, duration: 0.6, ease: "expo.out", stagger: 0.035 }, 0.1);
+    // (Started as Web Animations, which never read styles: a GSAP tween
+    // starting mid-scroll forced a full style recompute; css/site.css .pre
+    // holds them down until then.)
+    el.classList.add("pre");
+    ScrollTrigger.create({ trigger: el, start: "top 88%", once: true, onEnter: () => {
+      el.classList.remove("pre");
+      el.querySelectorAll(".sec-rule-n, .sec-rule-read").forEach((s, k) => s.animate([{ transform: "translateY(100%)", opacity: 0 }, { transform: "none", opacity: 1 }],
+        { duration: 800, delay: k * 80, easing: CURVE.outExpo, fill: "backwards" }));
+      el.querySelectorAll(".sec-rule-name b").forEach((b, k) => b.animate([{ transform: "translateY(110%)" }, { transform: "none" }],
+        { duration: 600, delay: 100 + k * 35, easing: CURVE.outExpo, fill: "backwards" }));
+    } });
   }
 }

@@ -169,8 +169,8 @@ export async function mountHero3d(root) {
     const goal = n >= 0 ? gradeColor(clip.reps[n].score) : PAPER;
     const colour = mixColor(st.from, goal, st.flood);
     if (colour !== st.colour) document.dispatchEvent(new CustomEvent("vf:live", { detail: colour }));   // the atmosphere lights to match
+    if (colour !== st.liveSet) { st.liveSet = colour; hero.style.setProperty("--hero-live", colour); }   // only on a change: it restyles the whole hero
     st.colour = colour;
-    hero.style.setProperty("--hero-live", st.colour);
 
     // The intro: points, then bones.
     let dots = 1, grow = 1;

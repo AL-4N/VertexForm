@@ -85,6 +85,10 @@ export class InkTrail {
     this.paths = [...this.svg.querySelectorAll(".ink-bleed, .ink-body, .ink-wet")];
     this.measure = this.svg.querySelector(".ink-body");
     this.len = this.measure.getTotalLength();
+    // Sample the path once, so drawing never asks the browser for geometry
+    // (that forced a layout every frame while other code was writing styles).
+    const n = Math.max(48, Math.round(h / 4));
+    this.lut = Array.from({ length: n + 1 }, (_, i) => { const q = this.measure.getPointAtLength((i / n) * this.len); return [q.x, q.y]; });
     this.tip = this.svg.querySelector(".ink-tip");
     this.drop = this.svg.querySelector(".ink-drop");
     const at = (t) => this.measure.getPointAtLength(t * this.len);
@@ -120,9 +124,18 @@ export class InkTrail {
     this.paint(this.shown);
   }
 
+  /** A point on the line at t (0..1), from the samples. */
+  point(t) {
+    const lut = this.lut, f = Math.max(0, Math.min(1, t)) * (lut.length - 1), i = Math.floor(f), k = f - i;
+    const a = lut[i], b = lut[Math.min(lut.length - 1, i + 1)];
+    return { x: a[0] + (b[0] - a[0]) * k, y: a[1] + (b[1] - a[1]) * k };
+  }
+
   /** Where the reader is: 0..1. */
   set(p) {
-    this.goal = Math.max(0, Math.min(1, p));
+    const g = Math.max(0, Math.min(1, p));
+    if (g === this.goal && this.shown === g) return;          // nothing to draw
+    this.goal = g;
     if (this.quiet) { this.shown = this.goal; this.paint(this.shown); return; }
     if (!this.raf) this.raf = requestAnimationFrame((t) => this.frame(t));
   }
@@ -143,7 +156,7 @@ export class InkTrail {
   paint(p) {
     if (!this.measure) return;
     for (const el of this.paths) el.style.strokeDashoffset = String(1 - p);
-    const pt = this.measure.getPointAtLength(p * this.len);
+    const pt = this.point(p);
     // The drop stretches along the line while the ink runs, and rounds off at rest.
     const stretch = Math.min(1.9, 1 + Math.abs(this.vel) * 2.2);
     this.tip.setAttribute("transform", `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)})`);

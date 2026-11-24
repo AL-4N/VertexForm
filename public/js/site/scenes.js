@@ -197,13 +197,28 @@ export function mountScenes() {
       head.style.opacity = (1 - smooth(0.05, 1, k)).toFixed(3);
       head.style.transform = `translate(-50%, -50%) scale(${(1 + 0.35 * easeIn(k)).toFixed(4)})`;
       head.style.visibility = k >= 1 ? "hidden" : "";
-      head.parentElement.style.setProperty("--title", (1 - smooth(0.05, 1, k)).toFixed(3));   // the stage waits, dimmed, behind it
+      // The stage waits, dimmed, behind it: opacity on its few layers, not an
+      // inherited variable (that made the browser restyle the whole stage each frame).
+      const dim = (1 - 0.9 * (1 - smooth(0.05, 1, k))).toFixed(3);
+      if (dim !== head.dataset.dim) { head.dataset.dim = dim; for (const c of head.parentElement.children) if (c !== head) c.style.opacity = dim === "1.000" ? "" : dim; }
     }
 
     // Stopped between two scenes: glide to the nearer one.
     clearTimeout(snapT);
-    if (s.velocity === 0) snapT = setTimeout(snap, 140);
+    if (s.velocity === 0) snapT = setTimeout(snap, 260);
   });
+
+  // A glide to the nearer scene gives way the moment you scroll, touch or
+  // press a key: it never fights your hand (capture: before Lenis sees it).
+  let snapping = false;
+  const yield_ = () => {
+    clearTimeout(snapT);
+    if (!snapping) return;
+    snapping = false;
+    const l = lenis();
+    if (l) l.scrollTo(l.animatedScroll ?? l.scroll, { immediate: true });
+  };
+  for (const type of ["wheel", "touchstart", "keydown", "pointerdown"]) addEventListener(type, yield_, { capture: true, passive: true });
 
   function snap() {
     const s = scrollState();
@@ -214,7 +229,8 @@ export function mountScenes() {
       if (t <= 0.015 || t >= 0.985) continue;
       const target = t < 0.5 ? B.top - s.vh : B.top;
       const l = lenis();
-      if (l) l.scrollTo(target, { duration: 0.9, easing: easeOut });
+      snapping = true;
+      if (l) l.scrollTo(target, { duration: 0.9, easing: easeOut, onComplete: () => { snapping = false; } });
       else scrollTo({ top: target, behavior: "smooth" });
       return;
     }

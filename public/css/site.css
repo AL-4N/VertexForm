@@ -1344,7 +1344,6 @@ html.booting .boot::before, html.booting .boot::after, .boot.closing::before, .b
   transform: translate(-50%, -50%); padding: 3rem 3.5rem; border-radius: 28px;
   background: radial-gradient(closest-side, rgba(9,13,28,.92), rgba(9,13,28,.75) 60%, rgba(9,13,28,0)); }
 .scene-title p { margin-inline: auto; max-width: 56ch; }
-.has-title > :not(.scene-title) { opacity: calc(1 - var(--title, 0) * .9); }
 .scenes main > section.in-scene { will-change: transform, opacity; backface-visibility: hidden; }
 
 /* Letters of a section rule's name rise from the name's own mask (sections.js). */
@@ -1400,3 +1399,18 @@ html.booting .boot-word b, .boot.closing .boot-word b { animation: boot-rise .95
 /* On an info page: fixed in the left margin, the whole page long. */
 .page-trail { position: fixed; z-index: 2; left: max(14px, calc((100vw - 1200px) / 2 - 70px)); top: 118px; bottom: 64px; }
 @media (max-width: 999.98px) { .page-trail { display: none; } }
+
+/* Reveals started by a class (scroll-fx.js, sections.js): heading letters
+   rise from their line's mask (expo-out, a slight tip settling), lead words
+   light up in turn, a rule's labels wait below their line. */
+.rise-ready .split-ch { transform: translateY(115%) rotate(7deg); transform-origin: 0 100%; }
+.rise-ready.risen .split-ch { transform: none; transition: transform .95s var(--ease-out-expo) calc(var(--i, 0) * var(--each, .024s)); }
+.lit-ready .lit-w { opacity: .16; }
+.lit-ready.lit .lit-w { opacity: 1; transition: opacity .5s var(--ease-out-quad) calc(.25s + var(--i, 0) * var(--each, .05s)); }
+.sec-rule.pre .sec-rule-n, .sec-rule.pre .sec-rule-read { opacity: 0; }
+.sec-rule.pre .sec-rule-name b { transform: translateY(110%); }
+
+/* The Guide page (tools/make-guide.mjs): a row of links to its three parts. */
+.guide-toc { display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; margin-top: 1.2rem; font-family: var(--mono); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; }
+.guide-toc a { color: var(--text-dim); text-decoration: none; border-bottom: 1px solid var(--line-2); padding-bottom: .2rem; transition: color .25s var(--ease-out-cubic), border-color .25s var(--ease-out-cubic); }
+.guide-toc a:hover { color: var(--text); border-color: var(--lime, #c6ef4e); }

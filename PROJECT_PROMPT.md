@@ -27,7 +27,7 @@ run it.
   by `tools/make-library.mjs` from the trainer's code (what it scores, the
   faults and the coach's words, the skills it unlocks); `tests/library.test.mjs`
   fails if it's stale. Its Train links use `app.html#train-<id>`.
-- **Other pages:** What's new (`whats-new.html`, from `CHANGELOG.md`),
+- **Other pages:** Guide (`guide.html`, from `tools/guide-body.html` via `tools/make-guide.mjs`: camera setup, how the scoring is tested, limits), What's new (`whats-new.html`, from `CHANGELOG.md`),
   Privacy (`privacy.html`; `tests/privacy.test.mjs` checks the code keeps
   its promises) and a 404. They share the homepage's header and sitemap
   footer through `tools/page-shell.mjs`. Share card `og.png` from

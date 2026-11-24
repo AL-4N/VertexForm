@@ -16,7 +16,7 @@
  * and old ones are deleted on activate. Updates are never stuck.
  */
 
-const VERSION = "edbcf86279c1";
+const VERSION = "a5696c01e03c";
 const PRECACHE = [
   "./",
   "404.html",
@@ -43,6 +43,7 @@ const PRECACHE = [
   "fonts/unbounded-latin-600-normal.woff2",
   "fonts/unbounded-latin-700-normal.woff2",
   "fonts/unbounded-latin-800-normal.woff2",
+  "guide.html",
   "icons/apple-touch-icon.png",
   "icons/icon-192.png",
   "icons/icon-512.png",
