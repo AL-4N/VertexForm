@@ -19,6 +19,14 @@
  * swings round it (sceneState.heroTurn, read by hero3d.js). Stop between
  * two scenes and the page glides to the nearer one.
  *
+ * Text goes out and comes in with the scene. Each section carries
+ * data-scene ("before", "in", "after"): it's "in" from just past the
+ * middle of its own reveal until the next one starts; css/site.css turns
+ * that into heading letters rising in (or dropping back if you scroll up)
+ * and flying up out of their masks as the scene leaves, the lead's words
+ * lighting up and dropping away, the section label lifting in and out,
+ * and the rest of a leaving scene fading out under the next one.
+ *
  * Driven by scroll-progress.js (layout read only when it changes): one
  * transform and one opacity on the two sections at a boundary. Narrow
  * screens and reduced motion keep the plain page.
@@ -168,7 +176,8 @@ export function mountScenes() {
       const oyA = hero ? dive.y : A.height - vh / 2, oxA = hero ? dive.x : W / 2;
       A.el.style.transformOrigin = `${oxA.toFixed(0)}px ${oyA.toFixed(0)}px`;
       A.el.style.transform = `${tyA} ${fall}`;
-      A.el.style.opacity = (1 - (hero ? smooth(0.3, 0.85, t) : 0.45 * e)).toFixed(3);
+      // The scene you leave is gone by 70% of the way, so the next never shows it through.
+      A.el.style.opacity = (1 - (hero ? smooth(0.3, 0.85, t) : smooth(0.2, 0.7, t))).toFixed(3);
       B.el.style.transformOrigin = `${(W / 2).toFixed(0)}px ${(vh / 2).toFixed(0)}px`;
       B.el.style.transform = `${tyB} scale(${(1.06 - 0.06 * easeOut(t)).toFixed(4)})`;     // and settles a touch as it opens
       B.el.style.clipPath = clip;
@@ -177,6 +186,16 @@ export function mountScenes() {
       shown = { style, t, e, cx: cx + mainLeft, cy, far, W, vh, x0: mainLeft };
     }
     edge(shown);
+
+    // Each scene's state, for its text (css/site.css): "in" from 55% of its
+    // own reveal until 10% into the next; "before" and "after" either side.
+    for (let i = 0; i < list.length; i++) {
+      const S = list[i], next = list[i + 1];
+      const tin = i === 0 ? 1 : clamp01((s.y + vh - S.top) / vh);
+      const tout = next ? clamp01((s.y + vh - next.top) / vh) : 0;
+      const state = tout >= 0.1 ? "after" : tin < 0.55 ? "before" : "in";
+      if (S.el.dataset.scene !== state) S.el.dataset.scene = state;
+    }
     sceneState.heroTurn = heroTurn;
     for (const el of touched) if (!now.has(el)) { el.style.transform = el.style.opacity = el.style.transformOrigin = el.style.clipPath = ""; el.classList.remove("in-scene"); }
     for (const el of now) el.classList.add("in-scene");

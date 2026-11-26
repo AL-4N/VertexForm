@@ -15,9 +15,9 @@
  * follow), so even a fast flick glides instead of jumping. The marker
  * rides the end of the fill.
  *
- * At rest it's a thin strip (css/site.css); it pops out when pointed at or
- * focused, and on its own for a moment (.peek) when you arrive at a new
- * section, so you see where you are, then tucks away again.
+ * At rest it's a thin strip (css/site.css); it pops out only when pointed
+ * at or focused (an automatic pop-out on each new section was tried and
+ * dropped in Nov 2026: the owner wants it only on hover).
  *
  * Below 1400px wide there's no room beside the content, so the CSS keeps
  * the header nav instead (and this does nothing while the rail is hidden).
@@ -43,17 +43,6 @@ export function mountRail() {
 
   let H = 1, ticks = [], version = -1;
   links.forEach((a, i) => a.style.setProperty("--i", String(i)));   // labels slide in one after another
-  // Arriving at a new section: pop out for a moment to show where you are.
-  let current = -2, peekT = 0;
-  const peek = (i) => {
-    if (i === current) return;
-    const first = current === -2;
-    current = i;
-    if (first || i < 0 || reduce.matches) return;      // not on load, not on the hero
-    rail.classList.add("peek");
-    clearTimeout(peekT);
-    peekT = setTimeout(() => rail.classList.remove("peek"), 1500);
-  };
 
   /** Where the fill should end (px down the ruler) for scroll state s. */
   function target(s) {
@@ -100,8 +89,6 @@ export function mountRail() {
     if (!wide.matches) return;                         // narrow screen: no rail
     if (s.vh !== lastVh) { lastVh = s.vh; shown = null; }   // resized: jump, don't glide
     goal = target(s);
-    const line = s.y + s.vh * 0.4;
-    peek(sections.reduce((n, el, i) => ((s.sections[el.id]?.top ?? Infinity) <= line ? i : n), -1));
     if (!raf) raf = requestAnimationFrame(frame);
   });
 }

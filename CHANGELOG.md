@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.19.0 — 2026-11-26
+
+### Words that leave and arrive
+- Moving between sections on a wide screen, the text now goes first: the
+  heading's letters fly up out of view, the paragraph drops away, and the
+  rest of the section fades fully before the next one takes over. When
+  the new section lands, its heading rises in letter by letter and its
+  paragraph lights up word by word, every time you arrive, and in reverse
+  if you scroll back up.
+- The side rail now opens only when you point at it.
+
 ## 2.18.0 — 2026-11-24
 
 ### The opening turns into the page

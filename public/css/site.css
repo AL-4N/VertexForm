@@ -230,8 +230,7 @@ body::after {
 
 /* ── Side rail (js/site/rail.js): a ruler down the left edge, wide screens only.
    At rest it's a thin strip (the ruler, its ticks and the fill); it pops out
-   over the page when you point at it or tab into it, and for a moment on its
-   own when you arrive at a new section (.peek). Opening: the panel opens out
+   over the page only when you point at it or tab into it. Opening: the panel opens out
    on cubic-out and the labels slide in one after another on quart-out;
    closing: cubic-in, all together. ── */
 .rail { display: none; }
@@ -259,12 +258,6 @@ body::after {
     opacity: 1; translate: 0 0;
     transition: opacity .4s var(--ease-out-cubic) calc(.1s + var(--i, 0) * 38ms), translate .55s var(--ease-out-quart) calc(.1s + var(--i, 0) * 38ms);
   }
-  /* Arriving at a section (.peek): not the whole panel over the page, just
-     the current section's name as a tag beside the strip. */
-  .rail.peek:not(:hover):not(:focus-within) { clip-path: inset(0 -260px 0 0); background: transparent; border-right-color: transparent; }
-  .rail.peek:not(:hover):not(:focus-within) a.active :is(.rail-n, .rail-label) { opacity: 1; translate: 0 0;
-    transition: opacity .35s var(--ease-out-cubic), translate .5s var(--ease-out-quart); }
-  .rail.peek:not(:hover):not(:focus-within) a.active { padding-right: .7rem; border-radius: 6px; background: color-mix(in srgb, var(--tone, #090d1c) 88%, transparent); box-shadow: inset 0 0 0 1px var(--line); }
   .rail-inner { position: absolute; left: 16px; right: 12px; top: 50%; transform: translateY(-50%); height: min(56vh, 400px); }
   /* The ruler: a hairline with a minor tick every 12px. */
   .rail-track {
@@ -1428,3 +1421,30 @@ html.booting .boot-word b, .boot.closing .boot-word b { animation: boot-rise .95
 
 /* The intro's figure turning into the hero's (boot.js morphIntoHero): a canvas over everything for one second. */
 .boot-morph { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 201; pointer-events: none; }
+
+/* ── Text in and out with the scene (scenes.js sets data-scene) ──
+   in:     heading letters rise from their masks (expo-out), the lead's
+           words light up in turn, the section label lifts in;
+   after:  letters fly up out of their masks (cubic-in), words drop away,
+           the label lifts out, then the rest of a plain scene fades;
+   before: letters wait below (and drop back there if you scroll up). */
+.scenes main > section:not(.hero)[data-scene="before"] .rise-ready .split-ch { transform: translateY(115%) rotate(7deg); transition: transform .45s var(--ease-in-cubic); }
+.scenes main > section:not(.hero)[data-scene="in"] .rise-ready .split-ch { transform: none; transition: transform .95s var(--ease-out-expo) calc(.12s + var(--i, 0) * var(--each, .024s)); }
+.scenes main > section[data-scene="after"] .rise-ready .split-ch { transform: translateY(-118%) rotate(-4deg); transition: transform .5s var(--ease-in-cubic) calc(var(--i, 0) * var(--each, .024s) * .35); }
+
+.scenes main > section[data-scene="before"] .lit-ready .lit-w { opacity: .16; transition: opacity .3s var(--ease-out-cubic); }
+.scenes main > section[data-scene="in"] .lit-ready .lit-w { opacity: 1; transition: opacity .5s var(--ease-out-quad) calc(.35s + var(--i, 0) * var(--each, .05s)); }
+.scenes main > section[data-scene="after"] .lit-ready .lit-w { opacity: 0; translate: 0 -8px; transition: opacity .3s var(--ease-in-cubic) calc(var(--i, 0) * 6ms), translate .35s var(--ease-in-cubic) calc(var(--i, 0) * 6ms); }
+
+.scenes main > section[data-scene] :is(.sec-rule-n, .sec-rule-read) { transition: opacity .8s var(--ease-out-expo), translate .8s var(--ease-out-expo); }
+.scenes main > section[data-scene="before"] :is(.sec-rule-n, .sec-rule-read) { opacity: 0; translate: 0 100%; }
+.scenes main > section[data-scene="after"] :is(.sec-rule-n, .sec-rule-read) { opacity: 0; translate: 0 -100%; transition: opacity .3s var(--ease-in-cubic), translate .35s var(--ease-in-cubic); }
+.scenes main > section[data-scene] .sec-rule-name b { transition: translate .6s var(--ease-out-expo) calc(.1s + var(--i, 0) * 35ms); }
+.scenes main > section[data-scene="before"] .sec-rule-name b { translate: 0 110%; }
+.scenes main > section[data-scene="after"] .sec-rule-name b { translate: 0 -110%; transition: translate .35s var(--ease-in-cubic) calc(var(--i, 0) * 15ms); }
+
+/* The rest of a leaving scene fades out (after its letters have started to fly), so it never shows through the next. */
+.scenes main > section.scene-plain .scene-fit > * { transition: opacity .5s var(--ease-out-cubic); }
+.scenes main > section.scene-plain[data-scene="after"] .scene-fit > * { opacity: 0; transition: opacity .45s var(--ease-in-cubic) .15s; }
+.scenes main > section.scene-pinned :is(.ex-ring, .ex-ring-read, .ex-ring-hint, .story-pin > *, .paths-pin > *) { transition: opacity .5s var(--ease-out-cubic); }
+.scenes main > section.scene-pinned[data-scene="after"] :is(.ex-ring, .ex-ring-read, .ex-ring-hint, .story-pin > :not(.scene-title), .paths-pin > :not(.scene-title)) { opacity: 0 !important; transition: opacity .45s var(--ease-in-cubic) .15s; }

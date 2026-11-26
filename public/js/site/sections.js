@@ -10,6 +10,7 @@
 
 import { reducedMotion } from "../ui/motion.js";
 import { CURVE } from "../ui/ease.js";
+import { scenesOn } from "./scenes.js";
 
 const LABEL = { exercises: "Exercises", how: "How it works", lab: "Form Lab", coach: "Coaching", progress: "Training", paths: "Skill paths", setup: "Setup", faq: "Questions" };
 // What each rule reads on its right: counted from the page, [selector, one, many].
@@ -56,6 +57,10 @@ export function mountSectionIndex() {
     gsap.fromTo(el.querySelector(".sec-rule-line"), { scaleX: 0 }, { scaleX: 1, ease: "none",
       scrollTrigger: { trigger: el, start: "top 92%", end: "top 55%", scrub: 0.5 } });
     // The number and reading rise in; the name's letters follow one by one.
+    // With scenes (scenes.js) they come in each time the scene lands and
+    // lift out as it leaves, driven by its data-scene in css/site.css.
+    el.querySelectorAll(".sec-rule-name b").forEach((b, k) => b.style.setProperty("--i", String(k)));
+    if (scenesOn()) continue;
     // (Started as Web Animations, which never read styles: a GSAP tween
     // starting mid-scroll forced a full style recompute; css/site.css .pre
     // holds them down until then.)

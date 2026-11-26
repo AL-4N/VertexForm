@@ -60,7 +60,7 @@ export function mountScrollFx() {
         p.style.setProperty("--each", `${Math.min(0.06, 2.2 / Math.max(1, self.words.length)).toFixed(3)}s`);
         self.words.forEach((w, i) => w.style.setProperty("--i", String(i)));
         p.classList.add("lit-ready");
-        once(p, scenes ? "top 62%" : "top 85%", () => p.classList.add("lit"));
+        if (!scenes) once(p, "top 85%", () => p.classList.add("lit"));   // with scenes, the scene's data-scene lights it (css/site.css)
       },
     });
   }
@@ -73,7 +73,8 @@ export function mountScrollFx() {
         h.style.setProperty("--each", `${Math.min(0.024, 0.9 / Math.max(1, self.chars.length)).toFixed(4)}s`);
         self.chars.forEach((c, i) => c.style.setProperty("--i", String(i)));
         h.classList.add("rise-ready");
-        if (k !== 0) { once(h, scenes ? "top 48%" : "top 88%", () => h.classList.add("risen")); return; }
+        // With scenes, the scene's data-scene brings the letters in and out (css/site.css).
+        if (k !== 0) { if (!scenes) once(h, "top 88%", () => h.classList.add("risen")); return; }
         // The hero's headline waits, hidden, behind the calibration intro (boot.js).
         const go = () => setTimeout(() => h.classList.add("risen"), 150);
         if (document.documentElement.classList.contains("booting")) document.addEventListener("vf:booted", go, { once: true });

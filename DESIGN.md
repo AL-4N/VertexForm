@@ -166,9 +166,8 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   (`js/site/motion-nav.js`); slow reading-speed scrolling stays sharp.
 - The side rail's fill eases toward the scroll position every frame, so it
   never jumps. The rail rests as a thin strip (the ruler, ticks, fill) and
-  pops out over the page when pointed at or focused; arriving at a new
-  section it shows just that section's name as a tag beside the strip for
-  1.5 s (`.peek`, so it never covers the heading). Opening fully: the panel opens out on
+  pops out over the page only when pointed at or focused (an automatic
+  pop-out on each new section was dropped in Nov 2026). Opening: the panel opens out on
   cubic-out and the labels slide in one after another on quart-out;
   closing is cubic-in.
 - Signature moments (each tied to what VertexForm does, not decoration):
@@ -479,7 +478,15 @@ The stick figures (`js/figures/`) are the main visual. Keep them consistent:
   From the hero the portal opens out of the figure itself while the hero
   grows round it and its 3D camera swings round the figure
   (`site/scene-state.js` `heroTurn`, read by hero3d.js). (Nov 2026: a
-  cube / door / flip set came first; the owner wanted it more creative.) Stop between two
+  cube / door / flip set came first; the owner wanted it more creative.)
+  Text leaves and arrives with the scene, every time (each section's
+  `data-scene`: before / in / after, set by scenes.js, turned into CSS
+  transitions): as a scene goes its heading letters fly up out of their
+  masks (cubic-in), its lead's words drop away and its label lifts out,
+  then the rest of it fades (gone by 70% of the reveal, so it never shows
+  through the next); once the next lands its letters rise in (expo-out),
+  its words light up in turn and its label lifts in. Scroll back up and
+  the letters drop back below their masks. Stop between two
   scenes and the page glides to the nearer one. Links land at a scene's
   top (`scroll-padding-top: 0` with scenes). One transform and one opacity
   on the two sections at a boundary; scroll-progress.js measures layout
